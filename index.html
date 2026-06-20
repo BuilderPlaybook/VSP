@@ -1562,6 +1562,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
 .card.acc.k-gold::before{background:var(--gp)}
 /* === SHELL CHROME v1 END === */
 
+.hl-tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--brd2);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.hl-tick svg{opacity:0;transition:opacity .15s}
+.hl-tick:hover{border-color:var(--grn);background:var(--grn)}
+.hl-tick:hover svg{opacity:1}
+.hl-tick-on{width:20px;height:20px;border-radius:50%;background:var(--grn);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -12314,6 +12319,12 @@ function renderHeadlines(){
 
       html+='<div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--sur);border:1px solid var(--brd);border-left:3px solid '+hlColor+';border-radius:7px;margin-bottom:9px">';
       // Type icon
+      // Tick-off circle: archive on tick (active view) / restore (archive view)
+      if(state.hlShowArchive){
+        html+='<div class="hl-tick-on" onclick="event.stopPropagation();headlineUnarchive('+h.id+')" title="Restore to active"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>';
+      } else {
+        html+='<div class="hl-tick" onclick="event.stopPropagation();headlineArchive('+h.id+')" title="Tick to archive"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>';
+      }
       html+='<span style="font-size:var(--fz-xl);flex-shrink:0;margin-top:1px">'+hlIcon+'</span>';
       // Content
       html+='<div style="flex:1;min-width:0">';
@@ -14057,7 +14068,6 @@ setTimeout(function(){
 /* ═══ END TOUR AUTO-LAUNCH ═══ */
 
 </script>
-
 <script>
 /* SMB VSP STAGING ADAPTER v2.1 - shared cloud persistence over Firebase RTDB.
    SIMPLE, SAFE MODEL (replaces the v1.x real-time polling model):
@@ -14334,6 +14344,5 @@ setTimeout(function(){
   }
 })();
 </script>
-
 </body>
 </html>
