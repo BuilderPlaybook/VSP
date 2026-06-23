@@ -1561,6 +1561,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
 .card.acc.k-blu::before{background:var(--blu)}
 .card.acc.k-gold::before{background:var(--gp)}
 /* === SHELL CHROME v1 END === */
+/* Dashboard KPI semantic colour modifiers (Semantic KPI Color Rule v1) - module CSS, after chrome */
+.kpi-card.k-blue::before{background:var(--blu)}
+.kpi-card.k-gray::before{background:var(--txm)}
+.kpi-card.k-blue .kpi-card-val{color:var(--blu)}
+.kpi-card.k-grn .kpi-card-val{color:var(--grn)}
+.kpi-card.k-amb .kpi-card-val{color:var(--amb)}
+.kpi-card.k-red .kpi-card-val{color:var(--red)}
+.kpi-card.k-gold .kpi-card-val{color:var(--gp)}
+.kpi-card.k-gray .kpi-card-val{color:var(--txm)}
+.dash-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:1100px){.dash-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.dash-kpis{grid-template-columns:repeat(2,1fr)}}
 
 .hl-tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--brd2);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .hl-tick svg{opacity:0;transition:opacity .15s}
@@ -6193,17 +6205,23 @@ function renderDashboard(){
     nextMeetDateLabel=diff<=0?'Today':nextMeet.date;
   }
 
-  h+='<div class="pulse">';
-  var pulseData=[
-    {n:goalsGood+"/"+goalsTotal,l:"Goals On Track",c:"var(--grn)",pg:"goals"},
-    {n:greenM+"/"+allM.length,l:"Scorecard Green",c:"var(--amb)",pg:"scorecard"},
-    {n:openT,l:"Open To-Dos",c:"var(--blu)",pg:"todos"},
-    {n:openI,l:"Open Issues",c:"var(--red)",pg:"issues"},
-    {n:daysToMeeting,l:"Days to Meeting",c:"var(--cat-vio)",pg:"meetings"}
+  // Dashboard KPI cards - Semantic KPI Color Rule v1
+  var goalsPct=goalsTotal?goalsGood/goalsTotal:1;
+  var goalsK=goalsPct>=0.8?"k-grn":goalsPct>=0.6?"k-amb":"k-red";
+  var scPct=allM.length?greenM/allM.length:1;
+  var scK=scPct>=0.8?"k-grn":scPct>=0.6?"k-amb":"k-red";
+  h+='<div class="dash-kpis">';
+  var kpiData=[
+    {n:goalsGood+"/"+goalsTotal,l:"Goals On Track",k:goalsK,pg:"goals"},
+    {n:greenM+"/"+allM.length,l:"Scorecard Green",k:scK,pg:"scorecard"},
+    {n:openT,l:"Open To-Dos",k:"k-blue",pg:"todos"},
+    {n:openI,l:"Open Issues",k:(openI>0?"k-red":"k-grn"),pg:"issues"},
+    {n:daysToMeeting,l:"Days to Meeting",k:(nextMeet?"k-blue":"k-gray"),pg:"meetings"}
   ];
-  pulseData.forEach(function(s){
-    h+='<div class="pulse-i" onclick="nav(\''+s.pg+'\')">';
-    h+='<div class="pulse-n" style="color:'+s.c+'">'+s.n+'</div><div class="pulse-l">'+s.l+'</div></div>';
+  kpiData.forEach(function(s){
+    h+='<div class="kpi-card '+s.k+'" onclick="nav(\''+s.pg+'\')" style="cursor:pointer">';
+    h+='<div class="kpi-card-top"><div class="kpi-card-lbl" style="font-size:var(--fz-xs)">'+s.l+'</div></div>';
+    h+='<div class="kpi-card-val" style="font-size:var(--fz-2xl)">'+s.n+'</div></div>';
   });
   h+='</div>';
 
@@ -6306,13 +6324,9 @@ function renderDashboard(){
   });
   h+='</div></div>';
 
-  // CARD 6: Scorecard - This Week  (default span 24 = full width - FIXES CUT-OFF)
-  h+='<div class="card"><div class="card-hd"><div class="card-title">Scorecard - This Week</div><button class="btn btn-sm" onclick="nav(\'scorecard\')">Open Scorecard</button></div><div class="card-body" style="overflow-x:auto">';
-  h+=renderScorecardInline();
-  h+='</div></div>';
-
   // CARD 7: Personal Health Score  (default span 24 = full width)
-  h+='<div class="card"><div class="card-hd"><div class="card-title">Personal Health Score</div></div><div class="card-body">';
+  var healthK=health>=80?"k-grn":health>=60?"k-amb":"k-red";
+  h+='<div class="card acc '+healthK+'"><div class="card-hd"><div class="card-title">Personal Health Score</div></div><div class="card-body">';
   h+='<div style="display:flex;align-items:center;gap:16px">';
   h+='<div style="width:62px;height:62px;border-radius:50%;background:'+hc+'18;border:2.5px solid '+hc+';display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
   h+='<div style="font-size:var(--fz-xl);font-weight:600;color:'+hc+';line-height:1">'+health+'</div>';
@@ -13156,7 +13170,7 @@ function dashLayoutEnhance(){
   container.appendChild(grid);
 
   // Reset Layout link in pulse strip area (top-right)
-  var pulseEl=document.querySelector('#page-content .pulse');
+  var pulseEl=document.querySelector('#page-content .dash-kpis');
   if(pulseEl && !document.getElementById('layout-reset-link')){
     pulseEl.style.position='relative';
     var btn=document.createElement('button');
