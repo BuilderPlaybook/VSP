@@ -1201,7 +1201,7 @@ td:hover > .sc-note-pop{display:block}
 
 /* ── PAGE HEADER ── */
 .pg-title{font-size:var(--fz-3xl);font-weight:700;margin-bottom:4px;letter-spacing:-.01em;color:var(--txt)}
-.pg-sub{color:var(--txm);margin-bottom:18px}
+.pg-sub{color:var(--txm);margin-bottom:20px}
 
 /* ── CARDS ── */
 .card{background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:16px;margin-bottom:14px}
@@ -1564,15 +1564,26 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
 /* Dashboard KPI semantic colour modifiers (Semantic KPI Color Rule v1) - module CSS, after chrome */
 .kpi-card.k-blue::before{background:var(--blu)}
 .kpi-card.k-gray::before{background:var(--txm)}
-.kpi-card.k-blue .kpi-card-val{color:var(--blu)}
+.kpi-card.k-blu .kpi-card-val,.kpi-card.k-blue .kpi-card-val{color:var(--blu)}
 .kpi-card.k-grn .kpi-card-val{color:var(--grn)}
 .kpi-card.k-amb .kpi-card-val{color:var(--amb)}
 .kpi-card.k-red .kpi-card-val{color:var(--red)}
 .kpi-card.k-gold .kpi-card-val{color:var(--gp)}
-.kpi-card.k-gray .kpi-card-val{color:var(--txm)}
-.dash-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
-@media(max-width:1100px){.dash-kpis{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:680px){.dash-kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi-card.k-gray .kpi-card-val,.kpi-card.k-grey .kpi-card-val{color:var(--txm)}
+.dash-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.pg{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+.pg .pg-sub{margin-bottom:0}
+.pg-actions{display:flex;gap:8px;flex-shrink:0}
+/* metric-card info tooltip (CRM/BD reference pattern - identical icon + tip) */
+.info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:none;border:none;padding:0;margin-left:6px;cursor:help;color:var(--txd);vertical-align:middle;position:relative;flex-shrink:0;border-radius:50%;font-family:inherit}
+.info-icon:hover,.info-icon:focus{color:var(--blu);outline:none}
+.info-icon svg{width:14px;height:14px;display:block}
+.info-icon .tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--sb);color:#fff;padding:9px 13px;border-radius:6px;font-size:var(--fz-body);font-weight:400;line-height:1.5;letter-spacing:0;text-transform:none;width:280px;max-width:280px;white-space:normal;text-align:left;box-shadow:0 4px 12px rgba(15,23,42,0.22);z-index:1000;pointer-events:none}
+.info-icon .tip::before{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid var(--sb)}
+.info-icon:hover .tip,.info-icon:focus .tip,.info-icon:focus-within .tip{display:block}
+.dash-kpis .kpi-card:hover,.dash-kpis .kpi-card:focus-within{overflow:visible;z-index:5}
+.dash-kpis .kpi-card:last-child .info-icon .tip,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip{left:auto;right:0;transform:none}
+.dash-kpis .kpi-card:last-child .info-icon .tip::before,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip::before{left:auto;right:8px;transform:none}
 
 .hl-tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--brd2);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .hl-tick svg{opacity:0;transition:opacity .15s}
@@ -2321,23 +2332,27 @@ function saveAgendaStep(){
     if(detail) sections[idx].detail=detail.value;
   }
   state.editingAgendaStep=null;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function saveAgendaLabel(idx,val){
   var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
   var sections=getAgendaSections(agendaData);
   if(sections[idx]) sections[idx].label=val.trim()||sections[idx].label;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
 }
 function saveAgendaDur(idx,val){
   var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
   var sections=getAgendaSections(agendaData);
   if(sections[idx]) sections[idx].min=Math.max(1,parseInt(val)||1);
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function toggleSectionVisible(idx){
   var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
   var sections=getAgendaSections(agendaData);
   if(sections[idx]) sections[idx].visible=!sections[idx].visible;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function openAgendaStepDesc(idx){
@@ -2350,12 +2365,14 @@ function saveAgendaDesc(idx){
   var detail=document.getElementById('ag-detail');
   if(sections[idx]&&detail) sections[idx].detail=detail.value;
   state.editingAgendaStep=null;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function addAgendaSection(){
   var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
   var sections=getAgendaSections(agendaData);
   sections.splice(sections.length-1,0,{label:'New Section',min:10,detail:'',visible:true,locked:false});
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function addAgendaDay(){
@@ -2367,6 +2384,7 @@ function addAgendaDay(){
     {label:'Conclude',min:5,detail:'',visible:true,locked:true}
   ]});
   state.meetAgendaDay=agendaData.days.length-1;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function deleteAgendaStep(idx){
@@ -2378,6 +2396,7 @@ function deleteAgendaStep(idx){
   if(!confirm('Delete "'+sections[idx].label+'"?')) return;
   sections.splice(idx,1);
   state.editingAgendaStep=null;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function moveAgendaStep(idx,dir){
@@ -2390,6 +2409,7 @@ function moveAgendaStep(idx,dir){
   if(newIdx===idx) return;
   var item=sections.splice(idx,1)[0];
   sections.splice(newIdx,0,item);
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function updateAgendaDuration(type){
@@ -3904,10 +3924,6 @@ function downloadTodosCsv(){
   a.click();
   URL.revokeObjectURL(url);
 }
-function archiveTodo(id){
-  var idx=todos.findIndex(function(x){return x.id===id;});
-  if(idx>-1){todos.splice(idx,1);renderPage();}
-}
 
 // Save an edited plan field and re-render
 function savePlanField(key,subkey,idx){
@@ -3979,7 +3995,7 @@ function planMeasurablesBlock(scope){
 }
 function _planMeas(scope,id){ var a=(planData[scope]&&planData[scope].measurables)||[]; return a.find(function(x){return x.id===id;}); }
 function planMeasurableCycle(scope,id){ var m=_planMeas(scope,id); if(!m) return; var s=m.status||'none'; m.status=(s==='none')?'on-track':(s==='on-track')?'off-track':'none'; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
-function planMeasurableSet(scope,id,field,val){ var m=_planMeas(scope,id); if(!m) return; m[field]=val; }
+function planMeasurableSet(scope,id,field,val){ var m=_planMeas(scope,id); if(!m) return; m[field]=val; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} }
 function addPlanMeasurable(scope){ if(!planData[scope]) return; if(!Array.isArray(planData[scope].measurables)) planData[scope].measurables=[]; planData[scope].measurables.push({id:Date.now(),text:'',target:'',status:'none'}); renderPage(); }
 function removePlanMeasurable(scope,id){ var a=planData[scope]&&planData[scope].measurables; if(!Array.isArray(a)) return; var i=a.findIndex(function(x){return x.id===id;}); if(i>-1) a.splice(i,1); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
 
@@ -6180,29 +6196,46 @@ function renderDashboard(){
 
   var h='';
   // Days to next meeting - uses actual today's date
-  var nextMeet=scheduledMeetings&&scheduledMeetings.length?scheduledMeetings[0]:null;
-  var daysToMeeting=' - ';
-  var nextMeetDateLabel='';
-  if(nextMeet){
-    // Parse YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
-    var meetDate, dayNum, mIdx, yr;
-    var isoM = nextMeet.date && nextMeet.date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if(isoM){
-      yr = +isoM[1]; mIdx = +isoM[2]-1; dayNum = +isoM[3];
-      meetDate = new Date(yr, mIdx, dayNum);
-    } else {
-      // Legacy "Mon DD, YYYY" fallback
-      var parts=(nextMeet.date||'').split(' ');
-      var monthMap={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-      mIdx=monthMap[parts[0]]!==undefined?monthMap[parts[0]]:new Date().getMonth();
-      dayNum=parts.length>1?parseInt(parts[1]):1;
-      yr=parts[2]?parseInt(parts[2]):new Date().getFullYear();
-      meetDate=new Date(yr,mIdx,dayNum);
+  // Next meeting: roll recurring meetings forward to their next occurrence on or after today;
+  // non-recurring meetings in the past are dropped. Pick the soonest upcoming across the list.
+  var _mToday=new Date(); _mToday.setHours(0,0,0,0);
+  function _mParse(ds){
+    var im=(ds||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(im){ return new Date(+im[1], +im[2]-1, +im[3]); }
+    var parts=(ds||'').split(' ');
+    var mm={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    var mi=mm[parts[0]]!==undefined?mm[parts[0]]:_mToday.getMonth();
+    var dd=parts.length>1?parseInt(parts[1]):1;
+    var yy=parts[2]?parseInt(parts[2]):_mToday.getFullYear();
+    return new Date(yy,mi,dd);
+  }
+  function _mNext(mt){
+    var dt=_mParse(mt.date); if(isNaN(dt.getTime())) return null; dt.setHours(0,0,0,0);
+    var rec=!!mt.recurring||['Weekly','Quarterly','Annual'].indexOf(mt.type)>=0;
+    if(!rec){ return dt>=_mToday?dt:null; }
+    var guard=0;
+    while(dt<_mToday && guard<800){
+      if(mt.type==='Annual'){ dt.setFullYear(dt.getFullYear()+1); }
+      else if(mt.type==='Quarterly'){ dt.setMonth(dt.getMonth()+3); }
+      else { dt.setDate(dt.getDate()+7); }
+      guard++;
     }
-    var todayActual=new Date(); todayActual.setHours(0,0,0,0);
-    var diff=Math.round((meetDate-todayActual)/(1000*60*60*24));
-    daysToMeeting=diff<=0?'Today':diff===1?'1':String(diff);
-    nextMeetDateLabel=diff<=0?'Today':nextMeet.date;
+    return dt;
+  }
+  function _mIso(dt){ return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2); }
+  var nextMeet=null, nextMeetDate=null;
+  if(scheduledMeetings&&scheduledMeetings.length){
+    scheduledMeetings.forEach(function(mt){
+      var nd=_mNext(mt);
+      if(nd && (!nextMeetDate || nd<nextMeetDate)){ nextMeetDate=nd; nextMeet=mt; }
+    });
+  }
+  var daysToMeeting=' - ';
+  var nextMeetDateStr='';
+  if(nextMeet && nextMeetDate){
+    var diff=Math.round((nextMeetDate-_mToday)/(1000*60*60*24));
+    daysToMeeting=diff===0?'Today':diff===1?'1':String(diff);
+    nextMeetDateStr=_mIso(nextMeetDate);
   }
 
   // Dashboard KPI cards - Semantic KPI Color Rule v1
@@ -6210,18 +6243,19 @@ function renderDashboard(){
   var goalsK=goalsPct>=0.8?"k-grn":goalsPct>=0.6?"k-amb":"k-red";
   var scPct=allM.length?greenM/allM.length:1;
   var scK=scPct>=0.8?"k-grn":scPct>=0.6?"k-amb":"k-red";
+  h+='<div class="pg"><div><div class="pg-title">Vision &amp; Strategic Plan</div><div class="pg-sub">Vision, scorecard, goals, and team health</div></div><div class="pg-actions" id="dash-pg-actions"></div></div>';
   h+='<div class="dash-kpis">';
   var kpiData=[
-    {n:goalsGood+"/"+goalsTotal,l:"Goals On Track",k:goalsK,pg:"goals"},
-    {n:greenM+"/"+allM.length,l:"Scorecard Green",k:scK,pg:"scorecard"},
-    {n:openT,l:"Open To-Dos",k:"k-blue",pg:"todos"},
-    {n:openI,l:"Open Issues",k:(openI>0?"k-red":"k-grn"),pg:"issues"},
-    {n:daysToMeeting,l:"Days to Meeting",k:(nextMeet?"k-blue":"k-gray"),pg:"meetings"}
+    {n:goalsGood+"/"+goalsTotal,l:"Goals On Track",k:goalsK,pg:"goals",d:"How many of your quarterly goals are on track, out of the total."},
+    {n:greenM+"/"+allM.length,l:"Scorecard Green",k:scK,pg:"scorecard",d:"How many scorecard metrics are hitting target this period, out of the total."},
+    {n:openT,l:"Open To-Dos",k:"k-blue",pg:"todos",d:"To-dos assigned to you that are not done yet."},
+    {n:openI,l:"Open Issues",k:(openI>0?"k-red":"k-grn"),pg:"issues",d:"Issues raised for your team that are not solved yet."},
+    {n:daysToMeeting,l:"Days to Meeting",k:(nextMeet?"k-blue":"k-gray"),pg:"meetings",d:"Days until your next scheduled meeting."}
   ];
   kpiData.forEach(function(s){
     h+='<div class="kpi-card '+s.k+'" onclick="nav(\''+s.pg+'\')" style="cursor:pointer">';
-    h+='<div class="kpi-card-top"><div class="kpi-card-lbl" style="font-size:var(--fz-xs)">'+s.l+'</div></div>';
-    h+='<div class="kpi-card-val" style="font-size:var(--fz-2xl)">'+s.n+'</div></div>';
+    h+='<div class="kpi-card-top"><div class="kpi-card-lbl">'+s.l+'</div><button class="info-icon" type="button" onclick="event.stopPropagation()" aria-label="About '+s.l+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="7.5" x2="8" y2="11.5"/><line x1="8" y1="5" x2="8" y2="5.01"/></svg><span class="tip">'+s.d+'</span></button></div>';
+    h+='<div class="kpi-card-val">'+s.n+'</div></div>';
   });
   h+='</div>';
 
@@ -6245,7 +6279,7 @@ function renderDashboard(){
   h+='</div></div>';
 
   // CARD 2: My To-Dos  (default span 12)
-  var myTodos=todos.filter(function(t){return t.owner==="DS";});
+  var myTodos=todos.filter(function(t){return t.owner==="DS" && t.status!=='archived';});
   var myOpenTodos=myTodos.filter(function(t){return !t.done;});
   var myDoneTodos=myTodos.filter(function(t){return t.done;});
   h+='<div class="card"><div class="card-hd"><div class="card-title">My To-Dos <span style="font-size:var(--fz-base);color:var(--txm);font-weight:400">('+myOpenTodos.length+' open'+(myDoneTodos.length?', '+myDoneTodos.length+' done':'')+')</span></div><button class="btn btn-sm" onclick="nav(\'todos\')">View all</button></div><div class="card-body">';
@@ -6257,7 +6291,7 @@ function renderDashboard(){
     h+='<div onclick="toggleTodo('+t.id+')" style="width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd2);background:transparent;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center"></div>';
     h+='<div style="flex:1;min-width:0"><div onclick="nav(\'todos\')" title="Open To-Dos" style="font-size:var(--fz-lg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer">'+t.task+'</div>';
     h+='<div style="font-size:var(--fz-base);color:var(--txm)">Due '+t.due+'</div></div>';
-    h+='<div onclick="archiveTodo('+t.id+')" style="font-size:var(--fz-base);color:var(--txd);cursor:pointer;padding:2px 4px;border-radius:3px" title="Archive">\u2715</div>';
+    h+='<div onclick="todoArchive('+t.id+')" style="font-size:var(--fz-base);color:var(--txd);cursor:pointer;padding:2px 4px;border-radius:3px" title="Archive">\u2715</div>';
     h+='</div>';
   });
   if(myOpenTodos.length>5){h+='<button class="btn btn-sm" style="width:100%;justify-content:center;margin-top:6px" onclick="nav(\'todos\')">+ '+(myOpenTodos.length-5)+' more open</button>';}
@@ -6268,7 +6302,7 @@ function renderDashboard(){
       h+='<div onclick="toggleTodo('+t.id+')" style="width:16px;height:16px;border-radius:4px;border:1.5px solid #16a34a;background:#f0fdf4;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center">';
       h+='<svg width="9" height="9" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>';
       h+='<div style="flex:1;min-width:0"><div onclick="nav(\'todos\')" title="Open To-Dos" style="font-size:var(--fz-lg);color:var(--txm);text-decoration:line-through;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer">'+t.task+'</div></div>';
-      h+='<div onclick="archiveTodo('+t.id+')" style="font-size:var(--fz-base);color:var(--txd);cursor:pointer;padding:2px 4px" title="Archive">\u2715</div>';
+      h+='<div onclick="todoArchive('+t.id+')" style="font-size:var(--fz-base);color:var(--txd);cursor:pointer;padding:2px 4px" title="Archive">\u2715</div>';
       h+='</div>';
     });
   }
@@ -6279,7 +6313,7 @@ function renderDashboard(){
   if(nextMeet){
     h+='<div style="font-size:var(--fz-3xl);font-weight:600;color:var(--blu);line-height:1">'+daysToMeeting+'</div>';
     h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:2px">'+(daysToMeeting==='Today'?'Today':'days away')+'  -  '+nextMeet.type+' Meeting</div>';
-    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:4px">'+nextMeet.date+' \u00b7 '+nextMeet.time+'</div>';
+    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:4px">'+nextMeetDateStr+' \u00b7 '+nextMeet.time+'</div>';
     h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:12px">'+nextMeet.location+'</div>';
     h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="state.meetTab=\'running\';state.meetStep=0;state.meetStartTime=Date.now();vspBeginMeetingTracking();nav(\'meetings\')">\u25b6 Start Meeting</button>';
   } else {
@@ -12596,6 +12630,7 @@ function _showViewTools(){
 }
 function renderPage(){
   syncTeamData();
+  if(window._vspReady){ _vspAutosaveQueue(); }
   var p=state.page;
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
   var isLT=state.currentTeam==="lt";
@@ -13169,19 +13204,17 @@ function dashLayoutEnhance(){
   container.innerHTML='';
   container.appendChild(grid);
 
-  // Reset Layout link in pulse strip area (top-right)
-  var pulseEl=document.querySelector('#page-content .dash-kpis');
-  if(pulseEl && !document.getElementById('layout-reset-link')){
-    pulseEl.style.position='relative';
+  // Reset Layout link in the dashboard header actions area (top-right), matching BD
+  var pgActions=document.getElementById('dash-pg-actions');
+  if(pgActions && !document.getElementById('layout-reset-link')){
     var btn=document.createElement('button');
     btn.id='layout-reset-link';
     btn.type='button';
     btn.className='layout-reset-link';
     btn.title='Reset dashboard layout to default';
     btn.onclick=resetDashLayout;
-    btn.style.cssText='position:absolute;top:6px;right:6px;z-index:20';
     btn.innerHTML='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V2h4"/><path d="M14 10v4h-4"/><path d="M14 6a6 6 0 00-10.5-2"/><path d="M2 10a6 6 0 0010.5 2"/></svg>Reset layout';
-    pulseEl.appendChild(btn);
+    pgActions.appendChild(btn);
   }
 
   bindDashDragResize();
@@ -13499,6 +13532,7 @@ function vspSnapshot(){
     currentTeam: state.currentTeam,
     teams: teams,
     planData: planData,
+    meetingAgendas: meetingAgendas,
     orgSeats: orgSeats,
     cascadesRegistry: cascadesRegistry,
     teamsData: (typeof teamsData !== 'undefined' ? teamsData : null),
@@ -13628,6 +13662,15 @@ function vspApplySnapshot(s){
   }
   if(typeof s.stratLastReviewed === 'string') state.stratLastReviewed = s.stratLastReviewed;
   if(typeof s.planEditUnlocked === 'boolean') state.planEditUnlocked = s.planEditUnlocked;
+  // Restore saved meeting-agenda edits, merged into the defaults by type so
+  // user edits win while any meeting type added in a later build still appears.
+  if(Array.isArray(s.meetingAgendas)){
+    s.meetingAgendas.forEach(function(savedA){
+      if(!savedA || !savedA.type) return;
+      var i=meetingAgendas.findIndex(function(dd){return dd.type===savedA.type;});
+      if(i>-1) meetingAgendas[i]=savedA; else meetingAgendas.push(savedA);
+    });
+  }
   // Apply one-time data migrations, then repoint globals.
   try{ if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } }catch(e){}
   return true;
@@ -13658,6 +13701,11 @@ function vspSaveAll(){
       console.warn('[VSP] vspSaveAll failed:', e.message);
     }
   }, 400);
+}
+var _vspAutosaveTimer=null;
+function _vspAutosaveQueue(){
+  if(_vspAutosaveTimer) clearTimeout(_vspAutosaveTimer);
+  _vspAutosaveTimer=setTimeout(function(){ _vspAutosaveTimer=null; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} },600);
 }
 function vspSaveNow(){
   // Immediate persistence (no debounce). Use for events that MUST be saved
@@ -13753,6 +13801,7 @@ try {
 renderTopbarV2();
 renderNav();
 renderPage();
+window._vspReady=true;
 
 function toggleSidebar(){ try{ document.querySelector('.app').classList.toggle('nav-open'); }catch(e){} }
 try{ var _sbnav=document.getElementById('sb-nav'); if(_sbnav){ _sbnav.addEventListener('click', function(){ var a=document.querySelector('.app'); if(a) a.classList.remove('nav-open'); }); } }catch(e){}
