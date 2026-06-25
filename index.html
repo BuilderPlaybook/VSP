@@ -5600,6 +5600,15 @@ function saveNewGroup(){
   renderPage();
 }
 
+function _togVis(el){
+  var cb=el.parentElement&&el.parentElement.querySelector('input[type=checkbox]');
+  if(!cb) return;
+  cb.checked=!cb.checked;
+  var on=cb.checked;
+  el.style.background = on ? (el.getAttribute('data-on')||'#2563eb') : '#cbd5e1';
+  var knob=el.querySelector('span');
+  if(knob) knob.style.left = on ? '19px' : '3px';
+}
 function openEditMeasurable(ownerId, metricId){
   state.editMeasurablePanel={open:true,ownerId:ownerId,metricId:metricId};
   renderPage();
@@ -5699,7 +5708,7 @@ function renderEditMeasurableOverlay(){
         h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-top:2px">'+col.sub+'</div></div>';
         h+='<label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;margin-top:1px">';
         h+='<input type="checkbox" id="'+col.id+'" '+(col.val?'checked':'')+' style="opacity:0;width:0;height:0;position:absolute">';
-        h+='<span onclick="document.getElementById(\''+col.id+'\').click()" style="position:absolute;cursor:pointer;inset:0;background:'+(col.val?'#2563eb':'#cbd5e1')+';border-radius:20px"><span style="position:absolute;height:14px;width:14px;left:'+(col.val?'19':'3')+'px;bottom:3px;background:white;border-radius:50%"></span></span>';
+        h+='<span onclick="event.preventDefault();_togVis(this)" data-on="#2563eb" style="position:absolute;cursor:pointer;inset:0;background:'+(col.val?'#2563eb':'#cbd5e1')+';border-radius:20px"><span style="position:absolute;height:14px;width:14px;left:'+(col.val?'19':'3')+'px;bottom:3px;background:white;border-radius:50%"></span></span>';
         h+='</label></div>';
       });
       h+='</div>';
@@ -5931,6 +5940,9 @@ function saveEditMeasurable(){
   }
   var _emInd=document.getElementById('em-indicator'); if(_emInd) metric.indicator=_emInd.value;
   metric.rollupAs=rollup?rollup.value:'Total';
+  var _emST=document.getElementById('em-showTotal'); if(_emST) metric.showTotal=_emST.checked;
+  var _emSA=document.getElementById('em-showAvg'); if(_emSA) metric.showAverage=_emSA.checked;
+  var _emSG=document.getElementById('em-showGoal'); if(_emSG) metric.showGoal=_emSG.checked;
   var _ecop=(document.getElementById('em-calcop')||{}).value||'none';
   if(_ecop!=='none'){
     var _esrc=[].slice.call(document.querySelectorAll('.em-calcsrc:checked')).map(function(c){return c.value;});
@@ -8008,7 +8020,7 @@ function renderScorecard(){
       h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-top:2px">'+col.sub+'</div></div>';
       h+='<label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;margin-top:1px">';
       h+='<input type="checkbox" id="'+col.id+'" '+(col.def?'checked':'')+' style="opacity:0;width:0;height:0;position:absolute">';
-      h+='<span onclick="document.getElementById(\''+col.id+'\').click()" style="position:absolute;cursor:pointer;inset:0;background:#2563eb;border-radius:20px;transition:.15s"><span style="position:absolute;content:\'\';height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.15s"></span></span>';
+      h+='<span onclick="event.preventDefault();_togVis(this)" data-on="#2563eb" style="position:absolute;cursor:pointer;inset:0;background:#2563eb;border-radius:20px;transition:.15s"><span style="position:absolute;content:\'\';height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.15s"></span></span>';
       h+='</label></div>';
     });
     h+='</div>';
@@ -8098,7 +8110,7 @@ function renderScorecard(){
     h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-top:2px">Build a custom formula with other Measurables</div></div>';
     h+='<label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0">';
     h+='<input type="checkbox" id="nm-formula" style="opacity:0;width:0;height:0;position:absolute">';
-    h+='<span onclick="document.getElementById(\'nm-formula\').click()" style="position:absolute;cursor:pointer;inset:0;background:#cbd5e1;border-radius:20px;transition:.15s"><span style="position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%"></span></span>';
+    h+='<span onclick="event.preventDefault();_togVis(this)" data-on="#2563eb" style="position:absolute;cursor:pointer;inset:0;background:#cbd5e1;border-radius:20px;transition:.15s"><span style="position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%"></span></span>';
     h+='</label></div>';
     h+='</div>'; // goal section
 
@@ -12194,7 +12206,7 @@ function renderOrgChart(){
     h+='<div style="font-size:var(--fz-body);color:var(--txm)">Mark as vacant  -  shows in red on the chart</div></div>';
     h+='<label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0">';
     h+='<input type="checkbox" id="os-open" '+(isOpenSeat?'checked':'')+' style="opacity:0;width:0;height:0;position:absolute">';
-    h+='<span onclick="document.getElementById(\'os-open\').click()" style="position:absolute;cursor:pointer;inset:0;background:'+(isOpenSeat?'#dc2626':'#cbd5e1')+';border-radius:20px;transition:.15s"><span style="position:absolute;height:14px;width:14px;left:'+(isOpenSeat?'19px':'3px')+';bottom:3px;background:white;border-radius:50%"></span></span>';
+    h+='<span onclick="event.preventDefault();_togVis(this)" data-on="#dc2626" style="position:absolute;cursor:pointer;inset:0;background:'+(isOpenSeat?'#dc2626':'#cbd5e1')+';border-radius:20px;transition:.15s"><span style="position:absolute;height:14px;width:14px;left:'+(isOpenSeat?'19px':'3px')+';bottom:3px;background:white;border-radius:50%"></span></span>';
     h+='</label></div>';
 
     // Company
