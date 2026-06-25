@@ -7385,6 +7385,21 @@ function renderScorecardInline(opts){ _recalcAll();
     h += '<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:12px">'+totalGreen+' of '+totalMetrics+' metrics on target</div>';
   }
 
+  // Uniform frozen columns across sections (match the main scorecard).
+  var _iwG=0,_iwA=0,_iwT=0;
+  scorecard.forEach(function(_s){ (_s.metrics||[]).forEach(function(_m){
+    if(!_inCad(_m)) return;
+    var _cl=colIdxs.map(function(i){return _m.readings[i];});
+    var _vc=_cl.filter(function(v){return v!==null&&v!==undefined&&typeof v==='number';});
+    var _sm=_vc.length?_vc.reduce(function(a,b){return a+b;},0):null;
+    var _av=_vc.length?_sm/_vc.length:null;
+    var _gs=String(_goalLabel(_m));
+    var _as=String(_av==null?'-':fmtVal(_av,_m.unit));
+    var _ts=String(_sm==null?'-':(_m.rollupAs==='Average'?'-':fmtVal(_sm,_m.unit)));
+    if(_gs.length>_iwG)_iwG=_gs.length; if(_as.length>_iwA)_iwA=_as.length; if(_ts.length>_iwT)_iwT=_ts.length;
+  }); });
+  function _iColPx(ch,mn){ var w=Math.round(ch*8.2)+20; return w<mn?mn:w; }
+  var _IGW=_iColPx(_iwG,66),_IAW=_iColPx(_iwA,58),_ITW=_iColPx(_iwT,66);
   scorecard.forEach(function(section, sIdx){
     var _mets=section.metrics.filter(_inCad);
     if(!_mets.length) return;
@@ -7407,10 +7422,10 @@ function renderScorecardInline(opts){ _recalcAll();
     // position:sticky; week columns scroll horizontally with the native bar.
     // border-collapse:separate is required for sticky cells to render cleanly
     // (the global .tbl uses collapse).
-    var _scKey=section.seat||section.ownerId;
+    var _scKey='__scboard__';
     var _scw=scTitleW(_scKey);
-    var SC_W={trend:26,title:_scw,goal:66,avg:58,total:66};
-    var SC_OFF={trend:0,title:26,goal:26+_scw,avg:26+_scw+66,total:26+_scw+66+58};
+    var SC_W={trend:26,title:_scw,goal:_IGW,avg:_IAW,total:_ITW};
+    var SC_OFF={trend:0,title:26,goal:26+_scw,avg:26+_scw+_IGW,total:26+_scw+_IGW+_IAW};
     function scStkH(left,w,extra){
       return 'position:sticky;left:'+left+'px;top:0;z-index:5;background:var(--sur2);min-width:'+w+'px;width:'+w+'px;'+(extra||'');
     }
@@ -7573,6 +7588,21 @@ function renderScorecard(){
   }
   else { activeIdxs=drCfg.weekIdxs; colLabels=activeIdxs.map(function(i){return weekRanges[i];}); }
   var colData=scorecard.map(function(s){return {section:s,cols:s.metrics.map(function(m){return activeIdxs.map(function(i){return period==='quarterly'?_qAgg(m,i):(m.readings[i]!==undefined?m.readings[i]:null);});})};});
+  // Uniform frozen columns: size Goal/Avg/Total once from the widest value across every section so all sections match.
+  var _scwG=0,_scwA=0,_scwT=0;
+  scorecard.forEach(function(_s){ (_s.metrics||[]).forEach(function(_m){
+    if(!_inCad(_m)) return;
+    var _cl=activeIdxs.map(function(i){return period==='quarterly'?_qAgg(_m,i):_m.readings[i];});
+    var _vc=_cl.filter(function(v){return v!==null&&v!==undefined&&typeof v==='number';});
+    var _av=_vc.length?(_vc.reduce(function(a,b){return a+b;},0)/_vc.length).toFixed(1):' - ';
+    var _tt=_vc.length?_vc.reduce(function(a,b){return a+b;},0):'';
+    var _gs=String(period==='quarterly'?_qGoalLabel(_m):_goalLabel(_m));
+    var _as=String(fmtVal(_av,_m.unit));
+    var _ts=String(_tt===''?' - ':(_m.rollupAs==='Average'?'-':fmtVal(_tt,_m.unit)));
+    if(_gs.length>_scwG)_scwG=_gs.length; if(_as.length>_scwA)_scwA=_as.length; if(_ts.length>_scwT)_scwT=_ts.length;
+  }); });
+  function _scColPx(ch,mn){ var w=Math.round(ch*8.2)+20; return w<mn?mn:w; }
+  var _SCGW=_scColPx(_scwG,64),_SCAW=_scColPx(_scwA,56),_SCTW=_scColPx(_scwT,60);
 
   var totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_inCad).length;},0);
   var totalGreen=scorecard.reduce(function(a,s){
@@ -7788,10 +7818,10 @@ function renderScorecard(){
 
       // Frozen left columns (checkbox/trend/title/goal/avg/total) via sticky;
       // week columns scroll horizontally with the native draggable bar.
-      var _scKey=section.seat||section.ownerId;
+      var _scKey='__scboard__';
       var _scw=scTitleW(_scKey);
-      var SC_W={cb:30,trend:24,title:_scw,goal:64,avg:56,total:60};
-      var SC_OFF={cb:0,trend:30,title:54,goal:54+_scw,avg:54+_scw+64,total:54+_scw+64+56};
+      var SC_W={cb:30,trend:24,title:_scw,goal:_SCGW,avg:_SCAW,total:_SCTW};
+      var SC_OFF={cb:0,trend:30,title:54,goal:54+_scw,avg:54+_scw+_SCGW,total:54+_scw+_SCGW+_SCAW};
       function scStkH(left,w,extra){
         return 'position:sticky;left:'+left+'px;z-index:3;background:var(--sur2);min-width:'+w+'px;width:'+w+'px;'+(extra||'');
       }
