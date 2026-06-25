@@ -9427,8 +9427,7 @@ function renderMeetings(){
           h+='<div style="display:grid;grid-template-columns:1fr 120px 56px 32px;gap:0;padding:11px 20px;border-bottom:0.5px solid var(--brd);align-items:center;background:var(--sur)">';
           // Title - circle indicator + type badge + text
           h+='<div style="display:flex;align-items:center;gap:10px">';
-          h+='<div style="width:22px;height:22px;border-radius:50%;border:2px solid '+hlColor+';background:'+hlColor+'20;display:flex;align-items:center;justify-content:center;flex-shrink:0">';
-          h+='<div style="width:8px;height:8px;border-radius:50%;background:'+hlColor+'"></div></div>';
+          h+='<div class="hl-tick" onclick="event.stopPropagation();headlineArchive('+hl.id+')" title="Click to mark done and archive"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>';
           h+='<div>';
           h+='<div onclick="openEditItem(\'headline\','+hl.id+')" title="Click to edit" style="cursor:pointer">';
           h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-weight:600;color:'+hlColor+';text-transform:uppercase;letter-spacing:.05em">Headline</span>'+_linkBadge(hl)+'</div>';
@@ -9577,9 +9576,9 @@ function renderMeetings(){
           h+='<div style="height:1px;background:var(--brd);margin:3px 0"></div>';
           h+=tdMI(t.done?'\u21ba':'✓',t.done?'Mark Not Done':'Mark Done','todoMarkComplete('+t.id+')');
           h+='<div style="height:1px;background:var(--brd);margin:3px 0"></div>';
-          h+=tdMI('\u{1F3AF}','Create linked Goal','openCreateForm(\'goal\',t.task)');
-          h+=tdMI('\u26A0','Create linked Issue','openCreateForm(\'issue\',t.task)');
-          h+=tdMI('\u2B50','Create linked Headline','openCreateForm(\'headline\',t.task)');
+          h+=tdMI('\u{1F3AF}','Create linked Goal','todoCreateLinkedGoal('+t.id+')');
+          h+=tdMI('\u26A0','Create linked Issue','todoCreateLinkedIssue('+t.id+')');
+          h+=tdMI('\u2B50','Create linked Headline','todoCreateLinkedHeadline('+t.id+')');
           h+='<div style="height:1px;background:var(--brd);margin:3px 0"></div>';
           if(t.status==='archived') h+=tdMI('\u21ba','Restore to Active','todoUnarchive('+t.id+')');
           else if(t.done) h+=tdMI('\u{1F4E6}','Archive','todoArchive('+t.id+')');
@@ -9813,7 +9812,7 @@ function renderMeetings(){
       if(state.meetRecapIssueDesc===undefined)state.meetRecapIssueDesc=true;
       h+='<div class="card" style="margin-top:14px">';
       h+='<div class="sec" style="margin-bottom:10px">Before you finish</div>';
-      [['meetArchiveDone','Archive completed To-Dos and resolved Issues for this team'],['meetSendRecap','Send the meeting recap email to attendees'],['meetRecapIssueDesc','Include issue descriptions in the recap email']].forEach(function(opt){
+      [['meetArchiveDone','Archive completed To-Dos, resolved Issues, and all headlines for this team'],['meetSendRecap','Send the meeting recap email to attendees'],['meetRecapIssueDesc','Include issue descriptions in the recap email']].forEach(function(opt){
         var on=state[opt[0]]!==false;
         h+='<div onclick="state.'+opt[0]+'=(state.'+opt[0]+'===false);renderPage()" style="display:flex;align-items:center;gap:10px;margin-bottom:9px;cursor:pointer">';
         h+='<div style="width:18px;height:18px;border-radius:4px;border:1.5px solid '+(on?'var(--gp)':'var(--brd2)')+';background:'+(on?'var(--gp)':'var(--sur)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(on?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
@@ -11736,6 +11735,7 @@ function endMeeting(){
   // Archive completed items if the finish toggle is on (done to-dos), EXCEPT a done to-do still tied to an open issue - it stays until that issue is solved. Solved issues are already in resolvedIssues.
   if(state.meetArchiveDone!==false){
     try{ if(typeof todos!=='undefined') todos.forEach(function(tt){ if(tt.done && tt.status!=='archived' && !_todoTiedToOpenIssue(tt)) tt.status='archived'; }); }catch(e){}
+    try{ if(typeof headlines!=='undefined') headlines.forEach(function(hl){ if(hl.status!=='archived') hl.status='archived'; }); }catch(e){}
   }
   pastMeetings.unshift(record);
   // Compose recap + dispatch event for the future Email module (Postmark backend).
