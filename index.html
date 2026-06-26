@@ -8677,8 +8677,8 @@ function renderTodos(){
     h+='</div></div>';
     // Show all todos sorted: open first, done (strikethrough) at bottom
     var listFilter=showArchive
-      ? todos.filter(function(t){return t.status==='archived';})
-      : todos.filter(function(t){return t.status!=='archived';});
+      ? todos.filter(function(t){return !_delTD()[t.id] && t.status==='archived';})
+      : todos.filter(function(t){return !_delTD()[t.id] && t.status!=='archived';});
     listFilter=listFilter.filter(function(t){return _ownerSelHas('todoOwner',t.owner);});
     // Search filter
     var todoSearch=(state.todoSearch||"").toLowerCase();
@@ -8693,7 +8693,7 @@ function renderTodos(){
       return 0;
     });
 
-    var totalShowing=todos.filter(function(t){return showArchive?(t.status==='archived'):(t.status!=='archived');}).length;
+    var totalShowing=todos.filter(function(t){return !_delTD()[t.id] && (showArchive?(t.status==='archived'):(t.status!=='archived'));}).length;
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px">';
     // List header
     h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
@@ -9581,7 +9581,7 @@ function renderMeetings(){
     if(stepIs("to-do")||stepIs("todo")){
       h+='<div class="card"><div class="sec">To-Do Review <button class="btn btn-sm btn-blu" onclick="openCreateForm(\'todo\')">+ Add</button></div>';
       // Show all todos - done ones at bottom with strikethrough; archived drop out of the meeting view
-      var allTd=todos.filter(function(t){return t.status!=='archived';});
+      var allTd=todos.filter(function(t){return !_delTD()[t.id] && t.status!=='archived';});
       if(!allTd.length) h+='<div style="font-size:var(--fz-body);color:var(--txm)">No to-dos yet.</div>';
       allTd.forEach(function(t){
         var oc=pplColor(t.owner);
@@ -10438,6 +10438,7 @@ function addHeadlineFromPanel(){
 }
 
 function _delHL(){ return (window.__VSP_DELETED_HEADLINES = window.__VSP_DELETED_HEADLINES || {}); }
+function _delTD(){ return (window.__VSP_DELETED_TODOS = window.__VSP_DELETED_TODOS || {}); }
 function deleteHeadline(id){
   if(!confirm("Delete this headline? This cannot be undone. Tip: Archive keeps the record but hides it from active lists.")) return;
   // Tombstone the id so no sync, reseed, or cross-team copy can resurrect it,
@@ -11298,17 +11299,17 @@ function todoUnarchive(id){
 }
 function todoDelete(id){
   if(!confirm("Delete this to-do? This cannot be undone. Tip: Archive keeps the record but hides it from active lists."))return;
-  todos=todos.filter(function(t){return t.id!==id;});
-  privateTodos=privateTodos.filter(function(t){return t.id!==id;});
-  var team=teamsRegistry[state.currentTeam]; if(team) team.todos=todos;
+  _delTD()[id]=true;
+  try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt){ if(Array.isArray(tt.todos)) tt.todos=tt.todos.filter(function(t){return t.id!==id;}); if(Array.isArray(tt.privateTodos)) tt.privateTodos=tt.privateTodos.filter(function(t){return t.id!==id;}); } }); }catch(e){}
+  var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; todos=team.todos; privateTodos=team.privateTodos;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   state.todoCtx=null;renderPage();
 }
 function todoDeleteFromDetail(id){
   if(!confirm("Delete this to-do? This cannot be undone. Tip: Archive keeps the record but hides it from active lists."))return;
-  todos=todos.filter(function(t){return t.id!==id;});
-  privateTodos=privateTodos.filter(function(t){return t.id!==id;});
-  var team=teamsRegistry[state.currentTeam]; if(team) team.todos=todos;
+  _delTD()[id]=true;
+  try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt){ if(Array.isArray(tt.todos)) tt.todos=tt.todos.filter(function(t){return t.id!==id;}); if(Array.isArray(tt.privateTodos)) tt.privateTodos=tt.privateTodos.filter(function(t){return t.id!==id;}); } }); }catch(e){}
+  var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; todos=team.todos; privateTodos=team.privateTodos;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   closeTodoDetail();
 }
@@ -13583,6 +13584,7 @@ function vspSnapshot(){
     planEditUnlocked: state.planEditUnlocked,
     seedIds: (window.__VSP_SEED_IDS || null),
     deletedHeadlineIds: Object.keys((window.__VSP_DELETED_HEADLINES||{})),
+    deletedTodoIds: Object.keys((window.__VSP_DELETED_TODOS||{})),
     migrations: Object.keys((window.__VSP_MIGRATIONS||{}))
   };
 }
@@ -13646,6 +13648,7 @@ function vspApplySnapshot(s){
   // Union deleted-headline tombstones so a deletion made on any browser stays
   // deleted everywhere it syncs, and survives reseed.
   try{ if(Array.isArray(s.deletedHeadlineIds)){ var _du=_delHL(); s.deletedHeadlineIds.forEach(function(x){ _du[x]=true; }); } }catch(e){}
+  try{ if(Array.isArray(s.deletedTodoIds)){ var _dut=_delTD(); s.deletedTodoIds.forEach(function(x){ _dut[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.migrations)){ var _mu=_vspMig(); s.migrations.forEach(function(x){ _mu[x]=true; }); } }catch(e){}
   if(s.teams && typeof s.teams === 'object'){
     Object.keys(s.teams).forEach(function(tid){
@@ -13667,6 +13670,9 @@ function vspApplySnapshot(s){
       if(Array.isArray(saved.archivedGoals)) mergeById(reg.archivedGoals||(reg.archivedGoals=[]), saved.archivedGoals, tkb('archivedGoals'));
       if(Array.isArray(saved.todos)) mergeById(reg.todos||(reg.todos=[]), saved.todos, tkb('todos'));
       if(Array.isArray(saved.privateTodos)) mergeById(reg.privateTodos||(reg.privateTodos=[]), saved.privateTodos, tkb('privateTodos'));
+      // Drop any to-do tombstoned (deleted) so it cannot reseed or return from a sync node.
+      if(Array.isArray(reg.todos)){ var _dtt=_delTD(); reg.todos = reg.todos.filter(function(t){ return !(t && _dtt[t.id]); }); }
+      if(Array.isArray(reg.privateTodos)){ var _dpt=_delTD(); reg.privateTodos = reg.privateTodos.filter(function(t){ return !(t && _dpt[t.id]); }); }
       if(Array.isArray(saved.headlines)) mergeById(reg.headlines||(reg.headlines=[]), saved.headlines, tkb('headlines'));
       // Drop any headline that has been tombstoned (deleted) so it cannot return.
       if(Array.isArray(reg.headlines)){ var _dh=_delHL(); reg.headlines = reg.headlines.filter(function(h){ return !(h && _dh[h.id]); }); }
