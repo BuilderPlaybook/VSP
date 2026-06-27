@@ -5392,6 +5392,28 @@ var SC_PLAN_LABEL='Feb 23 - Mar 01';
 function scPlanStartIdx(){ var i=weekRanges.indexOf(SC_PLAN_LABEL); return i<0?0:i; }
 var SC_PLAN_START_DATE=new Date(2026,1,23);
 function scWeekDate(i){ return new Date(SC_PLAN_START_DATE.getTime()+(i-scPlanStartIdx())*7*86400000); }
+// Convert a measurable's readings when its cadence changes, preserving data.
+// weekly<->monthly carry data (counts/$ sum, % average, or honor rollupAs); anything involving quarterly clears.
+function _scConvReadings(readings, oldCad, newCad, m){
+  oldCad=oldCad||'weekly'; newCad=newCad||'weekly';
+  if(!Array.isArray(readings) || oldCad===newCad) return _cadNulls(newCad);
+  if(oldCad==='quarterly' || newCad==='quarterly') return _cadNulls(newCad);
+  function isNum(v){ return typeof v==='number' && !isNaN(v); }
+  var sum = (m && m.rollupAs==='Total') || (m && m.rollupAs!=='Average' && (m.unit==='#' || m.unit==='$'));
+  if(oldCad==='weekly' && newCad==='monthly'){
+    var out=_cadNulls('monthly'), acc={};
+    for(var i=0;i<readings.length;i++){ var v=readings[i]; if(!isNum(v)) continue; var mo=scWeekDate(i).getMonth(); var a=acc[mo]||(acc[mo]={s:0,c:0}); a.s+=v; a.c++; }
+    for(var k in acc){ out[k]= sum ? acc[k].s : (acc[k].s/acc[k].c); }
+    return out;
+  }
+  if(oldCad==='monthly' && newCad==='weekly'){
+    var N=_cadLen('weekly'), out2=[]; for(var j=0;j<N;j++) out2.push(null);
+    var wpm={}; for(var j2=0;j2<N;j2++){ var mo2=scWeekDate(j2).getMonth(); wpm[mo2]=(wpm[mo2]||0)+1; }
+    for(var j3=0;j3<N;j3++){ var mo3=scWeekDate(j3).getMonth(); var mv=readings[mo3]; if(!isNum(mv)) continue; out2[j3]= sum ? (mv/(wpm[mo3]||1)) : mv; }
+    return out2;
+  }
+  return _cadNulls(newCad);
+}
 function scExtendBack(){
   try{
     var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -5493,6 +5515,39 @@ function _scMetricOrder(section){
 function scMoveGroup(di,dir){
   var j=di+dir; if(j<0||j>=scorecard.length) return;
   var t=scorecard[di]; scorecard[di]=scorecard[j]; scorecard[j]=t;
+  renderPage();
+}
+function _scClearDropInd(){ var rw=window._scDropRow; if(rw&&rw.cells){ for(var i=0;i<rw.cells.length;i++) rw.cells[i].style.boxShadow=''; } window._scDropRow=null; }
+function scMDragStart(ev,mid){ state.scDragMid=mid; try{ ev.dataTransfer.effectAllowed='move'; ev.dataTransfer.setData('text/plain',String(mid)); }catch(e){} }
+function scMDragOver(ev){
+  if(state.scDragMid==null) return;
+  ev.preventDefault(); try{ ev.dataTransfer.dropEffect='move'; }catch(e){}
+  var row=ev.currentTarget; if(!row||!row.cells||!row.getBoundingClientRect) return;
+  var r=row.getBoundingClientRect(); var below = ev.clientY > (r.top + r.height/2);
+  if(window._scDropRow && window._scDropRow!==row) _scClearDropInd();
+  var sh = below ? 'inset 0 -3px 0 0 var(--blu)' : 'inset 0 3px 0 0 var(--blu)';
+  for(var i=0;i<row.cells.length;i++) row.cells[i].style.boxShadow=sh;
+  window._scDropRow=row; window._scDropBelow=below;
+}
+function scMDragEnd(){ _scClearDropInd(); if(state.scDragMid!=null) state.scDragMid=null; renderPage(); }
+function scMDrop(ev,targetMid){
+  if(state.scDragMid==null){ _scClearDropInd(); return; }
+  ev.preventDefault(); ev.stopPropagation();
+  var below=window._scDropBelow; _scClearDropInd();
+  var src=state.scDragMid; state.scDragMid=null;
+  if(src===targetMid){ renderPage(); return; }
+  var srcSec=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===src;});});
+  var tgtSec=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===targetMid;});});
+  if(!srcSec||!tgtSec){ renderPage(); return; }
+  var si=srcSec.metrics.findIndex(function(m){return m.id===src;}); var metric=srcSec.metrics[si];
+  srcSec.metrics.splice(si,1);
+  var ti=tgtSec.metrics.findIndex(function(m){return m.id===targetMid;}); if(ti<0) ti=tgtSec.metrics.length;
+  var pos = below ? ti+1 : ti;
+  tgtSec.metrics.splice(pos,0,metric);
+  if(srcSec!==tgtSec) metric.owner=tgtSec.ownerId;
+  state.scorecardSort='manual';
+  var tm=teamsRegistry[state.currentTeam]; if(tm) tm.scorecard=scorecard;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function _scMetricAggs(m){
@@ -5597,6 +5652,53 @@ function saveNewGroup(){
     metrics:[]
   });
   state.newGroupPanel=false;
+  renderPage();
+}
+function deleteGroup(di){
+  var sec=scorecard[di]; if(!sec) return;
+  var nm=sec.ownerName||sec.seat||'this group';
+  var cnt=(sec.metrics||[]).length;
+  var msg=cnt>0?('Delete the "'+nm+'" group and its '+cnt+' measurable'+(cnt===1?'':'s')+'? This cannot be undone.'):('Delete the empty "'+nm+'" group?');
+  if(!confirm(msg)) return;
+  scorecard.splice(di,1);
+  var tm=teamsRegistry[state.currentTeam]; if(tm) tm.scorecard=scorecard;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  renderPage();
+}
+
+function openEditGroup(di){ state.editGroupPanel={idx:di}; renderPage(); }
+function _grpSeatOptions(code, selected){
+  var seats=(typeof orgSeats!=='undefined'&&Array.isArray(orgSeats))?orgSeats.filter(function(s){return s.initials===code;}).map(function(s){return s.seat;}):[];
+  var seen={}, uniq=[]; seats.forEach(function(s){ if(s&&!seen[s]){seen[s]=1;uniq.push(s);} });
+  if(selected && uniq.indexOf(selected)<0) uniq.unshift(selected);
+  var oh='<option value="">(no seat)</option>';
+  uniq.forEach(function(s){ var sv=String(s).replace(/"/g,'&quot;'); oh+='<option value="'+sv+'"'+(s===selected?' selected':'')+'>'+s+'</option>'; });
+  return oh;
+}
+function _grpPersonPick(prefix, code){
+  var wrap=document.getElementById(prefix+'-seat-wrap'); var sel=document.getElementById(prefix+'-seat');
+  if(code){
+    if(sel) sel.innerHTML=_grpSeatOptions(code,'');
+    if(wrap) wrap.style.display='block';
+    var col=pplColor(code), cel=document.getElementById(prefix+'-color'); if(cel && col) cel.value=col;
+  } else {
+    if(wrap) wrap.style.display='none';
+  }
+}
+function saveEditGroup(){
+  var idx=state.editGroupPanel?state.editGroupPanel.idx:-1; var sec=scorecard[idx]; if(!sec){ state.editGroupPanel=null; renderPage(); return; }
+  var name=document.getElementById('eg-name');
+  var person=document.getElementById('eg-person');
+  var seat=document.getElementById('eg-seat');
+  var color=document.getElementById('eg-color');
+  if(!name||!name.value.trim()){ alert('Title is required.'); return; }
+  sec.ownerName=name.value.trim();
+  if(person){ sec.ownerId = person.value ? person.value : ((/^grp_/.test(sec.ownerId||''))?sec.ownerId:('grp_'+Date.now())); }
+  sec.seat = (person && person.value && seat) ? seat.value.trim() : '';
+  if(color && color.value){ sec.color=color.value; }
+  state.editGroupPanel=null;
+  var tm=teamsRegistry[state.currentTeam]; if(tm) tm.scorecard=scorecard;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 
@@ -5719,7 +5821,7 @@ function renderEditMeasurableOverlay(){
       h+='<select id="em-cadence" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
       var _emCadCur=(function(){var ss=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===state.editMeasurablePanel.metricId;});}); var mm=ss&&ss.metrics.find(function(m){return m.id===state.editMeasurablePanel.metricId;}); return (mm&&mm.cadence)||'weekly';})();
       [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly']].forEach(function(cc){ h+='<option value="'+cc[0]+'"'+(cc[0]===_emCadCur?' selected':'')+'>'+cc[1]+'</option>'; });
-      h+='</select><div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px">Changing cadence clears this measurable\u2019s entered values.</div></div>';
+      h+='</select><div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px">Weekly and Monthly keep your data (counts and dollars sum, percentages average). Quarterly clears entered values.</div></div>';
 
       // Calculation
       h+='<div style="margin-bottom:12px">';
@@ -5950,7 +6052,7 @@ function saveEditMeasurable(){
     metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined;
   } else { metric.calc=undefined; }
   var _newCad=(document.getElementById('em-cadence')||{}).value||'weekly';
-  if(((metric.cadence)||'weekly')!==_newCad){ metric.cadence=_newCad; metric.readings=_cadNulls(_newCad); }
+  if(((metric.cadence)||'weekly')!==_newCad){ metric.readings=_scConvReadings(metric.readings, metric.cadence, _newCad, metric); metric.cadence=_newCad; }
 
   state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
   renderPage();
@@ -7762,7 +7864,7 @@ function renderScorecard(){
   colData.forEach(function(d,di){
     if(state.scMerged) return;
     var section=d.section;
-    var _scOrder=_scMetricOrder(section); if(_scOrder.length===0) return;
+    var _scOrder=_scMetricOrder(section); if(_scOrder.length===0 && section.metrics && section.metrics.length>0) return;
     var onTrack=section.metrics.filter(function(m){return _inCad(m)&&isOnTrack(m,_metricLatest(m));}).length;
     var isCollapsed=!!state.collapsedSections['sec'+di];
     var isLastCol=colLabels.length-1;
@@ -7787,6 +7889,10 @@ function renderScorecard(){
       h+='<button onclick="scMoveGroup('+di+',1)" '+(di===scorecard.length-1?'disabled':'')+' style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:'+(di===scorecard.length-1?'default':'pointer')+';opacity:'+(di===scorecard.length-1?'.4':'1')+'" title="Move group down">\u2193</button>';
     }
     h+='<button class="btn btn-sm" style="color:var(--blu);border-color:#93c5fd;background:#eff6ff" onclick="openNewMeasurable('+di+')">+ New Measurable</button>';
+    h+='<button onclick="openEditGroup('+di+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Edit group (seat & person)">';
+    h+='<svg width="12" height="12" fill="none" stroke="var(--txm)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>';
+    h+='<button onclick="deleteGroup('+di+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Delete group">';
+    h+='<svg width="12" height="12" fill="none" stroke="var(--red)" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H7a1 1 0 01-1-1V6M10 11v6M14 11v6"/></svg></button>';
     h+='<button onclick="state.collapsedSections[\'sec'+di+'\']='+(!isCollapsed)+';renderPage()" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">';
     h+='<svg width="12" height="12" fill="none" stroke="var(--txm)" stroke-width="2" viewBox="0 0 24 24"><path d="'+(isCollapsed?'M9 18l6-6-6-6':'M18 15l-6-6-6 6')+'"/></svg></button>';
     h+='</div></div>';
@@ -7845,6 +7951,7 @@ function renderScorecard(){
         h+='<th style="text-align:center;padding:6px 6px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:var(--sur2);border-right:0.5px solid var(--brd)">'+_lbl+'</th>';
       });
       h+='</tr></thead><tbody>';
+      if(_scOrder.length===0){ h+='<tr><td colspan="40" style="padding:16px;color:var(--txm);font-size:var(--fz-base);text-align:left">No measurables yet. Use + New Measurable above to add one.</td></tr>'; }
 
       _scOrder.forEach(function(mi){
         var m=section.metrics[mi];
@@ -7859,7 +7966,8 @@ function renderScorecard(){
         var isSelected=!!state.selectedMetrics[section.ownerId+':'+m.id];
 
         var rowBg=isSelected?'#eff6ff':(mi%2===0?'var(--sur)':'#fafbfc');
-        h+='<tr>';
+        var _scManual=(state.scorecardSort||'manual')==='manual';
+        h+='<tr'+(_scManual?' ondragover="scMDragOver(event)" ondrop="scMDrop(event,'+m.id+')"':'')+'>';
 
         // Checkbox
         h+='<td style="'+scStkB(SC_OFF.cb,SC_W.cb,rowBg,'text-align:center')+'">';
@@ -7871,8 +7979,10 @@ function renderScorecard(){
         var trendLabel=trend==="good"?"Trending in the right direction":trend==="bad"?"Trending the wrong way":"Flat  -  no significant change";
         h+='<td style="'+scStkB(SC_OFF.trend,SC_W.trend,rowBg,'text-align:center;padding:0 2px')+'" title="'+trendLabel+'">'+trendIcon(trend)+'</td>';
 
-        // Title (click to edit measurable)
-        h+='<td style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:pointer;text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols}))+'</td>';
+        // Title (click to edit measurable; the name cell is the drag handle to reorder)
+        var _scDrag=_scManual?(' draggable="true" ondragstart="scMDragStart(event,'+m.id+')" ondragend="scMDragEnd()"'):'';
+        var _scGrip=_scManual?('<svg width="8" height="13" viewBox="0 0 8 13" style="display:inline-block;vertical-align:middle;margin-right:6px;opacity:.35;flex-shrink:0" fill="currentColor"><circle cx="2" cy="2" r="1"/><circle cx="6" cy="2" r="1"/><circle cx="2" cy="6.5" r="1"/><circle cx="6" cy="6.5" r="1"/><circle cx="2" cy="11" r="1"/><circle cx="6" cy="11" r="1"/></svg>'):'';
+        h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols}))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(period==='quarterly'?_qGoalLabel(m):_goalLabel(m))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(period==='quarterly'?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
         h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--txm);border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':totalDisplay)+'</td>';
@@ -7930,7 +8040,7 @@ function renderScorecard(){
 
     // Name
     h+='<div style="margin-bottom:16px">';
-    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Group Name <span style="color:#dc2626">*</span></label>';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Title <span style="color:#dc2626">*</span></label>';
     h+='<input id="ng-name" placeholder="e.g. Marketing, Finance, Sales" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" />';
     h+='</div>';
 
@@ -7969,6 +8079,59 @@ function renderScorecard(){
     h+='<div style="padding:14px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--sur)">';
     h+='<button onclick="saveNewGroup()" class="btn btn-blu" style="flex:1;justify-content:center;padding:9px">Create Group</button>';
     h+='<button onclick="state.newGroupPanel=false;renderPage()" class="btn" style="padding:9px 16px">Cancel</button>';
+    h+='</div>';
+    h+='</div>'; // panel
+  }
+
+  // Edit Group slide-in panel
+  if(state.editGroupPanel){
+    var _egPresets=['#2563eb','#4f46e5','#7c3aed','#ec4899','#0891b2','#0d9488','#475569','#92400e'];
+    var _egIdx=state.editGroupPanel.idx; var _egSec=scorecard[_egIdx]||{};
+    var _egOwner=_egSec.ownerId||'';
+    var _egNm=(_egSec.ownerName||pplName(_egOwner)||'').replace(/"/g,'&quot;');
+    var _egSt=(_egSec.seat||'').replace(/"/g,'&quot;');
+    var _egCol=_egSec.color||pplColor(_egOwner)||'#94a3b8';
+    var _egPeople=(typeof ppl!=='undefined'&&Array.isArray(ppl))?ppl.filter(function(x){return x.status==='active';}):[];
+    h+='<div onclick="state.editGroupPanel=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;backdrop-filter:blur(2px)"></div>';
+    h+='<div style="position:fixed;top:0;right:0;width:360px;height:100vh;background:var(--sur);border-left:1px solid var(--brd);z-index:201;display:flex;flex-direction:column">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--brd);flex-shrink:0">';
+    h+='<div><div style="font-size:var(--fz-body);font-weight:600">Edit Group</div>';
+    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-top:2px">Assign the seat and person</div></div>';
+    h+='<button onclick="state.editGroupPanel=null;renderPage()" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur2);cursor:pointer;font-size:var(--fz-lg);color:var(--txm)">\u00d7</button>';
+    h+='</div>';
+    h+='<div style="flex:1;overflow-y:auto;padding:20px">';
+    h+='<div style="margin-bottom:16px">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Title <span style="color:#dc2626">*</span></label>';
+    h+='<input id="eg-name" value="'+_egNm+'" placeholder="e.g. Marketing" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" />';
+    h+='</div>';
+    h+='<div style="margin-bottom:16px">';
+    h+='<div style="display:flex;gap:10px">';
+    h+='<div style="flex:1">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Owner</label>';
+    h+='<select id="eg-person" onchange="_grpPersonPick(\'eg\',this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box;background:var(--sur)">';
+    h+='<option value="">(Unassigned)</option>';
+    _egPeople.forEach(function(pp){ h+='<option value="'+pp.initials+'"'+(pp.initials===_egOwner?' selected':'')+'>'+pp.first+' '+pp.last+'</option>'; });
+    h+='</select>';
+    h+='</div>';
+    h+='<div id="eg-seat-wrap" style="flex:1;display:'+(_egPeople.some(function(pp){return pp.initials===_egOwner;})?'block':'none')+'">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Seat</label>';
+    h+='<select id="eg-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box;background:var(--sur)">'+_grpSeatOptions(_egOwner,_egSt)+'</select>';
+    h+='</div>';
+    h+='</div>';
+    h+='<div style="font-size:var(--fz-xs);color:var(--txd);margin-top:6px">Pick the owner, then choose their seat.</div>';
+    h+='</div>';
+    h+='<div style="margin-bottom:20px">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Color</label>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
+    _egPresets.forEach(function(c){ h+='<div onclick="document.getElementById(\'eg-color\').value=\''+c+'\';this.parentNode.querySelectorAll(\'[data-preset]\').forEach(function(el){el.style.outline=\'none\'});this.style.outline=\'2.5px solid var(--txt)\'" data-preset="1" style="width:28px;height:28px;border-radius:50%;background:'+c+';cursor:pointer;flex-shrink:0"></div>'; });
+    h+='</div>';
+    h+='<div style="display:flex;align-items:center;gap:8px"><label style="font-size:var(--fz-lg);color:var(--txm)">Custom colour:</label>';
+    h+='<input type="color" id="eg-color" value="'+_egCol+'" style="width:36px;height:28px;border:1px solid var(--brd2);border-radius:5px;cursor:pointer;padding:2px" /></div>';
+    h+='</div>';
+    h+='</div>';
+    h+='<div style="padding:14px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--sur)">';
+    h+='<button onclick="saveEditGroup()" class="btn btn-blu" style="flex:1;justify-content:center;padding:9px">Save Group</button>';
+    h+='<button onclick="state.editGroupPanel=null;renderPage()" class="btn" style="padding:9px 16px">Cancel</button>';
     h+='</div>';
     h+='</div>'; // panel
   }
@@ -8059,7 +8222,7 @@ function renderScorecard(){
     h+='<div style="margin-bottom:12px">';
     h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Cadence</label>';
     h+='<select id="nm-cadence" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-    var nmCadDef=(nmPre&&nmPre.cadence)||'weekly';
+    var nmCadDef=(nmPre&&nmPre.cadence)||(state.scorecardPeriod||'weekly');
     [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly']].forEach(function(cc){ h+='<option value="'+cc[0]+'"'+(cc[0]===nmCadDef?' selected':'')+'>'+cc[1]+'</option>'; });
     h+='</select></div>';
 
