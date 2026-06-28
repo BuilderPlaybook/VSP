@@ -1196,7 +1196,7 @@ td:hover > .sc-note-pop{display:block}
 
 /* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow-y:auto;min-width:0}
-.page{flex:1;overflow-y:auto;padding:24px;background:var(--bg);animation:fadeIn .15s ease}
+.page{flex:1;overflow-y:auto;padding:24px;background:var(--bg);animation:fadeIn .15s ease;font-size:var(--fz-lg)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 
 /* ── PAGE HEADER ── */
@@ -5782,14 +5782,24 @@ function renderEditMeasurableOverlay(){
       h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:7px;line-height:1.45">'+(_emHasSrc?'On: the value is fed from a connected module and cannot be typed in. Off: enter it manually each period. Turn it off to override and key the number in yourself.':'No connected source for this measurable yet, so it is manual entry only. When a module source is wired up, this switch enables auto-feed.')+'</div>';
       h+='</div>';
 
-      // Owner
+      // Owner + Seat (resolves to a group; auto-creates one if none matches)
+      var _emSec=scorecard[epIdx]||{}; var emOwner=_emSec.ownerId||''; var emSeat=_emSec.seat||'';
+      var emPeople=(typeof ppl!=='undefined'&&Array.isArray(ppl))?ppl.filter(function(x){return x.status==='active';}):[];
       h+='<div style="margin-bottom:16px">';
+      h+='<div style="display:flex;gap:10px">';
+      h+='<div style="flex:1">';
       h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Owner</label>';
-      h+='<select id="em-owner" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      allOwners.forEach(function(o){
-        h+='<option value="'+o.idx+'"'+(o.idx===epIdx?' selected':'')+'>'+o.seat+' ('+o.name+')</option>';
-      });
-      h+='</select></div>';
+      h+='<select id="em-person" onchange="_grpPersonPick(\'em\',this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">';
+      h+='<option value="">(Unassigned)</option>';
+      emPeople.forEach(function(pp){ h+='<option value="'+pp.initials+'"'+(pp.initials===emOwner?' selected':'')+'>'+pp.first+' '+pp.last+'</option>'; });
+      h+='</select>';
+      h+='</div>';
+      h+='<div id="em-seat-wrap" style="flex:1;display:'+(emPeople.some(function(pp){return pp.initials===emOwner;})?'block':'none')+'">';
+      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Seat</label>';
+      h+='<select id="em-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">'+_grpSeatOptions(emOwner,emSeat)+'</select>';
+      h+='</div>';
+      h+='</div>';
+      h+='</div>';
 
       // Period interval
       h+='<div style="margin-bottom:20px">';
@@ -5994,7 +6004,6 @@ function saveEditMeasurable(){
 
   var title=document.getElementById('em-title');
   var desc=document.getElementById('em-desc');
-  var owner=document.getElementById('em-owner');
   var unit=document.getElementById('em-unit');
   var orient=document.getElementById('em-orient');
   var val=document.getElementById('em-value');
@@ -6012,7 +6021,8 @@ function saveEditMeasurable(){
   var orientRule=orient?orient.value:'Greater than or equal to goal';
 
   // If section (role) changed, move metric to the chosen section (by index)
-  var newIdx=owner?parseInt(owner.value,10):scorecard.indexOf(section);
+  var _emOwnerEl=document.getElementById('em-person'); var _emSeatEl=document.getElementById('em-seat');
+  var newIdx=_resolveSectionByOwnerSeat(_emOwnerEl?_emOwnerEl.value:'', _emSeatEl?_emSeatEl.value:'', scorecard.indexOf(section));
   if(scorecard[newIdx] && scorecard[newIdx]!==section){
     var midx=section.metrics.findIndex(function(m){return m.id===p.metricId;});
     if(midx>-1) section.metrics.splice(midx,1);
@@ -6206,10 +6216,17 @@ function scRemoveNote(){
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
+function _resolveSectionByOwnerSeat(owner, seat, fallbackIdx){
+  if(!owner) return fallbackIdx;
+  seat=seat||'';
+  var idx=scorecard.findIndex(function(s){ return s.ownerId===owner && (s.seat||'')===seat; });
+  if(idx>=0) return idx;
+  scorecard.push({ownerId:owner, ownerName:(pplName(owner)||owner), seat:seat, color:(pplColor(owner)||'#94a3b8'), metrics:[]});
+  return scorecard.length-1;
+}
 function saveNewMeasurable(){
   var title=document.getElementById('nm-title');
   var desc=document.getElementById('nm-desc');
-  var owner=document.getElementById('nm-owner');
   var unit=document.getElementById('nm-unit');
   var orient=document.getElementById('nm-orient');
   var val=document.getElementById('nm-value');
@@ -6260,7 +6277,8 @@ function saveNewMeasurable(){
     newMetric.calc={op:_ncop, sources:_nsrc}; newMetric.auto=undefined; newMetric.autoSrc=undefined;
   }
   // Add to correct scorecard section (by section index - sections are role-based)
-  var targetIdx=owner?parseInt(owner.value,10):state.newMeasurablePanel.sectionIdx;
+  var _nmOwnerEl=document.getElementById('nm-person'); var _nmSeatEl=document.getElementById('nm-seat');
+  var targetIdx=_resolveSectionByOwnerSeat(_nmOwnerEl?_nmOwnerEl.value:'', _nmSeatEl?_nmSeatEl.value:'', state.newMeasurablePanel.sectionIdx);
   var section=scorecard[targetIdx];
   if(section){ newMetric.owner=section.ownerId; section.metrics.push(newMetric); }
   state.newMeasurablePanel={open:false,sectionIdx:null};
@@ -8184,14 +8202,24 @@ function renderScorecard(){
     h+='<textarea id="nm-desc" placeholder="Add a description..." style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:vertical;min-height:64px;box-sizing:border-box">'+(nmPre?nmPre.desc:'')+'</textarea>';
     h+='</div>';
 
-    // Owner
+    // Owner + Seat (resolves to a group; auto-creates one if none matches)
+    var _nmSec=scorecard[panelIdx]||{}; var nmOwner=_nmSec.ownerId||''; var nmSeat=_nmSec.seat||'';
+    var nmPeople=(typeof ppl!=='undefined'&&Array.isArray(ppl))?ppl.filter(function(x){return x.status==='active';}):[];
     h+='<div style="margin-bottom:16px">';
+    h+='<div style="display:flex;gap:10px">';
+    h+='<div style="flex:1">';
     h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Owner</label>';
-    h+='<select id="nm-owner" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-    allOwners.forEach(function(o){
-      h+='<option value="'+o.idx+'"'+(o.idx===panelIdx?' selected':'')+'>'+o.seat+' ('+o.name+')</option>';
-    });
-    h+='</select></div>';
+    h+='<select id="nm-person" onchange="_grpPersonPick(\'nm\',this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">';
+    h+='<option value="">(Unassigned)</option>';
+    nmPeople.forEach(function(pp){ h+='<option value="'+pp.initials+'"'+(pp.initials===nmOwner?' selected':'')+'>'+pp.first+' '+pp.last+'</option>'; });
+    h+='</select>';
+    h+='</div>';
+    h+='<div id="nm-seat-wrap" style="flex:1;display:'+(nmPeople.some(function(pp){return pp.initials===nmOwner;})?'block':'none')+'">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Seat</label>';
+    h+='<select id="nm-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">'+_grpSeatOptions(nmOwner,nmSeat)+'</select>';
+    h+='</div>';
+    h+='</div>';
+    h+='</div>';
 
     // Period interval (read-only display)
     h+='<div style="margin-bottom:20px">';
