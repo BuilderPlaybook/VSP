@@ -14441,6 +14441,22 @@ setTimeout(function(){
   function applyRaw(raw){
     var keepTeam = null;
     try { keepTeam = (typeof state !== 'undefined' && state) ? state.currentTeam : null; } catch(e){}
+    // Preserve this browser's deletions across an adopt: a cloud copy that does not
+    // list a to-do as deleted must not resurrect one the user already removed.
+    try {
+      var _lr = localStorage.getItem(keyName());
+      if(_lr){
+        var _ls = JSON.parse(_lr), _rs = JSON.parse(raw), _u = {};
+        (_ls.deletedTodoIds||[]).concat(_rs.deletedTodoIds||[]).forEach(function(x){ _u[x]=true; });
+        var _keys = Object.keys(_u);
+        if(_keys.length){
+          _rs.deletedTodoIds = _keys;
+          var _drop = function(arr){ return Array.isArray(arr) ? arr.filter(function(t){ return !(t && _u[t.id]); }) : arr; };
+          if(_rs.teams){ for(var _k in _rs.teams){ var _t=_rs.teams[_k]; if(_t){ _t.todos=_drop(_t.todos); _t.privateTodos=_drop(_t.privateTodos); } } }
+          raw = JSON.stringify(_rs);
+        }
+      }
+    } catch(e){}
     try { localStorage.setItem(keyName(), raw); } catch(e){}
     try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){}
     // Keep this user on the team they are viewing, not the team the saver was on.
