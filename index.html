@@ -10790,6 +10790,7 @@ function addHeadlineFromPanel(){
 
 function _delHL(){ return (window.__VSP_DELETED_HEADLINES = window.__VSP_DELETED_HEADLINES || {}); }
 function _delTD(){ return (window.__VSP_DELETED_TODOS = window.__VSP_DELETED_TODOS || {}); }
+function _delIS(){ return (window.__VSP_DELETED_ISSUES = window.__VSP_DELETED_ISSUES || {}); }
 function deleteHeadline(id){
   // Delete immediately + offer Undo (5s). Tombstone prevents resurrection;
   // capture per-team removals so Undo can clear the tombstone and re-insert.
@@ -11589,8 +11590,10 @@ function issueDelete(id){
   var snaps=[];
   function _rm(arr){ if(Array.isArray(arr)){ var i=arr.findIndex(function(x){return x.id===id;}); if(i>-1){ snaps.push({arr:arr,idx:i,item:arr[i]}); arr.splice(i,1); } } }
   _rm(issues); _rm(longTermIssues); if(typeof resolvedIssues!=='undefined') _rm(resolvedIssues);
+  _delIS()[id]=true;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   state.issueCtx=null;renderPage();
-  vspUndoToast('Issue deleted', function(){ snaps.forEach(function(s){ s.arr.splice(Math.min(s.idx,s.arr.length),0,s.item); }); });
+  vspUndoToast('Issue deleted', function(){ delete _delIS()[id]; snaps.forEach(function(s){ s.arr.splice(Math.min(s.idx,s.arr.length),0,s.item); }); });
 }
 function issueCreateLinkedTodo(id){
   var issue=issues.find(function(i){return i.id===id;})||longTermIssues.find(function(i){return i.id===id;});
@@ -14659,6 +14662,7 @@ function vspSnapshot(){
     seedIds: (window.__VSP_SEED_IDS || null),
     deletedHeadlineIds: Object.keys((window.__VSP_DELETED_HEADLINES||{})),
     deletedTodoIds: Object.keys((window.__VSP_DELETED_TODOS||{})),
+    deletedIssueIds: Object.keys((window.__VSP_DELETED_ISSUES||{})),
     seatAnnotations: (window.SMB_VSP&&window.SMB_VSP.seatAnnotations)||{},
     futureSeats: (window.SMB_VSP&&window.SMB_VSP.futureSeats)||[],
     peopleReviews: (window.SMB_VSP&&window.SMB_VSP.peopleReviews)||{},
@@ -14727,6 +14731,7 @@ function vspApplySnapshot(s){
   // deleted everywhere it syncs, and survives reseed.
   try{ if(Array.isArray(s.deletedHeadlineIds)){ var _du=_delHL(); s.deletedHeadlineIds.forEach(function(x){ _du[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedTodoIds)){ var _dut=_delTD(); s.deletedTodoIds.forEach(function(x){ _dut[x]=true; }); } }catch(e){}
+  try{ if(Array.isArray(s.deletedIssueIds)){ var _dui=_delIS(); s.deletedIssueIds.forEach(function(x){ _dui[x]=true; }); } }catch(e){}
   try{ if(s.seatAnnotations && typeof s.seatAnnotations==='object'){ _vspEnsure(); window.SMB_VSP.seatAnnotations = s.seatAnnotations; } }catch(e){}
   try{ if(Array.isArray(s.futureSeats)){ _vspEnsure(); window.SMB_VSP.futureSeats = s.futureSeats; } }catch(e){}
   try{ if(s.peopleReviews && typeof s.peopleReviews==='object'){ _vspEnsure(); window.SMB_VSP.peopleReviews = s.peopleReviews; } }catch(e){}
@@ -14766,6 +14771,12 @@ function vspApplySnapshot(s){
       if(Array.isArray(saved.issues)) mergeById(reg.issues||(reg.issues=[]), saved.issues, _ikb('issues'));
       if(Array.isArray(saved.longTermIssues)) mergeById(reg.longTermIssues||(reg.longTermIssues=[]), saved.longTermIssues, _ikb('longTermIssues'));
       if(Array.isArray(saved.resolvedIssues)) mergeById(reg.resolvedIssues||(reg.resolvedIssues=[]), saved.resolvedIssues, _ikb('resolvedIssues'));
+      // Drop any issue tombstoned (deleted) so it cannot reseed or return from a sync node,
+      // regardless of which team was active when the snapshot was saved.
+      var _dis=_delIS();
+      if(Array.isArray(reg.issues)) reg.issues = reg.issues.filter(function(x){ return !(x && _dis[x.id]); });
+      if(Array.isArray(reg.longTermIssues)) reg.longTermIssues = reg.longTermIssues.filter(function(x){ return !(x && _dis[x.id]); });
+      if(Array.isArray(reg.resolvedIssues)) reg.resolvedIssues = reg.resolvedIssues.filter(function(x){ return !(x && _dis[x.id]); });
       // Full-replace fields (scorecard structure, meetings)
       if(Array.isArray(saved.scorecard) && saved.scorecard.length) repl(reg.scorecard||(reg.scorecard=[]), saved.scorecard);
       if(Array.isArray(saved.scheduledMeetings)) repl(reg.scheduledMeetings||(reg.scheduledMeetings=[]), saved.scheduledMeetings);
