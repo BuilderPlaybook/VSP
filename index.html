@@ -93,7 +93,7 @@
              * Reworked-pending: hardcoded Property / Development meeting
                types superseded by a tenant-defined team hierarchy
                (Configurable Team Hierarchy, own thread).
-             * Deferred: rename planData.lidaWay / secLIDAWay() to a
+             * Done (Jul 1 2026): renamed planData.ourWay / secOurWay() to a
                generic Pillars identifier (needs saved-board migration).
              * Chrome-CSS dedup (DoD 20): removed 32 redundant hand-rolled
                chrome rules; the locked Shell Chrome v1 block is now the
@@ -917,7 +917,7 @@
 /* === SMB CANON v2.0 BEGIN === DO NOT EDIT - change canon source instead === */
 :root {
   /* ─── Type scale (locked) ────────────────────────────────────────── */
-  --fz-xs:    10px;
+  --fz-xs:    11px;
   --fz-sm:    12px;
   --fz-md:    13px;
   --fz-base:  14px;
@@ -926,7 +926,7 @@
   --fz-xl:    20px;
   --fz-2xl:   22px;
   --fz-3xl:   30px;
-  --fz-4xl:   28px;
+  --fz-4xl:   30px;
 
   /* ─── Status palette (reserved for health indicators ONLY) ───────── */
   --grn:   #16a34a;   --grnb: #dcfce7;   --grnt: #15803d;
@@ -937,7 +937,7 @@
   --txt:   #0f172a;
   --txb:   #334155;
   --txm:   #64748b;
-  --txd:   #94a3b8;
+  --txd:   #677082;
 
   /* ─── Surface palette ────────────────────────────────────────────── */
   --bg:    #f1f5f9;
@@ -1198,7 +1198,8 @@ td:hover > .sc-note-pop{display:block}
 .main{flex:1;display:flex;flex-direction:column;overflow-y:auto;min-width:0}
 .card-body{font-size:var(--fz-lg)}
 .page{flex:1;overflow-y:auto;padding:24px;background:var(--bg);animation:fadeIn .15s ease;font-size:var(--fz-lg)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{transform:translateY(4px)}to{transform:none}}
+@keyframes vspSpin{to{transform:rotate(360deg)}}
 
 /* ── PAGE HEADER ── */
 .pg-title{font-size:var(--fz-3xl);font-weight:700;margin-bottom:4px;letter-spacing:-.01em;color:var(--txt)}
@@ -1475,7 +1476,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
 
 /* Shell Chrome v1 companion tokens (referenced by the chrome block, not in canon;
    HR values. --overlay-light-04 already defined in VSP module tokens above). */
-:root{ --sb-gold-accent:#f0d895; --r-card:8px; }
+:root{ --sb-gold-accent:#f0d895; --r-card:8px; --module-accent:#5b8fd6; }
 
 /* === SMB SHELL CHROME v1 BEGIN === DO NOT EDIT - change chrome source instead === */
 /* Companion tokens (sidebar line, gold pill bg/ink). Canon tokens used as-is. */
@@ -1484,7 +1485,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
   --gpb: #FBF6E7;
   --gpd: #A8862F;
 }
-.sb{width:240px;background:var(--sb);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb{width:240px;background:var(--sb);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;border-top:3px solid var(--module-accent)}
 .sb-logo{padding:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--sb-line);flex-shrink:0}
 .sb-mark{width:32px;height:32px;background:var(--gp);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-.01em}
 /* Sidebar chrome (canon sets typography; HR adds layout/color) */ .sb-name{color:#fff;line-height:1.1}
@@ -1539,7 +1540,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
 .kpi-card.k-blu::before{background:var(--blu)}
 .kpi-card.k-gold::before{background:var(--gp)}
 .kpi-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
-.kpi-card-lbl{color:var(--txm);font-weight:600;text-transform:uppercase;letter-spacing:.05em;line-height:1.2}
+.kpi-card-lbl{color:var(--txm);font-weight:600;font-size:var(--fz-sm);line-height:1.2}
 .kpi-card-ic{width:16px;height:16px;color:var(--txd);flex-shrink:0}
 .kpi-card-ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 .kpi-card-val{font-size:var(--fz-4xl);font-weight:700;color:var(--txt);line-height:1;letter-spacing:-.02em}
@@ -1561,7 +1562,39 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
 .card.acc.k-red::before{background:var(--red)}
 .card.acc.k-blu::before{background:var(--blu)}
 .card.acc.k-gold::before{background:var(--gp)}
+
+/* Global keyboard focus ring. !important beats scattered outline:none. :focus-visible targets keyboard users, not mouse clicks. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible,
+[onclick]:focus-visible{
+  outline:2px solid var(--blu) !important;
+  outline-offset:2px !important;
+  border-radius:6px;
+}
 /* === SHELL CHROME v1 END === */
+/* Seats & Structure: boxes-and-lines org chart */
+.vsp-org-wrap{overflow-x:auto;padding:8px 2px 20px}
+.vsp-tree{display:inline-flex;min-width:100%;justify-content:center}
+.vsp-tree ul{display:flex;justify-content:center;padding-top:22px;position:relative;list-style:none;margin:0}
+.vsp-tree li{position:relative;padding:22px 11px 0;display:flex;flex-direction:column;align-items:center;list-style:none}
+.vsp-tree li::before,.vsp-tree li::after{content:'';position:absolute;top:0;right:50%;width:50%;height:22px;border-top:1px solid var(--brd2)}
+.vsp-tree li::after{right:auto;left:50%;border-left:1px solid var(--brd2)}
+.vsp-tree li:only-child::before,.vsp-tree li:only-child::after{display:none}
+.vsp-tree li:only-child{padding-top:0}
+.vsp-tree li:first-child::before,.vsp-tree li:last-child::after{border:0 none}
+.vsp-tree li:last-child::before{border-right:1px solid var(--brd2)}
+.vsp-tree ul ul::before{content:'';position:absolute;top:0;left:50%;width:0;height:22px;border-left:1px solid var(--brd2)}
+.vsp-tree>ul{padding-top:0}
+.vsp-tree>ul>li{padding-top:0}
+.vsp-tree>ul>li::before,.vsp-tree>ul>li::after{display:none}
+.vsp-node{position:relative;width:188px;padding:11px 12px;border:1px solid var(--brd);border-top:3px solid var(--brd2);border-radius:9px;background:var(--sur);cursor:pointer;transition:transform .14s,border-color .14s,box-shadow .14s;display:flex;flex-direction:column;gap:7px;text-align:left}
+.vsp-node:hover{transform:translateY(-2px);border-color:var(--blu)}
 /* Dashboard KPI semantic colour modifiers (Semantic KPI Color Rule v1) - module CSS, after chrome */
 .kpi-card.k-blue::before{background:var(--blu)}
 .kpi-card.k-gray::before{background:var(--txm)}
@@ -1621,7 +1654,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blu)}
       </div>
     </div>
     <div class="tb-r">
-      <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -1861,9 +1894,9 @@ function vspEmitSignals(){
 var VSP_CHILDREN=[
     {id:"dashboard",label:"Dashboard"},{id:"strategic",label:"Strategic Plan"},
     {id:"scorecard",label:"Scorecard"},{id:"goals",label:"Goals"},
-    {id:"headlines",label:"Headlines"},{id:"todos",label:"To-Dos"},
+    {id:"todos",label:"To-Dos"},
     {id:"issues",label:"Issues"},{id:"meetings",label:"Meetings"},
-    {id:"cascades",label:"Cascading Messages"},{id:"org",label:"Org Chart"}
+    {id:"cascades",label:"Cascading Messages"},{id:"people",label:"People"}
   ];
   // Built from the shared Module Catalog v1 (window.SMB_CATALOG) so the sidebar
   // cannot drift from the catalog. VSP keeps its own sub-pages; every other module
@@ -2262,7 +2295,7 @@ var planData={
     goals:["2026: LIDA Homes WAY Complete FBA","2026: 1 Land Deal Contract","2026: Step Property Management FBA","2026: Start Bay Condo in August","2026: Hire CFO / Operations Lead"],measurables:[]},
   provenProcess:"The LIDA Homes Proven Process",
   guarantee:"The LIDA Homes Promise  -  Extraordinary Communication",
-  lidaWay:[
+  ourWay:[
     {num:"1",title:"Measured Performance Standards",desc:"We do not rely on guesswork or informal oversight. Our team operates with defined performance standards for quality, schedule discipline, communication, and accountability. These standards guide daily execution and ensure consistent results across every project."},
     {num:"2",title:"Structured Project Management",desc:"Your home is managed through structured planning, scheduling, and coordination systems that keep decisions organized and construction progressing efficiently. This approach reduces delays, improves communication, and ensures accountability at every stage. Our structured process also integrates Built Green\u00ae high-performance construction practices, improving comfort, energy efficiency, and long-term durability."},
     {num:"3",title:"Financial Confidence",desc:"Financial confidence comes from clarity and transparency. We provide clear budgeting, ongoing cost visibility, and structured change management so you can make informed decisions and feel confident your investment is being managed responsibly."},
@@ -2529,8 +2562,8 @@ function printStrategicPlan(){
 
   // LIDA Way
   D.push('<h2>The '+esc(orgName)+' Way - Our 4 Pillars</h2>');
-  if(planData.lidaWay&&planData.lidaWay.length){
-    planData.lidaWay.forEach(function(p){
+  if(planData.ourWay&&planData.ourWay.length){
+    planData.ourWay.forEach(function(p){
       D.push('<div class="pillar"><div class="pillar-title">'+p.num+'. '+esc(p.title)+'</div><div class="pillar-desc">'+esc(p.desc)+'</div></div>');
     });
   }
@@ -3935,9 +3968,9 @@ function savePlanField(key,subkey,idx){
     planData[key]=val;
   } else if(idx===undefined){
     planData[key][subkey]=val;
-  } else if(key==='lidaWay'&&(subkey==='title'||subkey==='desc')){
-    // lidaWay is array of objects {num,title,desc}
-    if(planData.lidaWay[idx]) planData.lidaWay[idx][subkey]=val;
+  } else if(key==='ourWay'&&(subkey==='title'||subkey==='desc')){
+    // ourWay is array of objects {num,title,desc}
+    if(planData.ourWay[idx]) planData.ourWay[idx][subkey]=val;
   } else if(key==='q1'&&subkey==='goals'&&idx!==undefined){
     // Q1 goals: array of [title, owner]
     if(!Array.isArray(planData.q1.goals[idx])) planData.q1.goals[idx]=[val,'DS'];
@@ -4490,10 +4523,17 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   // Inline editor when this cell is the active editingCell
   var c = state.editingCell;
   if(c && c.ownerId===ownerId && c.metricId===m.id && c.weekIdx===weekIdx && m.unit!=='YN'){
-    return '<td style="background:#fffbeb;text-align:center;padding:2px 4px;border-right:0.5px solid var(--brd)">'
+    var _hasN = m.notes && m.notes[weekIdx];
+    var _noteBtn = '<button type="button" title="'+(_hasN?'Edit note':'Add note')+'" aria-label="'+(_hasN?'Edit note':'Add note')+'" '
+      + 'onmousedown="event.preventDefault()" onclick="event.stopPropagation();scOpenNote('+m.id+','+weekIdx+')" '
+      + 'style="flex-shrink:0;width:22px;height:24px;border:1px solid var(--brd2);border-radius:4px;background:'+(_hasN?'var(--blub)':'var(--sur)')+';color:'+(_hasN?'var(--blu)':'var(--txm)')+';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0">'
+      + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5h14M5 12h14M5 19h9"/></svg></button>';
+    return '<td style="background:#fffbeb;padding:2px 4px;border-right:0.5px solid var(--brd)">'
+      + '<div style="display:flex;align-items:center;gap:3px;justify-content:center">'
       + '<input id="cell-input" type="text" value="'+(val==null?'':val)+'" onkeydown="handleCellKey(event)" onblur="saveCellEdit()" '
-      + 'style="width:54px;text-align:center;border:1.5px solid var(--blu);border-radius:3px;padding:3px;font-size:var(--fz-body);font-family:inherit;background:#fff;outline:none">'
-      + '</td>';
+      + 'style="width:48px;text-align:center;border:1.5px solid var(--blu);border-radius:3px;padding:3px;font-size:var(--fz-body);font-family:inherit;background:#fff;outline:none">'
+      + _noteBtn
+      + '</div></td>';
   }
   var hasVal = (val!==null && val!==undefined && val!=='' && !(typeof val==='number' && isNaN(val)));
   var _gm = (goalOverride!==null && goalOverride!==undefined) ? {goalType:m.goalType,goal:goalOverride,unit:m.unit,goalMin:m.goalMin,goalMax:m.goalMax} : m;
@@ -4501,6 +4541,10 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var bg = !hasVal ? bgRow : (ok ? '#d1fae5' : '#fee2e2');
   var color = !hasVal ? 'var(--txd)' : (ok ? '#065f46' : '#991b1b');
   var display = hasVal ? fmtVal(val, m.unit) : '-';
+  var isOff = hasVal && !ok;
+  var offGlyph = isOff ? '<span aria-hidden="true" style="font-size:8px;vertical-align:1.5px;margin-right:2px">\u25BC</span>' : '';
+  var cellWeight = isOff ? ';font-weight:700' : '';
+  var ariaLbl = hasVal ? (' aria-label="'+display+(ok?' on goal':' off goal')+'"') : '';
   var hasNote = m.notes && m.notes[weekIdx];
   var noteDot = hasNote ? '<span style="position:absolute;top:0;right:0;width:0;height:0;border-top:12px solid var(--blu);border-left:12px solid transparent;pointer-events:none"></span>' : '';
   var isAuto = !!m.auto;
@@ -4510,10 +4554,10 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var autoBadge = isAuto ? '<span title="Auto-fed, read-only" style="position:absolute;top:2px;left:3px;font-size:var(--fz-xs);font-weight:700;color:var(--txm);line-height:1">A</span>' : '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(String(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
   if(hasNote){ cellTitle = 'Note: '+_scEsc(String(m.notes[weekIdx]))+'   '+cellTitle; }
-  return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false" '
+  return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl+' '
     + 'title="'+cellTitle+'" '
-    + 'style="position:relative;text-align:center;background:'+bg+';color:'+color+';font-size:var(--fz-body);padding:8px 4px;cursor:pointer;border-right:0.5px solid var(--brd);font-variant-numeric:tabular-nums">'
-    + display + noteDot + autoBadge
+    + 'style="position:relative;text-align:center;background:'+bg+';color:'+color+';font-size:var(--fz-body);padding:8px 4px;cursor:pointer;border-right:0.5px solid var(--brd);font-variant-numeric:tabular-nums'+cellWeight+'">'
+    + offGlyph + display + noteDot + autoBadge
     + '</td>';
 }
 
@@ -5502,6 +5546,7 @@ function _scDateRanges(){
     custom:   {label:"Custom Range",      weekIdxs:_ci()}
   };
 }
+function _vspScRowIsRed(m){ try{ return _scTier(m, _scRollupVal(m))==='red'; }catch(e){ return false; } }
 function _scMetricOrder(section){
   var s=(state.scorecardSearch||'').trim().toLowerCase();
   var srt=state.scorecardSort||'manual';
@@ -5509,6 +5554,7 @@ function _scMetricOrder(section){
   var _cad=state.scorecardPeriod||'weekly';
   order=order.filter(function(i){var _mc=((section.metrics[i]||{}).cadence)||'weekly'; return _cad==='quarterly'?(_mc==='quarterly'||_mc==='monthly'):(_mc===_cad);});
   if(s) order=order.filter(function(i){return (section.metrics[i].title||'').toLowerCase().indexOf(s)>-1;});
+  if(state.scOffTrackOnly) order=order.filter(function(i){ return _vspScRowIsRed(section.metrics[i]); });
   if(srt==='name-asc') order.sort(function(a,b){return (section.metrics[a].title||'').localeCompare(section.metrics[b].title||'');});
   else if(srt==='name-desc') order.sort(function(a,b){return (section.metrics[b].title||'').localeCompare(section.metrics[a].title||'');});
   return order;
@@ -6307,6 +6353,40 @@ function ef(key,val,multiline,subkey,idx,placeholder){
     +'</div>';
 }
 
+function _vspScGreenSeries(allM, win){
+  var cur=0;
+  allM.forEach(function(m){ var r=m.readings||[]; for(var k=r.length-1;k>=0;k--){ if(r[k]!=null&&r[k]!==''){ if(k>cur)cur=k; break; } } });
+  var start=Math.max(0, cur-(win-1));
+  var out=[];
+  for(var i=start;i<=cur;i++){
+    var g=0;
+    allM.forEach(function(m){
+      var r=m.readings||[], v=null;
+      for(var k=Math.min(i, r.length-1); k>=0; k--){ if(r[k]!=null&&r[k]!==''){ v=r[k]; break; } }
+      if(v!=null && isOnTrack(m,v)) g++;
+    });
+    out.push(g);
+  }
+  return out;
+}
+function _vspSpark(series, color){
+  if(!series||series.length<2) return '';
+  var w=58, hh=24, pad=3;
+  var min=Math.min.apply(null,series), max=Math.max.apply(null,series);
+  var rng=(max-min)||1, step=(w-pad*2)/(series.length-1);
+  var pts=series.map(function(v,i){ var x=pad+i*step; var y=pad+(hh-pad*2)*(1-(v-min)/rng); return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+  return '<svg width="'+w+'" height="'+hh+'" viewBox="0 0 '+w+' '+hh+'" fill="none" aria-hidden="true" style="flex-shrink:0"><polyline points="'+pts+'" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function _vspEmpty(icon, msg, ctaLabel, ctaOnclick){
+  var h='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px 16px;gap:9px">';
+  h+='<div style="width:38px;height:38px;border-radius:10px;background:var(--sur2);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;color:var(--txd)">'+icon+'</div>';
+  h+='<div style="font-size:var(--fz-body);color:var(--txm);max-width:240px;line-height:1.4">'+msg+'</div>';
+  if(ctaLabel && ctaOnclick){ h+='<button class="btn btn-sm btn-blu" style="margin-top:2px" onclick="'+ctaOnclick+'">'+ctaLabel+'</button>'; }
+  h+='</div>';
+  return h;
+}
+var _VSP_IC_GOAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>';
+var _VSP_IC_TODO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
 function renderDashboard(){
   var goalsGood=goals.filter(function(g){return g.status!="off-track"&&g.status!=="cancelled";}).length;
   var goalsTotal=goals.filter(function(g){return g.status!=="cancelled";}).length;
@@ -6378,17 +6458,41 @@ function renderDashboard(){
   var scK=scPct>=0.8?"k-grn":scPct>=0.6?"k-amb":"k-red";
   h+='<div class="pg"><div><div class="pg-title">Vision &amp; Strategic Plan</div><div class="pg-sub">Vision, scorecard, goals, and team health</div></div><div class="pg-actions" id="dash-pg-actions"></div></div>';
   h+='<div class="dash-kpis">';
+  if(state.meetTab==='running'){
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border:1px solid var(--grn);border-left:4px solid var(--grn);border-radius:9px;background:var(--grnb,#dcfce7);margin-bottom:14px">';
+    h+='<div style="font-size:var(--fz-lg);font-weight:600;color:var(--txt)">Meeting in progress</div>';
+    h+='<button type="button" class="btn btn-blu" onclick="state.page=\'meetings\';renderPage()">Resume meeting</button></div>';
+  } else if(daysToMeeting==='Today' && nextMeet){
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:13px 16px;border:1px solid var(--blu-bdr,var(--brd));border-left:4px solid var(--blu);border-radius:9px;background:var(--blub,var(--sur2));margin-bottom:14px">';
+    h+='<div><div style="font-size:var(--fz-lg);font-weight:700;color:var(--txt)">'+_vspEsc(nextMeet.type||'Weekly')+' Meeting today</div>';
+    h+='<div style="color:var(--txm)">'+_vspEsc(nextMeet.time||'')+(nextMeet.location?(' \u00b7 '+_vspEsc(nextMeet.location)):'')+((nextMeet.attendees&&nextMeet.attendees.length)?(' \u00b7 '+nextMeet.attendees.length+' attendees'):'')+'</div></div>';
+    h+='<button type="button" class="btn btn-blu" onclick="state.page=\'meetings\';startMeetingByType(\''+_vspEsc(nextMeet.type||'Weekly')+'\');renderPage()">Start meeting</button></div>';
+  }
+  var scSeries=_vspScGreenSeries(allM, 8);
+  var scDelta=(scSeries.length>=2)?(scSeries[scSeries.length-1]-scSeries[scSeries.length-2]):null;
+  var nmVal = (daysToMeeting==='Today') ? 'Today' : (daysToMeeting===' - ') ? 'None' : 'in '+daysToMeeting+(daysToMeeting==='1'?' day':' days');
   var kpiData=[
-    {n:goalsGood+"/"+goalsTotal,l:"Goals On Track",k:goalsK,pg:"goals",d:"How many of your quarterly goals are on track, out of the total."},
-    {n:greenM+"/"+allM.length,l:"Scorecard Green",k:scK,pg:"scorecard",d:"How many scorecard metrics are hitting target this period, out of the total."},
+    {n:goalsGood+"/"+goalsTotal,l:"Goals On Track",k:goalsK,pg:"goals",status:true,d:"How many of your quarterly goals are on track, out of the total."},
+    {n:greenM+"/"+allM.length,l:"Scorecard Green",k:scK,pg:"scorecard",status:true,spark:scSeries,delta:scDelta,d:"How many scorecard metrics are hitting target this period, out of the total."},
     {n:openT,l:"Open To-Dos",k:"k-blue",pg:"todos",d:"To-dos assigned to you that are not done yet."},
-    {n:openI,l:"Open Issues",k:(openI>0?"k-red":"k-grn"),pg:"issues",d:"Issues raised for your team that are not solved yet."},
-    {n:daysToMeeting,l:"Days to Meeting",k:(nextMeet?"k-blue":"k-gray"),pg:"meetings",d:"Days until your next scheduled meeting."}
+    {n:openI,l:"Open Issues",k:(openI>0?"k-red":"k-grn"),pg:"issues",status:true,d:"Issues raised for your team that are not solved yet."},
+    {n:nmVal,l:"Next Meeting",k:"k-gray",pg:"meetings",sub:nextMeetDateStr,d:"When your next scheduled meeting is."}
   ];
   kpiData.forEach(function(s){
+    var tone = s.k==='k-grn'?{c:'#15803d',bg:'#dcfce7',g:'\u25B2',t:'On track'}
+             : s.k==='k-amb'?{c:'#b45309',bg:'#fef3c7',g:'\u25CF',t:'Watch'}
+             : s.k==='k-red'?{c:'#b91c1c',bg:'#fee2e2',g:'\u25BC',t:'Off track'} : null;
     h+='<div class="kpi-card '+s.k+'" onclick="nav(\''+s.pg+'\')" style="cursor:pointer">';
     h+='<div class="kpi-card-top"><div class="kpi-card-lbl">'+s.l+'</div><button class="info-icon" type="button" onclick="event.stopPropagation()" aria-label="About '+s.l+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="7.5" x2="8" y2="11.5"/><line x1="8" y1="5" x2="8" y2="5.01"/></svg><span class="tip">'+s.d+'</span></button></div>';
-    h+='<div class="kpi-card-val">'+s.n+'</div></div>';
+    h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px"><div class="kpi-card-val">'+s.n+'</div>';
+    if(s.spark&&tone){ h+=_vspSpark(s.spark, tone.c); }
+    h+='</div>';
+    var foot='';
+    if(s.status&&tone){ foot+='<span style="display:inline-flex;align-items:center;gap:4px;font-size:var(--fz-xs);font-weight:700;color:'+tone.c+';background:'+tone.bg+';border-radius:5px;padding:2px 7px;letter-spacing:.02em">'+tone.g+' '+tone.t+'</span>'; }
+    if(s.delta!=null){ var fl=(s.delta===0), up=(s.delta>0); var dc=fl?'var(--txm)':(up?'#15803d':'#b91c1c'); var ar=fl?'\u00b7':(up?'\u25B2':'\u25BC'); foot+='<span style="font-size:var(--fz-xs);color:'+dc+';font-weight:600">'+ar+' '+(up?'+':'')+s.delta+' vs last wk</span>'; }
+    if(s.sub){ foot+='<span class="kpi-card-sub" style="font-size:var(--fz-xs)">'+s.sub+'</span>'; }
+    h+='<div class="kpi-card-foot">'+foot+'</div>';
+    h+='</div>';
   });
   h+='</div>';
 
@@ -6399,7 +6503,7 @@ function renderDashboard(){
   // CARD 1: My Q2 Goals  (default span 12)
   h+='<div class="card"><div class="card-hd"><div class="card-title">My Q2 Goals <span style="font-size:var(--fz-base);color:var(--txm);font-weight:400">('+myGoals.length+')</span></div><button class="btn btn-sm" onclick="nav(\'goals\')">View all</button></div><div class="card-body">';
   if(!myGoals.length){
-    h+='<div style="font-size:var(--fz-body);color:var(--txm);padding:6px 0">No goals assigned to you this quarter.</div>';
+    h+=_vspEmpty(_VSP_IC_GOAL,'No goals assigned to you this quarter.','Set a goal',"nav('goals')");
   }
   myGoals.slice(0,5).forEach(function(g){
     var c=statusColor(g.status);
@@ -6417,7 +6521,7 @@ function renderDashboard(){
   var myDoneTodos=myTodos.filter(function(t){return t.done;});
   h+='<div class="card"><div class="card-hd"><div class="card-title">My To-Dos <span style="font-size:var(--fz-base);color:var(--txm);font-weight:400">('+myOpenTodos.length+' open'+(myDoneTodos.length?', '+myDoneTodos.length+' done':'')+')</span></div><button class="btn btn-sm" onclick="nav(\'todos\')">View all</button></div><div class="card-body">';
   if(!myOpenTodos.length&&!myDoneTodos.length){
-    h+='<div style="font-size:var(--fz-lg);color:var(--txm);padding:8px 0">No to-dos assigned to you.</div>';
+    h+=_vspEmpty(_VSP_IC_TODO,'No to-dos assigned to you yet.','Add a to-do',"nav('todos')");
   }
   myOpenTodos.slice(0,5).forEach(function(t){
     h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--sur2);border-radius:5px;border:0.5px solid var(--brd);margin-bottom:5px">';
@@ -6580,12 +6684,19 @@ function renderStrategic(){
 
   // Section blocks - all content from planData, all fields editable via ef()
   function secCoreValues(){
+    if(typeof _vspCvList==='function') _vspCvList();
+    var editing=!!state.planEditUnlocked;
     var h='<div class="card"><div class="hdr">Core Values</div>';
     planData.cv.forEach(function(v,i){
       h+='<div style="margin-bottom:11px;padding-bottom:11px;border-bottom:0.5px solid var(--brd)">';
+      h+='<div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1;min-width:0">';
       h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:4px">'+(i+1)+'. '+ef('cv',v.title,false,'title',i)+'</div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm);line-height:1.6">'+ef('cv',v.desc,true,'desc',i)+'</div></div>';
+      if(editing && planData.cv.length>1) h+='<button type="button" class="btn btn-sm" onclick="removeCoreValue('+i+')" style="color:var(--red);flex-shrink:0">Remove</button>';
+      h+='</div></div>';
     });
+    if(editing && planData.cv.length<5) h+='<button type="button" class="btn btn-sm btn-blu" onclick="addCoreValue()">+ Add core value</button>';
+    else if(planData.cv.length>=5) h+='<div style="font-size:var(--fz-sm);color:var(--txd)">Maximum of 5 core values.</div>';
     return h+'</div>';
   }
 
@@ -6608,17 +6719,17 @@ function renderStrategic(){
       +'<div style="font-size:var(--fz-lg);line-height:1.65;color:var(--txt)">'+ef('target10yr',planData.target10yr,true)+'</div></div>';
   }
 
-  function secLIDAWay(){
-    // Reads from planData.lidaWay - same source as printStrategicPlan
-    if(!planData.lidaWay||!planData.lidaWay.length) return '';
+  function secOurWay(){
+    // Reads from planData.ourWay - same source as printStrategicPlan
+    if(!planData.ourWay||!planData.ourWay.length) return '';
     var h='<div class="card"><div class="hdr">The '+((window.SMB_TENANT&&window.SMB_TENANT.orgName)||'Company')+' Way  -  Our 4 Pillars</div>';
-    planData.lidaWay.forEach(function(p,i){
-      var isLast=i===planData.lidaWay.length-1;
+    planData.ourWay.forEach(function(p,i){
+      var isLast=i===planData.ourWay.length-1;
       h+='<div style="display:flex;gap:10px;margin-bottom:'+(isLast?'0':'10px')+';padding-bottom:'+(isLast?'0':'10px')+';border-bottom:'+(isLast?'none':'0.5px solid var(--brd)')+'">';
       h+='<div style="width:22px;height:22px;border-radius:50%;background:var(--blu);display:flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:700;color:#fff;flex-shrink:0;margin-top:1px">'+(i+1)+'</div>';
       h+='<div style="flex:1">';
-      h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:3px">'+ef('lidaWay',p.title,false,'title',i)+'</div>';
-      h+='<div style="font-size:var(--fz-body);color:var(--txm);line-height:1.55">'+ef('lidaWay',p.desc,true,'desc',i)+'</div>';
+      h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:3px">'+ef('ourWay',p.title,false,'title',i)+'</div>';
+      h+='<div style="font-size:var(--fz-body);color:var(--txm);line-height:1.55">'+ef('ourWay',p.desc,true,'desc',i)+'</div>';
       h+='</div></div>';
     });
     return h+'</div>';
@@ -6877,7 +6988,7 @@ function renderStrategic(){
   // ── VISION ────────────────────────────────────────────────
   if(t==="vision"){
     h+='<div class="g2">';
-    h+='<div>'+secCoreValues()+secCoreFocus()+secGoToMarket()+secLIDAWay();
+    h+='<div>'+secCoreValues()+secCoreFocus()+secGoToMarket()+secOurWay();
     h+='<div class="card"><div class="hdr">Proven Process & Guarantee</div><div class="fl">Proven Process</div><div style="font-size:var(--fz-lg);color:var(--txt);margin-bottom:10px">'+(planData.provenProcess||'Proven Process')+'</div><div class="fl">Guarantee</div><div style="font-size:var(--fz-lg);color:var(--txt)">'+(planData.guarantee||'Customer Guarantee')+'</div></div>';
     h+='</div>';
     h+='<div>'+sec10yr()+sec3yr()+'</div>';
@@ -6919,7 +7030,7 @@ function renderStrategic(){
     // ── Go-To-Market ────────────────────────────────────────────────────
     h+=secGoToMarket();
     // ── LIDA Way ────────────────────────────────────────────────────────
-    h+=secLIDAWay();
+    h+=secOurWay();
     // ── Proven Process & Guarantee ──────────────────────────────────────
     h+='<div class="card"><div class="hdr">Proven Process &amp; Guarantee</div><div class="fl">Proven Process</div><div style="font-size:var(--fz-lg);color:var(--txt);margin-bottom:10px">'+(planData.provenProcess||'Proven Process')+'</div><div class="fl">Guarantee</div><div style="font-size:var(--fz-lg);color:var(--txt)">'+(planData.guarantee||'Customer Guarantee')+'</div></div>';
     // ── THE PLAN ────────────────────────────────────────────────────────
@@ -7121,7 +7232,7 @@ function renderDirectory(){
   var depts=[...new Set(ppl.map(function(p){return p.department;}).filter(Boolean))].sort();
   var list=_pplFiltered();
   var h='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">';
-  h+='<div><div class="pg-title">Directory</div><div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:18px">Team roster, contact info, and team assignments</div></div>';
+  h+='<div><div style="font-size:var(--fz-xl);font-weight:700;color:var(--txt)">Directory</div><div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:18px">Team roster, contact info, and team assignments</div></div>';
   h+='<button class="btn btn-gold" onclick="_openPersonPanel(\'add\')" style="flex-shrink:0;margin-top:4px">+ Add Person</button></div>';
   h+='<div class="pulse">';
   [{n:active.length,l:'Active Team',c:'var(--blu)'},{n:depts.length,l:'Departments',c:'var(--amb)'},{n:teamsData.length,l:'Teams',c:'var(--grn)'},{n:ppl.filter(function(p){return p.status==='archived';}).length,l:'Archived',c:'var(--red)'}].forEach(function(s){
@@ -7163,7 +7274,7 @@ function renderPplTeams(){
   var avg=teamsData.length?(teamsData.reduce(function(s,t){return s+active.filter(function(p){return(p.teams||[]).includes(t.id);}).length;},0)/teamsData.length).toFixed(1):'0';
   var multi=active.filter(function(p){return(p.teams||[]).length>1;}).length;
   var h='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">';
-  h+='<div><div class="pg-title">Teams</div><div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:18px">Team groupings and member rosters</div></div>';
+  h+='<div><div style="font-size:var(--fz-xl);font-weight:700;color:var(--txt)">Teams</div><div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:18px">Team groupings and member rosters</div></div>';
   h+='<button class="btn btn-gold" onclick="_openTeamPanel(\'add\')" style="flex-shrink:0;margin-top:4px">+ Add Team</button></div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">';
   [{n:teamsData.length,l:'Total Teams',c:'var(--blu)'},{n:avg,l:'Avg Team Size',c:'var(--amb)'},{n:multi,l:'Multi-Team Members',c:'var(--grn)'}].forEach(function(s){
@@ -7801,6 +7912,13 @@ function renderScorecard(){
   if(state.scorecardSearch) h+='<span onclick="state.scorecardSearch=\'\';renderPage()" style="cursor:pointer;color:var(--txm);font-size:var(--fz-lg);line-height:1">\u00d7</span>';
   h+='</div>';
 
+  var _offCount=0; scorecard.forEach(function(s){ (s.metrics||[]).forEach(function(m){ if(_vspScRowIsRed(m)) _offCount++; }); });
+  var _offOn=!!state.scOffTrackOnly;
+  h+='<button type="button" onclick="state.scOffTrackOnly=!state.scOffTrackOnly;renderPage()" title="Show only measurables that are off goal" style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fz-body);font-family:inherit;padding:6px 11px;border-radius:7px;cursor:pointer;border:1.5px solid '+(_offOn?'#fca5a5':'var(--brd2)')+';background:'+(_offOn?'#fee2e2':'var(--sur)')+';color:'+(_offOn?'#b91c1c':'var(--txt)')+'">';
+  h+='<span aria-hidden="true">\u25BC</span> Off-track only';
+  h+='<span style="font-size:var(--fz-xs);font-weight:700;background:'+(_offOn?'#fecaca':'var(--sur2)')+';color:'+(_offOn?'#991b1b':'var(--txm)')+';border-radius:9px;padding:1px 7px">'+_offCount+'</span>';
+  h+='</button>';
+
   // Toolbar buttons
   h+='<div style="display:flex;align-items:center;gap:8px">';
   h+='<button class="btn btn-sm" onclick="state.newGroupPanel=true;renderPage()" style="display:flex;align-items:center;gap:5px">';
@@ -8372,6 +8490,15 @@ function renderGoals(){
   h+='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export CSV</button>';
   h+=renderCreateMenuBtn('goals');
   h+='</div></div>';
+
+  // Goal-load discipline: 3 to 7 active goals per owner per quarter
+  var _perOwner={};
+  activeGoals.forEach(function(g){ if(g.status!=='complete' && g.horizon==='current' && g.owner){ _perOwner[g.owner]=(_perOwner[g.owner]||0)+1; } });
+  var _over=Object.keys(_perOwner).filter(function(o){ return _perOwner[o]>7; });
+  if(_over.length){
+    var _names=_over.map(function(o){ return (typeof pplName==='function'?(pplName(o)||o):o)+' ('+_perOwner[o]+')'; }).join(', ');
+    h+='<div style="display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid var(--amb);border-left:4px solid var(--amb);border-radius:8px;background:var(--ambb,var(--sur2));margin-bottom:14px;color:var(--txt)"><span aria-hidden="true">\u25CF</span><div><b>Goal overload:</b> '+_names+'. Three to seven active goals per quarter is the discipline; past seven they rarely all finish.</div></div>';
+  }
 
   // View tabs + owner filter + search
   h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">';
@@ -9289,18 +9416,50 @@ function aiAutoStartStep(stepIdx){
   if(cur) startRecording(stepIdx, cur.label);
 }
 
+var _vspUndoTimer=null;
+function vspUndoToast(label, restoreFn){
+  var ex=document.getElementById('vsp-undo-toast'); if(ex)ex.remove();
+  if(_vspUndoTimer){ clearTimeout(_vspUndoTimer); _vspUndoTimer=null; }
+  var t=document.createElement('div');
+  t.id='vsp-undo-toast';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:11px 14px 11px 18px;border-radius:10px;font-size:var(--fz-body);font-family:inherit;z-index:9999;box-shadow:0 8px 26px rgba(0,0,0,.28);display:flex;align-items:center;gap:14px;opacity:0;transition:opacity .25s';
+  var span=document.createElement('span'); span.textContent=label; span.style.cssText='white-space:nowrap';
+  var btn=document.createElement('button'); btn.type='button'; btn.textContent='Undo';
+  btn.style.cssText='font:inherit;font-size:var(--fz-body);font-weight:700;color:#93c5fd;background:transparent;border:none;cursor:pointer;padding:2px 4px';
+  var ring=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  ring.setAttribute('width','18'); ring.setAttribute('height','18'); ring.setAttribute('viewBox','0 0 36 36'); ring.style.flexShrink='0';
+  ring.innerHTML='<circle cx="18" cy="18" r="15" fill="none" stroke="#334155" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="#93c5fd" stroke-width="3" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="0" transform="rotate(-90 18 18)"><animate attributeName="stroke-dashoffset" from="0" to="94.2" dur="5s" fill="freeze"/></circle>';
+  function close(){ t.style.opacity='0'; setTimeout(function(){ if(t.parentNode) t.remove(); },260); if(_vspUndoTimer){ clearTimeout(_vspUndoTimer); _vspUndoTimer=null; } }
+  btn.onclick=function(){ close(); try{ restoreFn(); }catch(e){ console.warn('undo failed',e); } try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} renderPage(); };
+  t.appendChild(span); t.appendChild(btn); t.appendChild(ring);
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.style.opacity='1'; });
+  _vspUndoTimer=setTimeout(close, 5000);
+}
+function _vspTodoCapture(id){
+  var snaps=[];
+  try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt){ ['todos','privateTodos'].forEach(function(key){ if(Array.isArray(tt[key])){ var i=tt[key].findIndex(function(t){return t.id===id;}); if(i>-1) snaps.push({tid:tid,key:key,idx:i,item:tt[key][i]}); } }); } }); }catch(e){}
+  return snaps;
+}
+function _vspTodoRestore(id, snaps){
+  delete _delTD()[id];
+  (snaps||[]).forEach(function(s){ var tt=teamsRegistry[s.tid]; if(tt&&Array.isArray(tt[s.key])) tt[s.key].splice(Math.min(s.idx,tt[s.key].length),0,s.item); });
+  var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; todos=team.todos; privateTodos=team.privateTodos;
+}
 function deleteMeeting(id){
-  if(!confirm('Delete this meeting? This cannot be undone.')) return;
   var idx=pastMeetings.findIndex(function(m){return m.id===id;});
-  if(idx>-1){ pastMeetings.splice(idx,1); }
+  if(idx<0) return;
+  var item=pastMeetings.splice(idx,1)[0];
   if(state.expandedMeeting===id) state.expandedMeeting=null;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
+  vspUndoToast('Meeting deleted', function(){ pastMeetings.splice(Math.min(idx,pastMeetings.length),0,item); });
 }
 function renderMeetings(){
   var tab=state.meetTab;
   var isLT=state.currentTeam==='lt';
-  var h='<div class="pg-title">Meetings</div><div class="pg-sub">Improve alignment and transparency across your organization</div>';
+  var h='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div><div class="pg-title">Meetings</div><div class="pg-sub">Improve alignment and transparency across your organization</div></div>';
+  h+='<button type="button" class="btn btn-sm" style="flex-shrink:0;margin-top:6px" onclick="nav(\'headlines\')" title="Capture wins and news for the next meeting">Headlines</button></div>';
 
   // Tabs
   h+='<div class="tab-bar">';
@@ -10632,16 +10791,21 @@ function addHeadlineFromPanel(){
 function _delHL(){ return (window.__VSP_DELETED_HEADLINES = window.__VSP_DELETED_HEADLINES || {}); }
 function _delTD(){ return (window.__VSP_DELETED_TODOS = window.__VSP_DELETED_TODOS || {}); }
 function deleteHeadline(id){
-  if(!confirm("Delete this headline? This cannot be undone. Tip: Archive keeps the record but hides it from active lists.")) return;
-  // Tombstone the id so no sync, reseed, or cross-team copy can resurrect it,
-  // and remove it from EVERY team (a headline may have bled across teams).
+  // Delete immediately + offer Undo (5s). Tombstone prevents resurrection;
+  // capture per-team removals so Undo can clear the tombstone and re-insert.
   _delHL()[id]=true;
-  try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt&&Array.isArray(tt.headlines)) tt.headlines=tt.headlines.filter(function(h){return h.id!==id;}); }); }catch(e){}
+  var snaps=[];
+  try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt&&Array.isArray(tt.headlines)){ var i=tt.headlines.findIndex(function(h){return h.id===id;}); if(i>-1){ snaps.push({tid:tid,idx:i,item:tt.headlines[i]}); tt.headlines=tt.headlines.filter(function(h){return h.id!==id;}); } } }); }catch(e){}
   var t=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   headlines=t.headlines;
   state.headlineCtx=null;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
+  vspUndoToast('Headline deleted', function(){
+    delete _delHL()[id];
+    snaps.forEach(function(s){ var tt=teamsRegistry[s.tid]; if(tt&&Array.isArray(tt.headlines)) tt.headlines.splice(Math.min(s.idx,tt.headlines.length),0,s.item); });
+    var t2=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; headlines=t2.headlines;
+  });
 }
 function headlineArchive(id){
   var t=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
@@ -11294,7 +11458,7 @@ function issueMarkSolved(id){
   if(idx<0){ src=longTermIssues; idx=longTermIssues.findIndex(function(i){return i.id===id;}); }
   if(idx>-1){var it=src.splice(idx,1)[0];it.status="resolved";it._wasLong=(src===longTermIssues);resolvedIssues.push(it);
     if(state.meetTab==="running"&&state.meetSolvedIds.indexOf(id)===-1) state.meetSolvedIds.push(id);
-    state.issueCtx=null;renderPage();issueSolveToast(id);return;}
+    state.issueCtx=null;renderPage();issueSolveToast(id,it);return;}
   state.issueCtx=null;renderPage();
 }
 function issueReopen(id,interval){
@@ -11311,12 +11475,53 @@ function issueReopen(id,interval){
   renderPage();
   showToast("Issue reopened to "+(toLong?"Long-Term":"Short-Term"));
 }
-function issueSolveToast(id){
+function _vspIssueTodoDialog(it){
+  var ex=document.getElementById('vsp-iss-todo'); if(ex)ex.remove();
+  var wrap=document.createElement('div'); wrap.id='vsp-iss-todo';
+  wrap.style.cssText='position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center';
+  var due=new Date(); due.setDate(due.getDate()+7);
+  var dueIso=due.getFullYear()+'-'+('0'+(due.getMonth()+1)).slice(-2)+'-'+('0'+due.getDate()).slice(-2);
+  var opts=''; _vspActivePpl().forEach(function(pp){ opts+='<option value="'+_vspEsc(pp.initials)+'"'+(pp.initials===it.owner?' selected':'')+'>'+_vspEsc(pp.first+' '+pp.last)+'</option>'; });
+  wrap.innerHTML='<div data-x="bg" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>'
+    +'<div role="dialog" aria-modal="true" aria-label="Add the to-do" style="position:relative;width:440px;max-width:94vw;background:var(--sur);border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.28);padding:20px 22px">'
+    +'<div style="font-size:var(--fz-lg);font-weight:700;color:var(--txt);margin-bottom:2px">A solved issue needs an action</div>'
+    +'<div style="color:var(--txm);margin-bottom:14px">Who does what by when.</div>'
+    +'<label style="display:block;font-weight:600;color:var(--txt);margin-bottom:5px" for="vsp-it-task">To-do</label>'
+    +'<input id="vsp-it-task" type="text" value="'+_vspEsc('Re: '+(it.title||''))+'" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body);margin-bottom:12px">'
+    +'<div style="display:flex;gap:10px;margin-bottom:16px">'
+    +'<div style="flex:1"><label style="display:block;font-weight:600;color:var(--txt);margin-bottom:5px" for="vsp-it-owner">Owner</label><select id="vsp-it-owner" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)">'+opts+'</select></div>'
+    +'<div style="flex:1"><label style="display:block;font-weight:600;color:var(--txt);margin-bottom:5px" for="vsp-it-due">Due</label><input id="vsp-it-due" type="date" value="'+dueIso+'" style="width:100%;padding:8px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)"></div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:8px"><button type="button" data-x="skip" class="btn btn-sm">Skip</button><button type="button" data-x="add" class="btn btn-blu">Add to-do</button></div>'
+    +'</div>';
+  function close(){ if(wrap.parentNode)wrap.remove(); }
+  wrap.querySelector('[data-x="bg"]').onclick=close;
+  wrap.querySelector('[data-x="skip"]').onclick=close;
+  wrap.querySelector('[data-x="add"]').onclick=function(){
+    var task=(document.getElementById('vsp-it-task').value||'').trim();
+    if(!task){ document.getElementById('vsp-it-task').focus(); return; }
+    var nt={id:Date.now(), task:task, owner:document.getElementById('vsp-it-owner').value, due:document.getElementById('vsp-it-due').value||dueIso, done:false, private:false, attachments:0};
+    todos.unshift(nt);
+    var team=teamsRegistry[state.currentTeam]; if(team) team.todos=todos;
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    close(); renderPage();
+    if(typeof showToast==='function') showToast('To-do added');
+  };
+  document.body.appendChild(wrap);
+  setTimeout(function(){ var f=document.getElementById('vsp-it-task'); if(f){f.focus();f.select();} },40);
+}
+function issueSolveToast(id,it){
   if(typeof document==="undefined") return;
   var existing=document.getElementById("bp-toast"); if(existing) existing.remove();
   var t=document.createElement("div"); t.id="bp-toast";
   t.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:9px 14px 9px 18px;border-radius:8px;font-size:var(--fz-body);font-weight:500;font-family:inherit;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:14px;opacity:1;transition:opacity .3s";
-  var span=document.createElement("span"); span.textContent="Issue solved"; t.appendChild(span);
+  var span=document.createElement("span"); span.textContent="Issue solved. What\u2019s the to-do?"; t.appendChild(span);
+  if(it){
+    var a=document.createElement("button"); a.textContent="Add the to-do";
+    a.style.cssText="background:#fff;color:#16a34a;border:none;border-radius:6px;padding:4px 12px;font-family:inherit;font-size:var(--fz-base);font-weight:700;cursor:pointer";
+    a.onclick=function(){ if(t.parentNode)t.remove(); _vspIssueTodoDialog(it); };
+    t.appendChild(a);
+  }
   var b=document.createElement("button"); b.textContent="Undo";
   b.style.cssText="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:6px;padding:4px 12px;font-family:inherit;font-size:var(--fz-base);font-weight:600;cursor:pointer";
   b.onclick=function(){ if(t.parentNode)t.remove(); issueReopen(id); };
@@ -11381,10 +11586,11 @@ function issueArchive(id){
   state.issueCtx=null;renderPage();
 }
 function issueDelete(id){
-  if(!confirm("Delete this issue? This cannot be undone. Tip: Archive keeps the record but hides it from active lists."))return;
-  function _rm(arr){ if(Array.isArray(arr)){ var i=arr.findIndex(function(x){return x.id===id;}); if(i>-1) arr.splice(i,1); } }
+  var snaps=[];
+  function _rm(arr){ if(Array.isArray(arr)){ var i=arr.findIndex(function(x){return x.id===id;}); if(i>-1){ snaps.push({arr:arr,idx:i,item:arr[i]}); arr.splice(i,1); } } }
   _rm(issues); _rm(longTermIssues); if(typeof resolvedIssues!=='undefined') _rm(resolvedIssues);
   state.issueCtx=null;renderPage();
+  vspUndoToast('Issue deleted', function(){ snaps.forEach(function(s){ s.arr.splice(Math.min(s.idx,s.arr.length),0,s.item); }); });
 }
 function issueCreateLinkedTodo(id){
   var issue=issues.find(function(i){return i.id===id;})||longTermIssues.find(function(i){return i.id===id;});
@@ -11490,20 +11696,22 @@ function todoUnarchive(id){
   state.todoCtx=null; renderPage();
 }
 function todoDelete(id){
-  if(!confirm("Delete this to-do? This cannot be undone. Tip: Archive keeps the record but hides it from active lists."))return;
+  var snaps=_vspTodoCapture(id);
   _delTD()[id]=true;
   try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt){ if(Array.isArray(tt.todos)) tt.todos=tt.todos.filter(function(t){return t.id!==id;}); if(Array.isArray(tt.privateTodos)) tt.privateTodos=tt.privateTodos.filter(function(t){return t.id!==id;}); } }); }catch(e){}
   var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; todos=team.todos; privateTodos=team.privateTodos;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   state.todoCtx=null;renderPage();
+  vspUndoToast('To-do deleted', function(){ _vspTodoRestore(id, snaps); });
 }
 function todoDeleteFromDetail(id){
-  if(!confirm("Delete this to-do? This cannot be undone. Tip: Archive keeps the record but hides it from active lists."))return;
+  var snaps=_vspTodoCapture(id);
   _delTD()[id]=true;
   try{ Object.keys(teamsRegistry).forEach(function(tid){ var tt=teamsRegistry[tid]; if(tt){ if(Array.isArray(tt.todos)) tt.todos=tt.todos.filter(function(t){return t.id!==id;}); if(Array.isArray(tt.privateTodos)) tt.privateTodos=tt.privateTodos.filter(function(t){return t.id!==id;}); } }); }catch(e){}
   var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; todos=team.todos; privateTodos=team.privateTodos;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   closeTodoDetail();
+  vspUndoToast('To-do deleted', function(){ _vspTodoRestore(id, snaps); });
 }
 
 function generateMeetingRecap(meetingId){
@@ -11719,11 +11927,17 @@ function addScheduledMeeting(){
   renderPage();
 }
 function deleteScheduledMeeting(id){
-  if(!confirm("Delete this scheduled meeting? This cannot be undone.")) return;
+  var idx=scheduledMeetings.findIndex(function(m){return m.id===id;});
+  if(idx<0) return;
+  var item=scheduledMeetings[idx];
   scheduledMeetings=scheduledMeetings.filter(function(m){return m.id!==id;});
   var cur=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   cur.scheduledMeetings=scheduledMeetings;
   renderPage();
+  vspUndoToast('Scheduled meeting deleted', function(){
+    scheduledMeetings.splice(Math.min(idx,scheduledMeetings.length),0,item);
+    var c2=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; c2.scheduledMeetings=scheduledMeetings;
+  });
 }
 
 // ═══ MEETING RECAP - COMPOSE + DISPATCH ═══════════════════════════════════
@@ -12182,6 +12396,672 @@ function deleteSeat(id){
   state.orgPanel=null;
   state.orgEditId=null;
   renderPage();
+}
+
+/* ============================================================
+   SEATS & STRUCTURE  (VSP strategic lens over the HR-owned org)
+   HR owns the chart (window.SMB_ORG / window.SMB_ROLES, read-only here).
+   VSP owns strategic annotations only (window.SMB_VSP).
+   ============================================================ */
+function _vspEsc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _vspEnsure(){
+  if(!window.SMB_VSP) window.SMB_VSP = { seatAnnotations:{}, futureSeats:[] };
+  if(!window.SMB_VSP.seatAnnotations) window.SMB_VSP.seatAnnotations = {};
+  if(!Array.isArray(window.SMB_VSP.futureSeats)) window.SMB_VSP.futureSeats = [];
+  if(!window.SMB_VSP.peopleReviews) window.SMB_VSP.peopleReviews = {};
+  if(!window.SMB_VSP.reviewBar) window.SMB_VSP.reviewBar = { minPlus:'majority', maxMinus:0 };
+  if(!window.__vspSeatFitMigrated){
+    // one-time: lift any legacy seat.seatFit off the (now HR-owned) seat into the VSP annotation layer
+    try {
+      if(typeof orgSeats !== 'undefined' && Array.isArray(orgSeats)){
+        orgSeats.forEach(function(s){
+          if(s && s.seatFit && (s.seatFit.u || s.seatFit.w || s.seatFit.c)){
+            var a = _vspAnn(s.id);
+            if(!a.seatFit) a.seatFit = { u:s.seatFit.u||'', w:s.seatFit.w||'', c:s.seatFit.c||'' };
+          }
+        });
+      }
+    } catch(e){}
+    window.__vspSeatFitMigrated = true;
+  }
+  return window.SMB_VSP;
+}
+function _vspAnn(roleId){
+  var v = _vspEnsure();
+  if(!v.seatAnnotations[roleId]){
+    v.seatAnnotations[roleId] = { successorId:null, rightSeatScore:null, keyPersonRisk:false, seatFit:null, notes:'' };
+  }
+  return v.seatAnnotations[roleId];
+}
+function _vspSaveVsp(){
+  _vspEnsure();
+  try { if(typeof vspSaveNow === 'function') vspSaveNow(); } catch(e){}
+}
+// Resolve the org: prefer the HR contract; fall back to VSP's own seed (read-only) until HR publishes it.
+function _vspOrgResolved(){
+  if(Array.isArray(window.SMB_ORG) && window.SMB_ORG.length) return window.SMB_ORG.slice();
+  try {
+    if(typeof orgSeats === 'undefined' || !Array.isArray(orgSeats)) return [];
+    return orgSeats.map(function(s){
+      var person = null;
+      try { if(typeof ppl !== 'undefined') person = ppl.find(function(p){ return p.initials === s.initials; }); } catch(e){}
+      return {
+        roleId: s.id,
+        roleTitle: (typeof vspGetSeatTitle === 'function' ? vspGetSeatTitle(s) : (s.seat||'')) || s.seat || '',
+        department: (person && person.department) || '',
+        holderId: s.initials || '',
+        holderName: s.person || '',
+        status: 'active',
+        reportsToRoleId: (s.reportsTo || null),
+        vacant: !(s.person && String(s.person).trim())
+      };
+    });
+  } catch(e){ return []; }
+}
+function _vspRoleContractLive(){ return Array.isArray(window.SMB_ORG) && window.SMB_ORG.length; }
+function _vspTenureYears(initials){
+  try {
+    if(window.BOSHR && typeof window.BOSHR.getPersonByInitials === 'function'){
+      var hp = window.BOSHR.getPersonByInitials(initials);
+      var d = hp && (hp.startDate || hp.hireDate);
+      if(d){ var yy=(Date.now()-new Date(d).getTime())/31557600000; if(isFinite(yy)&&yy>=0) return yy; }
+    }
+  } catch(e){}
+  try {
+    if(typeof ppl !== 'undefined'){
+      var p = ppl.find(function(x){ return x.initials === initials; });
+      if(p && p.startDate){ var y=(Date.now()-new Date(p.startDate).getTime())/31557600000; if(isFinite(y)&&y>=0) return y; }
+    }
+  } catch(e){}
+  return 0;
+}
+function _vspIsKPR(o){
+  var a = _vspAnn(o.roleId);
+  if(a.keyPersonRisk) return true;
+  return (_vspTenureYears(o.holderId) >= 10) && !a.successorId;
+}
+function _vspHolderName(id){
+  if(!id) return '';
+  try { if(typeof pplName === 'function'){ var n=pplName(id); if(n) return n; } } catch(e){}
+  try {
+    var seats=_vspOrgResolved();
+    var m=seats.find(function(s){return s.holderId===id;});
+    if(m && m.holderName) return m.holderName;
+  } catch(e){}
+  return id;
+}
+// Open the HR role drawer if HR is loaded; otherwise a stub that routes the user to HR.
+function _vspOpenRole(roleId){
+  if(typeof window.openRoleDrawer === 'function'){ try { window.openRoleDrawer(roleId); return; } catch(e){} }
+  state.roleStubPanel = roleId; renderPage();
+}
+function _vspSetRightSeat(roleId, val){
+  var a = _vspAnn(roleId);
+  a.rightSeatScore = (a.rightSeatScore === val) ? null : val;
+  _vspSaveVsp(); renderPage();
+}
+function _vspToggleKPR(roleId){
+  var a = _vspAnn(roleId);
+  a.keyPersonRisk = !a.keyPersonRisk;
+  _vspSaveVsp(); renderPage();
+}
+
+/* ---------- render helpers ---------- */
+function _vspThumb(roleId){
+  var a = _vspAnn(roleId);
+  var mk=function(val,glyph,lbl){
+    var on = a.rightSeatScore===val;
+    var col = val==='up'?'var(--grn)':val==='down'?'var(--red)':'var(--txm)';
+    return '<button type="button" title="'+lbl+'" onclick="event.stopPropagation();_vspSetRightSeat(\''+roleId+'\',\''+val+'\')" '+
+      'style="width:24px;height:24px;border-radius:6px;border:1px solid '+(on?col:'var(--brd2)')+';'+
+      'background:'+(on?col:'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';cursor:pointer;font-size:var(--fz-sm);line-height:1;padding:0">'+glyph+'</button>';
+  };
+  return '<div style="display:flex;gap:4px">'+mk('up','\u25B2','Right person, right seat')+mk('neutral','\u2013','Neutral')+mk('down','\u25BC','Wrong seat')+'</div>';
+}
+function _vspSeatFitDots(a){
+  var sf=a&&a.seatFit; if(!sf||(!sf.u&&!sf.w&&!sf.c)) return '';
+  var col=function(v){return v==='yes'?'var(--grn)':v==='watch'?'var(--amb)':v==='no'?'var(--red)':'var(--brd2)';};
+  var dot=function(v,lbl){return '<span title="'+lbl+': '+(v||'not rated')+'" style="width:9px;height:9px;border-radius:50%;background:'+col(v)+';display:inline-block"></span>';};
+  return '<div style="display:flex;align-items:center;gap:4px;margin-top:6px">'+dot(sf.u,'Understands the role')+dot(sf.w,'Wants the role')+dot(sf.c,'Has the capacity')+'<span style="font-size:var(--fz-xs);color:var(--txm);margin-left:2px">Seat Fit</span></div>';
+}
+function _vspNode(o){
+  var a=_vspAnn(o.roleId);
+  var vacant=o.vacant;
+  var col=(!vacant && o.holderId) ? pplColor(o.holderId) : '#cbd5e1';
+  var ini=vacant?'':(o.holderName||'').trim().split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();
+  var kpr=_vspIsKPR(o);
+  var h='<div class="vsp-node" onclick="state.seatAnnPanel=\''+o.roleId+'\';renderPage()" style="border-top-color:'+col+'" role="button" tabindex="0" aria-label="'+_vspEsc((o.roleTitle||'seat')+', '+(vacant?'vacant':(o.holderName||'')))+'">';
+  h+='<div style="display:flex;align-items:center;gap:9px">';
+  h+='<div style="width:30px;height:30px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;background:'+col+';color:#fff">'+(vacant?'<span style="font-size:var(--fz-lg)">+</span>':'<span style="font-size:var(--fz-xs)">'+_vspEsc(ini)+'</span>')+'</div>';
+  h+='<div style="min-width:0;flex:1">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_vspEsc(o.roleTitle||'(untitled seat)')+'</div>';
+  if(vacant) h+='<div style="font-size:var(--fz-sm);color:var(--red);font-weight:600">Vacant</div>';
+  else h+='<div style="font-size:var(--fz-sm);color:var(--txm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_vspEsc(o.holderName||'')+'</div>';
+  h+='</div></div>';
+  var chips='';
+  if(kpr) chips+='<span style="font-size:var(--fz-xs);font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--red);background:var(--redb,#fee2e2);border-radius:4px;padding:2px 6px">Key-person risk</span>';
+  if(a.successorId) chips+='<span style="font-size:var(--fz-xs);font-weight:600;color:var(--grn);background:var(--sur2);border-radius:4px;padding:2px 6px">Successor named</span>';
+  else if(!vacant && !kpr) chips+='<span style="font-size:var(--fz-xs);color:var(--txd);background:var(--sur2);border-radius:4px;padding:2px 6px">No successor</span>';
+  if(chips) h+='<div style="display:flex;flex-wrap:wrap;gap:4px">'+chips+'</div>';
+  h+='</div>';
+  return h;
+}
+function _vspTree(){
+  var seats=_vspOrgResolved();
+  if(!seats.length) return '<div style="padding:26px;text-align:center;color:var(--txm)">No seats to show yet. The org chart loads from HR.</div>';
+  var childrenOf={};
+  seats.forEach(function(o){ var k=o.reportsToRoleId||'__root'; (childrenOf[k]=childrenOf[k]||[]).push(o); });
+  var seen={};
+  function nodeLi(o){
+    if(seen[o.roleId]) return ''; seen[o.roleId]=true;
+    var kids=childrenOf[o.roleId]||[];
+    var h='<li>'+_vspNode(o);
+    if(kids.length){ h+='<ul>'; kids.forEach(function(k){ h+=nodeLi(k); }); h+='</ul>'; }
+    return h+'</li>';
+  }
+  var body='';
+  (childrenOf['__root']||[]).forEach(function(o){ body+=nodeLi(o); });
+  seats.forEach(function(o){ if(!seen[o.roleId]) body+=nodeLi(o); });
+  return '<div class="vsp-org-wrap"><div class="vsp-tree"><ul>'+body+'</ul></div></div>';
+}
+function _vspRoadmap(){
+  _vspEnsure();
+  var rows=window.SMB_VSP.futureSeats;
+  var h='<div class="card" id="seat-roadmap"><div class="card-hd" style="display:flex;align-items:center;justify-content:space-between"><div class="card-title">3-Year Seat Roadmap</div>';
+  h+='<button type="button" class="btn btn-sm btn-blu" onclick="state.futureSeatPanel=\'new\';renderPage()">Add planned seat</button></div>';
+  h+='<div class="card-body">';
+  if(!rows.length){
+    h+='<div style="padding:16px 2px;color:var(--txm)">No planned seats yet. Map the roles you expect to need over the next three years.</div>';
+  } else {
+    h+='<table style="width:100%;border-collapse:collapse"><thead><tr>';
+    ['Planned seat','Department','Reports to','Target','Reason','Status',''].forEach(function(th){ h+='<th scope="col" style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--brd);color:var(--txm);font-weight:600">'+th+'</th>'; });
+    h+='</tr></thead><tbody>';
+    rows.forEach(function(r){
+      var pt=null; try{ var seats=_vspOrgResolved(); pt=seats.find(function(s){return s.roleId===r.reportsToRoleId;}); }catch(e){}
+      h+='<tr>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);font-weight:500;color:var(--txt)"><span style="display:inline-block;border:1px dashed var(--brd2);border-radius:5px;padding:2px 8px">'+_vspEsc(r.title||'')+'</span></td>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);color:var(--txm)">'+_vspEsc(r.department||'')+'</td>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);color:var(--txm)">'+_vspEsc(pt?pt.roleTitle:(r.reportsToRoleId||''))+'</td>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);color:var(--txm)">'+_vspEsc(r.targetQuarter||'')+'</td>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);color:var(--txm)">'+_vspEsc(r.reason||'')+'</td>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);color:var(--txm)">'+_vspEsc(r.status||'planned')+'</td>';
+      h+='<td style="padding:9px 10px;border-bottom:1px solid var(--brd);text-align:right"><button type="button" class="btn btn-sm" onclick="state.futureSeatPanel=\''+r.id+'\';renderPage()">Edit</button></td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table>';
+  }
+  h+='</div></div>';
+  return h;
+}
+function _vspRiskRegister(){
+  var seats=_vspOrgResolved();
+  var risks=[];
+  seats.forEach(function(o){
+    var a=_vspAnn(o.roleId);
+    if(o.vacant && (o.department==='Executive' || o.department==='Construction')){
+      risks.push({sev:'high', roleId:o.roleId, label:'Critical seat vacant', detail:_vspEsc(o.roleTitle)+' ('+_vspEsc(o.department)+')'});
+    }
+    if(_vspIsKPR(o) && !a.successorId){
+      risks.push({sev:'high', roleId:o.roleId, label:'Key-person risk, no successor', detail:_vspEsc(o.roleTitle)+(o.holderName?(' - '+_vspEsc(o.holderName)):'')});
+    }
+    if(!o.vacant){
+      var _pp=_vspPersonByInitials(o.holderId), _pid=_pp&&_pp.id;
+      if(_pid && _vspRightPerson(_pid)===false){ risks.push({sev:'high', roleId:o.roleId, label:'Wrong person for our values', detail:_vspEsc(o.roleTitle)+(o.holderName?(' - '+_vspEsc(o.holderName)):'')}); }
+      if(_pid && _vspRightSeat(_pid)===false){ risks.push({sev:'med', roleId:o.roleId, label:'Wrong seat', detail:_vspEsc(o.roleTitle)+(o.holderName?(' - '+_vspEsc(o.holderName)):'')}); }
+    }
+  });
+  var h='<div class="card" id="seat-risk"><div class="card-hd"><div class="card-title">Risk Register</div></div><div class="card-body">';
+  if(!risks.length){
+    h+='<div style="padding:16px 2px;color:var(--txm)">No structural risks flagged. Vacancies in Executive or Construction, key-person risks without a successor, and wrong-seat flags will appear here.</div>';
+  } else {
+    risks.forEach(function(r){
+      var col=r.sev==='high'?'var(--red)':'var(--amb)';
+      h+='<div onclick="_vspOpenRole(\''+r.roleId+'\')" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--brd);border-left:3px solid '+col+';border-radius:8px;background:var(--sur);margin:7px 0">';
+      h+='<span style="width:8px;height:8px;border-radius:50%;background:'+col+';flex-shrink:0"></span>';
+      h+='<div style="flex:1;min-width:0"><div style="font-weight:600;color:var(--txt)">'+r.label+'</div><div style="color:var(--txm);margin-top:1px">'+r.detail+'</div></div>';
+      h+='</div>';
+    });
+  }
+  h+='</div></div>';
+  return h;
+}
+
+/* ---------- overlays (VSP-owned) ---------- */
+function _vspRoleStubOverlay(){
+  if(!state.roleStubPanel) return '';
+  var seats=_vspOrgResolved();
+  var o=seats.find(function(s){return s.roleId===state.roleStubPanel;});
+  var h='<div style="position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center">';
+  h+='<div onclick="state.roleStubPanel=null;renderPage()" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>';
+  h+='<div onclick="event.stopPropagation()" role="dialog" aria-modal="true" style="position:relative;width:440px;max-width:94vw;background:var(--sur);border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.28);padding:22px 24px">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:700;color:var(--txt)">'+_vspEsc(o?o.roleTitle:'Seat')+'</div>';
+  h+='<div style="color:var(--txm);margin-top:8px">Roles are managed in Human Resources. This is a read-only strategic view. Opening the role editor requires HR.</div>';
+  h+='<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px"><button type="button" class="btn" onclick="state.roleStubPanel=null;renderPage()">Close</button></div>';
+  h+='</div></div>';
+  return h;
+}
+function _vspSeatAnnOverlay(){
+  if(!state.seatAnnPanel) return '';
+  var roleId=state.seatAnnPanel;
+  var seats=_vspOrgResolved();
+  var o=seats.find(function(s){return s.roleId===roleId;}) || {roleId:roleId, roleTitle:'Seat'};
+  var a=_vspAnn(roleId);
+  var opts='<option value="">(none)</option>';
+  seats.forEach(function(s){ if(s.holderId && s.roleId!==roleId){ opts+='<option value="'+_vspEsc(s.holderId)+'"'+(a.successorId===s.holderId?' selected':'')+'>'+_vspEsc(s.holderName||s.holderId)+'</option>'; } });
+  var h='<div style="position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center">';
+  h+='<div onclick="state.seatAnnPanel=null;renderPage()" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>';
+  h+='<div onclick="event.stopPropagation()" role="dialog" aria-modal="true" style="position:relative;width:480px;max-width:94vw;background:var(--sur);border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.28);padding:22px 24px">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:700;color:var(--txt)">Review seat</div>';
+  h+='<div style="color:var(--txm);margin:4px 0 16px">'+_vspEsc(o.roleTitle||'')+(o.holderName?(' - '+_vspEsc(o.holderName)):'')+'</div>';
+  h+='<label style="display:block;font-weight:600;color:var(--txt);margin-bottom:5px">Named successor</label>';
+  h+='<select id="vsp-ann-succ" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)">'+opts+'</select>';
+  h+='<label style="display:flex;align-items:center;gap:8px;margin:16px 0 6px;font-weight:600;color:var(--txt);cursor:pointer"><input type="checkbox" id="vsp-ann-kpr"'+(a.keyPersonRisk?' checked':'')+'> Flag as key-person risk</label>';
+  h+='<div style="color:var(--txm);font-size:var(--fz-sm);margin-bottom:14px">Auto-flagged when a holder has 10+ years tenure and no named successor; this checkbox flags it manually as well.</div>';
+  h+='<label style="display:block;font-weight:600;color:var(--txt);margin-bottom:5px">Notes</label>';
+  h+='<textarea id="vsp-ann-notes" rows="3" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body);resize:vertical">'+_vspEsc(a.notes||'')+'</textarea>';
+  h+='<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px"><button type="button" class="btn" onclick="state.seatAnnPanel=null;renderPage()">Cancel</button><button type="button" class="btn btn-blu" onclick="_vspSaveSeatAnn(\''+roleId+'\')">Save</button></div>';
+  h+='</div></div>';
+  return h;
+}
+function _vspSaveSeatAnn(roleId){
+  var a=_vspAnn(roleId);
+  var succ=document.getElementById('vsp-ann-succ');
+  var kpr=document.getElementById('vsp-ann-kpr');
+  var notes=document.getElementById('vsp-ann-notes');
+  if(succ) a.successorId = succ.value || null;
+  if(kpr) a.keyPersonRisk = !!kpr.checked;
+  if(notes) a.notes = notes.value;
+  state.seatAnnPanel=null;
+  _vspSaveVsp(); renderPage();
+}
+function _vspFutureSeatOverlay(){
+  if(!state.futureSeatPanel) return '';
+  _vspEnsure();
+  var editing = state.futureSeatPanel!=='new';
+  var r = editing ? (window.SMB_VSP.futureSeats.find(function(x){return x.id===state.futureSeatPanel;})||{}) : {};
+  var seats=_vspOrgResolved();
+  var opts='<option value="">(top level)</option>';
+  seats.forEach(function(s){ opts+='<option value="'+_vspEsc(s.roleId)+'"'+(r.reportsToRoleId===s.roleId?' selected':'')+'>'+_vspEsc(s.roleTitle||s.roleId)+'</option>'; });
+  var h='<div style="position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center">';
+  h+='<div onclick="state.futureSeatPanel=null;renderPage()" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>';
+  h+='<div onclick="event.stopPropagation()" role="dialog" aria-modal="true" style="position:relative;width:500px;max-width:94vw;background:var(--sur);border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.28);padding:22px 24px;max-height:88vh;overflow-y:auto">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:700;color:var(--txt)">'+(editing?'Edit planned seat':'Add planned seat')+'</div>';
+  h+='<div style="color:var(--txm);margin:4px 0 16px">A future role you expect to need. This is VSP planning data and is not sent to HR.</div>';
+  var fld=function(id,lbl,val,ph){ return '<label style="display:block;font-weight:600;color:var(--txt);margin:12px 0 5px">'+lbl+'</label><input id="'+id+'" value="'+_vspEsc(val||'')+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)">'; };
+  h+=fld('vsp-fs-title','Seat title',r.title,'e.g. Field Supervisor');
+  h+=fld('vsp-fs-dept','Department',r.department,'e.g. Construction');
+  h+='<label style="display:block;font-weight:600;color:var(--txt);margin:12px 0 5px">Reports to</label>';
+  h+='<select id="vsp-fs-reports" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)">'+opts+'</select>';
+  h+=fld('vsp-fs-target','Target quarter',r.targetQuarter,'e.g. Q3 2027');
+  h+=fld('vsp-fs-reason','Reason',r.reason,'why this seat is needed');
+  h+='<label style="display:block;font-weight:600;color:var(--txt);margin:12px 0 5px">Status</label>';
+  var sv=r.status||'planned';
+  h+='<select id="vsp-fs-status" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)">';
+  ['planned','approved','hiring','filled','deferred'].forEach(function(s){ h+='<option value="'+s+'"'+(sv===s?' selected':'')+'>'+s.charAt(0).toUpperCase()+s.slice(1)+'</option>'; });
+  h+='</select>';
+  h+='<div style="display:flex;justify-content:space-between;gap:8px;margin-top:20px">';
+  h+=editing?'<button type="button" class="btn" onclick="_vspDeleteFutureSeat(\''+r.id+'\')" style="color:var(--red)">Delete</button>':'<span></span>';
+  h+='<div style="display:flex;gap:8px"><button type="button" class="btn" onclick="state.futureSeatPanel=null;renderPage()">Cancel</button><button type="button" class="btn btn-blu" onclick="_vspSaveFutureSeat()">Save</button></div>';
+  h+='</div></div></div>';
+  return h;
+}
+function _vspSaveFutureSeat(){
+  _vspEnsure();
+  var g=function(id){ var e=document.getElementById(id); return e?e.value.trim():''; };
+  var title=g('vsp-fs-title'); if(!title){ alert('Seat title is required.'); return; }
+  var rec={
+    title:title, department:g('vsp-fs-dept'), reportsToRoleId:g('vsp-fs-reports')||null,
+    targetQuarter:g('vsp-fs-target'), reason:g('vsp-fs-reason'), status:g('vsp-fs-status')||'planned'
+  };
+  if(state.futureSeatPanel && state.futureSeatPanel!=='new'){
+    var ex=window.SMB_VSP.futureSeats.find(function(x){return x.id===state.futureSeatPanel;});
+    if(ex){ ex.title=rec.title; ex.department=rec.department; ex.reportsToRoleId=rec.reportsToRoleId; ex.targetQuarter=rec.targetQuarter; ex.reason=rec.reason; ex.status=rec.status; }
+  } else {
+    rec.id='fs_'+Date.now();
+    window.SMB_VSP.futureSeats.push(rec);
+  }
+  state.futureSeatPanel=null;
+  _vspSaveVsp(); renderPage();
+}
+function _vspDeleteFutureSeat(id){
+  _vspEnsure();
+  window.SMB_VSP.futureSeats = window.SMB_VSP.futureSeats.filter(function(x){return x.id!==id;});
+  state.futureSeatPanel=null;
+  _vspSaveVsp(); renderPage();
+}
+
+/* ---------- page ---------- */
+function _vspScrollTo(id){ try{ var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
+function _vspPeopleTab(t){ state.peopleTab=t; renderPage(); }
+function _vspSeatsKpis(){
+  var seats=_vspOrgResolved();
+  var total=seats.length;
+  var vacancies=seats.filter(function(o){return o.vacant;}).length;
+  var filled=total-vacancies;
+  var kprCount=seats.filter(function(o){return _vspIsKPR(o);}).length;
+  var kpis=[
+    {n:total,       l:'Total seats',      k:'k-blu', go:'org', d:'Every seat in the org chart.'},
+    {n:filled,      l:'Seats filled',     k:'k-grn', go:'org', d:'Seats with a person in them.'},
+    {n:vacancies,   l:'Vacancies',        k:'k-amb', go:'roadmap', d:'Seats with no current holder.'},
+    {n:kprCount,    l:'Key-person risk',  k:'k-red', go:'risk', d:'Seats flagged, or a 10+ year holder with no named successor.'}
+  ];
+  var h='<div class="dash-kpis">';
+  kpis.forEach(function(s){
+    h+='<div class="kpi-card '+s.k+'" onclick="_vspPeopleTab(\''+s.go+'\')" style="cursor:pointer">';
+    h+='<div class="kpi-card-top"><div class="kpi-card-lbl">'+s.l+'</div><button class="info-icon" type="button" onclick="event.stopPropagation()" aria-label="About '+s.l+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="7.5" x2="8" y2="11.5"/><line x1="8" y1="5" x2="8" y2="5.01"/></svg><span class="tip">'+s.d+'</span></button></div>';
+    h+='<div class="kpi-card-val">'+s.n+'</div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+function renderPeople(){
+  _vspEnsure();
+  var tab=state.peopleTab||'org';
+  var h='<div class="pg"><div><div class="pg-title">People</div><div class="pg-sub">'+((window.SMB_TENANT&&window.SMB_TENANT.orgName)||'Company')+' - seats, structure, reviews, and the roster</div></div></div>';
+  h+='<div class="tab-bar">';
+  [{v:'org',l:'Org Chart'},{v:'roadmap',l:'Seat Roadmap'},{v:'risk',l:'Risk'},{v:'review',l:'People Review'},{v:'directory',l:'Directory'},{v:'teams',l:'Teams'}].forEach(function(t){
+    h+='<button class="tab'+(tab===t.v?' active':'')+'" onclick="_vspPeopleTab(\''+t.v+'\')">'+t.l+'</button>';
+  });
+  h+='</div>';
+  if(tab==='org'){
+    if(!_vspRoleContractLive()){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--brd);border-left:3px solid var(--amb);border-radius:8px;background:var(--sur2);margin-bottom:12px;color:var(--txm)">Showing the interim org from this tenant\u2019s seed. When HR publishes the live chart, this view switches to it automatically.</div>';
+    }
+    h+=_vspSeatsKpis();
+    h+='<div class="card" id="seat-orgchart"><div class="card-hd"><div class="card-title">Strategic Org Chart</div></div><div class="card-body">'+_vspTree()+'</div></div>';
+  } else if(tab==='roadmap'){
+    h+=_vspSeatsKpis();
+    h+=_vspRoadmap();
+  } else if(tab==='risk'){
+    h+=_vspSeatsKpis();
+    h+=_vspRiskRegister();
+  } else if(tab==='review'){
+    h+=renderPeopleReview();
+  } else if(tab==='directory'){
+    h+=renderDirectory();
+  } else if(tab==='teams'){
+    h+=renderPplTeams();
+  }
+
+  // overlays (always present so any tab can open them)
+  h+=_vspRoleStubOverlay();
+  h+=_vspSeatAnnOverlay();
+  h+=_vspFutureSeatOverlay();
+  h+=_vspPersonReviewOverlay();
+  return h;
+}
+
+/* ============================================================
+   PEOPLE REVIEW  (un-branded People Analyzer)
+   Right Person (core values) + Right Seat (seat fit), rated per person.
+   LT completes it for everyone; feeds Seats & Structure; ports to P&D later.
+   Core values are tenant data (planData.cv), editable up to 5 in the
+   Strategic Plan. Review records are VSP-owned (window.SMB_VSP.peopleReviews).
+   ============================================================ */
+function _vspCvList(){
+  var cv = (typeof planData!=='undefined' && Array.isArray(planData.cv)) ? planData.cv : [];
+  cv.forEach(function(v,i){ if(v && !v.id) v.id = 'cv_'+(i+1)+'_'+Math.random().toString(36).slice(2,7); });
+  return cv;
+}
+function _vspActivePpl(){
+  try { return (typeof ppl!=='undefined'?ppl:[]).filter(function(p){ return !p.status || p.status==='active'; }); } catch(e){ return []; }
+}
+function _vspPersonByInitials(ini){
+  if(!ini) return null;
+  try {
+    return _vspActivePpl().find(function(x){ return x.initials===ini; })
+        || (typeof ppl!=='undefined' ? ppl.find(function(x){ return x.initials===ini; }) : null)
+        || null;
+  } catch(e){ return null; }
+}
+function _vspReview(pid){
+  _vspEnsure();
+  if(!pid) return null;
+  return window.SMB_VSP.peopleReviews[pid] || null;
+}
+function _vspReviewRW(pid){
+  _vspEnsure();
+  if(!window.SMB_VSP.peopleReviews[pid]){
+    window.SMB_VSP.peopleReviews[pid] = { date:null, values:{}, seatFit:{gets:null,wants:null,capacity:null}, notes:'', reviewerId:(typeof currentUser!=='undefined'&&currentUser?currentUser.id:null) };
+  }
+  var r=window.SMB_VSP.peopleReviews[pid];
+  if(!r.values) r.values={};
+  if(!r.seatFit) r.seatFit={gets:null,wants:null,capacity:null};
+  return r;
+}
+function _vspBar(){
+  _vspEnsure();
+  var b = window.SMB_VSP.reviewBar || {minPlus:'majority', maxMinus:0};
+  var n = _vspCvList().length || 1;
+  var minPlus = (b.minPlus==='majority' || b.minPlus==null) ? Math.ceil(n/2) : b.minPlus;
+  var maxMinus = (b.maxMinus==null) ? 0 : b.maxMinus;
+  return { minPlus:minPlus, maxMinus:maxMinus, raw:b };
+}
+function _vspRightPerson(pid){
+  var r=_vspReview(pid); if(!r||!r.values) return null;
+  var cv=_vspCvList(); if(!cv.length) return null;
+  var rated=cv.filter(function(v){ return r.values[v.id]; });
+  if(rated.length < cv.length) return null;
+  var plus=cv.filter(function(v){ return r.values[v.id]==='+'; }).length;
+  var minus=cv.filter(function(v){ return r.values[v.id]==='-'; }).length;
+  var bar=_vspBar();
+  return (minus<=bar.maxMinus) && (plus>=bar.minPlus);
+}
+function _vspRightSeat(pid){
+  var r=_vspReview(pid); if(!r||!r.seatFit) return null;
+  var s=r.seatFit;
+  if(s.gets==null && s.wants==null && s.capacity==null) return null;
+  return !!(s.gets && s.wants && s.capacity);
+}
+function _vspReviewComplete(pid){
+  return _vspRightPerson(pid)!==null && _vspRightSeat(pid)!==null;
+}
+
+/* ---------- core value add / remove (Strategic Plan) ---------- */
+function addCoreValue(){
+  if(typeof planData==='undefined') return;
+  if(!Array.isArray(planData.cv)) planData.cv=[];
+  if(planData.cv.length>=5){ alert('Maximum of 5 core values.'); return; }
+  planData.cv.push({ id:'cv_'+Date.now(), title:'', desc:'' });
+  try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
+  renderPage();
+}
+function removeCoreValue(i){
+  if(typeof planData==='undefined' || !Array.isArray(planData.cv)) return;
+  if(planData.cv.length<=1){ alert('Keep at least one core value.'); return; }
+  var v=planData.cv[i]; var nm=(v&&v.title)?('"'+v.title+'"'):'this core value';
+  if(!confirm('Remove '+nm+'? Any ratings recorded against it will no longer count.')) return;
+  planData.cv.splice(i,1);
+  try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
+  renderPage();
+}
+
+/* ---------- rating writers ---------- */
+function _vspRatePerson(pid, cvId, val){
+  var r=_vspReviewRW(pid);
+  r.values[cvId] = (r.values[cvId]===val) ? null : val;
+  if(r.values[cvId]==null) delete r.values[cvId];
+  r.date = new Date().toISOString();
+  _vspSaveVsp(); renderPage();
+}
+function _vspSetPersonSeat(pid, key, val){
+  var r=_vspReviewRW(pid);
+  r.seatFit[key] = (r.seatFit[key]===val) ? null : val;
+  r.date = new Date().toISOString();
+  _vspSaveVsp(); renderPage();
+}
+function _vspSavePersonNotes(pid){
+  var el=document.getElementById('vsp-pr-notes');
+  if(el){ var r=_vspReviewRW(pid); r.notes=el.value; _vspSaveVsp(); }
+  state.personReviewPanel=null; renderPage();
+}
+function _vspSetBar(){
+  _vspEnsure();
+  var mp=document.getElementById('vsp-bar-plus'), mm=document.getElementById('vsp-bar-minus');
+  var b=window.SMB_VSP.reviewBar||{};
+  if(mp){ var vp=parseInt(mp.value,10); if(!isNaN(vp)) b.minPlus=vp; }
+  if(mm){ var vm=parseInt(mm.value,10); if(!isNaN(vm)) b.maxMinus=vm; }
+  window.SMB_VSP.reviewBar=b;
+  _vspSaveVsp(); renderPage();
+}
+
+/* ---------- verdict chips reused by Seats page ---------- */
+function _vspVerdictChip(stateVal, lbl){
+  var col = stateVal===true?'var(--grn)':stateVal===false?'var(--red)':'var(--txm)';
+  var bg  = stateVal===true?'var(--grnb,#dcfce7)':stateVal===false?'var(--redb,#fee2e2)':'var(--sur2)';
+  var mk  = stateVal===true?'\u2713':stateVal===false?'\u2717':'\u2013';
+  return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:var(--fz-xs);font-weight:600;color:'+col+';background:'+bg+';border-radius:4px;padding:2px 6px;white-space:nowrap">'+mk+' '+lbl+'</span>';
+}
+function _vspSeatVerdict(o){
+  if(o.vacant) return '';
+  var p=_vspPersonByInitials(o.holderId); var pid=p&&p.id;
+  var rp=pid?_vspRightPerson(pid):null, rs=pid?_vspRightSeat(pid):null;
+  var attrs = pid
+    ? 'onclick="event.stopPropagation();state.personReviewPanel=\''+pid+'\';renderPage()" style="cursor:pointer;display:flex;flex-direction:column;gap:4px;align-items:flex-end" title="Open People Review"'
+    : 'style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"';
+  return '<div '+attrs+'>'+_vspVerdictChip(rp,'Right person')+_vspVerdictChip(rs,'Right seat')+'</div>';
+}
+function _vspSeatFitFromReview(o){
+  if(o.vacant) return '';
+  var p=_vspPersonByInitials(o.holderId); var r=p?_vspReview(p.id):null;
+  var sf=r&&r.seatFit; if(!sf) return '';
+  if(sf.gets==null && sf.wants==null && sf.capacity==null) return '';
+  var col=function(v){ return v===true?'var(--grn)':v===false?'var(--red)':'var(--brd2)'; };
+  var dot=function(v,lbl){ return '<span title="'+lbl+'" style="width:9px;height:9px;border-radius:50%;background:'+col(v)+';display:inline-block"></span>'; };
+  return '<div style="display:flex;align-items:center;gap:4px;margin-top:6px">'+dot(sf.gets,'Understands the role')+dot(sf.wants,'Wants the role')+dot(sf.capacity,'Has the capacity')+'<span style="font-size:var(--fz-xs);color:var(--txm);margin-left:2px">Seat Fit</span></div>';
+}
+
+/* ---------- person review drawer ---------- */
+function _vspPersonReviewOverlay(){
+  if(!state.personReviewPanel) return '';
+  var pid=state.personReviewPanel;
+  var p=null; try{ p=(typeof ppl!=='undefined'?ppl:[]).find(function(x){return x.id===pid;}); }catch(e){}
+  if(!p) return '';
+  var r=_vspReviewRW(pid);
+  var cv=_vspCvList();
+  var h='<div style="position:fixed;inset:0;z-index:820;display:flex;align-items:center;justify-content:center">';
+  h+='<div onclick="state.personReviewPanel=null;renderPage()" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>';
+  h+='<div onclick="event.stopPropagation()" role="dialog" aria-modal="true" style="position:relative;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;background:var(--sur);border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.28);padding:22px 24px">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:700;color:var(--txt)">People Review</div>';
+  h+='<div style="color:var(--txm);margin:4px 0 4px">'+_vspEsc(p.first+' '+p.last)+(p.role?(' <span style="color:var(--txd)">&middot; '+_vspEsc(p.role)+'</span>'):'')+'</div>';
+  h+='<div style="color:var(--txd);font-size:var(--fz-sm);margin-bottom:16px">Best practice: the person rates themselves first, then you rate and reconcile.</div>';
+
+  // Right Person - core values
+  h+='<div style="font-weight:700;color:var(--txt);margin:4px 0 8px">Right Person &mdash; Core Values</div>';
+  if(!cv.length){
+    h+='<div style="color:var(--txm);margin-bottom:12px">No core values defined yet. Add them in your Strategic Plan.</div>';
+  } else {
+    cv.forEach(function(v){
+      var cur=r.values[v.id]||null;
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--brd)">';
+      h+='<div style="flex:1;min-width:0;color:var(--txt)">'+_vspEsc(v.title||'(untitled value)')+'</div>';
+      h+='<div style="display:flex;gap:5px;flex-shrink:0">';
+      [['+','+','var(--grn)'],['+/-','+/-','var(--amb)'],['-','-','var(--red)']].forEach(function(opt){
+        var on=cur===opt[0];
+        h+='<button type="button" onclick="_vspRatePerson(\''+pid+'\',\''+v.id+'\',\''+opt[0]+'\')" style="min-width:40px;padding:5px 8px;border-radius:6px;border:1px solid '+(on?opt[2]:'var(--brd2)')+';background:'+(on?opt[2]:'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';cursor:pointer;font-family:inherit;font-size:var(--fz-body);font-weight:600">'+opt[1]+'</button>';
+      });
+      h+='</div></div>';
+    });
+    var bar=_vspBar();
+    var rp=_vspRightPerson(pid);
+    h+='<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between">';
+    h+='<div style="color:var(--txd);font-size:var(--fz-sm)">Standard: at least '+bar.minPlus+' &ldquo;+&rdquo; and no more than '+bar.maxMinus+' &ldquo;-&rdquo;.</div>';
+    h+=_vspVerdictChip(rp,'Right person');
+    h+='</div>';
+  }
+
+  // Right Seat - seat fit
+  h+='<div style="font-weight:700;color:var(--txt);margin:18px 0 8px">Right Seat &mdash; Seat Fit</div>';
+  [['gets','Understands the role','Do they get the ins and outs of the role?'],['wants','Wants the role','Do they genuinely want to do it?'],['capacity','Has the capacity','Time, knowledge and energy to do it?']].forEach(function(row){
+    var cur=r.seatFit[row[0]];
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--brd)">';
+    h+='<div style="flex:1;min-width:0"><div style="color:var(--txt)">'+row[1]+'</div><div style="color:var(--txd);font-size:var(--fz-sm)">'+row[2]+'</div></div>';
+    h+='<div style="display:flex;gap:5px;flex-shrink:0">';
+    [[true,'Yes','var(--grn)'],[false,'No','var(--red)']].forEach(function(opt){
+      var on=cur===opt[0];
+      h+='<button type="button" onclick="_vspSetPersonSeat(\''+pid+'\',\''+row[0]+'\','+opt[0]+')" style="min-width:48px;padding:5px 10px;border-radius:6px;border:1px solid '+(on?opt[2]:'var(--brd2)')+';background:'+(on?opt[2]:'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';cursor:pointer;font-family:inherit;font-size:var(--fz-body);font-weight:600">'+opt[1]+'</button>';
+    });
+    h+='</div></div>';
+  });
+  h+='<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between"><div style="color:var(--txd);font-size:var(--fz-sm)">Right seat needs a clear Yes on all three.</div>'+_vspVerdictChip(_vspRightSeat(pid),'Right seat')+'</div>';
+
+  // notes
+  h+='<label style="display:block;font-weight:600;color:var(--txt);margin:18px 0 5px">Notes</label>';
+  h+='<textarea id="vsp-pr-notes" rows="3" style="width:100%;padding:9px 10px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body);resize:vertical">'+_vspEsc(r.notes||'')+'</textarea>';
+
+  h+='<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px"><button type="button" class="btn btn-blu" onclick="_vspSavePersonNotes(\''+pid+'\')">Done</button></div>';
+  h+='</div></div>';
+  return h;
+}
+
+/* ---------- People Review page ---------- */
+function renderPeopleReview(){
+  _vspEnsure();
+  var cv=_vspCvList();
+  var people=_vspActivePpl();
+  var reviewed=people.filter(function(p){ return _vspReviewComplete(p.id); }).length;
+  var rpGood=people.filter(function(p){ return _vspRightPerson(p.id)===true; }).length;
+  var rsGood=people.filter(function(p){ return _vspRightSeat(p.id)===true; }).length;
+  var bar=_vspBar();
+
+  var h='';
+
+  // summary KPI strip
+  h+='<div class="dash-kpis">';
+  [
+    {n:reviewed+'/'+people.length, l:'Reviewed', k:'k-blu', d:'People with a completed review, out of the team.'},
+    {n:rpGood, l:'Right Person', k:'k-grn', d:'People who meet the core-values standard.'},
+    {n:rsGood, l:'Right Seat', k:'k-grn', d:'People who Get it, Want it, and have Capacity.'},
+    {n:(people.length-reviewed), l:'Not Reviewed', k:'k-amb', d:'People who still need a review this cycle.'}
+  ].forEach(function(s){
+    h+='<div class="kpi-card '+s.k+'" onclick="_vspScrollTo(\'pr-review\')" style="cursor:pointer"><div class="kpi-card-top"><div class="kpi-card-lbl">'+s.l+'</div><button class="info-icon" type="button" onclick="event.stopPropagation()" aria-label="About '+s.l+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="7.5" x2="8" y2="11.5"/><line x1="8" y1="5" x2="8" y2="5.01"/></svg><span class="tip">'+s.d+'</span></button></div><div class="kpi-card-val">'+s.n+'</div></div>';
+  });
+  h+='</div>';
+
+  // standard (bar) editor + core-values source note
+  h+='<div class="card"><div class="card-body" style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;justify-content:space-between">';
+  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-weight:600;color:var(--txt)">Standard</span>';
+  h+='<span style="color:var(--txm)">at least</span><input id="vsp-bar-plus" type="number" min="0" max="'+(cv.length||5)+'" value="'+bar.minPlus+'" onchange="_vspSetBar()" style="width:56px;padding:6px 8px;border:1px solid var(--brd2);border-radius:6px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)"><span style="color:var(--txm)">&ldquo;+&rdquo; and no more than</span>';
+  h+='<input id="vsp-bar-minus" type="number" min="0" max="'+(cv.length||5)+'" value="'+bar.maxMinus+'" onchange="_vspSetBar()" style="width:56px;padding:6px 8px;border:1px solid var(--brd2);border-radius:6px;background:var(--sur);color:var(--txt);font-family:inherit;font-size:var(--fz-body)"><span style="color:var(--txm)">&ldquo;-&rdquo;</span></div>';
+  h+='<button type="button" class="btn btn-sm" onclick="nav(\'strategic\')">Edit core values in Strategic Plan</button>';
+  h+='</div></div>';
+
+  // grid
+  h+='<div class="card" id="pr-review"><div class="card-hd"><div class="card-title">Company People Review</div></div><div class="card-body">';
+  if(!people.length){
+    h+='<div style="padding:16px 2px;color:var(--txm)">No people to review yet. People load from HR.</div>';
+  } else {
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:720px">';
+    h+='<thead><tr>';
+    h+='<th scope="col" style="position:sticky;left:0;background:var(--sur);z-index:2;text-align:left;padding:8px 10px;border-bottom:1px solid var(--brd);color:var(--txm);font-weight:600">Person</th>';
+    cv.forEach(function(v){ h+='<th scope="col" title="'+_vspEsc(v.title||'')+'" style="text-align:center;padding:8px 8px;border-bottom:1px solid var(--brd);color:var(--txm);font-weight:600;max-width:120px">'+_vspEsc((v.title||'').length>22?(v.title.slice(0,22)+'\u2026'):(v.title||'Value'))+'</th>'; });
+    ['Gets it','Wants it','Capacity','Right Person','Right Seat',''].forEach(function(th){ h+='<th scope="col" style="text-align:center;padding:8px 8px;border-bottom:1px solid var(--brd);color:var(--txm);font-weight:600">'+th+'</th>'; });
+    h+='</tr></thead><tbody>';
+    var plusCol=function(val){ return val==='+'?'var(--grn)':val==='+/-'?'var(--amb)':val==='-'?'var(--red)':'var(--brd2)'; };
+    people.forEach(function(p){
+      var r=_vspReview(p.id);
+      var c=pplColor(p.initials);
+      h+='<tr>';
+      h+='<td style="position:sticky;left:0;background:var(--sur);z-index:1;padding:9px 10px;border-bottom:1px solid var(--brd);white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+';margin-right:7px"></span><span style="font-weight:500;color:var(--txt)">'+_vspEsc(p.first+' '+p.last)+'</span></td>';
+      cv.forEach(function(v){
+        var val=r&&r.values?r.values[v.id]:null;
+        h+='<td style="text-align:center;padding:9px 8px;border-bottom:1px solid var(--brd)">'+(val?('<span style="display:inline-block;min-width:34px;font-size:var(--fz-xs);font-weight:700;color:#fff;background:'+plusCol(val)+';border-radius:4px;padding:2px 6px">'+val+'</span>'):'<span style="color:var(--brd2)">&ndash;</span>')+'</td>';
+      });
+      var sf=r&&r.seatFit?r.seatFit:{};
+      [sf.gets,sf.wants,sf.capacity].forEach(function(v){
+        var mk=v===true?'<span style="color:var(--grn);font-weight:700">\u2713</span>':v===false?'<span style="color:var(--red);font-weight:700">\u2717</span>':'<span style="color:var(--brd2)">\u2013</span>';
+        h+='<td style="text-align:center;padding:9px 8px;border-bottom:1px solid var(--brd)">'+mk+'</td>';
+      });
+      h+='<td style="text-align:center;padding:9px 8px;border-bottom:1px solid var(--brd)">'+_vspVerdictChip(_vspRightPerson(p.id),'')+'</td>';
+      h+='<td style="text-align:center;padding:9px 8px;border-bottom:1px solid var(--brd)">'+_vspVerdictChip(_vspRightSeat(p.id),'')+'</td>';
+      h+='<td style="text-align:center;padding:9px 8px;border-bottom:1px solid var(--brd)"><button type="button" class="btn btn-sm btn-blu" onclick="state.personReviewPanel=\''+p.id+'\';renderPage()">Review</button></td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  h+='</div></div>';
+
+  return h;
 }
 
 function renderOrgChart(){
@@ -12818,7 +13698,7 @@ function renderCascades(){
 }
 
 function _vtBack(){state.viewToolsPanel=false;state.page='meetings';state.meetTab='running';renderPage();}
-var _vtPages=['dashboard','strategic','scorecard','goals','headlines','todos','issues','cascades','org'];
+var _vtPages=['dashboard','strategic','scorecard','goals','headlines','todos','issues','cascades','people'];
 function _vtNav(idx){
   state.page=_vtPages[idx]||'dashboard';
   state.viewToolsPanel=false;
@@ -12838,7 +13718,7 @@ function _showViewTools(){
     {id:'todos',       label:'To-Dos',             icon:'✅'},
     {id:'issues',      label:'Issues',             icon:'⚠️'},
     {id:'cascades',    label:'Cascading Messages', icon:'📤'},
-    {id:'org',         label:'Org Chart',          icon:'🏢'},
+    {id:'people',      label:'People',             icon:'👥'},
   ];
   var el=document.createElement('div');
   el.id='view-tools-panel';
@@ -12867,6 +13747,10 @@ function renderPage(){
   syncTeamData();
   if(window._vspReady){ _vspAutosaveQueue(); }
   var p=state.page;
+  if(p==="org"||p==="peoplereview"||p==="directory"||p==="ppl-teams"){
+    state.peopleTab=(p==="org")?"org":(p==="peoplereview")?"review":(p==="directory")?"directory":"teams";
+    state.page="people"; p="people";
+  }
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
   var isLT=state.currentTeam==="lt";
   var teamPages=["goals","todos","issues","meetings","scorecard","headlines"];
@@ -12882,9 +13766,7 @@ function renderPage(){
   else if(p==="issues") h=renderIssues();
   else if(p==="meetings") h=renderMeetings();
   else if(p==="cascades") h=renderCascades();
-  else if(p==="org") h=renderOrgChart();
-  else if(p==="directory") h=typeof renderDirectory==="function"?renderDirectory():renderDirectoryPage();
-  else if(p==="ppl-teams") h=typeof renderPplTeams==="function"?renderPplTeams():renderPplTeamsPage();
+  else if(p==="people") h=renderPeople();
   else{
     var mod=NAV.find(function(m){return m.children&&m.children.some(function(c){return c.id===p;});});
     var child=mod&&mod.children.find(function(c){return c.id===p;});
@@ -13777,6 +14659,10 @@ function vspSnapshot(){
     seedIds: (window.__VSP_SEED_IDS || null),
     deletedHeadlineIds: Object.keys((window.__VSP_DELETED_HEADLINES||{})),
     deletedTodoIds: Object.keys((window.__VSP_DELETED_TODOS||{})),
+    seatAnnotations: (window.SMB_VSP&&window.SMB_VSP.seatAnnotations)||{},
+    futureSeats: (window.SMB_VSP&&window.SMB_VSP.futureSeats)||[],
+    peopleReviews: (window.SMB_VSP&&window.SMB_VSP.peopleReviews)||{},
+    reviewBar: (window.SMB_VSP&&window.SMB_VSP.reviewBar)||{minPlus:'majority',maxMinus:0},
     migrations: Object.keys((window.__VSP_MIGRATIONS||{}))
   };
 }
@@ -13841,6 +14727,10 @@ function vspApplySnapshot(s){
   // deleted everywhere it syncs, and survives reseed.
   try{ if(Array.isArray(s.deletedHeadlineIds)){ var _du=_delHL(); s.deletedHeadlineIds.forEach(function(x){ _du[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedTodoIds)){ var _dut=_delTD(); s.deletedTodoIds.forEach(function(x){ _dut[x]=true; }); } }catch(e){}
+  try{ if(s.seatAnnotations && typeof s.seatAnnotations==='object'){ _vspEnsure(); window.SMB_VSP.seatAnnotations = s.seatAnnotations; } }catch(e){}
+  try{ if(Array.isArray(s.futureSeats)){ _vspEnsure(); window.SMB_VSP.futureSeats = s.futureSeats; } }catch(e){}
+  try{ if(s.peopleReviews && typeof s.peopleReviews==='object'){ _vspEnsure(); window.SMB_VSP.peopleReviews = s.peopleReviews; } }catch(e){}
+  try{ if(s.reviewBar && typeof s.reviewBar==='object'){ _vspEnsure(); window.SMB_VSP.reviewBar = s.reviewBar; } }catch(e){}
   try{ if(Array.isArray(s.migrations)){ var _mu=_vspMig(); s.migrations.forEach(function(x){ _mu[x]=true; }); } }catch(e){}
   if(s.teams && typeof s.teams === 'object'){
     Object.keys(s.teams).forEach(function(tid){
@@ -13899,6 +14789,10 @@ function vspApplySnapshot(s){
   // planData: deep-merge object properties
   if(s.planData){
     for(var k in s.planData){ if(Object.prototype.hasOwnProperty.call(s.planData,k)) planData[k] = s.planData[k]; }
+    // migration (Jul 2026): legacy snapshots stored the pillars under the tenant-named key.
+    // A legacy save wins over the seed: if the snapshot has only the old key, adopt it.
+    if(s.planData.lidaWay && !s.planData.ourWay){ planData.ourWay = s.planData.lidaWay; }
+    if(planData.lidaWay){ delete planData.lidaWay; }
   }
   if(typeof s.stratLastReviewed === 'string') state.stratLastReviewed = s.stratLastReviewed;
   if(typeof s.planEditUnlocked === 'boolean') state.planEditUnlocked = s.planEditUnlocked;
@@ -13944,8 +14838,23 @@ function vspSaveAll(){
 }
 var _vspAutosaveTimer=null;
 function _vspAutosaveQueue(){
+  try{ _vspSetSaveStatus('saving'); }catch(e){}
   if(_vspAutosaveTimer) clearTimeout(_vspAutosaveTimer);
   _vspAutosaveTimer=setTimeout(function(){ _vspAutosaveTimer=null; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} },600);
+}
+var _vspSaveStatusTimer=null;
+function _vspSetSaveStatus(kind){
+  var el=document.getElementById('vsp-save-status');
+  if(!el) return;
+  if(!window._vspReady) return;
+  el.style.display='inline-flex';
+  if(kind==='saving'){
+    el.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="animation:vspSpin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>Saving\u2026';
+    el.style.color='var(--txm)';
+  } else {
+    el.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Saved \u00b7 this device';
+    el.style.color='var(--txm)';
+  }
 }
 function vspSaveNow(){
   // Immediate persistence (no debounce). Use for events that MUST be saved
@@ -13954,6 +14863,7 @@ function vspSaveNow(){
   if(_vspSaveTimer){ clearTimeout(_vspSaveTimer); _vspSaveTimer = null; }
   try {
     localStorage.setItem(vspStorageKey(), JSON.stringify(vspSnapshot()));
+    _vspSetSaveStatus('saved');
   } catch(e){
     console.warn('[VSP] vspSaveNow failed:', e.message);
   }
@@ -14360,15 +15270,175 @@ TOUR_REGISTRY['vsp-overview']={
 /* ═══ END VSP TOUR CONTENT ═══ */
 
 
-/* ═══ TOUR AUTO-LAUNCH (Shell Standard v1.4) ═══ */
+/* ═══ TOUR OFFER (UX fix 02: dismissible toast instead of auto-dimming the
+       whole screen before the dashboard has painted) ═══ */
+function vspOfferTour(){
+  if(document.getElementById('vsp-tour-offer')) return;
+  var card=document.createElement('div');
+  card.id='vsp-tour-offer';
+  card.setAttribute('role','dialog');
+  card.setAttribute('aria-label','Take a product tour');
+  card.style.cssText='position:fixed;right:20px;bottom:20px;z-index:8500;max-width:320px;'
+    +'background:#0f172a;color:#f8fafc;border-radius:12px;padding:15px 16px;'
+    +'box-shadow:0 14px 38px rgba(8,12,22,.34);font-family:inherit;'
+    +'opacity:0;transform:translateY(8px);transition:opacity .28s ease,transform .28s ease';
+  card.innerHTML=''
+    +'<div style="display:flex;align-items:flex-start;gap:10px">'
+      +'<div style="flex:1">'
+        +'<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:3px">New here? 👋</div>'
+        +'<div style="font-size:var(--fz-body);color:#cbd5e1;line-height:1.45">Take a 60-second tour of your Strategic Plan.</div>'
+        +'<div style="display:flex;gap:8px;margin-top:12px">'
+          +'<button type="button" id="vsp-tour-start" style="font:inherit;font-size:var(--fz-body);font-weight:600;color:#fff;background:var(--blu);border:none;border-radius:7px;padding:7px 14px;cursor:pointer">Start tour</button>'
+          +'<button type="button" id="vsp-tour-skip" style="font:inherit;font-size:var(--fz-body);font-weight:600;color:#cbd5e1;background:transparent;border:none;border-radius:7px;padding:7px 10px;cursor:pointer">Maybe later</button>'
+        +'</div>'
+      +'</div>'
+      +'<button type="button" id="vsp-tour-x" aria-label="Dismiss" style="font:inherit;font-size:18px;line-height:1;color:#64748b;background:transparent;border:none;cursor:pointer;padding:0 2px">&times;</button>'
+    +'</div>';
+  document.body.appendChild(card);
+  requestAnimationFrame(function(){ card.style.opacity='1'; card.style.transform='none'; });
+  function close(markSeen){
+    if(markSeen){ try{ if(typeof markTourSeen==='function') markTourSeen('vsp-overview'); }catch(e){} }
+    card.style.opacity='0'; card.style.transform='translateY(8px)';
+    setTimeout(function(){ if(card.parentNode) card.remove(); },300);
+  }
+  card.querySelector('#vsp-tour-start').onclick=function(){ close(true); try{ startTour('vsp-overview'); }catch(e){} };
+  card.querySelector('#vsp-tour-skip').onclick=function(){ close(true); };
+  card.querySelector('#vsp-tour-x').onclick=function(){ close(true); };
+  // Auto-retire after 14s if ignored; not marked seen, so it offers again next visit.
+  setTimeout(function(){ if(document.getElementById('vsp-tour-offer')) close(false); },14000);
+}
 setTimeout(function(){
   try{
     if(typeof hasSeenTour==='function' && !hasSeenTour('vsp-overview')){
-      startTour('vsp-overview');
+      vspOfferTour();
     }
-  }catch(e){console.warn('Tour auto-launch skipped:',e);}
-},1500);
-/* ═══ END TOUR AUTO-LAUNCH ═══ */
+  }catch(e){console.warn('Tour offer skipped:',e);}
+},1200);
+/* ═══ END TOUR OFFER ═══ */
+
+/* ═══ COMMAND PALETTE (UX fix 08: one search across everything, ⌘K) ═══
+   The top-bar search previously called globalSearch(), which was never defined,
+   so it did nothing. This wires it (plus ⌘K / Ctrl+K) to a real palette that
+   reaches any goal, to-do, issue, measurable or person, and jumps to any page. */
+var _vspPal={open:false,q:'',items:[],sel:0};
+function _vspPalPages(){
+  return [['Dashboard','dashboard'],['Strategic Plan','strategic'],['Scorecard','scorecard'],['Goals','goals'],['Headlines','headlines'],['To-Dos','todos'],['Issues','issues'],['Meetings','meetings'],['Cascades','cascades'],['People','people'],['People Review','peoplereview'],['People Directory','directory'],['People Teams','ppl-teams']];
+}
+function _vspPalIndex(q){
+  q=(q||'').trim().toLowerCase();
+  var data=[];
+  function push(type,label,sub,go){ if(label==null||label==='') return; data.push({type:type,label:String(label),sub:sub||'',go:go}); }
+  try{(goals||[]).forEach(function(g){ var t=g.title||g.name||g.text; push('Goal',t,(g.owner?('Owner '+g.owner):'')+(g.status?(' \u00b7 '+g.status):''),function(){ try{state.goalsSearch=t;}catch(e){} nav('goals'); }); });}catch(e){}
+  try{(todos||[]).forEach(function(td){ var t=td.text||td.title; push('To-Do',t,(td.owner?('Owner '+td.owner):'')+(td.done?' \u00b7 done':''),function(){ try{state.todoSearch=t;}catch(e){} nav('todos'); }); });}catch(e){}
+  try{(issues||[]).forEach(function(i){ push('Issue',i.title||i.name||i.text,(i.owner?('Owner '+i.owner):''),function(){ nav('issues'); }); });}catch(e){}
+  try{(typeof longTermIssues!=='undefined'?longTermIssues:[]).forEach(function(i){ push('Issue \u00b7 LT',i.title||i.name||i.text,'',function(){ nav('issues'); }); });}catch(e){}
+  try{(scorecard||[]).forEach(function(s){ (s.metrics||[]).forEach(function(m){ push('Measurable',m.title,(s.seat||s.ownerId||''),function(){ try{state.scorecardSearch=m.title;}catch(e){} nav('scorecard'); }); }); });}catch(e){}
+  try{(ppl||[]).forEach(function(p){ if(p.status==='archived')return; push('Person',((p.first||'')+' '+(p.last||'')).trim(),p.role||'',function(){ nav(typeof renderDirectory==='function'?'directory':'org'); }); });}catch(e){}
+  var res=[];
+  if(q){
+    _vspPalPages().forEach(function(p){ if(p[0].toLowerCase().indexOf(q)>-1) res.push({type:'Go to',label:p[0],sub:'',go:(function(pg){return function(){nav(pg);};})(p[1])}); });
+    data.forEach(function(it){ if((it.label+' '+it.sub+' '+it.type).toLowerCase().indexOf(q)>-1) res.push(it); });
+  } else {
+    _vspPalPages().forEach(function(p){ res.push({type:'Go to',label:p[0],sub:'',go:(function(pg){return function(){nav(pg);};})(p[1])}); });
+  }
+  return res.slice(0,40);
+}
+function vspOpenPalette(initialQ){
+  if(_vspPal.open){ var ex=document.getElementById('vsp-pal-input'); if(ex){ex.focus();} return; }
+  _vspPal.open=true; _vspPal.q=initialQ||''; _vspPal.sel=0;
+  if(!document.getElementById('vsp-pal-style')){ var st=document.createElement('style'); st.id='vsp-pal-style'; st.textContent='.vsp-pal-row:hover{background:#f1f5f9 !important}'; document.head.appendChild(st); }
+  var ov=document.createElement('div');
+  ov.id='vsp-pal';
+  ov.style.cssText='position:fixed;inset:0;z-index:9500;background:rgba(15,23,42,.4);display:flex;align-items:flex-start;justify-content:center;padding-top:12vh';
+  ov.onclick=function(e){ if(e.target===ov) vspClosePalette(); };
+  ov.innerHTML='<div role="dialog" aria-label="Command palette" style="width:560px;max-width:calc(100vw - 32px);background:#fff;border-radius:12px;box-shadow:0 24px 60px rgba(8,12,22,.34);overflow:hidden">'
+    +'<div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--brd)">'
+      +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--txm)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'
+      +'<input id="vsp-pal-input" type="text" placeholder="Search goals, to-dos, issues, measurables, people\u2026 or a page" autocomplete="off" style="flex:1;border:none;outline:none;font-size:var(--fz-lg);font-family:inherit;color:var(--txt);background:transparent">'
+      +'<span style="font-size:var(--fz-xs);color:var(--txm);border:1px solid var(--brd);border-radius:4px;padding:1px 6px">esc</span>'
+    +'</div>'
+    +'<div id="vsp-pal-list" role="listbox" style="max-height:46vh;overflow-y:auto;padding:6px"></div>'
+  +'</div>';
+  document.body.appendChild(ov);
+  var inp=document.getElementById('vsp-pal-input');
+  inp.value=_vspPal.q;
+  inp.addEventListener('input',function(){ _vspPal.q=this.value; _vspPal.sel=0; _vspPalRender(); });
+  inp.addEventListener('keydown',_vspPalKey);
+  _vspPalRender();
+  setTimeout(function(){ inp.focus(); },10);
+}
+function vspClosePalette(){ _vspPal.open=false; var ov=document.getElementById('vsp-pal'); if(ov)ov.remove(); }
+function _vspPalRender(){
+  _vspPal.items=_vspPalIndex(_vspPal.q);
+  var list=document.getElementById('vsp-pal-list'); if(!list)return;
+  if(!_vspPal.items.length){ list.innerHTML='<div style="padding:20px;text-align:center;color:var(--txm);font-size:var(--fz-body)">No matches</div>'; return; }
+  if(_vspPal.sel>=_vspPal.items.length)_vspPal.sel=_vspPal.items.length-1;
+  list.innerHTML=_vspPal.items.map(function(it,i){
+    var seld=i===_vspPal.sel;
+    return '<div class="vsp-pal-row" role="option" data-i="'+i+'" onmouseenter="_vspPalHover('+i+')" onclick="_vspPalGo('+i+')" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;background:'+(seld?'#eff6ff':'transparent')+'">'
+      +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--blu);background:var(--blub);border-radius:4px;padding:2px 6px;flex-shrink:0;min-width:62px;text-align:center">'+it.type+'</span>'
+      +'<span style="flex:1;font-size:var(--fz-body);color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(it.label)+'</span>'
+      +(it.sub?'<span style="font-size:var(--fz-xs);color:var(--txm);flex-shrink:0;white-space:nowrap">'+_scEsc(it.sub)+'</span>':'')
+    +'</div>';
+  }).join('');
+}
+function _vspPalHover(i){ if(_vspPal.sel===i)return; _vspPal.sel=i; var list=document.getElementById('vsp-pal-list'); if(!list)return; list.querySelectorAll('.vsp-pal-row').forEach(function(r){ r.style.background=(+r.getAttribute('data-i')===i)?'#eff6ff':'transparent'; }); }
+function _vspPalGo(i){ var it=_vspPal.items[i]; vspClosePalette(); if(it&&it.go){ try{ it.go(); }catch(e){ console.warn('palette nav',e); } } }
+function _vspPalScroll(){ var list=document.getElementById('vsp-pal-list'); if(!list)return; var row=list.querySelector('[data-i="'+_vspPal.sel+'"]'); if(!row)return; var rt=row.offsetTop, rb=rt+row.offsetHeight; if(rt<list.scrollTop)list.scrollTop=rt; else if(rb>list.scrollTop+list.clientHeight)list.scrollTop=rb-list.clientHeight; }
+function _vspPalKey(e){
+  if(e.key==='Escape'){ e.preventDefault(); vspClosePalette(); return; }
+  if(e.key==='ArrowDown'){ e.preventDefault(); _vspPal.sel=Math.min(_vspPal.sel+1,_vspPal.items.length-1); _vspPalRender(); _vspPalScroll(); return; }
+  if(e.key==='ArrowUp'){ e.preventDefault(); _vspPal.sel=Math.max(_vspPal.sel-1,0); _vspPalRender(); _vspPalScroll(); return; }
+  if(e.key==='Enter'){ e.preventDefault(); _vspPalGo(_vspPal.sel); return; }
+}
+// Top-bar search now opens the palette (forwarding the first keystroke).
+function globalSearch(q){ vspOpenPalette(q||''); var gs=document.getElementById('global-search'); if(gs)gs.value=''; }
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey) && (e.key==='k'||e.key==='K')){ e.preventDefault(); if(_vspPal.open)vspClosePalette(); else vspOpenPalette(''); }
+});
+/* ═══ END COMMAND PALETTE ═══ */
+
+/* ═══ MEETING SHORTCUTS (UX fix 09: run the weekly meeting from the keyboard) ═══ */
+function _vspMeetNav(dir){
+  var items=[].slice.call(document.querySelectorAll('.agenda-item'));
+  if(!items.length) return;
+  var idx=-1;
+  for(var i=0;i<items.length;i++){ if(items[i].classList.contains('active')){ idx=i; break; } }
+  if(idx<0) idx=0;
+  var ni=idx+dir;
+  if(ni<0||ni>=items.length) return;
+  items[ni].click();
+}
+function _vspToggleMeetHelp(){
+  var ex=document.getElementById('vsp-meet-help'); if(ex){ ex.remove(); return; }
+  var d=document.createElement('div'); d.id='vsp-meet-help';
+  d.style.cssText='position:fixed;right:20px;bottom:20px;z-index:8600;background:#0f172a;color:#f8fafc;border-radius:12px;padding:16px 18px;box-shadow:0 14px 38px rgba(8,12,22,.34);font-family:inherit;min-width:230px';
+  function row(k,l){ return '<div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:4px 0"><span style="font-size:var(--fz-body);color:#cbd5e1">'+l+'</span><kbd style="font-family:inherit;font-size:var(--fz-xs);font-weight:700;background:#1e293b;border:1px solid #334155;border-radius:4px;padding:2px 7px">'+k+'</kbd></div>'; }
+  d.innerHTML='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:8px">Meeting shortcuts</div>'
+    +row('N','Next segment')+row('P','Previous segment')+row('I','Capture issue')+row('T','Add to-do')+row('?','Toggle this help')
+    +'<div style="margin-top:8px;text-align:right"><button type="button" onclick="document.getElementById(\'vsp-meet-help\').remove()" style="font:inherit;font-size:var(--fz-xs);color:#94a3b8;background:transparent;border:none;cursor:pointer">close (esc)</button></div>';
+  document.body.appendChild(d);
+}
+document.addEventListener('keydown',function(e){
+  try{
+    if(!(typeof state==='object' && state && state.page==='meetings' && state.meetTab==='running')) return;
+    if(_vspPal.open) return;
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+    if(t && (tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable)) return;
+    // If a create/edit panel or detail is open, only let Escape through to close help.
+    var modalOpen = state.createPanel||state.editPanel||state.headlinePanel||state.todoDetail||state.issueDetail;
+    if(e.key==='Escape'){ var hb=document.getElementById('vsp-meet-help'); if(hb){ e.preventDefault(); hb.remove(); } return; }
+    if(modalOpen) return;
+    var k=e.key;
+    if(k==='n'||k==='N'){ e.preventDefault(); _vspMeetNav(1); }
+    else if(k==='p'||k==='P'){ e.preventDefault(); _vspMeetNav(-1); }
+    else if(k==='i'||k==='I'){ e.preventDefault(); if(typeof openCreateForm==='function') openCreateForm('issue'); }
+    else if(k==='t'||k==='T'){ e.preventDefault(); if(typeof openCreateForm==='function') openCreateForm('todo'); }
+    else if(k==='?'){ e.preventDefault(); _vspToggleMeetHelp(); }
+  }catch(err){ /* never block typing */ }
+});
+/* ═══ END MEETING SHORTCUTS ═══ */
 
 </script>
 <script>
