@@ -4148,6 +4148,7 @@ var KPI_STREAMS=[
   CONSTRUCTION_KPI_LIBRARY.forEach(function(k){ if(B[k.id]) k.bench=B[k.id]; });
 })();
 
+function _vspAutogrow(el){ if(!el) return; try{ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }catch(e){} }
 // Pre-fill the Create Measurable form from a library KPI (target stays editable).
 function pickLibraryKPI(id){
   var kpi=CONSTRUCTION_KPI_LIBRARY.find(function(k){return k.id===id;});
@@ -5816,7 +5817,7 @@ function renderEditMeasurableOverlay(){
       // Description
       h+='<div style="margin-bottom:16px">';
       h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Description <span style="color:var(--txd);font-weight:400">(Optional)</span></label>';
-      h+='<textarea id="em-desc" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:vertical;min-height:64px;box-sizing:border-box">'+(epMetric.description||'')+'</textarea>';
+      h+='<textarea id="em-desc" data-autogrow="1" oninput="_vspAutogrow(this)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:none;overflow:hidden;min-height:64px;box-sizing:border-box">'+(epMetric.description||'')+'</textarea>';
       h+='</div>';
 
       // Data entry - automatic vs manual. Standard on every measurable: the
@@ -5848,12 +5849,6 @@ function renderEditMeasurableOverlay(){
       h+='<select id="em-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">'+_grpSeatOptions(emOwner,emSeat)+'</select>';
       h+='</div>';
       h+='</div>';
-      h+='</div>';
-
-      // Period interval
-      h+='<div style="margin-bottom:20px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Period Interval</label>';
-      h+='<div style="padding:8px 10px;border:1.5px solid var(--brd);border-radius:6px;font-size:var(--fz-lg);color:var(--txm);background:var(--sur2)">Weekly</div>';
       h+='</div>';
 
       // Column toggles
@@ -7666,7 +7661,7 @@ function renderScorecardInline(opts){ _recalcAll();
     function scStkB(left,w,bg,extra){
       return 'position:sticky;left:'+left+'px;z-index:2;background:'+bg+';min-width:'+w+'px;width:'+w+'px;'+(extra||'');
     }
-    h+='<div style="overflow:auto;position:relative;max-height:62vh"><table class="tbl" style="border-collapse:separate;border-spacing:0">';
+    h+='<div style="overflow-x:auto;position:relative"><table class="tbl" style="border-collapse:separate;border-spacing:0">';
     h+='<thead><tr>';
     h+='<th style="'+scStkH(SC_OFF.trend,SC_W.trend)+'" title="Trend"></th>';
     h+='<th style="'+scStkH(SC_OFF.title,SC_W.title,'text-align:left;border-right:1px solid var(--brd)')+'">Title<div onmousedown="scStartResize(event)" data-w-key="'+_escOpt(_scKey)+'" title="Drag to widen the Title column so long names fit on fewer lines" onmouseover="this.firstChild.style.background=\'var(--blu)\'" onmouseout="this.firstChild.style.background=\'var(--brd2)\'" style="position:absolute;top:0;right:-4px;width:11px;height:100%;cursor:col-resize;z-index:6;display:flex;align-items:center;justify-content:center"><div style="width:3px;height:58%;border-radius:2px;background:var(--brd2)"></div></div></th>';
@@ -8320,7 +8315,7 @@ function renderScorecard(){
     // Description
     h+='<div style="margin-bottom:16px">';
     h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Description <span style="color:var(--txd);font-weight:400">(Optional)</span></label>';
-    h+='<textarea id="nm-desc" placeholder="Add a description..." style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:vertical;min-height:64px;box-sizing:border-box">'+(nmPre?nmPre.desc:'')+'</textarea>';
+    h+='<textarea id="nm-desc" data-autogrow="1" oninput="_vspAutogrow(this)" placeholder="Add a description..." style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:none;overflow:hidden;min-height:64px;box-sizing:border-box">'+(nmPre?nmPre.desc:'')+'</textarea>';
     h+='</div>';
 
     // Owner + Seat (resolves to a group; auto-creates one if none matches)
@@ -8340,12 +8335,6 @@ function renderScorecard(){
     h+='<select id="nm-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">'+_grpSeatOptions(nmOwner,nmSeat)+'</select>';
     h+='</div>';
     h+='</div>';
-    h+='</div>';
-
-    // Period interval (read-only display)
-    h+='<div style="margin-bottom:20px">';
-    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Period Interval</label>';
-    h+='<div style="padding:8px 10px;border:1.5px solid var(--brd);border-radius:6px;font-size:var(--fz-lg);color:var(--txm);background:var(--sur2)">Weekly</div>';
     h+='</div>';
 
     // Columns toggles
@@ -14172,6 +14161,7 @@ function renderPage(){
     panel.innerHTML=ph;
     document.body.appendChild(panel);
   }
+  try{ var _ags=document.querySelectorAll('textarea[data-autogrow]'); for(var _ai=0;_ai<_ags.length;_ai++) _vspAutogrow(_ags[_ai]); }catch(e){}
 }
 
 // ── BOOT ──
