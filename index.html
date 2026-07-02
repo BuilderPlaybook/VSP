@@ -5519,7 +5519,9 @@ function scExtendYear(){
 }
 function _scDateRanges(){
   var N=weekRanges.length;
-  var cur=scLastDataIdx();
+  // Anchor ranges to the CURRENT week, not just the last week with data, so the
+  // current (and any recent empty) weeks are always visible for entry.
+  var cur=Math.max(scLastDataIdx(), scCurrentWeekIdx());
   var ps=scPlanStartIdx();
   function desc(lo,hi){ var r=[]; if(lo<0)lo=0; if(hi>N-1)hi=N-1; for(var i=hi;i>=lo;i--) r.push(i); return r; }
   function lastN(n){ return desc(cur-n+1, cur); }
