@@ -10830,6 +10830,19 @@ function addHeadlineFromPanel(){
 function _delHL(){ return (window.__VSP_DELETED_HEADLINES = window.__VSP_DELETED_HEADLINES || {}); }
 function _delTD(){ return (window.__VSP_DELETED_TODOS = window.__VSP_DELETED_TODOS || {}); }
 function _delIS(){ return (window.__VSP_DELETED_ISSUES = window.__VSP_DELETED_ISSUES || {}); }
+function _delCascade(){ return (window.__VSP_DELETED_CASCADES = window.__VSP_DELETED_CASCADES || {}); }
+function deleteCascade(id){
+  var idx=cascadesRegistry.findIndex(function(c){return c.id===id;});
+  if(idx<0) return;
+  var item=cascadesRegistry.splice(idx,1)[0];
+  _delCascade()[id]=true;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  renderPage();
+  vspUndoToast('Cascade deleted', function(){ delete _delCascade()[id]; cascadesRegistry.splice(Math.min(idx,cascadesRegistry.length),0,item); });
+}
+function _cascadeTrashBtn(id){
+  return '<button type="button" onclick="deleteCascade('+id+')" title="Delete this cascade" aria-label="Delete cascade" style="flex-shrink:0;width:28px;height:28px;border:1px solid var(--brd2);background:var(--sur);border-radius:6px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;justify-content:center;padding:0" onmouseover="this.style.color=\'#dc2626\';this.style.borderColor=\'#dc2626\'" onmouseout="this.style.color=\'var(--txm)\';this.style.borderColor=\'var(--brd2)\'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>';
+}
 function deleteHeadline(id){
   // Delete immediately + offer Undo (5s). Tombstone prevents resurrection;
   // capture per-team removals so Undo can clear the tombstone and re-insert.
@@ -13654,7 +13667,10 @@ function renderCascades(){
       h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txt)">'+c.subject+'</span></div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">From: '+(fromTeam?'<span style="display:inline-flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:'+fromTeam.color+'"></div>'+fromTeam.name+'</span>':c.fromTeam)+' \u00b7 '+c.sentBy+' \u00b7 '+c.sentAt+'</div>';
       h+='</div>';
-      if(!isRead) h+='<button class="btn btn-sm" onclick="markCascadeRead('+c.id+',\''+viewTeamId+'\')" style="flex-shrink:0">Mark Read</button>';
+      h+='<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">';
+      if(!isRead) h+='<button class="btn btn-sm" onclick="markCascadeRead('+c.id+',\''+viewTeamId+'\')">Mark Read</button>';
+      h+=_cascadeTrashBtn(c.id);
+      h+='</div>';
       h+='</div>';
       h+='<div style="font-size:var(--fz-lg);color:var(--txt);line-height:1.65;padding:10px 12px;background:var(--sur2);border-radius:6px">'+c.message+'</div>';
       h+='</div>';
@@ -13675,7 +13691,7 @@ function renderCascades(){
       h+='<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:4px">'+c.subject+'</div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">To: ';
       h+=c.toTeams.map(function(tid){var t=teamsRegistry[tid];return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--sur2);border:1px solid var(--brd);border-radius:10px;padding:1px 8px;font-size:var(--fz-base);margin-right:4px"><div style="width:6px;height:6px;border-radius:50%;background:'+(t?t.color:'#64748b')+'"></div>'+(t?t.name:tid)+'</span>';}).join('');
-      h+=' \u00b7 Sent '+c.sentAt+'</div></div></div>';
+      h+=' \u00b7 Sent '+c.sentAt+'</div></div>'+_cascadeTrashBtn(c.id)+'</div>';
       h+='<div style="font-size:var(--fz-lg);color:var(--txm);line-height:1.65;padding:10px 12px;background:var(--sur2);border-radius:6px">'+c.message+'</div>';
       h+='</div>';
     });
@@ -14701,6 +14717,7 @@ function vspSnapshot(){
     deletedHeadlineIds: Object.keys((window.__VSP_DELETED_HEADLINES||{})),
     deletedTodoIds: Object.keys((window.__VSP_DELETED_TODOS||{})),
     deletedIssueIds: Object.keys((window.__VSP_DELETED_ISSUES||{})),
+    deletedCascadeIds: Object.keys((window.__VSP_DELETED_CASCADES||{})),
     seatAnnotations: (window.SMB_VSP&&window.SMB_VSP.seatAnnotations)||{},
     futureSeats: (window.SMB_VSP&&window.SMB_VSP.futureSeats)||[],
     peopleReviews: (window.SMB_VSP&&window.SMB_VSP.peopleReviews)||{},
@@ -14770,6 +14787,7 @@ function vspApplySnapshot(s){
   try{ if(Array.isArray(s.deletedHeadlineIds)){ var _du=_delHL(); s.deletedHeadlineIds.forEach(function(x){ _du[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedTodoIds)){ var _dut=_delTD(); s.deletedTodoIds.forEach(function(x){ _dut[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedIssueIds)){ var _dui=_delIS(); s.deletedIssueIds.forEach(function(x){ _dui[x]=true; }); } }catch(e){}
+  try{ if(Array.isArray(s.deletedCascadeIds)){ var _dc0=_delCascade(); s.deletedCascadeIds.forEach(function(x){ _dc0[x]=true; }); } }catch(e){}
   try{ if(s.seatAnnotations && typeof s.seatAnnotations==='object'){ _vspEnsure(); window.SMB_VSP.seatAnnotations = s.seatAnnotations; } }catch(e){}
   try{ if(Array.isArray(s.futureSeats)){ _vspEnsure(); window.SMB_VSP.futureSeats = s.futureSeats; } }catch(e){}
   try{ if(s.peopleReviews && typeof s.peopleReviews==='object'){ _vspEnsure(); window.SMB_VSP.peopleReviews = s.peopleReviews; } }catch(e){}
@@ -14833,6 +14851,7 @@ function vspApplySnapshot(s){
   // Non-team-scoped fields
   if(s.orgSeats) repl(orgSeats, s.orgSeats);
   if(s.cascadesRegistry) repl(cascadesRegistry, s.cascadesRegistry);
+  try{ var _dc=_delCascade(); var _ck=cascadesRegistry.filter(function(c){ return !(c && _dc[c.id]); }); cascadesRegistry.length=0; _ck.forEach(function(c){ cascadesRegistry.push(c); }); }catch(e){}
   if(s.ppl) repl(ppl, s.ppl);
   if(s.teamsData && typeof teamsData !== 'undefined' && s.teamsData.length) repl(teamsData, s.teamsData);
   // planData: deep-merge object properties
