@@ -1655,7 +1655,7 @@ summary:focus-visible,
     </div>
     <div class="tb-r">
       <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
-      <span class="badge">Q2 2026</span>
+      <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
         <button onclick="toggleCreateMenu()" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:6px;border:none;background:var(--gp);color:#fff;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:.01em">
@@ -1883,6 +1883,10 @@ function vspEmitSignals(){
       },
       attention: attention
     };
+    try{
+      window.SMB_CORE_VALUES = { asOf: (typeof nowIso!=='undefined'?nowIso:new Date().toISOString()), values: (typeof _vspCvList==='function'?_vspCvList():((planData&&planData.cv)||[])).map(function(v){ return { id: v.id, title: v.title, description: v.desc }; }) };
+      window.SMB_COMPANY_FOCUS = { asOf: (typeof nowIso!=='undefined'?nowIso:new Date().toISOString()), tagline: (planData&&planData.cfTagline)||'', description: (planData&&planData.cfDesc)||'' };
+    }catch(e){}
   } catch(e){
     // Signal emission must never break the module. Log and continue.
     if(typeof console !== 'undefined' && console.warn){
@@ -6786,7 +6790,7 @@ function renderStrategic(){
   }
 
   function secQ1(){
-    var h='<div class="card"><div class="hdr">Q1 Goals & Targets  -  '+ef('q1',planData.q1.futureDate,false,'futureDate')+'</div>';
+    var h='<div class="card"><div class="hdr">Q'+_vspQtr().q+' Goals & Targets  -  '+_vspQtr().endDate+'</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid var(--brd)">';
     [{k:"grossSales",l:"Gross Sales",c:"var(--blu)"},{k:"grossProfit",l:"Gross Profit",c:"#16a34a"},{k:"expenses",l:"Expenses",c:"var(--txm)"},{k:"netProfit",l:"Net Profit",c:"#16a34a"}].forEach(function(s){
       h+='<div style="background:var(--sur2);border-radius:6px;padding:7px 9px"><div class="fl">'+s.l+'</div>'
@@ -8030,7 +8034,7 @@ function renderScorecard(){
       h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(period==='quarterly'?_qGoalLabel(m):_goalLabel(m))+'</td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(period==='quarterly'?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);color:'+(m.rollupAs==='Total'?_tierColor(_scTier(m,sum)):'var(--txm)')+';border-right:2px solid var(--brd)">'+(m.rollupAs==='Average'?'-':fmtVal(sum,m.unit))+'</td>';
-      var _isWk2 = (period==='weekly');
+      var _isWk2 = (((m.cadence)||'weekly')===period) && period!=='quarterly';
       activeIdxs.forEach(function(_wi){
         var _mv=(period==='quarterly')?_qAgg(m,_wi):m.readings[_wi];
         var _mgo=(period==='quarterly')?_qGoalOverride(m,_wi):undefined;
@@ -8167,7 +8171,7 @@ function renderScorecard(){
         h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(period==='quarterly'?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
         h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--txm);border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':totalDisplay)+'</td>';
 
-        var _isWk3 = (period==='weekly');
+        var _isWk3 = (((m.cadence)||'weekly')===period) && period!=='quarterly';
         cols.forEach(function(_v,_ci){
           var _wi = activeIdxs[_ci];
           var _go = (period==='quarterly') ? _qGoalOverride(m,_wi) : undefined;
@@ -9411,7 +9415,35 @@ function vspBeginMeetingTracking(){
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
+function _vspQtr(){
+  if(!planData.currentQuarter || typeof planData.currentQuarter.q!=='number'){
+    var q=2,y=2026;
+    try{ var g=(typeof goals!=='undefined'?goals:[]).find(function(x){return (x.horizon||'current')==='current' && /Q[1-4]\s*\d{4}/.test(x.quarter||'');}); if(g){ var mm=g.quarter.match(/Q([1-4])\s*(\d{4})/); if(mm){ q=+mm[1]; y=+mm[2]; } } }catch(e){}
+    planData.currentQuarter={q:q,year:y};
+  }
+  var q=planData.currentQuarter.q, y=planData.currentQuarter.year;
+  var ends={1:'Mar 31',2:'Jun 30',3:'Sep 30',4:'Dec 31'};
+  return {q:q,year:y,label:'Q'+q+' '+y,endDate:(ends[q]||'Dec 31')+', '+y};
+}
+function advanceQuarter(){
+  var cur=_vspQtr();
+  try{ planArchives.unshift({ label:'V/TO '+cur.label, archivedAt:cur.label, data:JSON.parse(JSON.stringify(planData)) }); }catch(e){}
+  try{
+    for(var _gi=goals.length-1; _gi>=0; _gi--){ var _g=goals[_gi]; if((_g.horizon||'current')==='current'){ _g.quarter=cur.label; archivedGoals.unshift(goals.splice(_gi,1)[0]); } }
+  }catch(e){}
+  var nq=cur.q+1, ny=cur.year; if(nq>4){ nq=1; ny=cur.year+1; }
+  planData.currentQuarter={q:nq,year:ny};
+  try{ planData.q1.futureDate=_vspQtr().endDate; planData.q1.goals=[]; }catch(e){}
+  state.stratLastReviewed=cur.label+' quarterly session; advanced to '+_vspQtr().label;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+}
 function startMeetingByType(type){
+  if(type==='Quarterly'){
+    var _c=_vspQtr(); var _nq=_c.q+1,_ny=_c.year; if(_nq>4){_nq=1;_ny=_c.year+1;}
+    if(typeof confirm==='function' && confirm('Start the Quarterly session?\n\nThis archives the current V/TO ('+_c.label+') for reference, advances to Q'+_nq+' '+_ny+', rolls the plan date to the quarter end, and moves this quarter\'s goals to the archive so the new quarter starts fresh.')){
+      advanceQuarter();
+    }
+  }
   state.meetTab='running';
   state.meetStep=0;
   state.meetType=type.toLowerCase().split(' ').join('-');
@@ -14224,6 +14256,7 @@ function renderPage(){
     document.body.appendChild(panel);
   }
   try{ var _ags=document.querySelectorAll('textarea[data-autogrow]'); for(var _ai=0;_ai<_ags.length;_ai++) _vspAutogrow(_ags[_ai]); }catch(e){}
+  try{ var _qb=document.getElementById('qtr-badge'); if(_qb) _qb.textContent=_vspQtr().label; }catch(e){}
 }
 
 // ── BOOT ──
