@@ -914,7 +914,7 @@
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-/* === SMB CANON v2.0 BEGIN === DO NOT EDIT - change canon source instead === */
+/* === SMB CANON v2.1 BEGIN === DO NOT EDIT - change canon source instead === */
 :root {
   /* ─── Type scale (locked) ────────────────────────────────────────── */
   --fz-xs:    11px;
@@ -976,6 +976,21 @@
   --overlay-light-08: rgba(255,255,255,0.08);
   --overlay-dark-04:  rgba(0,0,0,0.04);
 }
+
+/* Status chip canon. Used across every module for status indicators.
+   Semantics locked (Standards v2.32 Status Chip Canon v1, Decision Log D-85):
+   - c-red   = overdue / expired / off-track / below-market / decline
+   - c-amb   = due soon / expiring within 90 days / at-risk / above-market / watch
+   - c-grn   = current / valid / on-track / at-market / proceed
+   - c-blu   = info / neutral / category / stage-in-progress
+   - c-gry   = no data / N/A / not on file
+   VSP_Module_v8.html is the visual reference. */
+.chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;font-weight:600;font-size:var(--fz-base);white-space:nowrap;border:1px solid transparent}
+.c-grn{background:var(--grnb);color:var(--grnt);border-color:var(--grn)}
+.c-amb{background:var(--ambb);color:var(--ambt);border-color:var(--amb)}
+.c-red{background:var(--redb);color:var(--redt);border-color:var(--red)}
+.c-blu{background:var(--blub);color:var(--blut);border-color:var(--blu)}
+.c-gry{background:var(--sur2);color:var(--txm);border-color:var(--brd)}
 
 /* ═══════════════════════════════════════════════════════════════════════
    TYPOGRAPHY ROLES (v2.0 - May 20, 2026)
@@ -1103,7 +1118,7 @@ table th, .card-body table th, .tbl-wrap table th {
   font-size: var(--fz-xs);
 }
 .settings-note { color: var(--txd); font-style: italic; }
-/* === SMB CANON v2.0 END === */
+/* === SMB CANON v2.1 END === */
 
 /* ── VSP module-specific token extensions (not in canon) ─────────── */
 :root {
@@ -1224,13 +1239,6 @@ td:hover > .sc-note-pop{display:block}
 .g2 > *, .g3 > * { min-width: 0; }
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
 
-/* ── CHIPS - Status palette only (locked) ── */
-.chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;font-weight:600;white-space:nowrap;border:1px solid transparent}
-.c-grn{background:var(--grnb);color:var(--grnt);border-color:var(--grn-bdr)}
-.c-amb{background:var(--ambb);color:var(--ambt);border-color:var(--amb-bdr)}
-.c-red{background:var(--redb);color:var(--redt);border-color:var(--reds)}
-.c-blu{background:var(--cat-blub);color:var(--cat-blu);border-color:var(--blu-bdr)}
-.c-gry{background:var(--cat-sltb);color:var(--cat-slt);border-color:var(--brd2)}
 
 /* ── TABLES ── */
 .tbl{width:100%;border-collapse:collapse;font-size:var(--fz-md)}
