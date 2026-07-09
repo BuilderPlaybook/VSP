@@ -911,6 +911,32 @@
   Standards: v2.8 (canon v2.0 SHA ce97492537fd...). Gates: smb_standards_audit_v3.js
   Sections A/F/G/H/I exit 0 and smb_render_check.js PASS. DoD code-side checks
   pass; checks 10, 12, 13, 14 (speed, mobile, UX, visual) require Dave walkthrough.
+    v10  - 2026-07-08 - Canon v2.1 sweep. Canon block replaced verbatim with
+           smb_canon_v2.css v2.1 (SHA b40fd142...36bb0); markers renamed v2.0 to
+           v2.1. Inline chip block (.chip/.c-grn/.c-amb/.c-red/.c-blu/.c-gry) and
+           its comment removed; those rules now live in canon v2.1 (dedup). No
+           change to other module styles, shell chrome, module catalog,
+           --module-accent (#5b8fd6), the staging adapter, or VSP_STORAGE_VERSION.
+           Retains prior-session work (cascade delete, quarterly auto-advance,
+           team-scoped full-name assignment, quick-add flag/checkbox, monthly-cell
+           editing, SMB_CORE_VALUES / SMB_COMPANY_FOCUS publish). All gates green:
+           node --check, audit v3.9 Sections A-N exit 0 (Section F matches the
+           v2.1 CANON_SHA256), render_check PASS, 0 em-dashes outside title,
+           style-block integrity clean.
+    v11  - 2026-07-08 - Module Design Standards v1 completion (not a sweep).
+           Part A (C3 intentional empty states): added via the _vspEmpty helper
+           in HR voice to six surfaces - no quarterly goals, no plan-section
+           measurables, no scorecard-section measurables (with a + New Measurable
+           action), no planned seats, no one-year goals, and empty period on a
+           period-filtered scorecard view. Part B (Modal Keydown StopPropagation
+           Rule v1): VSP has no .modal/overlayDismiss; it dispatches page hotkeys
+           (Cmd/K palette and N/P/I/T/? meeting shortcuts) from two global document
+           keydown handlers, so the equivalent guard was applied - a comprehensive
+           _vspAnyModalOpen() check on both handlers plus the existing input-focus
+           guard, so no page hotkey fires while any modal is open. No forms exist,
+           so the type=button leg carries no submit risk. No change to canon (v2.1),
+           chrome, catalog, --module-accent (#5b8fd6), scorecard engine, cross-module
+           contracts, or the SMB_CORE_VALUES emit. All gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -4015,7 +4041,7 @@ function planMeasurablesBlock(scope){
   var edit=!!state.planEditUnlocked;
   var h='<div class="fl" style="margin:14px 0 6px">Measurables</div>';
   if(!pd.measurables.length && !edit){
-    h+='<div style="font-size:var(--fz-base);color:var(--txm);padding:4px 0">No measurables set.</div>';
+    h+=_vspEmpty(_VSP_IC_CHART,'No measurables on this plan section yet. Measurables are the few numbers that tell you if the plan is on track week to week.','','');
   }
   pd.measurables.forEach(function(m){
     var stt=m.status||'none';
@@ -6396,6 +6422,9 @@ function _vspEmpty(icon, msg, ctaLabel, ctaOnclick){
 }
 var _VSP_IC_GOAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>';
 var _VSP_IC_TODO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
+var _VSP_IC_CHART='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="20" x2="4" y2="12"/><line x1="10" y1="20" x2="10" y2="6"/><line x1="16" y1="20" x2="16" y2="14"/><line x1="22" y1="20" x2="22" y2="9"/></svg>';
+var _VSP_IC_SEAT='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0114 0"/></svg>';
+var _VSP_IC_CAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>';
 function renderDashboard(){
   var goalsGood=goals.filter(function(g){return g.status!="off-track"&&g.status!=="cancelled";}).length;
   var goalsTotal=goals.filter(function(g){return g.status!=="cancelled";}).length;
@@ -6643,7 +6672,7 @@ function renderStrategic(){
     // Live status/progress synced from goals[] global by title match
     var h='<div class="fl" style="margin-bottom:8px">Goals For The Quarter</div>';
     if(!q1Goals||!q1Goals.length){
-      h+='<div style="font-size:var(--fz-body);color:var(--txm);padding:8px 0">No goals set for this quarter.</div>';
+      h+=_vspEmpty(_VSP_IC_GOAL,'No goals set for this quarter yet. Goals turn the plan into weekly action the team can own.','','');
       if(state.planEditUnlocked){
         h+='<button onclick="addQ1Goal()" class="btn btn-sm" style="margin-top:6px">+ Add Goal</button>';
       }
@@ -6819,6 +6848,7 @@ function renderStrategic(){
     });
     h+='</div>';
     h+='<div class="fl" style="margin-bottom:6px">Goals For The Year</div>';
+    if(!planData.oneyr.goals||!planData.oneyr.goals.length){ h+=_vspEmpty(_VSP_IC_GOAL,'No one-year goals set yet. These are the handful of outcomes that define a successful year.','',''); }
     planData.oneyr.goals.forEach(function(g,i){
       var _gd=Array.isArray(planData.oneyr.goalsDone)&&planData.oneyr.goalsDone[i];
       h+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:0.5px solid var(--brd)">';
@@ -8143,7 +8173,8 @@ function renderScorecard(){
         h+='<th style="text-align:center;padding:6px 6px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:var(--sur2);border-right:0.5px solid var(--brd)">'+_lbl+'</th>';
       });
       h+='</tr></thead><tbody>';
-      if(_scOrder.length===0){ h+='<tr><td colspan="40" style="padding:16px;color:var(--txm);font-size:var(--fz-base);text-align:left">No measurables yet. Use + New Measurable above to add one.</td></tr>'; }
+      if(_scOrder.length===0){ h+='<tr><td colspan="40" style="padding:0">'+_vspEmpty(_VSP_IC_CHART,'No measurables for this seat yet. Add the few numbers this role should hit each week.','+ New Measurable','openNewMeasurable('+scorecard.indexOf(section)+')')+'</td></tr>'; }
+      else { var _anyPD=_scOrder.some(function(mi){ var _mm=section.metrics[mi]; return (activeIdxs||[]).some(function(ci){ return _mm&&_mm.readings&&_mm.readings[ci]!=null; }); }); if(!_anyPD){ h+='<tr><td colspan="40" style="padding:0">'+_vspEmpty(_VSP_IC_CAL,'No numbers entered for this period yet. Pick a week and start filling in the scorecard.','','')+'</td></tr>'; } }
 
       _scOrder.forEach(function(mi){
         var m=section.metrics[mi];
@@ -12666,7 +12697,7 @@ function _vspRoadmap(){
   h+='<button type="button" class="btn btn-sm btn-blu" onclick="state.futureSeatPanel=\'new\';renderPage()">Add planned seat</button></div>';
   h+='<div class="card-body">';
   if(!rows.length){
-    h+='<div style="padding:16px 2px;color:var(--txm)">No planned seats yet. Map the roles you expect to need over the next three years.</div>';
+    h+=_vspEmpty(_VSP_IC_SEAT,'No planned seats yet. Map the roles you expect to need over the next three years so you can hire ahead of the gap.','','');
   } else {
     h+='<table style="width:100%;border-collapse:collapse"><thead><tr>';
     ['Planned seat','Department','Reports to','Target','Reason','Status',''].forEach(function(th){ h+='<th scope="col" style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--brd);color:var(--txm);font-weight:600">'+th+'</th>'; });
@@ -15503,7 +15534,7 @@ function _vspPalKey(e){
 // Top-bar search now opens the palette (forwarding the first keystroke).
 function globalSearch(q){ vspOpenPalette(q||''); var gs=document.getElementById('global-search'); if(gs)gs.value=''; }
 document.addEventListener('keydown',function(e){
-  if((e.metaKey||e.ctrlKey) && (e.key==='k'||e.key==='K')){ e.preventDefault(); if(_vspPal.open)vspClosePalette(); else vspOpenPalette(''); }
+  if((e.metaKey||e.ctrlKey) && (e.key==='k'||e.key==='K')){ if(!_vspPal.open && _vspAnyModalOpen()) return; e.preventDefault(); if(_vspPal.open)vspClosePalette(); else vspOpenPalette(''); }
 });
 /* ═══ END COMMAND PALETTE ═══ */
 
@@ -15528,6 +15559,14 @@ function _vspToggleMeetHelp(){
     +'<div style="margin-top:8px;text-align:right"><button type="button" onclick="document.getElementById(\'vsp-meet-help\').remove()" style="font:inherit;font-size:var(--fz-xs);color:#94a3b8;background:transparent;border:none;cursor:pointer">close (esc)</button></div>';
   document.body.appendChild(d);
 }
+function _vspAnyModalOpen(){
+  try{
+    var s=(typeof state==='object'&&state)?state:{};
+    if(s.createPanel||s.editPanel||s.headlinePanel||s.schedulePanel||s.orgPanel||s.roleStubPanel||s.seatAnnPanel||s.futureSeatPanel||s.showCascadePanel||s.newMeasurablePanel||s.editGroupPanel||s.editMetricPanel||s.todoDetail||s.issueDetail) return true;
+    if(document.getElementById('todo-detail-modal')||document.getElementById('issue-detail-modal')||document.getElementById('ppl-person-modal')||document.getElementById('ppl-team-modal')||document.getElementById('switch-user-modal')) return true;
+  }catch(e){}
+  return false;
+}
 document.addEventListener('keydown',function(e){
   try{
     if(!(typeof state==='object' && state && state.page==='meetings' && state.meetTab==='running')) return;
@@ -15536,7 +15575,7 @@ document.addEventListener('keydown',function(e){
     var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
     if(t && (tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable)) return;
     // If a create/edit panel or detail is open, only let Escape through to close help.
-    var modalOpen = state.createPanel||state.editPanel||state.headlinePanel||state.todoDetail||state.issueDetail;
+    var modalOpen = _vspAnyModalOpen();
     if(e.key==='Escape'){ var hb=document.getElementById('vsp-meet-help'); if(hb){ e.preventDefault(); hb.remove(); } return; }
     if(modalOpen) return;
     var k=e.key;
