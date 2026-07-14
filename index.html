@@ -1007,10 +1007,67 @@
            report picker and auto-fill the supervisor from the org chart (attendees
            = report + supervisor); Monthly Client Meeting pre-checks PM + ID. Save
            reads the actual selection. Gates green.
+    v23  - 2026-07-08 - D-98 meeting/performance contracts. Part A: publish
+           window.SMB_VSP_MEETINGS.forPerson(personId) (VSP sole writer), sourced
+           from scheduled 1:1 Performance Huddles - returns {meetingId, name,
+           cadence, nextDate, supervisorId} or null. Part B: on the running 1:1
+           huddle Scorecard Review step, render a read-only "Scorecard review" item
+           consuming window.SMB_PND_HUDDLES (statusFor + reviewFor): status chip
+           (green/amber/gray/blue, red on hardFail), Discussed marker, Source: P&D
+           badge (VSP-Mirror Sections v1 / D-91), optional upcoming quarterly review
+           line, silent-fail-safe when the contract is absent. Report captured on
+           Join via joinScheduledMeeting. VSP stores no score/pct/discussed. Gates
+           green.
+    v24  - 2026-07-08 - Huddle scheduling + cadence health (3 items). (1) Direct
+           report picker filtered to the signed-in supervisor's own reports (HR
+           sees all). (2) Huddle discoverability: a supervisor's 1:1s now surface in
+           Upcoming regardless of the selected team; join and delete resolve the
+           meeting across teams. (3) Cadence health chip per recurring meeting -
+           Held this period (green) / Due (amber) / Overdue (red) / Scheduled (blue),
+           computed from a lastHeld stamp set when a joined recurring meeting is
+           ended. VSP owns "whether it happened" per D-98. Gates green.
+    v25  - 2026-07-08 - People lifecycle in scheduling. New hires (status active)
+           already appear in the pickers; this filters archived (fired) people out
+           of the attendee checkboxes and the direct-report picker (they stay in
+           past-meeting history). Cadence health returns no chip for a meeting with
+           an archived attendee, and cross-team discoverability skips huddles whose
+           other party was archived, so a fired person's old 1:1 no longer lingers
+           as Overdue. Un-archiving restores them. Gates green.
+    v26  - 2026-07-08 - Canon v2.2 + SMB Components v1 sweep (Standards v2.36/v2.38,
+           D-101/D-102). Canon block replaced verbatim with canon v2.2 (SHA
+           a210e4ce...e639, markers renamed v2.1 -> v2.2; adds the .tag base class).
+           SMB Components v1 block pasted verbatim after the Shell Chrome block (SHA
+           a11a671f...9e014). Deleted VSP's now-duplicate component CSS (.pg-title,
+           .pg-sub, .card, .card-body, .tab-bar, .tab, .tab.active, .btn and
+           variants, .btn-sm, filter-bar inputs, and the --btn-txt token) so the
+           locked block is the sole source; full-cascade check confirms no module
+           rule overrides it and no stale type tokens remain. goalRow() converted to
+           the locked .goal-row class set (.goal-row/.off/.cancelled/.last,
+           .goal-row-main, .goal-title/.off/.muted/.done, .goal-ms/.all-done,
+           .goal-progress/-bar/-fill + status modifier with per-value width kept
+           inline, .goal-due, .goal-status-select + status modifier, .goal-ctx/.open,
+           .goal-ctx-menu, .goal-expand); raw hex (#fff5f5, #dc2626, #16a34a,
+           #2563eb, #94a3b8, #fafbfc) re-expressed as canon tokens. Gates: node
+           --check, 0 em-dashes outside title, style-block integrity, audit v3.11
+           Sections A-P exit 0 (F = a210e4ce, P = a11a671f), render_check PASS.
+    v27  - 2026-07-13 - Property Management meeting fix. Root cause: the Property
+           and Development teams were created with members:[] (v17), so
+           _vspTeamRoster() returned an empty list and every owner dropdown
+           (headline, goal, to-do, issue) rendered with zero options - a headline
+           saved with owner:"" and came out ownerless, which is the reported
+           "headline didn't work". Fixes: (1) added Rob Piercy (p15, RP, Property
+           Manager, reports to Dave) to the people seed; (2) Property Management
+           members set to Rob, Dave, Lisa with matching scorecard seats; (3)
+           defensive - _vspTeamRoster() now falls back to every active person when a
+           team has no members, so a newly created team can never silently save
+           ownerless records again. Full 8-step Property meeting verified against
+           the Leadership Team baseline: all steps render, owner dropdowns populate,
+           headline/goal/to-do/issue all save with an owner, scorecard seats show,
+           End Meeting records to Past Meetings. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-/* === SMB CANON v2.1 BEGIN === DO NOT EDIT - change canon source instead === */
+/* === SMB CANON v2.2 BEGIN === DO NOT EDIT - change canon source instead === */
 :root {
   /* ─── Type scale (locked) ────────────────────────────────────────── */
   --fz-xs:    11px;
@@ -1073,15 +1130,23 @@
   --overlay-dark-04:  rgba(0,0,0,0.04);
 }
 
-/* Status chip canon. Used across every module for status indicators.
-   Semantics locked (Standards v2.32 Status Chip Canon v1, Decision Log D-85):
+/* Status chip canon + Shared Tag Pill v1.
+   .chip (Standards v2.32 / D-85) and .tag (Standards v2.36 / D-100) share the same locked
+   silhouette: rounded 12px pill, 1px border, inline-flex, weight 600. Only the colour source
+   differs. .chip pulls from the status palette via .c-<color> semantic modifiers below; .tag
+   pulls from the Category palette (--cat-*) or the Progression palette (--pg-*) at application
+   time. No module hand-rolls a different pill shape - no squared tags, no per-module radius,
+   no inline raw-hex on pill classes.
+   Status semantics locked (v2.32 Status Chip Canon v1):
    - c-red   = overdue / expired / off-track / below-market / decline
    - c-amb   = due soon / expiring within 90 days / at-risk / above-market / watch
    - c-grn   = current / valid / on-track / at-market / proceed
    - c-blu   = info / neutral / category / stage-in-progress
    - c-gry   = no data / N/A / not on file
-   VSP_Module_v8.html is the visual reference. */
+   VSP_Module_v8.html is the visual reference for chips.
+   VSP status chips + Company category tag = reference for shared pill silhouette. */
 .chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;font-weight:600;font-size:var(--fz-base);white-space:nowrap;border:1px solid transparent}
+.tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;font-weight:600;font-size:var(--fz-body);white-space:nowrap;border:1px solid transparent}
 .c-grn{background:var(--grnb);color:var(--grnt);border-color:var(--grn)}
 .c-amb{background:var(--ambb);color:var(--ambt);border-color:var(--amb)}
 .c-red{background:var(--redb);color:var(--redt);border-color:var(--red)}
@@ -1214,7 +1279,7 @@ table th, .card-body table th, .tbl-wrap table th {
   font-size: var(--fz-xs);
 }
 .settings-note { color: var(--txd); font-style: italic; }
-/* === SMB CANON v2.1 END === */
+/* === SMB CANON v2.2 END === */
 
 /* ── VSP module-specific token extensions (not in canon) ─────────── */
 :root {
@@ -1229,7 +1294,6 @@ table th, .card-body table th, .tbl-wrap table th {
   --grn-ink: #166534;            /* deep green ink                             */
   --amb-bdr: #fcd34d;            /* amber chip border                          */
   --reds:    #fca5a5;            /* red shadow/border                          */
-  --btn-txt: #374151;            /* default button text                        */
   --gray-50: #fafbfc;            /* soft surface lightest                      */
   --sb-line: #2d3f52;            /* sidebar inner divider                      */
   --sb-light:#f0d895;            /* light gold accent on sidebar               */
@@ -1307,17 +1371,13 @@ td:hover > .sc-note-pop{display:block}
 
 /* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow-y:auto;min-width:0}
-.card-body{font-size:var(--fz-lg)}
 .page{flex:1;overflow-y:auto;padding:24px;background:var(--bg);animation:fadeIn .15s ease;font-size:var(--fz-lg)}
 @keyframes fadeIn{from{transform:translateY(4px)}to{transform:none}}
 @keyframes vspSpin{to{transform:rotate(360deg)}}
 
 /* ── PAGE HEADER ── */
-.pg-title{font-size:var(--fz-3xl);font-weight:700;margin-bottom:4px;letter-spacing:-.01em;color:var(--txt)}
-.pg-sub{color:var(--txm);margin-bottom:20px}
 
 /* ── CARDS ── */
-.card{background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:16px;margin-bottom:14px}
 
 /* ── PULSE / KPI STRIP ── */
 .pulse{display:flex;background:var(--sur);border:1px solid var(--brd);border-radius:8px;overflow:hidden;margin-bottom:16px}
@@ -1346,19 +1406,8 @@ td:hover > .sc-note-pop{display:block}
 @keyframes pulse-rec{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
 
 /* ── TABS (Shell Standard v1.4) ── */
-.tab-bar{display:flex;border-bottom:2px solid var(--brd);margin-bottom:16px}
-.tab{padding:8px 18px;font-size:var(--fz-md);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--txm);margin-bottom:-2px;font-weight:500;font-family:inherit}
-.tab.active{color:var(--blu);border-bottom-color:var(--blu);font-weight:600}
 
 /* ── BUTTONS (Shell Standard v1.4) ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:var(--sur);color:var(--btn-txt);font-family:inherit;transition:all .12s;white-space:nowrap}
-.btn:hover{background:var(--sur2)}
-.btn-primary,.btn-gold{background:var(--gp);color:#fff;border-color:var(--gp)}
-.btn-primary:hover,.btn-gold:hover{background:var(--gpd);border-color:var(--gpd)}
-.btn-blu{background:var(--blu);color:#fff;border-color:var(--blu)}
-.btn-blu:hover{background:var(--bluh);border-color:var(--bluh)}
-.btn-red{background:var(--redb);color:var(--red);border-color:var(--reds)}
-.btn-sm{padding:6px 12px;}
 
 /* ── FORM FIELDS ── */
 .field{margin-bottom:10px}
@@ -1682,6 +1731,98 @@ summary:focus-visible,
   border-radius:6px;
 }
 /* === SHELL CHROME v1 END === */
+
+/* === SMB COMPONENTS v1 BEGIN === DO NOT EDIT - change SMB Components source instead === */
+/* SMB Components v1 (Standards v2.38 / D-102).
+   One locked source of truth for shared UI components, extracted from
+   VSP_Module_v22: buttons, cards, page titles, tabs, filter bar inputs, and
+   the Goals-list row. Every module pastes this block after the SMB CANON and
+   SMB SHELL CHROME blocks. Byte-checked by audit Section P against
+   COMPONENTS_SHA256.
+
+   Chrome-model resolution. This block adopts VSP's inline dark titles as the
+   canonical rendering: .pg-title renders inline at --fz-3xl; .card-title stays
+   dark on neutral card headers. Modules that previously hid .pg-title in favor
+   of a topbar page title, or whitened .card-title on coloured card headers,
+   drop those overrides on the v1 sweep and adopt this block's rendering.
+
+   Goals-list row. The .goal-row class set is the extracted form of VSP v22
+   goalRow() inline styles. Cosmetics live in classes; state-dependent choices
+   are expressed via modifier classes (.off, .cancelled, .done, .muted,
+   .on-track, .all-done, .last). Per-value inline styles remain inline (progress
+   bar width percentage; menu positioning); shared cosmetics do not.
+
+   Not included at v1. .smb-empty (VSP v22 does not carry it as a distinct
+   class set; deferred to a future revision when VSP adopts an empty-state
+   component). Modules keep their current empty states until then.
+
+   --module-accent stays a per-module :root token (each module picks its own
+   restrained hue; VSP #5b8fd6 is the reference). This block does not lock
+   --module-accent because the token exists to differentiate modules; it locks
+   --btn-txt because button text colour is a component property. */
+
+:root {
+  --btn-txt: #374151;
+}
+
+/* PAGE HEADER */
+.pg-title{font-size:var(--fz-3xl);font-weight:700;margin-bottom:4px;letter-spacing:-.01em;color:var(--txt)}
+.pg-sub{color:var(--txm);margin-bottom:20px}
+
+/* CARDS */
+.card{background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:16px;margin-bottom:14px}
+.card-body{padding:16px;font-size:var(--fz-lg);line-height:1.5}
+.card-title{font-size:var(--fz-lg);font-weight:600;color:var(--txt)}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:2px solid var(--brd);margin-bottom:16px}
+.tab{padding:8px 18px;font-size:var(--fz-md);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--txm);margin-bottom:-2px;font-weight:500;font-family:inherit}
+.tab.active{color:var(--blu);border-bottom-color:var(--blu);font-weight:600}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:var(--fz-body);font-weight:600;cursor:pointer;border:1px solid var(--brd);background:var(--sur);color:var(--btn-txt);font-family:inherit;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--sur2)}
+.btn-sm{padding:6px 12px}
+.btn-primary,.btn-gold{background:var(--gp);color:#fff;border-color:var(--gp)}
+.btn-primary:hover,.btn-gold:hover{background:var(--gpd);border-color:var(--gpd)}
+.btn-blu{background:var(--blu);color:#fff;border-color:var(--blu)}
+.btn-blu:hover{background:var(--bluh);border-color:var(--bluh)}
+.btn-red{background:var(--redb);color:var(--red);border-color:var(--reds)}
+
+/* FILTER BAR */
+.filter-bar input,.filter-bar select{font-size:var(--fz-body);font-family:inherit}
+
+/* GOALS-LIST ROW (implements Goals Row Status Tint v1 from Standards v2.37) */
+.goal-row{background:var(--sur);border-bottom:0.5px solid var(--brd)}
+.goal-row.last{border-bottom:none}
+.goal-row.off{background:var(--redb);border-left:3px solid var(--red)}
+.goal-row.cancelled{background:var(--sur2)}
+.goal-row-main{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer}
+.goal-title{flex:1;min-width:0;font-size:var(--fz-lg);font-weight:500;color:var(--txt);cursor:pointer}
+.goal-title.off{color:var(--red)}
+.goal-title.muted{color:var(--txm)}
+.goal-title.done{text-decoration:line-through}
+.goal-ms{font-size:var(--fz-lg);color:var(--txm);white-space:nowrap;min-width:70px;text-align:right}
+.goal-ms.all-done{color:var(--grn)}
+.goal-progress{display:flex;align-items:center;gap:5px;min-width:80px;cursor:pointer}
+.goal-progress-bar{flex:1;height:5px;background:var(--brd);border-radius:3px;min-width:44px}
+.goal-progress-fill{height:100%;border-radius:3px;transition:width .2s}
+.goal-progress-fill.on-track{background:var(--grn)}
+.goal-progress-fill.off-track{background:var(--red)}
+.goal-progress-fill.done{background:var(--blu)}
+.goal-progress-fill.cancelled{background:var(--txm)}
+.goal-due{font-size:var(--fz-lg);color:var(--txm);white-space:nowrap;min-width:44px;text-align:right}
+.goal-status-select{width:98px;font-size:var(--fz-base);padding:3px 5px;border-width:1.5px;border-style:solid;border-radius:5px;font-weight:500;cursor:pointer;font-family:inherit}
+.goal-status-select.on-track{background:var(--grnb);color:var(--grnt);border-color:var(--grn)}
+.goal-status-select.off-track{background:var(--redb);color:var(--redt);border-color:var(--red)}
+.goal-status-select.done{background:var(--blub);color:var(--blut);border-color:var(--blu)}
+.goal-status-select.cancelled{background:var(--sur2);color:var(--txm);border-color:var(--brd)}
+.goal-ctx{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:var(--txm);font-size:var(--fz-lg)}
+.goal-ctx.open{background:var(--sur2)}
+.goal-ctx-menu{position:fixed;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.15);z-index:9000;min-width:220px;padding:4px 0}
+.goal-expand{padding:0 14px 12px 36px;background:var(--sur2);border-top:0.5px solid var(--brd)}
+/* === SMB COMPONENTS v1 END === */
+
 /* Seats & Structure: boxes-and-lines org chart */
 .vsp-org-wrap{overflow-x:auto;padding:8px 2px 20px}
 .vsp-tree{display:inline-flex;min-width:100%;justify-content:center}
@@ -1990,6 +2131,35 @@ function vspEmitSignals(){
     try{
       window.SMB_CORE_VALUES = { asOf: (typeof nowIso!=='undefined'?nowIso:new Date().toISOString()), values: (typeof _vspCvList==='function'?_vspCvList():((planData&&planData.cv)||[])).map(function(v){ return { id: v.id, title: v.title, description: v.desc }; }) };
       window.SMB_COMPANY_FOCUS = { asOf: (typeof nowIso!=='undefined'?nowIso:new Date().toISOString()), tagline: (planData&&planData.cfTagline)||'', description: (planData&&planData.cfDesc)||'' };
+      // VSP is sole writer of the 1:1 meeting contract consumed by P&D (D-98).
+      window.SMB_VSP_MEETINGS = {
+        forPerson: function(personId){
+          try{
+            var person = ppl.find(function(pp){ return pp.id===personId || pp.initials===personId; });
+            if(!person) return null;
+            var ini = person.initials, found=null;
+            Object.keys(teamsRegistry).forEach(function(tid){
+              var mtgs=(teamsRegistry[tid]&&teamsRegistry[tid].scheduledMeetings)||[];
+              mtgs.forEach(function(m){
+                if(found) return;
+                if((m.type||'').indexOf('Performance Huddle')>-1 && (m.attendees||[]).indexOf(ini)>-1) found=m;
+              });
+            });
+            if(!found) return null;
+            var others=(found.attendees||[]).filter(function(a){return a!==ini;});
+            var supP=ppl.find(function(pp){return pp.initials===(others[0]||'');});
+            var supervisorId = supP ? supP.id : (person.reportsTo||'');
+            var cad = found.recurEvery===7?'weekly':(found.recurEvery===14?'biweekly':(found.recurEvery===28?'monthly':'weekly'));
+            return {
+              meetingId: String(found.id),
+              name: (supP?supP.first:'Supervisor')+' / '+person.first+' 1:1',
+              cadence: cad,
+              nextDate: (typeof _vspNextOccur==='function'?_vspNextOccur(found.date, found.recurEvery):found.date),
+              supervisorId: supervisorId
+            };
+          }catch(e){ return null; }
+        }
+      };
     }catch(e){}
   } catch(e){
     // Signal emission must never break the module. Log and continue.
@@ -2370,7 +2540,7 @@ async function autoSummarizeSection(stepIdx, sectionLabel){
 }
 
 
-var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{}};
+var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{}};
 var timerInterval=null;
 
 // Archived plan snapshots - one per quarter
@@ -3793,7 +3963,7 @@ var teamsRegistry={
     name:"Property Management",
     color:"#0d9488",
     quarter:"Q2 2026",
-    members:[],
+    members:["RP","DS","LS"],
     goals:[],
     archivedGoals:[],
     todos:[],
@@ -3801,7 +3971,11 @@ var teamsRegistry={
     issues:[],
     longTermIssues:[],
     resolvedIssues:[],
-    scorecard:[],
+    scorecard:[
+      {ownerId:"RP",seat:"Property Manager",metrics:[]},
+      {ownerId:"DS",seat:"President",metrics:[]},
+      {ownerId:"LS",seat:"Controller",metrics:[]}
+    ],
     headlines:[],
     scheduledMeetings:[],
     pastMeetings:[]
@@ -7289,6 +7463,7 @@ var LIDA_VSP_PPL_SEED=[
   {id:'p11',first:'Nicolas', last:'Hatfield',       initials:'NH', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:3, teams:['t2'],      reportsTo:'p9', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p12',first:'Daniel',  last:'Blanco Guillen', initials:'DB', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:4, teams:['t2'],      reportsTo:'p9', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p13',first:'Finlay',  last:'Gifford',        initials:'FG', role:'Apprentice (1st Year)',                             department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:5, teams:['t2'],      reportsTo:'p11',supervisor:false, hr:false, notes:'', status:'active'},
+  {id:'p15',first:'Rob',     last:'Piercy',         initials:'RP', role:'Property Manager',                                 department:'Property Mgmt', email:'',                     phone:'', startDate:'', colorSlot:7, teams:['t6'],      reportsTo:'p1', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p14',first:'Julian',  last:'Pleasant',       initials:'JP', role:'Apprentice (4th Year)',                             department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:6, teams:['t2'],      reportsTo:'p12',supervisor:false, hr:false, notes:'', status:'active'}
 ];
 
@@ -7352,6 +7527,13 @@ function tenantText(s){
 function _vspTeamRoster(includeIni){
   var team = (typeof teamsRegistry!=='undefined' && teamsRegistry) ? (teamsRegistry[state.currentTeam]||teamsRegistry['lt']) : null;
   var inis = (team && Array.isArray(team.members)) ? team.members.slice() : [];
+  // A team with no members must never yield an empty owner list (that silently
+  // saves ownerless records). Fall back to every active person.
+  if(!inis.length){
+    inis = (typeof ppl!=='undefined'&&Array.isArray(ppl)?ppl:[])
+      .filter(function(pp){ return (pp.status||'active')==='active'; })
+      .map(function(pp){ return pp.initials; });
+  }
   if(includeIni && inis.indexOf(includeIni)===-1) inis.push(includeIni);
   var by={}; (typeof ppl!=='undefined'&&Array.isArray(ppl)?ppl:[]).forEach(function(pp){ by[pp.initials]=pp; });
   var out=inis.map(function(ini){ var pp=by[ini]; return pp?{initials:pp.initials,first:pp.first,last:pp.last,name:(pp.first+' '+pp.last)}:{initials:ini,first:ini,last:'',name:ini}; });
@@ -8898,6 +9080,7 @@ function renderGoals(){
   return h;
 }
 
+function _goalStatusCls(st){ return st==='on-track'?'on-track':st==='off-track'?'off-track':st==='complete'?'done':st==='cancelled'?'cancelled':''; }
 function goalRow(g,archived,isLast,ctx){
   var _ctx=ctx||'page';
   var c=statusColor(g.status);
@@ -8905,18 +9088,17 @@ function goalRow(g,archived,isLast,ctx){
   var mTotal=g.milestones.length;
   var isExpanded=!!state.expandedGoals[g.id];
   var h='';
-  var rowBg=g.status==="off-track"?"#fff5f5":g.status==="cancelled"?"var(--sur2)":"var(--sur)";
-  var rowBorder=g.status==="off-track"?"border-left:3px solid #dc2626;":"";
+  var _rowCls='goal-row'+(g.status==="off-track"?' off':'')+(g.status==="cancelled"?' cancelled':'')+(isLast?' last':'');
   var _gdrag=_ctx==='ow'?' draggable="true" ondragstart="goalDragStart(event,'+g.id+')" ondragover="goalDragOver(event,'+g.id+')" ondragleave="goalDragLeave(event)" ondrop="goalDrop(event,'+g.id+')" ondragend="goalDragEnd(event)"':'';
-  h+='<div'+_gdrag+' style="border-bottom:'+(isLast?'none':'0.5px solid var(--brd)')+';background:'+rowBg+';'+rowBorder+'">';
+  h+='<div'+_gdrag+' class="'+_rowCls+'">';
   // Main row
-  h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer" onclick="state.expandedGoals['+g.id+']='+(!isExpanded)+';renderPage()">';
+  h+='<div class="goal-row-main" onclick="state.expandedGoals['+g.id+']='+(!isExpanded)+';renderPage()">';
   // Expand chevron
   h+='<svg width="12" height="12" fill="none" stroke="var(--txd)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;transition:transform .15s;transform:'+(isExpanded?'rotate(90deg)':'rotate(0)')+'""><path d="M9 18l6-6-6-6"/></svg>';
   // Status chip
   h+=statusChip(g.status);
   // Title
-  var gtc=g.status==="off-track"?"#dc2626":archived||g.status==="cancelled"?"var(--txm)":"var(--txt)";var gtd=g.status==="complete"?"line-through":"none";h+='<div style="flex:1;min-width:0">'+_meetQuickPair('goal',g.id)+'<span onclick="event.stopPropagation();openEditItem(\'goal\','+g.id+')" title="Click to edit" style="font-size:var(--fz-lg);font-weight:500;color:'+gtc+';text-decoration:'+gtd+';cursor:pointer">'+g.title+'</span>';var _gpR=g.parentId?parentLabel(g.parentId):'';if(_gpR)h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px"><span style="color:var(--blu)">\u21B3</span> Supports: '+_gpR+'</div>';h+='</div>';
+  var _gtCls='goal-title'+(g.status==="off-track"?' off':'')+((archived||g.status==="cancelled")?' muted':'')+(g.status==="complete"?' done':'');h+='<div style="flex:1;min-width:0">'+_meetQuickPair('goal',g.id)+'<span onclick="event.stopPropagation();openEditItem(\'goal\','+g.id+')" title="Click to edit" class="'+_gtCls+'">'+g.title+'</span>';var _gpR=g.parentId?parentLabel(g.parentId):'';if(_gpR)h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px"><span style="color:var(--blu)">\u21B3</span> Supports: '+_gpR+'</div>';h+='</div>';
   // Company badge
   if(g.company&&!archived)h+='<span style="background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;border-radius:10px;padding:1px 7px;white-space:nowrap">Company</span>';
   // Linked-items badge
@@ -8924,22 +9106,22 @@ function goalRow(g,archived,isLast,ctx){
   // Quarter badge in archived
   if(archived)h+='<span style="font-size:var(--fz-base);background:var(--sur2);border:1px solid var(--brd);border-radius:10px;padding:1px 8px;color:var(--txm);white-space:nowrap">'+g.quarter+'</span>';
   // Milestone progress
-  h+='<span style="font-size:var(--fz-lg);color:'+(mDone===mTotal?'#16a34a':'var(--txm)')+';white-space:nowrap;min-width:70px;text-align:right">'+mDone+'/'+mTotal+' milestones</span>';
+  h+='<span class="goal-ms'+(mDone===mTotal?' all-done':'')+'">'+mDone+'/'+mTotal+' milestones</span>';
   // Progress % - always visible inline, click to edit
   if(!archived){
-    h+='<div style="display:flex;align-items:center;gap:5px;min-width:80px;cursor:pointer" onclick="event.stopPropagation();goalSetProgress('+g.id+')" title="Click to set progress">';
-    h+='<div style="flex:1;height:5px;background:var(--brd);border-radius:3px;min-width:44px"><div style="height:100%;width:'+g.progress+'%;background:'+c+';border-radius:3px;transition:width .2s"></div></div>';
-    h+='<span style="font-weight:600;color:'+c+';min-width:28px;text-align:right">'+g.progress+'%</span>';
+    var _pcls=_goalStatusCls(g.status);
+    h+='<div class="goal-progress" onclick="event.stopPropagation();goalSetProgress('+g.id+')" title="Click to set progress">';
+    h+='<div class="goal-progress-bar"><div class="goal-progress-fill '+_pcls+'" style="width:'+g.progress+'%"></div></div>';
+    h+='<span class="goal-title '+_pcls+'" style="font-weight:600;min-width:28px;text-align:right">'+g.progress+'%</span>';
     h+='</div>';
   }
   // Owner avatar
   h+=avatar(g.owner,pplColor(g.owner),20);
   // Due date
-  h+='<span style="font-size:var(--fz-lg);color:var(--txm);white-space:nowrap;min-width:44px;text-align:right">'+g.due+'</span>';
+  h+='<span class="goal-due">'+g.due+'</span>';
   // Status select (not in archive)
   if(!archived){
-    var sc2=g.status==="on-track"?"#16a34a":g.status==="off-track"?"#dc2626":g.status==="complete"?"#2563eb":"#94a3b8";
-    h+='<select onclick="event.stopPropagation()" onchange="changeGoalStatus('+g.id+',this.value)" style="width:98px;font-size:var(--fz-base);padding:3px 5px;border:1.5px solid '+sc2+'40;border-radius:5px;background:'+sc2+'10;color:'+sc2+';font-weight:500;cursor:pointer">';
+    h+='<select onclick="event.stopPropagation()" onchange="changeGoalStatus('+g.id+',this.value)" class="goal-status-select '+_goalStatusCls(g.status)+'">';
     h+='<option value="on-track"'+(g.status==="on-track"?" selected":"")+'>On Track</option>';
     h+='<option value="off-track"'+(g.status==="off-track"?" selected":"")+'>Off Track</option>';
     h+='<option value="complete"'+(g.status==="complete"?" selected":"")+'>Done</option>';
@@ -8951,10 +9133,10 @@ function goalRow(g,archived,isLast,ctx){
     var gMenuOpen=state.goalCtx===(_ctx+'_'+g.id);
     var allTeams2=Object.values(teamsRegistry).filter(function(t){return t.id!==state.currentTeam;});
     h+='<div style="position:relative;flex-shrink:0" onclick="event.stopPropagation()">';
-    h+='<div id="gdot_'+_ctx+'_'+g.id+'" onclick="goalCtxOpen('+g.id+',\''+_ctx+'\');positionGoalMenu('+g.id+',\''+_ctx+'\')" style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:var(--txm);font-size:var(--fz-lg);'+(gMenuOpen?'background:var(--sur2)':'')+'">\u22ef</div>';
+    h+='<div id="gdot_'+_ctx+'_'+g.id+'" onclick="goalCtxOpen('+g.id+',\''+_ctx+'\');positionGoalMenu('+g.id+',\''+_ctx+'\')" class="goal-ctx'+(gMenuOpen?' open':'')+'">\u22ef</div>';
     if(gMenuOpen){
-      h+='<div id="gmenu_'+_ctx+'_'+g.id+'" style="position:fixed;right:60px;top:100px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.15);z-index:9000;min-width:220px;padding:4px 0">';
-      function gMI(icon,label,onclick,danger){return '<button onclick="'+onclick+'" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:'+(danger?'#dc2626':'var(--txt)')+'"><span style="font-size:var(--fz-body);width:16px;text-align:center">'+icon+'</span>'+label+'</button>';}
+      h+='<div id="gmenu_'+_ctx+'_'+g.id+'" class="goal-ctx-menu">';
+      function gMI(icon,label,onclick,danger){return '<button onclick="'+onclick+'" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:'+(danger?'var(--red)':'var(--txt)')+'"><span style="font-size:var(--fz-body);width:16px;text-align:center">'+icon+'</span>'+label+'</button>';}
       h+=gMI('\u270E','Edit','openEditItem(\'goal\','+g.id+')');
       h+='<div style="height:1px;background:var(--brd);margin:3px 0"></div>';
       h+=gMI('\u2191','Top of List','goalMoveTop('+g.id+')');
@@ -8985,7 +9167,7 @@ function goalRow(g,archived,isLast,ctx){
   h+='</div>';
   // Expanded detail
   if(isExpanded){
-    h+='<div style="padding:0 14px 12px 36px;background:#fafbfc;border-top:0.5px solid var(--brd)">';
+    h+='<div class="goal-expand">';
     // Progress bar
     h+='<div style="display:flex;align-items:center;gap:8px;margin:10px 0 12px">';
     h+='<div style="flex:1;height:5px;background:var(--brd);border-radius:3px"><div style="height:100%;width:'+g.progress+'%;background:'+c+';border-radius:3px"></div></div>';
@@ -9542,6 +9724,91 @@ function renderIssues(){
 // Reset all tracking arrays at meeting start. Items the team creates with the
 // Quick add toolbar during the meeting get pushed to these arrays so the
 // recap can show "from this meeting" lists instead of "all open" globals.
+function _vspWeekMonday(dd){
+  var x=new Date(dd); var day=x.getDay(); x.setDate(x.getDate()+(day===0?-6:1-day)); x.setHours(0,0,0,0);
+  return x.toISOString().slice(0,10);
+}
+function _findScheduledById(id){
+  var res=null;
+  Object.keys(teamsRegistry).forEach(function(tid){
+    ((teamsRegistry[tid]&&teamsRegistry[tid].scheduledMeetings)||[]).forEach(function(m){ if(m.id===id) res={m:m, teamId:tid}; });
+  });
+  return res;
+}
+function _visibleScheduled(){
+  var out=(typeof scheduledMeetings!=='undefined'?scheduledMeetings.slice():[]);
+  var seen={}; out.forEach(function(m){seen[m.id]=1;});
+  var ini=currentUser?currentUser.initials:'';
+  Object.keys(teamsRegistry).forEach(function(tid){
+    if(tid===state.currentTeam) return;
+    ((teamsRegistry[tid]&&teamsRegistry[tid].scheduledMeetings)||[]).forEach(function(m){
+      if((m.type||'').indexOf('Performance Huddle')>-1 && (m.attendees||[]).indexOf(ini)>-1 && !seen[m.id] && !_meetHasArchivedAttendee(m)){ out.push(m); seen[m.id]=1; }
+    });
+  });
+  return out;
+}
+function _meetHasArchivedAttendee(m){
+  return (m.attendees||[]).some(function(a){ var pa=ppl.find(function(x){return x.initials===a;}); return pa && (pa.status||'active')!=='active'; });
+}
+function _meetCadenceHealth(m){
+  if(!m.recurEvery || m.recurEvery<=0) return null;
+  if(_meetHasArchivedAttendee(m)) return null;
+  var anchor=new Date(m.date+'T00:00:00'); if(isNaN(anchor.getTime())) return null;
+  var today=new Date(); today.setHours(0,0,0,0);
+  if(anchor>today) return {cls:'c-blu', txt:'Scheduled'};
+  var exp=new Date(anchor);
+  while(true){ var nx=new Date(exp); nx.setDate(nx.getDate()+m.recurEvery); if(nx>today) break; exp=nx; }
+  var expIso=exp.toISOString().slice(0,10), todayIso=today.toISOString().slice(0,10);
+  if(m.lastHeld && m.lastHeld>=expIso) return {cls:'c-grn', txt:'Held this period'};
+  if(expIso<todayIso) return {cls:'c-red', txt:'Overdue'};
+  return {cls:'c-amb', txt:'Due'};
+}
+function joinScheduledMeeting(id){
+  var f=_findScheduledById(id); var m=f?f.m:null;
+  state.meetHuddleReport=''; state.meetScheduledId=id;
+  if(m){
+    state.meetType=(m.type||'').toLowerCase();
+    if((m.type||'').indexOf('Performance Huddle')>-1 && m.attendees){
+      var att=m.attendees.slice();
+      att.forEach(function(a){
+        var pa=ppl.find(function(x){return x.initials===a;});
+        if(pa && pa.reportsTo){ var sup=ppl.find(function(x){return x.id===pa.reportsTo;}); if(sup && att.indexOf(sup.initials)>-1) state.meetHuddleReport=a; }
+      });
+      if(!state.meetHuddleReport && att.length) state.meetHuddleReport=att[att.length-1];
+    }
+  }
+  state.meetTab='running'; state.meetStep=0; state.meetStartTime=Date.now();
+  vspBeginMeetingTracking(); renderPage();
+}
+function _meetPndScorecardItem(){
+  if((state.meetType||'').indexOf('performance')===-1) return '';
+  var repIni=state.meetHuddleReport||'';
+  var repP=repIni?ppl.find(function(x){return x.initials===repIni;}):null;
+  var pid=repP?repP.id:null;
+  var name=repP?(repP.first+' '+repP.last):'the attendee';
+  var badge='<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px;margin-left:8px">Source: P&D</span>';
+  var s='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:12px">';
+  s+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:var(--fz-lg);font-weight:600">Scorecard review</span>'+badge+'</div>';
+  var pnd=(typeof window!=='undefined' && window.SMB_PND_HUDDLES)?window.SMB_PND_HUDDLES:null;
+  if(!pnd || !pid){
+    s+='<div style="font-size:var(--fz-body);color:var(--txm)">Review the weekly scorecard for '+name+'. Live performance status appears here once P&D is connected.</div></div>';
+    return s;
+  }
+  var st=null; try{ st=pnd.statusFor(pid, _vspWeekMonday(new Date())); }catch(e){}
+  if(st){
+    var mp={complete:['c-grn','On track'],'in-progress':['c-amb','In progress'],'not-started':['c-gry','Not started'],away:['c-blu','Away'],'no-standard':['c-gry','No standard']};
+    var cm=mp[st.status]||['c-gry',(st.status||'-')];
+    var cls=cm[0], txt=cm[1];
+    if(st.hardFail){ cls='c-red'; txt='Off track - needs attention'; }
+    var pct=(st.pct!=null)?(' '+st.pct+'%'):'';
+    s+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="chip '+cls+'">'+txt+pct+'</span>';
+    if(st.discussed){ s+='<span style="font-size:var(--fz-base);color:var(--txm)">Discussed with supervisor'+(st.discussedAt?(' - '+_vspFmtDate((st.discussedAt||'').slice(0,10))):'')+'</span>'; }
+    s+='</div>';
+  }
+  try{ var qr=pnd.reviewFor(pid,'quarterly'); if(qr && qr.state!=='complete' && qr.scheduledDate){ s+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:6px">Upcoming quarterly review: '+_vspFmtDate(qr.scheduledDate)+(qr.scheduledTime?(' at '+qr.scheduledTime):'')+'</div>'; } }catch(e){}
+  s+='</div>';
+  return s;
+}
 function vspBeginMeetingTracking(){
   state.runningMeetingId = Date.now();
   state.meetCreatedTodoIds = [];
@@ -9767,13 +10034,15 @@ function renderMeetings(){
       h+='</div></div>';
     }
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px">';
-    if(!scheduledMeetings.length){
+    var _visEmpty=_visibleScheduled();
+    if(!_visEmpty.length){
       h+='<div style="padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.</div>';
     }
-    scheduledMeetings.forEach(function(m,i){
+    var _visMeetings=_visibleScheduled();
+    _visMeetings.forEach(function(m,i){
       var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
       var tc=typeColors[m.type]||"#64748b";
-      h+='<div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:'+(i<scheduledMeetings.length-1?'1px solid var(--brd)':'none')+'">';
+      h+='<div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:'+(i<_visMeetings.length-1?'1px solid var(--brd)':'none')+'">';
       h+='<div style="width:42px;height:42px;border-radius:8px;background:'+tc+'12;border:1.5px solid '+tc+'40;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
       h+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
       h+='<div style="flex:1">';
@@ -9781,6 +10050,7 @@ function renderMeetings(){
       h+='<span style="font-size:var(--fz-body);font-weight:500">'+m.type+' Meeting</span>';
       h+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span></div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
+      var _ch=_meetCadenceHealth(m); if(_ch){ h+='<div style="margin-top:4px"><span class="chip '+_ch.cls+'">'+_ch.txt+'</span></div>'; }
       h+='</div>';
       h+='<div style="display:flex;align-items:center;gap:-4px;flex-shrink:0">';
       m.attendees.forEach(function(a){
@@ -9788,7 +10058,7 @@ function renderMeetings(){
         h+=avatar(a,ac,22);
       });
       h+='</div>';
-      h+='<button class="btn btn-sm" onclick="state.meetTab=\'running\';state.meetStep=0;state.meetType=\''+m.type.toLowerCase()+'\';state.meetStartTime=Date.now();vspBeginMeetingTracking();renderPage()" style="color:var(--blu)">\u25b6 Join</button>';
+      h+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
       h+='<button type="button" onclick="alert(\'Calendar sync (Outlook / Google) turns on once the integration is enabled. It will send and keep invites up to date automatically.\')" title="Calendar sync - coming soon" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>';
       h+='<button onclick="deleteScheduledMeeting('+m.id+')" title="Delete" style="width:28px;height:28px;border-radius:6px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0">\u00d7</button>';
       h+='</div>';
@@ -9918,6 +10188,7 @@ function renderMeetings(){
 
     // ── Contextual live data panels matched by label text ───
     if(stepIs("scorecard")){
+      h+=_meetPndScorecardItem();
       var _nxtSec = runSections[step+1];
       h+=renderScorecardInline({
         showFilters: true,
@@ -12142,7 +12413,9 @@ function _smAttendeeSection(){
     s+='<div style="'+lbl+'">Direct report</div>';
     s+='<select id="sm-report" onchange="state.smReport=this.value;renderPage()" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
     s+='<option value="">Select a direct report...</option>';
-    ppl.filter(function(x){return x.reportsTo;}).forEach(function(x){
+    var _repList=ppl.filter(function(x){return x.reportsTo && (x.status||'active')==='active';});
+    if(!(currentUser && currentUser.hr)){ _repList=_repList.filter(function(x){ return currentUser && x.reportsTo===currentUser.id; }); }
+    _repList.forEach(function(x){
       s+='<option value="'+x.initials+'"'+((state.smReport===x.initials)?' selected':'')+'>'+x.first+' '+x.last+'</option>';
     });
     s+='</select>';
@@ -12157,7 +12430,7 @@ function _smAttendeeSection(){
     if(isClient){ pre=ppl.filter(function(x){var r=(x.role||'');return /(\bPM\b|Project Manager|Interior Design)/i.test(r);}).map(function(x){return x.initials;}); }
     else { pre=(teamsRegistry[state.currentTeam]&&teamsRegistry[state.currentTeam].members)||[]; }
     s+='<div style="display:flex;flex-wrap:wrap;gap:6px 12px">';
-    ppl.forEach(function(x){
+    ppl.filter(function(x){return (x.status||'active')==='active';}).forEach(function(x){
       var ck=pre.indexOf(x.initials)>-1;
       s+='<label style="display:inline-flex;align-items:center;gap:5px;font-size:var(--fz-base);cursor:pointer"><input type="checkbox" class="sm-attend" value="'+x.initials+'"'+(ck?' checked':'')+'> '+x.first+'</label>';
     });
@@ -12215,16 +12488,18 @@ function _smSelectedAttendees(){
   return picks.length?picks:['DS'];
 }
 function deleteScheduledMeeting(id){
-  var idx=scheduledMeetings.findIndex(function(m){return m.id===id;});
+  var f=_findScheduledById(id); if(!f) return;
+  var t=teamsRegistry[f.teamId]; if(!t) return;
+  var arr=t.scheduledMeetings||[];
+  var idx=arr.findIndex(function(m){return m.id===id;});
   if(idx<0) return;
-  var item=scheduledMeetings[idx];
-  scheduledMeetings=scheduledMeetings.filter(function(m){return m.id!==id;});
-  var cur=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
-  cur.scheduledMeetings=scheduledMeetings;
+  var item=arr[idx];
+  t.scheduledMeetings=arr.filter(function(m){return m.id!==id;});
+  if(f.teamId===state.currentTeam) scheduledMeetings=t.scheduledMeetings;
   renderPage();
   vspUndoToast('Scheduled meeting deleted', function(){
-    scheduledMeetings.splice(Math.min(idx,scheduledMeetings.length),0,item);
-    var c2=teamsRegistry[state.currentTeam]||teamsRegistry['lt']; c2.scheduledMeetings=scheduledMeetings;
+    var a2=t.scheduledMeetings||[]; a2.splice(Math.min(idx,a2.length),0,item); t.scheduledMeetings=a2;
+    if(f.teamId===state.currentTeam) scheduledMeetings=t.scheduledMeetings;
   });
 }
 
@@ -12480,6 +12755,7 @@ function endMeeting(){
     try{ if(typeof headlines!=='undefined') headlines.forEach(function(hl){ if(hl.status!=='archived') hl.status='archived'; }); }catch(e){}
   }
   pastMeetings.unshift(record);
+  try{ if(state.meetScheduledId){ var _sf=_findScheduledById(state.meetScheduledId); if(_sf&&_sf.m){ _sf.m.lastHeld=new Date().toISOString().slice(0,10); } state.meetScheduledId=null; } }catch(e){}
   // Compose recap + dispatch event for the future Email module (Postmark backend).
   try{
     var _recap = vspBuildMeetingRecap(record);
