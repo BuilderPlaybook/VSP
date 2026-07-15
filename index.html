@@ -1064,6 +1064,25 @@
            the Leadership Team baseline: all steps render, owner dropdowns populate,
            headline/goal/to-do/issue all save with an owner, scorecard seats show,
            End Meeting records to Past Meetings. Gates green.
+    v28  - 2026-07-13 - Create forms default the owner to the signed-in user.
+           _vspOwnerOptions() marked no option as selected when called with no owner
+           (the Create Issue / Goal / To-do form and the new-headline form), so the
+           browser fell back to the first option and the roster sorts by name - on a
+           team whose roster lists everyone, that surfaced Adrian Surdu; on Con Ops
+           it surfaced Terry Pearson. Now a falsy owner resolves to
+           currentUser.initials, so a Create form always opens on you. Edit forms are
+           unchanged (they pass the existing owner). Gates green.
+    v29  - 2026-07-13 - Load-time migrations for seed additions. Saved/synced data
+           written before v27 overwrote two seed additions on load: the teams restore
+           copies saved name/color/quarter/members over the seed, so Property
+           Management came back with members:[] (dropping every owner dropdown to the
+           all-active-people fallback - "every person in the company shows up"), and
+           the ppl restore is a wholesale replace, so Rob Piercy was wiped from the
+           roster. Added two migrations: reseed the Property roster and scorecard
+           seats only when still empty (any roster the user has since edited is
+           preserved), and re-add any seed person the saved roster does not carry
+           (matched on id/initials), so future seed additions survive a load. Gates
+           green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -7541,6 +7560,11 @@ function _vspTeamRoster(includeIni){
   return out;
 }
 function _vspOwnerOptions(currentIni){
+  // No explicit owner (a Create form) defaults to the signed-in user, not the
+  // alphabetically-first person in the roster.
+  if(!currentIni && typeof currentUser!=='undefined' && currentUser && currentUser.initials){
+    currentIni = currentUser.initials;
+  }
   return _vspTeamRoster(currentIni).map(function(pp){
     return '<option value="'+pp.initials+'"'+(pp.initials===currentIni?' selected':'')+'>'+_vspEsc(pp.name)+' ('+pp.initials+')</option>';
   }).join('');
@@ -15372,6 +15396,24 @@ function vspApplySnapshot(s){
     });
     // Migration: the "Leadership Sync" team was renamed to "Executive Team Meeting".
     try{ if(teamsRegistry.ltsync && teamsRegistry.ltsync.name==='Leadership Sync') teamsRegistry.ltsync.name='Executive Team Meeting'; }catch(e){}
+    // Migration: saved data written before the Property Management team was seeded
+    // carries members:[] and overwrites the seed (the ['name','color','quarter',
+    // 'members'] copy above), which drops every owner dropdown back to the
+    // all-active-people fallback. Reseed the roster only when it is still empty, so
+    // any roster the user has since edited is preserved.
+    try{
+      var _pm=teamsRegistry.property;
+      if(_pm && (!Array.isArray(_pm.members) || !_pm.members.length)){
+        _pm.members=['RP','DS','LS'];
+      }
+      if(_pm && (!Array.isArray(_pm.scorecard) || !_pm.scorecard.length)){
+        _pm.scorecard=[
+          {ownerId:'RP',seat:'Property Manager',metrics:[]},
+          {ownerId:'DS',seat:'President',metrics:[]},
+          {ownerId:'LS',seat:'Controller',metrics:[]}
+        ];
+      }
+    }catch(e){}
     // Set the active team and repoint globals
     if(s.currentTeam && teamsRegistry[s.currentTeam]){
       state.currentTeam = s.currentTeam;
@@ -15382,7 +15424,17 @@ function vspApplySnapshot(s){
   if(s.orgSeats) repl(orgSeats, s.orgSeats);
   if(s.cascadesRegistry) repl(cascadesRegistry, s.cascadesRegistry);
   try{ var _dc=_delCascade(); var _ck=cascadesRegistry.filter(function(c){ return !(c && _dc[c.id]); }); cascadesRegistry.length=0; _ck.forEach(function(c){ cascadesRegistry.push(c); }); }catch(e){}
-  if(s.ppl) repl(ppl, s.ppl);
+  if(s.ppl){
+    // Saved rosters written before a person was added to the seed would drop that
+    // person entirely (this is a wholesale replace). Re-add any seed person the
+    // saved roster does not carry, matched on id, so seed additions survive a load.
+    var _seedPpl = ppl.slice();
+    repl(ppl, s.ppl);
+    _seedPpl.forEach(function(_sp){
+      if(!_sp || !_sp.id) return;
+      if(!ppl.some(function(_x){ return _x && (_x.id===_sp.id || _x.initials===_sp.initials); })) ppl.push(_sp);
+    });
+  }
   if(s.teamsData && typeof teamsData !== 'undefined' && s.teamsData.length) repl(teamsData, s.teamsData);
   // planData: deep-merge object properties
   if(s.planData){
