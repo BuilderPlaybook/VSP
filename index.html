@@ -1083,6 +1083,15 @@
            preserved), and re-add any seed person the saved roster does not carry
            (matched on id/initials), so future seed additions survive a load. Gates
            green.
+    v30  - 2026-07-13 - Textareas auto-grow app-wide. The _vspAutogrow helper and a
+           post-render sizing pass already existed but only 2 of 28 textareas opted
+           in via data-autogrow. Broadened the post-render pass to size every
+           textarea (except data-noautogrow) and bind a one-time input listener so
+           any box grows to fit its content as you type - no dragging - and restored
+           content sizes correctly on load. Added a base rule
+           (textarea:not([data-noautogrow]){overflow:hidden;resize:none}). The
+           transcript-paste box is marked data-noautogrow so long pastes scroll
+           rather than grow without bound. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1484,6 +1493,7 @@ td:hover > .sc-note-pop{display:block}
 /* ── INPUTS ── */
 input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="number"],select,textarea{padding:7px 10px;border:1px solid var(--brd);border-radius:6px;font-size:var(--fz-md);color:var(--txt);background:var(--sur);outline:none;font-family:inherit}
 input:focus,select:focus,textarea:focus{border-color:var(--blu)}
+textarea:not([data-noautogrow]){overflow:hidden;resize:none}
 
 /* legacy --sba / --sbm references - keep so old code still resolves */
 @media(max-width:1100px){.g2,.g3,.g4{grid-template-columns:1fr}}
@@ -10603,7 +10613,7 @@ function renderMeetings(){
       }
 
       // Paste input (always available)
-      h+='<textarea id="transcript-paste-input" placeholder="Paste a meeting transcript here. Most meeting tools (Teams, Zoom, Meet, Otter, Fireflies) let you copy the transcript from the meeting recap." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-base);font-family:inherit;resize:none;height:90px;box-sizing:border-box;line-height:1.5;margin-bottom:8px"></textarea>';
+      h+='<textarea id="transcript-paste-input" data-noautogrow="1" placeholder="Paste a meeting transcript here. Most meeting tools (Teams, Zoom, Meet, Otter, Fireflies) let you copy the transcript from the meeting recap." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-base);font-family:inherit;resize:none;height:90px;box-sizing:border-box;line-height:1.5;margin-bottom:8px"></textarea>';
       h+='<button onclick="summarizeManualTranscript()" style="display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:7px;border:1.5px solid var(--gp);background:#fff;color:var(--gpd);font-size:var(--fz-base);font-weight:600;cursor:pointer;font-family:inherit">';
       h+='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>';
       h+='Summarize with AI</button>';
@@ -14774,7 +14784,14 @@ function renderPage(){
     panel.innerHTML=ph;
     document.body.appendChild(panel);
   }
-  try{ var _ags=document.querySelectorAll('textarea[data-autogrow]'); for(var _ai=0;_ai<_ags.length;_ai++) _vspAutogrow(_ags[_ai]); }catch(e){}
+  try{
+    var _ags=document.querySelectorAll('textarea:not([data-noautogrow])');
+    for(var _ai=0;_ai<_ags.length;_ai++){
+      var _ta=_ags[_ai];
+      _vspAutogrow(_ta);
+      if(!_ta._agBound){ _ta._agBound=1; _ta.addEventListener('input',function(){ _vspAutogrow(this); }); }
+    }
+  }catch(e){}
   try{ var _qb=document.getElementById('qtr-badge'); if(_qb) _qb.textContent=_vspQtr().label; }catch(e){}
 }
 
