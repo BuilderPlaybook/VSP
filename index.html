@@ -1100,6 +1100,12 @@
            load (data-autogrow + oninput _vspAutogrow, overflow hidden, min-height as
            the floor). meet-notes-ta and step-note also now save on input, not only
            on blur, so a note is not lost if the tab closes before blur. Gates green.
+    v32  - 2026-07-13 - Meeting notes now persist. state.meetNotes and
+           state.stepNotes were never in the saved snapshot, so running-meeting notes
+           and per-agenda-item notes lived only in memory and vanished on refresh.
+           Added both to vspSnapshot() and restored them on load. The existing
+           debounced autosave (fires on every re-render) writes them to storage and
+           syncs them; no per-box save handler needed. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -15299,7 +15305,9 @@ function vspSnapshot(){
     futureSeats: (window.SMB_VSP&&window.SMB_VSP.futureSeats)||[],
     peopleReviews: (window.SMB_VSP&&window.SMB_VSP.peopleReviews)||{},
     reviewBar: (window.SMB_VSP&&window.SMB_VSP.reviewBar)||{minPlus:'majority',maxMinus:0},
-    migrations: Object.keys((window.__VSP_MIGRATIONS||{}))
+    migrations: Object.keys((window.__VSP_MIGRATIONS||{})),
+    meetNotes: state.meetNotes || '',
+    stepNotes: state.stepNotes || {}
   };
 }
 function _vspMig(){ return (window.__VSP_MIGRATIONS = window.__VSP_MIGRATIONS || {}); }
@@ -15471,6 +15479,8 @@ function vspApplySnapshot(s){
   }
   if(typeof s.stratLastReviewed === 'string') state.stratLastReviewed = s.stratLastReviewed;
   if(typeof s.planEditUnlocked === 'boolean') state.planEditUnlocked = s.planEditUnlocked;
+  if(typeof s.meetNotes === 'string') state.meetNotes = s.meetNotes;
+  if(s.stepNotes && typeof s.stepNotes === 'object') state.stepNotes = s.stepNotes;
   // Restore saved meeting-agenda edits, merged into the defaults by type so
   // user edits win while any meeting type added in a later build still appears.
   if(Array.isArray(s.meetingAgendas)){
