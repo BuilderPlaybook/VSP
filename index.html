@@ -1219,6 +1219,18 @@
            as the checklist rows (checklist keys move to positional pc0..pcN).
            No change to canon, chrome, catalog, components, engine,
            contracts, or VSP_STORAGE_VERSION.
+    v46  - 2026-07-15 - GOAL REVIEW STEP = THE GOALS PAGE, EMBEDDED. Per Dave:
+           the quarterly Goal Review must be the exact same format as the
+           Goals sheet and editable. The meeting goal step now embeds the real
+           renderGoals() page (same list, same status flips, same List /
+           Planning Board / Archive toggle, same Add Goal), replacing the
+           meeting-local renderGoalsInline copy and the v42 meeting-local
+           List/Board toggle (the sheet carries its own). The v44 Goal
+           Completion Ratings grid is REMOVED from the step (not the EOS
+           process); its plumbing (snapshot fields, record capture, recap
+           block) stays dormant and harmless. The verbatim Goal Review
+           facilitation card stays. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -10595,16 +10607,6 @@ function renderMeetings(){
           h+='<div style="font-size:var(--fz-body);color:var(--txt)">Done or not done. No discussion or explanations.</div>';
         }
         h+='</div>';
-        var _mgrTeam=(teamsRegistry[state.currentTeam]||teamsRegistry['lt']).members||['DS'];
-        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:16px">';
-        h+='<div style="font-size:var(--fz-lg);font-weight:700;margin-bottom:2px">Goal Completion Ratings</div>';
-        h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:8px">Rate company goal completion 1-10, then each person 1-10. Tap each grade as it is called out; the average records here on the meeting record and in the recap.</div>';
-        h+=_mgrRowHtml('company','Company','<div style="width:22px;height:22px;border-radius:50%;background:#e0e7ff;border:1px solid #a5b4fc;display:flex;align-items:center;justify-content:center;font-size:var(--fz-xs);font-weight:700;color:#4338ca;flex-shrink:0">C</div>');
-        _mgrTeam.forEach(function(_mi){
-          var _mp=ppl.find(function(x){return x.initials===_mi;});
-          h+=_mgrRowHtml(_mi,(_mp?(_mp.first+' '+_mp.last):_mi),avatar(_mi,pplColor(_mi),22));
-        });
-        h+='</div>';
       }
       // ── Establish-goals facilitation + Rally Cry (v44; quarterly/annual establish) ──
       if(!_qIsGrade && (_vspNoteType()==='quarterly' || lbl.indexOf('establish')>-1)){
@@ -10676,14 +10678,10 @@ function renderMeetings(){
       }
       h+='</div></div>';
 
-      // ── 2 & 3. Goals - List / Planning Board toggle (v42) ─────────────
-      var _mgv=state.meetGoalsView||'list';
-      h+='<div class="tab-bar" style="margin-bottom:12px">';
-      [{v:'list',l:'List'},{v:'board',l:'Planning Board'}].forEach(function(t){
-        h+='<button class="tab'+(_mgv===t.v?' active':'')+'" onclick="state.meetGoalsView=\''+t.v+'\';renderPage()">'+t.l+'</button>';
-      });
-      h+='</div>';
-      h+=(_mgv==='board')?renderGoalsBoard():renderGoalsInline();
+      // ── Goals: the real Goals page, embedded live (v46). Exact same format
+      //    as the Goals sheet - same list, status flips, board, archive, Add
+      //    Goal - because it is the same renderGoals() surface, editable. ──
+      h+='<div style="margin-bottom:14px">'+renderGoals()+'</div>';
     }
     if(stepIs("headline")){
       // ── Ninety-style Headlines card ─────────────────────────────────────────
