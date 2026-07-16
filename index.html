@@ -1109,6 +1109,12 @@
            correct seed split each time until the clean data propagates to the cloud.
            Touches only goals/archivedGoals. Verified against the cloud-re-pull case
            that v38 missed. Gates green.
+    v40  - 2026-07-13 - Quarterly meeting goal review now shows company goals under each
+           owner too. renderGoalsInline grouped only individual goals under owners, so a
+           person's section omitted their company goals (Mika showed 3 of 6; the other 3
+           were only in the top Company Goals section). Now it groups ALL active goals
+           under their owner, matching the standalone Goals page (which already did this),
+           so company goals appear both at the top AND under each owner. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -7448,7 +7454,10 @@ function renderGoalsInline(){
   // Individual owner sections
   var ownerIds=[];
   var ownerMap={};
-  allActive.filter(function(g){return !g.company;}).forEach(function(g){
+  // Group ALL active goals under their owner (company goals included), matching the
+  // Goals page. Company goals still render in the top Company Goals section AND repeat
+  // under each owner's section, so a person's section shows every goal they own.
+  allActive.forEach(function(g){
     if(!ownerMap[g.owner]){ownerMap[g.owner]={color:pplColor(g.owner),goals:[]};ownerIds.push(g.owner);}
     ownerMap[g.owner].goals.push(g);
   });
