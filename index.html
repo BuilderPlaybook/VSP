@@ -1231,6 +1231,102 @@
            block) stays dormant and harmless. The verbatim Goal Review
            facilitation card stays. No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v47  - 2026-07-15 - GOAL COMPLETION RATINGS return as a rater x ratee
+           MATRIX at the END of the Goal Review step (after the embedded goal
+           sheet), per Dave's process: goals are walked done/not-done first on
+           the sheet; then each team member rates the Company goals 1-10 and
+           each other member's goal completion 1-10, with a Why note per
+           rated row; the Company average and each person's average compute
+           live in the Avg column and record on the meeting record and recap.
+           Storage reshape: meetGoalRatings[ratee].grades is now a map of
+           rater -> grade (was a tap-array); stale v44-shaped entries are
+           discarded on snapshot apply. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v48  - 2026-07-15 - NEXT STEPS REBUILT + 90-DAY ACTUALS + MEASURABLES +
+           LIVE PLAN EDIT. (1) Next Steps is now its own step (new bind
+           'nextSteps', keyword split out of the conclude branch) and renders
+           ONLY a facilitation notes card with Dave's six items (feedback,
+           aha, expectations vs Check-In, annual commitment on/off track
+           round the room, score 1-10, conclude). It no longer inherits any
+           Conclude machinery (to-do lists, rating grid, cascade, recap). A
+           migration binds saved 'Next Steps' sections. (2) 90-Day card
+           (quarterly Strategic Plan step): each financial row (Gross Sales,
+           Expenses, Gross Profit, Net Profit) gains an Actual input, a
+           binary Hit / Not Hit chip (EOS: hit or not, no off-track), and a
+           reference bar (actual vs target; Expenses inverts - under target
+           is good). Saved to planData.q1.actuals. (3) Quarterly measurables
+           pulled into the 90-Day card via the existing planMeasurablesBlock,
+           editable inline in the meeting. (4) The embedded Strategic Plan is
+           editable live in meetings: entering the plan step auto-archives a
+           dated snapshot ONCE per meeting then unlocks edit, so plan fields,
+           measurables (q1 and oneyr), and financials save live without the
+           manual Archive & Edit dance. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v49  - 2026-07-15 - ALL FACILITATION NOTES CARDS ARE EDITABLE via one
+           shared renderer _facilCard(sec, fallbackTitle). Each card shows an
+           Edit button; edit turns the title and every bullet into inputs with
+           add / remove / move controls, saving to sec.facil on the agenda
+           (persists + syncs; shows on the plan embed too). The prior-goals
+           "Goal Review", establish "Establish Rocks", Next Steps, and the
+           stratplan checklist TITLE all render through it. Scorecard Review
+           gains a facil entry with Dave's verbatim scorecard notes (seeded by
+           migration onto the scorecard-bound section; "in Ninety" rendered as
+           "here" per the terminology rule). Migration also stamps scorecard.
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v50  - 2026-07-15 - (1) Removed the duplicate Score-the-Meeting control
+           from Next Steps; scoring stays only on Conclude (the Next Steps
+           card already reminds the team to score). (2) Seeded the seven LIDA
+           quarterly measurables into planData.q1.measurables (Billable vs
+           Unbillable, Warranty, Construction Creep, 180 Leads, 3.6M in FSA,
+           1.8M in Contracts, Pre-Construction Creep) with a load-time
+           migration so existing saved plans that carry an empty q1.measurables
+           backfill once. (3) Editable notes cards added to Todays Agenda and
+           Check-In (new binds todaysAgenda / checkin; empty facil, Dave fills
+           wording). (4) 90-Day card relaid out: aligned Target/Actual/Hit/vs-
+           Target columns, real Hit/Not-Hit chip states, clearer mini bar.
+           No change to canon, chrome, catalog, components, engine, contracts,
+           or VSP_STORAGE_VERSION.
+    v51  - 2026-07-15 - (1) Bind-backfill map gains 'vsp review' and 'vto
+           review' -> stratplan, so a section renamed "VSP Review" embeds the
+           full editable Strategic Plan and locks (non-deletable), same as the
+           other bound sections. (2) Quarterly (90-Day card) measurables now
+           render Hit/Not-Hit like the financial rows: Target | Actual | Hit /
+           Not Hit | vs-Target bar, stored in measurable.actual / .hit. This
+           is the quarterly plan card only; the weekly scorecard keeps its
+           Strategic Plan step unchanged (VTO Review checklist + full embedded
+           editable plan both remain). No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v54  - 2026-07-15 - (1) Quarterly measurables table gains the vs-Target
+           bar so it matches the financial rows: bar is math-driven when the
+           target is a plain number (180 Leads), else Hit-driven (green full
+           on Hit, red on Not Hit, empty unset) since threshold targets like
+           "Below 1%" have no ratio. (2) The financial Actual/Hit and the
+           measurable Actual/Hit are now enterable on the STRATEGIC PLAN page
+           Q1 section anytime (no Archive & Edit unlock; actuals/Hit are
+           results, not plan structure - targets still gate through unlock),
+           so the data carries into the meeting (both read planData.q1).
+           Shared _q1ActualsCard() renders the same table on the plan page and
+           the meeting card. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
+    v53  - 2026-07-15 - One-time migration inserts a locked "Scorecard Review"
+           section into the Quarterly agenda (after Check-In) when none exists.
+           Idempotent guard so it inserts once and never duplicates. No change
+           to canon, chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v52  - 2026-07-15 - ONE identical editable notes card on EVERY meeting
+           step. Per Dave: every part of the agenda gets the same card (title
+           defaults to the section name) with an Edit button, so the team can
+           type what that part of the meeting is doing. Removed the per-step
+           duplicates (Goal Review / Establish / Scorecard / Next Steps /
+           Todays Agenda / Check-In each called _facilCard individually) and
+           the VTO Review tick-checklist, replacing all of them with a single
+           universal _facilCard(cur, cur.label) rendered at the top of every
+           step's content. Live data embeds (goal sheet, Strategic Plan,
+           scorecard grid, 90-Day card, ratings matrix, rally cry) are
+           unchanged and still render below the card. The card saves to
+           sec.facil in the synced snapshot and carries to every future
+           meeting. No change to canon, chrome, catalog, components, engine,
+           contracts, or VSP_STORAGE_VERSION.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -2736,7 +2832,7 @@ var planData={
   pic3yr:{grossSales:"$80M",grossProfit:"15%",expenses:"10%",netProfit:"5%",futureDate:"Dec 31, 2028"},
   pic3yrItems:["57 RP/RS","1 President","1 VP of Capital, Development and Holdings","1 Human Resources Manager (contract)","1 CFO / VP LIDA Group of Companies","3 Sr PM\u2019s (CH, Commercial and Renovation)","8 PM\u2019s","2 Superintendents","6 carpenter teams","2 Estimators","3 Accounting Staff","3 interior designers","1 contract for marketing","1 Company Controller","SOP documented and FBA","2 Project coordinators","2 Maintenance / Warranty Carpenters","4 independent companies operating","1 Property Manager","1 Property Manager Assistant","1 Sales PM","Renovated office basement"],
   q1:{futureDate:"Mar 31, 2026",grossSales:"$1.9M",grossProfit:"$451K",expenses:"$309K",netProfit:"$140K",
-    goals:[["Implement new Drip and Newsletter Campaign (Automation system completed)","MN"],["Team Event","MN"],["Bay DP Received","DS"],["All Sales Collateral Received","MN"],["All website update completed","DS"],["Field operations manual final draft completed for peer review","WL"]],measurables:[]},
+    goals:[["Implement new Drip and Newsletter Campaign (Automation system completed)","MN"],["Team Event","MN"],["Bay DP Received","DS"],["All Sales Collateral Received","MN"],["All website update completed","DS"],["Field operations manual final draft completed for peer review","WL"]],measurables:[{id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",status:"none"},{id:5002,text:"Warranty below 1%",target:"Below 1%",status:"none"},{id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",status:"none"},{id:5004,text:"180 Leads",target:"180",status:"none"},{id:5005,text:"3.6M in FSA",target:"$3.6M",status:"none"},{id:5006,text:"1.8M in Contracts",target:"$1.8M",status:"none"},{id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",status:"none"}]},
   oneyr:{futureDate:"Dec 31, 2026",grossSales:"$13M",grossProfit:"$1.95M",expenses:"$1.3M",netProfit:"$650K",
     goals:["2026: LIDA Homes WAY Complete FBA","2026: 1 Land Deal Contract","2026: Step Property Management FBA","2026: Start Bay Condo in August","2026: Hire CFO / Operations Lead"],measurables:[]},
   provenProcess:"The LIDA Homes Proven Process",
@@ -7277,6 +7373,10 @@ function renderStrategic(){
     });
     h+='</div>';
     h+=goalsList(planData.q1.goals);
+    // Quarter results entry (v54): actuals + Hit for financials and measurables,
+    // editable anytime (results, not plan structure). Carries into the meeting.
+    h+='<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--brd)"><div class="fl" style="font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase;margin-bottom:6px">Quarter Results  -  Actual vs Target</div>'+_q1ActualsCard()+'</div>';
+    // The plan-page measurables editor (add/remove/rename the list) stays too.
     h+=planMeasurablesBlock('q1');
     return h+'</div>';
   }
@@ -10096,52 +10196,75 @@ function _vspGoalRatingsForRecord(){
   // Goal Completion Ratings for a concluded-meeting record: grades, why, avg.
   var out={}; var r=state.meetGoalRatings||{};
   Object.keys(r).forEach(function(k){
-    var e=r[k]||{}; var gs=(e.grades||[]).slice();
-    if(!gs.length && !(e.why||'').trim()) return;
-    var avg=gs.length?Math.round(gs.reduce(function(a,b){return a+b;},0)/gs.length*10)/10:null;
-    out[k]={grades:gs,why:e.why||'',avg:avg};
+    var e=r[k]||{};
+    var gm=(e.grades&&!Array.isArray(e.grades))?e.grades:{};
+    var hasGrades=Object.keys(gm).length>0;
+    if(!hasGrades && !(e.why||'').trim()) return;
+    out[k]={grades:JSON.parse(JSON.stringify(gm)),why:e.why||'',avg:mgrAvg(k)};
   });
   return out;
 }
-function mgrAdd(key,n){
+function mgrStore(ratee,rater,v){
+  // Grade cell: rater's 1-10 grade for the ratee's goal completion.
   var r=(state.meetGoalRatings=state.meetGoalRatings||{});
-  (r[key]=r[key]||{grades:[],why:''}).grades.push(n);
-  renderPage();
-}
-function mgrRemove(key,i){
-  var r=state.meetGoalRatings||{};
-  if(r[key]&&r[key].grades){ r[key].grades.splice(i,1); }
-  renderPage();
+  var e=(r[ratee]=r[ratee]||{grades:{},why:''});
+  if(!e.grades||Array.isArray(e.grades)) e.grades={};
+  var n=parseInt(v,10);
+  if(isNaN(n)){ delete e.grades[rater]; }
+  else { e.grades[rater]=Math.max(1,Math.min(10,n)); }
+  _vspAutosaveQueue();
 }
 function mgrWhy(key,v){
   var r=(state.meetGoalRatings=state.meetGoalRatings||{});
-  (r[key]=r[key]||{grades:[],why:''}).why=v;
+  var e=(r[key]=r[key]||{grades:{},why:''});
+  e.why=v;
   _vspAutosaveQueue();
 }
 function mgrAvg(key){
   var e=(state.meetGoalRatings||{})[key];
-  if(!e||!e.grades||!e.grades.length) return null;
-  return Math.round(e.grades.reduce(function(a,b){return a+b;},0)/e.grades.length*10)/10;
+  if(!e||!e.grades||Array.isArray(e.grades)) return null;
+  var vs=Object.keys(e.grades).map(function(k){return e.grades[k];});
+  if(!vs.length) return null;
+  return Math.round(vs.reduce(function(a,b){return a+b;},0)/vs.length*10)/10;
 }
-function _mgrRowHtml(key,label,avHtml){
-  var e=(state.meetGoalRatings||{})[key]||{grades:[],why:''};
-  var avg=mgrAvg(key);
-  var h='<div style="padding:10px 0;border-bottom:0.5px solid var(--brd)">';
-  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
-  h+='<div style="display:flex;align-items:center;gap:8px;min-width:140px">'+avHtml+'<span style="font-size:var(--fz-body);font-weight:600">'+label+'</span></div>';
-  h+='<div style="display:flex;gap:3px">';
-  for(var n=1;n<=10;n++){ h+='<button type="button" onclick="mgrAdd(\''+key+'\','+n+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-weight:600;cursor:pointer;font-family:inherit">'+n+'</button>'; }
-  h+='</div>';
-  h+='<span style="margin-left:auto;font-size:var(--fz-body);font-weight:700;color:'+(avg===null?'var(--txd)':(avg>=8?'#16a34a':avg>=6?'#d97706':'#dc2626'))+'">Avg: '+(avg===null?'-':avg)+'</span>';
-  h+='</div>';
-  if(e.grades.length){
-    h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:7px">';
-    e.grades.forEach(function(g,i){
-      h+='<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;border:1px solid var(--brd);background:var(--sur2);font-size:var(--fz-base);font-weight:600">'+g+'<span onclick="mgrRemove(\''+key+'\','+i+')" title="Remove this grade" style="cursor:pointer;color:var(--txd)">\u00d7</span></span>';
+function _mgrMatrixHtml(){
+  // Rater x ratee matrix: rows = Company + each team member (the rated),
+  // columns = each team member (the raters) + live Avg. Why note per row.
+  var team=(teamsRegistry[state.currentTeam]||teamsRegistry['lt']);
+  var members=team.members||['DS'];
+  var ratees=[['company','Company']].concat(members.map(function(m){
+    var pp=ppl.find(function(x){return x.initials===m;});
+    return [m,(pp?(pp.first+' '+pp.last):m)];
+  }));
+  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:16px">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:700;margin-bottom:2px">Goal Completion Ratings</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:10px">Each team member rates the Company goals 1-10 and states why, then rates each member\u2019s goal completion 1-10. The Company average and each person\u2019s average record here, on the meeting record, and in the recap.</div>';
+  h+='<div class="tbl-wrap" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">';
+  h+='<thead><tr>';
+  h+='<th scope="col" style="text-align:left;padding:6px 8px;font-size:var(--fz-base);color:var(--txm);font-weight:600;border-bottom:1px solid var(--brd)">Rated</th>';
+  members.forEach(function(m){ h+='<th scope="col" style="text-align:center;padding:6px 4px;font-size:var(--fz-base);color:var(--txm);font-weight:600;border-bottom:1px solid var(--brd)">'+m+'</th>'; });
+  h+='<th scope="col" style="text-align:center;padding:6px 8px;font-size:var(--fz-base);color:var(--txm);font-weight:600;border-bottom:1px solid var(--brd)">Avg</th>';
+  h+='</tr></thead><tbody>';
+  ratees.forEach(function(rt){
+    var key=rt[0], label=rt[1];
+    var e=(state.meetGoalRatings||{})[key]||{grades:{},why:''};
+    var gm=(e.grades&&!Array.isArray(e.grades))?e.grades:{};
+    var avg=mgrAvg(key);
+    h+='<tr>';
+    h+='<td style="padding:7px 8px;font-size:var(--fz-body);font-weight:'+(key==='company'?'700':'600')+';border-bottom:0.5px solid var(--brd);white-space:nowrap">'+label+'</td>';
+    members.forEach(function(m){
+      var v=(gm[m]!==undefined)?gm[m]:'';
+      h+='<td style="padding:4px;border-bottom:0.5px solid var(--brd);text-align:center">';
+      h+='<input type="number" min="1" max="10" value="'+v+'" oninput="mgrStore(\''+key+'\',\''+m+'\',this.value)" onchange="renderPage()" aria-label="'+m+' rates '+_vspEscNote(label)+'" style="width:44px;padding:4px 2px;text-align:center;border:1px solid var(--brd2);border-radius:5px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
+      h+='</td>';
     });
-    h+='</div>';
-  }
-  h+='<input value="'+_escOpt(e.why||'')+'" oninput="mgrWhy(\''+key+'\',this.value)" placeholder="Why? (optional)" style="width:100%;margin-top:7px;padding:6px 10px;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
+    h+='<td style="padding:7px 8px;border-bottom:0.5px solid var(--brd);text-align:center;font-size:var(--fz-body);font-weight:700;color:'+(avg===null?'var(--txd)':(avg>=8?'#16a34a':avg>=6?'#d97706':'#dc2626'))+'">'+(avg===null?'-':avg)+'</td>';
+    h+='</tr>';
+    h+='<tr><td colspan="'+(members.length+2)+'" style="padding:2px 8px 9px;border-bottom:0.5px solid var(--brd)">';
+    h+='<input value="'+_escOpt(e.why||'')+'" oninput="mgrWhy(\''+key+'\',this.value)" placeholder="Why? (optional)" style="width:100%;padding:5px 10px;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur2)">';
+    h+='</td></tr>';
+  });
+  h+='</tbody></table></div>';
   h+='</div>';
   return h;
 }
@@ -10157,8 +10280,196 @@ function saveRallyCry(){
   planData.rallyCry=v?{text:v,quarter:_vspQtr().label}:null;
   renderPage();
 }
+// ── Editable facilitation notes card (v49). Shared by every meeting step that
+//    carries a facil {title, bullets}. Edit mode saves to the agenda section. ──
+function _facilCurSec(){
+  // Resolve the section currently rendering (running meeting, current step).
+  try{
+    var rt=state.meetType||''; var runType='Weekly';
+    var _m={'quarterly':'Quarterly','annual':'Annual','weekly':'Weekly','weekly-performance-huddle':'Weekly Performance Huddle','quarterly-performance-huddle':'Quarterly Performance Huddle','annual-performance-huddle':'Annual Performance Huddle'};
+    Object.keys(_m).forEach(function(k){ if(rt.indexOf(k)>-1) runType=_m[k]; });
+    var ag=meetingAgendas.find(function(a){return a.type===runType;})||meetingAgendas[0];
+    var secs=getAgendaSections(ag,state.meetAgendaDay||0);
+    return secs[Math.min(state.meetStep||0,secs.length-1)]||null;
+  }catch(e){ return null; }
+}
+function facilEditToggle(){ state.facilEditing=!state.facilEditing; renderPage(); }
+function _facilEnsure(sec,fallbackTitle){
+  if(!sec.facil||typeof sec.facil!=='object') sec.facil={title:fallbackTitle||'How this section runs',bullets:[]};
+  if(!Array.isArray(sec.facil.bullets)) sec.facil.bullets=[];
+  return sec.facil;
+}
+function facilSetTitle(v){ var sec=_facilCurSec(); if(!sec) return; _facilEnsure(sec).title=v; _vspAutosaveQueue(); }
+function facilSetBullet(i,v){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); if(f.bullets[i]!==undefined){ f.bullets[i]=v; _vspAutosaveQueue(); } }
+function facilAddBullet(){ var sec=_facilCurSec(); if(!sec) return; _facilEnsure(sec).bullets.push(''); renderPage(); }
+function facilRemoveBullet(i){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); f.bullets.splice(i,1); renderPage(); }
+function facilMoveBullet(i,dir){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); var j=i+dir; if(j<0||j>=f.bullets.length) return; var t=f.bullets[i]; f.bullets[i]=f.bullets[j]; f.bullets[j]=t; renderPage(); }
+function _facilCard(sec,fallbackTitle,accent){
+  var f=(sec&&sec.facil)||null;
+  var title=(f&&f.title)||fallbackTitle||'How this section runs';
+  var bullets=(f&&Array.isArray(f.bullets))?f.bullets:[];
+  var ac=accent||'var(--blu)';
+  var editing=!!state.facilEditing;
+  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid '+ac+';border-radius:10px;padding:14px 18px;margin-bottom:16px">';
+  h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:7px">';
+  if(editing){
+    h+='<input value="'+_escOpt(title)+'" oninput="facilSetTitle(this.value)" style="flex:1;font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;padding:5px 8px;border:1px solid var(--brd2);border-radius:5px;font-family:inherit;background:var(--sur)">';
+  } else {
+    h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700">'+_vspEscNote(title)+'</div>';
+  }
+  h+='<button type="button" onclick="facilEditToggle()" class="btn btn-sm" style="flex-shrink:0;padding:3px 10px">'+(editing?'Done':'Edit')+'</button>';
+  h+='</div>';
+  if(editing){
+    bullets.forEach(function(bl,i){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+      h+='<div style="display:flex;flex-direction:column;gap:1px">';
+      h+='<button type="button" onclick="facilMoveBullet('+i+',-1)" title="Move up" style="width:20px;height:15px;border:1px solid var(--brd2);background:var(--sur2);border-radius:3px;cursor:pointer;line-height:1;font-size:9px;color:var(--txm)">\u25b2</button>';
+      h+='<button type="button" onclick="facilMoveBullet('+i+',1)" title="Move down" style="width:20px;height:15px;border:1px solid var(--brd2);background:var(--sur2);border-radius:3px;cursor:pointer;line-height:1;font-size:9px;color:var(--txm)">\u25bc</button>';
+      h+='</div>';
+      h+='<textarea oninput="facilSetBullet('+i+',this.value);_vspAutogrow(this)" rows="1" style="flex:1;font-size:var(--fz-body);padding:6px 9px;border:1px solid var(--brd2);border-radius:6px;font-family:inherit;background:var(--sur);resize:none;overflow:hidden;line-height:1.5">'+_vspEscNote(bl)+'</textarea>';
+      h+='<button type="button" onclick="facilRemoveBullet('+i+')" title="Remove line" style="width:26px;height:26px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:5px;cursor:pointer;flex-shrink:0;font-size:var(--fz-lg);line-height:1">\u00d7</button>';
+      h+='</div>';
+    });
+    h+='<button type="button" onclick="facilAddBullet()" class="btn btn-sm" style="margin-top:4px">+ Add line</button>';
+  } else if(bullets.length){
+    h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.8">';
+    bullets.forEach(function(bl){
+      var ind=/^\s+/.test(bl); // preserve sub-bullet indentation from a leading space
+      h+='<div style="'+(ind?'padding-left:20px;':'')+'">\u2022 '+_vspEscNote(bl.trim())+'</div>';
+    });
+    h+='</div>';
+  } else {
+    h+='<div style="font-size:var(--fz-base);color:var(--txm)">No notes yet. Click Edit to add facilitation notes.</div>';
+  }
+  h+='</div>';
+  return h;
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
+function _vspParseMoney(v){
+  // "$1.9M" -> 1900000, "$309K" -> 309000, "13" -> 13, "15%" -> 15
+  if(v==null) return null;
+  var str=String(v).trim().replace(/[$,\s]/g,'');
+  if(!str) return null;
+  var mult=1;
+  var last=str.slice(-1).toUpperCase();
+  if(last==='M'){ mult=1e6; str=str.slice(0,-1); }
+  else if(last==='K'){ mult=1e3; str=str.slice(0,-1); }
+  else if(last==='B'){ mult=1e9; str=str.slice(0,-1); }
+  else if(last==='%'){ str=str.slice(0,-1); }
+  var num=parseFloat(str);
+  return isNaN(num)?null:num*mult;
+}
+function _q1Actuals(){
+  if(!planData.q1.actuals || typeof planData.q1.actuals!=='object') planData.q1.actuals={};
+  return planData.q1.actuals;
+}
+function q1ActualSet(key,v){
+  _q1Actuals()[key]=(_q1Actuals()[key]||{});
+  _q1Actuals()[key].actual=v;
+  _vspAutosaveQueue();
+}
+function q1HitToggle(key){
+  var a=(_q1Actuals()[key]=_q1Actuals()[key]||{});
+  a.hit=(a.hit==='hit')?'miss':(a.hit==='miss')?'':'hit'; // none -> hit -> miss -> none
+  renderPage();
+}
+function _q1Meas(id){
+  var a=(planData.q1&&planData.q1.measurables)||[];
+  return a.find(function(x){return x.id===id;});
+}
+function q1MeasActual(id,v){ var m=_q1Meas(id); if(!m) return; m.actual=v; _vspAutosaveQueue(); }
+function q1MeasHit(id){ var m=_q1Meas(id); if(!m) return; m.hit=(m.hit==='hit')?'miss':(m.hit==='miss')?'':'hit'; renderPage(); }
+function _q1ActualsCard(){
+  // The Revenue/Profit financial rows (with actual/hit/bar) + the measurables
+  // table. Shared by the meeting 90-Day card and the Strategic Plan Q1 section
+  // so entering data in either place carries into the other (both read q1).
+  var h='<table style="width:100%;border-collapse:collapse;margin-bottom:8px">';
+  h+='<thead><tr>';
+  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em"></th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
+  h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
+  h+='</tr></thead><tbody>';
+  h+='<tr><td colspan="5" style="padding:12px 0 5px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Revenue</td></tr>';
+  h+=_q1RowHtml('grossSales','Gross Sales',planData.q1.grossSales,false);
+  h+=_q1RowHtml('expenses','Expenses',planData.q1.expenses,true);
+  h+='<tr><td colspan="5" style="padding:14px 0 5px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Profit</td></tr>';
+  h+=_q1RowHtml('grossProfit','Gross Profit',planData.q1.grossProfit,false);
+  h+=_q1RowHtml('netProfit','Net Profit',planData.q1.netProfit,false);
+  h+='</tbody></table>';
+  h+='<div style="border-top:1px solid var(--brd);padding-top:6px">'+_q1MeasTable()+'</div>';
+  return h;
+}
+function _q1MeasTable(){
+  var ms=(planData.q1&&Array.isArray(planData.q1.measurables))?planData.q1.measurables:[];
+  var h='<div class="fl" style="margin:16px 0 8px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Measurables</div>';
+  if(!ms.length){
+    return h+'<div style="font-size:var(--fz-base);color:var(--txm);padding:4px 0 8px">No measurables on this plan yet. Add them on the Strategic Plan page.</div>';
+  }
+  h+='<table style="width:100%;border-collapse:collapse">';
+  h+='<thead><tr>';
+  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Measurable</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
+  h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
+  h+='</tr></thead><tbody>';
+  ms.forEach(function(m){
+    var st=m.hit||'';
+    var chipCls=st==='hit'?'c-grn':st==='miss'?'c-red':'c-gry';
+    var chipTxt=st==='hit'?'Hit':st==='miss'?'Not Hit':'Set';
+    var barCol=st==='hit'?'var(--grn)':st==='miss'?'var(--red)':'var(--blu)';
+    // Bar: math-driven only when both target and actual are plain numbers
+    // (e.g. 180 Leads). Threshold targets ("Below 1%", "< 10%") have no ratio,
+    // so the bar reflects the Hit state (full on Hit, full-red on Not Hit).
+    var tnum=_vspParseMoney(m.target), anum=_vspParseMoney(m.actual);
+    var isThresh=/[<>]|below|less than|under|above|over|max|min/i.test(String(m.target||''));
+    var pct=null;
+    if(!isThresh && tnum!==null && anum!==null && tnum!==0){ pct=Math.max(0,Math.min(120,(anum/tnum)*100)); }
+    var pctTxt=(pct===null)?'':Math.round(pct)+'%';
+    var barW=(pct!==null)?Math.min(100,pct):(st==='hit'?100:st==='miss'?100:0);
+    h+='<tr style="border-bottom:0.5px solid var(--brd)">';
+    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500">'+_vspEscNote(m.text||'')+'</td>';
+    h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body)">'+_vspEscNote(m.target||'')+'</td>';
+    h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(m.actual||'').replace(/"/g,"&quot;")+'" oninput="q1MeasActual('+m.id+',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+_vspEscNote(m.text||'')+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
+    h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1MeasHit('+m.id+')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
+    h+='<td style="padding:6px 0 6px 14px;min-width:130px"><div style="display:flex;align-items:center;gap:8px">';
+    h+='<div style="flex:1;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+barW+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
+    h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:34px;text-align:right">'+pctTxt+'</span>';
+    h+='</div></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  return h;
+}
+function _q1RowHtml(key,label,targetVal,invert){
+  // invert=true for Expenses (under target is good).
+  var a=_q1Actuals()[key]||{};
+  var tgt=_vspParseMoney(targetVal), act=_vspParseMoney(a.actual);
+  var pct=null;
+  if(tgt!==null && act!==null && tgt!==0){
+    pct=invert ? Math.max(0,Math.min(120,(tgt/Math.max(act,0.0001))*100)) : Math.max(0,Math.min(120,(act/tgt)*100));
+  }
+  var st=a.hit||'';
+  var chipCls=st==='hit'?'c-grn':st==='miss'?'c-red':'c-gry';
+  var chipTxt=st==='hit'?'Hit':st==='miss'?'Not Hit':'Set';
+  var barCol=st==='hit'?'var(--grn)':st==='miss'?'var(--red)':'var(--blu)';
+  var pctTxt=(pct===null)?'':Math.round(pct)+'%';
+  var h='<tr style="border-bottom:0.5px solid var(--brd)">';
+  h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500">'+label+'</td>';
+  h+='<td style="padding:10px 14px;font-size:var(--fz-body);text-align:right;font-weight:700;white-space:nowrap;color:var(--txt)">'+targetVal+'</td>';
+  h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(a.actual||'').replace(/"/g,"&quot;")+'" oninput="q1ActualSet(\''+key+'\',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+label+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
+  h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1HitToggle(\''+key+'\')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
+  h+='<td style="padding:6px 0 6px 14px;min-width:130px">';
+  h+='<div style="display:flex;align-items:center;gap:8px">';
+  h+='<div style="flex:1;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+(pct===null?0:Math.min(100,pct))+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
+  h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:34px;text-align:right">'+pctTxt+'</span>';
+  h+='</div></td>';
+  h+='</tr>';
+  return h;
+}
 function _vspQtr(){
   if(!planData.currentQuarter || typeof planData.currentQuarter.q!=='number'){
     var q=2,y=2026;
@@ -10203,6 +10514,7 @@ function startMeetingByType(type){
   state.stepSummaryStatus={};
   state.meetGoalRatings={};
   state.meetPlanChecklist={};
+  state.facilEditing=false;
   _vspClearStepNotes(_nt);
   vspBeginMeetingTracking();
   renderPage();
@@ -10431,7 +10743,7 @@ function renderMeetings(){
     var step=Math.min(state.meetStep||0,runSections.length-1);
     var cur=runSections[step];
     var lbl=(cur.label||"").toLowerCase();
-    var _bindMap={scorecard:'scorecard',priorGoals:'goal',goals:'goal',headlines:'headline',todos:'to-do',issues:'issue',conclude:'conclude',stratplan:'strategic plan',swot:'swot'};
+    var _bindMap={scorecard:'scorecard',priorGoals:'goal',goals:'goal',headlines:'headline',todos:'to-do',issues:'issue',conclude:'conclude',stratplan:'strategic plan',swot:'swot',nextSteps:'next step',todaysAgenda:'todays agenda',checkin:'check'};
     var _bindKw=cur.bind?_bindMap[cur.bind]:null;
     function stepIs(kw){ if(_bindKw) return _bindKw===kw; return lbl.includes(kw); }
 
@@ -10533,30 +10845,22 @@ function renderMeetings(){
     h+='</div>';
     h+='</div>';
 
+    // ── Universal editable notes card on EVERY step (v52). Same card, same
+    //    Edit button, title defaults to the section name. Data embeds below. ──
+    h+=_facilCard(cur, cur.label||'Notes');
     // ── Contextual live data panels matched by label text ───
     // ── Strategic Plan step: the real Strategic Plan page, embedded live ─────
     // Same renderStrategic() surface as the standalone page: same tabs, same
     // inline edit paths, same Archive & Edit gating. Edits here ARE plan edits.
     if(stepIs('strategic plan')){
-      // Plan Review Checklist (v44): tick each area as the team reviews it.
-      var _fcS=cur.facil||null;
-      var _pcLabels=(_fcS&&_fcS.bullets&&_fcS.bullets.length)?_fcS.bullets:['Core Values','Core Focus','10-Year Target','Go to Market Strategy','3-Year Goal','1-Year Plan','Actuals vs plan  -  are we on track? (see On Pace for the Year below)'];
-      var _pcItems=_pcLabels.map(function(_pl,_pi){ return ['pc'+_pi,_pl]; });
-      var _pcC=state.meetPlanChecklist||{};
-      var _pcDone=_pcItems.filter(function(it){return _pcC[it[0]];}).length;
-      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-      h+='<div style="font-size:var(--fz-lg);font-weight:700">'+_vspEscNote((_fcS&&_fcS.title)||'Plan Review Checklist')+'</div>';
-      h+='<span style="font-size:var(--fz-base);font-weight:600;color:'+(_pcDone===_pcItems.length?'#16a34a':'var(--txm)')+'">'+_pcDone+'/'+_pcItems.length+' reviewed</span>';
-      h+='</div>';
-      _pcItems.forEach(function(it){
-        var _on=!!_pcC[it[0]];
-        h+='<div onclick="mpcTog(\''+it[0]+'\')" style="display:flex;align-items:center;gap:10px;padding:6px 4px;cursor:pointer;border-radius:5px" onmouseover="this.style.background=\'var(--sur2)\'" onmouseout="this.style.background=\'transparent\'">';
-        h+='<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid '+(_on?'#16a34a':'var(--brd2)')+';background:'+(_on?'#16a34a':'var(--sur)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:var(--fz-xs);font-weight:700">'+(_on?'\u2713':'')+'</div>';
-        h+='<span style="font-size:var(--fz-body);color:'+(_on?'var(--txm)':'var(--txt)')+'">'+_vspEscNote(it[1])+'</span>';
-        h+='</div>';
-      });
-      h+='</div>';
+      // Live plan edit in meetings (v48): archive a dated snapshot ONCE per
+      // meeting on first entry, then unlock edit so plan fields / measurables /
+      // financials save live without the manual Archive & Edit step.
+      var _spm=(state.meetStartTime||'x')+':stratplan';
+      if(state._planEditMeetInit!==_spm){
+        state._planEditMeetInit=_spm;
+        if(!state.planEditUnlocked){ try{ archiveAndEditPlan(); }catch(e){ state.planEditUnlocked=true; } }
+      }
       h+='<div style="margin-bottom:14px">'+renderStrategic()+'</div>';
     }
     // ── SWOT step: the Strategic Plan opened on its SWOT tab ─────────────────
@@ -10595,37 +10899,8 @@ function renderMeetings(){
       h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:8px">'+(_qIsGrade?'Grade each goal Complete or Not Complete. Move incomplete items to Issues.':'Live progress across this quarter\u2019s goals.')+'</div>';
       h+='</div>';
       // ── Facilitation + Goal Completion Ratings (v44) ──────────────────────
-      if(_qIsGrade){
-        var _fcP=cur.facil||null;
-        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
-        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:5px">'+_vspEscNote((_fcP&&_fcP.title)||'How this section runs')+'</div>';
-        if(_fcP&&_fcP.bullets&&_fcP.bullets.length){
-          h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.7">';
-          _fcP.bullets.forEach(function(_bl){ h+='\u2022 '+_vspEscNote(_bl)+'<br>'; });
-          h+='</div>';
-        } else {
-          h+='<div style="font-size:var(--fz-body);color:var(--txt)">Done or not done. No discussion or explanations.</div>';
-        }
-        h+='</div>';
-      }
-      // ── Establish-goals facilitation + Rally Cry (v44; quarterly/annual establish) ──
+      // ── Establish-goals Rally Cry (quarterly/annual establish) ──
       if(!_qIsGrade && (_vspNoteType()==='quarterly' || lbl.indexOf('establish')>-1)){
-        var _fcE=cur.facil||null;
-        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
-        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:7px">'+_vspEscNote((_fcE&&_fcE.title)||'How this section runs')+'</div>';
-        h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.7">';
-        if(_fcE&&_fcE.bullets&&_fcE.bullets.length){
-          _fcE.bullets.forEach(function(_bl){ h+='\u2022 '+_vspEscNote(_bl)+'<br>'; });
-        } else {
-          h+='1. Keeping the 1-Year Plan in mind: what team experience and client experience must we deliver to reach it?<br>';
-          h+='2. Everyone lists what they think needs to get done.<br>';
-          h+='3. The top 5 become company Goals.<br>';
-          h+='4. Everyone lists their top 5.<br>';
-          h+='5. What is left over becomes personal Goals or falls off.<br>';
-          h+='6. Everyone on the team carries 1-2 Goals in their division that help hit the 1-year plan.<br>';
-          h+='7. Determine the Rally Cry for the quarter.';
-        }
-        h+='</div></div>';
         var _rcCur=(planData.rallyCry&&planData.rallyCry.text)?planData.rallyCry.text:'';
         h+='<div style="background:var(--sur);border:1px solid #fcd34d;border-radius:10px;padding:14px 18px;margin-bottom:16px">';
         h+='<div style="font-size:var(--fz-lg);font-weight:700;margin-bottom:2px">Rally Cry for the Quarter</div>';
@@ -10654,15 +10929,9 @@ function renderMeetings(){
       h+='<div style="font-size:var(--fz-2xl);font-weight:700">90 Days</div>';
       h+='<div style="color:var(--txm)">Future Date: <strong>'+_vspQtr().endDate+'</strong></div>';
       h+='</div>';
-      // Revenue / Profit table
-      h+='<table style="width:100%;border-collapse:collapse;margin-bottom:14px">';
-      h+='<tr><td colspan="2" style="padding:6px 0 3px;font-weight:700;color:var(--txm);border-bottom:1px solid var(--brd)">REVENUE</td></tr>';
-      h+='<tr><td style="padding:6px 0;font-size:var(--fz-body)">Gross Sales</td><td style="padding:6px 0;font-size:var(--fz-body);text-align:right;font-weight:600">'+planData.q1.grossSales+'</td></tr>';
-      h+='<tr><td style="padding:6px 0;font-size:var(--fz-body)">Expenses</td><td style="padding:6px 0;font-size:var(--fz-body);text-align:right;font-weight:600">'+planData.q1.expenses+'</td></tr>';
-      h+='<tr><td colspan="2" style="padding:10px 0 3px;font-weight:700;color:var(--txm);border-bottom:1px solid var(--brd)">PROFIT</td></tr>';
-      h+='<tr><td style="padding:6px 0;font-size:var(--fz-body)">Gross Profit</td><td style="padding:6px 0;font-size:var(--fz-body);text-align:right;font-weight:600">'+planData.q1.grossProfit+'</td></tr>';
-      h+='<tr><td style="padding:6px 0;font-size:var(--fz-body)">Net Profit</td><td style="padding:6px 0;font-size:var(--fz-body);text-align:right;font-weight:600">'+planData.q1.netProfit+'</td></tr>';
-      h+='</table>';
+      // Shared financials + measurables actuals card (v54) - identical to the
+      // Strategic Plan Q1 section, both read planData.q1.
+      h+=_q1ActualsCard();
       // Q1 Goals (from planData)
       if(planData.q1.goals&&planData.q1.goals.length){
         h+='<div style="font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 6px;border-top:1px solid var(--brd)">Q1 GOALS (STRATEGIC PLAN)</div>';
@@ -10682,6 +10951,9 @@ function renderMeetings(){
       //    as the Goals sheet - same list, status flips, board, archive, Add
       //    Goal - because it is the same renderGoals() surface, editable. ──
       h+='<div style="margin-bottom:14px">'+renderGoals()+'</div>';
+      // ── Goal Completion Ratings matrix at the END of Goal Review (v47):
+      //    goals are walked done/not-done above first, then rated here. ──
+      if(_qIsGrade){ h+=_mgrMatrixHtml(); }
     }
     if(stepIs("headline")){
       // ── Ninety-style Headlines card ─────────────────────────────────────────
@@ -10878,13 +11150,12 @@ function renderMeetings(){
     if(stepIs("issue")){
       h+=renderIssuesInline();
     }
-        if(stepIs("wrapup")||stepIs("conclude")||stepIs("next step")){
-      // Next Steps is to-do review ONLY: a custom "Next Steps" section must not
-      // duplicate the Conclude machinery (rating grid, cascade, recap) - v44.
-      var _nsOnly=stepIs("next step")&&!stepIs("wrapup")&&!stepIs("conclude");
-      if(_nsOnly){
-        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:12px 18px;margin-bottom:14px;font-size:var(--fz-body);color:var(--txt)">Review all new to-dos and confirm owners and due dates. Rating and wrap-up happen on the Conclude step.</div>';
-      }
+    // ── NEXT STEPS: facilitation card only (v48). Its own step, no Conclude
+    //    machinery. Score + notes here; the team then moves to Conclude. ──
+    if(stepIs("next step")){
+      // universal notes card already rendered above; nothing else here.
+    }
+        if(stepIs("wrapup")||stepIs("conclude")){
       // ── ALL OPEN TEAM TO-DOS (post-meeting feedback May 21) ────────────────
       // Closes the meeting with a complete to-do picture, not just items
       // created during this meeting.
@@ -10923,7 +11194,6 @@ function renderMeetings(){
         h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span></div>';
       });
       h+='</div>';
-      if(!_nsOnly){
       // ── Rating - individual per person ────────────────────────────────
       h+='<div class="card">';
       h+='<div class="sec">Rate This Meeting</div>';
@@ -11028,7 +11298,6 @@ function renderMeetings(){
       h+='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Preview Meeting Recap</button>';
       h+='</div>';
       h+='</div>';
-      }
     }
     // ── Per-Step Notes + AI Recording Panel ──────────────────────────────────
     var stepNoteKey=_vspStepNoteKey(step);
@@ -11041,6 +11310,7 @@ function renderMeetings(){
     var isActiveRec=(_recState==='recording'&&_recStep===step);
     var sectionTranscript=_stepTranscripts[step]||'';
     var isDataStep=stepIs('scorecard')||stepIs('goal')||stepIs('headline')||stepIs('to-do')||stepIs('todo')||stepIs('issue')||stepIs('wrapup')||stepIs('conclude')||stepIs('next step')||stepIs('strategic plan')||stepIs('swot');
+    var _isNextSteps=stepIs('next step')&&!stepIs('conclude')&&!stepIs('wrapup');
 
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:18px 20px;margin-top:'+(isDataStep?'14':'0')+'px">';
 
@@ -15724,13 +15994,47 @@ function _vspStripAutoMetric(m){
 function _vspRunMigrations(){
 
   try{
-    var _bindByLabel={'review prior quarter goals':'priorGoals','review prior quarter':'priorGoals','review prior year':'priorGoals','scorecard review':'scorecard','review scorecard':'scorecard','scorecard':'scorecard','swot / establish goals':'goals','swot / establish goals for the quarter':'goals','establish goals for the quarter':'goals','strategic plan':'stratplan','review strategic plan':'stratplan','strategic plan review, prior year, scorecard & financials':'stratplan','3-year plan':'stratplan','swot':'swot'};
+    var _bindByLabel={'review prior quarter goals':'priorGoals','review prior quarter':'priorGoals','review prior year':'priorGoals','scorecard review':'scorecard','review scorecard':'scorecard','scorecard':'scorecard','swot / establish goals':'goals','swot / establish goals for the quarter':'goals','establish goals for the quarter':'goals','strategic plan':'stratplan','review strategic plan':'stratplan','strategic plan review, prior year, scorecard & financials':'stratplan','3-year plan':'stratplan','vsp review':'stratplan','vto review':'stratplan','swot':'swot','next steps':'nextSteps','next step':'nextSteps','todays agenda':'todaysAgenda','today\u2019s agenda':'todaysAgenda','check-in':'checkin','check in':'checkin'};
     (meetingAgendas||[]).forEach(function(ag){
       var lists=[];
       if(ag&&Array.isArray(ag.sections)) lists.push(ag.sections);
       if(ag&&Array.isArray(ag.days)) ag.days.forEach(function(dy){ if(Array.isArray(dy.sections)) lists.push(dy.sections); });
       lists.forEach(function(list){ list.forEach(function(s){ if(!s||s.bind) return; var key=_bindByLabel[(s.label||'').toLowerCase().trim()]; if(key){ s.bind=key; s.locked=true; } }); });
     });
+  }catch(e){}
+
+  // One-time insert of a locked Scorecard Review into the Quarterly agenda
+  // (v53). Only when no scorecard section exists; guarded so it never dupes.
+  try{
+    var _qa=(meetingAgendas||[]).find(function(a){return a.type==='Quarterly';});
+    if(_qa && Array.isArray(_qa.sections) && !_qa._scInserted){
+      var _hasSc=_qa.sections.some(function(sec){ return sec && (sec.bind==='scorecard' || /scorecard/i.test(sec.label||'')); });
+      if(!_hasSc){
+        var _scSec={label:'Scorecard Review',min:20,detail:'Review the full 13-week scorecard as a team.',visible:true,locked:true,bind:'scorecard'};
+        var _ci=-1;
+        _qa.sections.forEach(function(sec,i){ if(_ci<0 && /check[\s-]?in/i.test(sec.label||'')) _ci=i; });
+        if(_ci>=0) _qa.sections.splice(_ci+1,0,_scSec);
+        else _qa.sections.splice(Math.min(1,_qa.sections.length),0,_scSec);
+      }
+      _qa._scInserted=true;
+    }
+  }catch(e){}
+
+  // q1 measurables backfill (v50): a saved plan from before the seed carried an
+  // empty q1.measurables; backfill the seven LIDA measurables ONCE if still empty.
+  try{
+    if(planData && planData.q1 && Array.isArray(planData.q1.measurables) && planData.q1.measurables.length===0 && !planData.q1._measSeeded){
+      planData.q1.measurables=[
+        {id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",status:"none"},
+        {id:5002,text:"Warranty below 1%",target:"Below 1%",status:"none"},
+        {id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",status:"none"},
+        {id:5004,text:"180 Leads",target:"180",status:"none"},
+        {id:5005,text:"3.6M in FSA",target:"$3.6M",status:"none"},
+        {id:5006,text:"1.8M in Contracts",target:"$1.8M",status:"none"},
+        {id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",status:"none"}
+      ];
+      planData.q1._measSeeded=true;
+    }
   }catch(e){}
 
   // LIDA facilitation text (v45): stamp Dave's verbatim process wording onto
@@ -15745,8 +16049,32 @@ function _vspRunMigrations(){
         'Others rock completion rating and give a grade for everyone, 1-10. Why?',
         'Record the average for the company and each person here.'
       ]},
+      scorecard:{title:'Scorecard Review',bullets:[
+        'Pull up the full 13-week Scorecard. Review as a team, not line by line reporting.',
+        'For each measurable: on track or off track vs. goal. No discussion or explanations.',
+        ' Look at the 13-week trend, not just last week. Is the trajectory up, flat, or down?',
+        ' Any measurable off track 3+ weeks in a row: drop it to the issues list for IDS. Do not solve it here.',
+        ' Any measurable that is always green: is the goal too easy? Raise the bar or drop it to the issues list.',
+        'Owner check: does every number have one owner? Reassign orphaned or shared numbers.',
+        'Right numbers check (quarterly hygiene):',
+        ' Are these still the 5-15 numbers that give us an absolute pulse on the business?',
+        ' Anything we chased all quarter that is not on here? Add it.',
+        ' Anything nobody looks at anymore? Kill it.',
+        ' Are goals set from the 1-year plan? Adjust for next quarter.',
+        'Update goals and owners here before leaving the section. Listen for issues to IDS.'
+      ]},
       stratplan:{title:'VTO Review',bullets:[
         'Core values','Core Focus','10 Year Target','Marketing Strategy','3-year picture','1 year picture','Actuals vs plan? Are we on track?'
+      ]},
+      todaysAgenda:{title:'Todays Agenda',bullets:[]},
+      checkin:{title:'Check-In',bullets:[]},
+      nextSteps:{title:'Next Steps',bullets:[
+        'Feedback for the day?',
+        'Aha moment?',
+        'Were the expectations met for the day? Look at what was stated in Check-In.',
+        'State commitment from the annual. Go around the room: is this on track or off track?',
+        'Score the meeting 1-10.',
+        'Conclude the meeting.'
       ]},
       goals:{title:'Establish Rocks for the Quarter',bullets:[
         'Keeping the 1-year plan in mind, what team experience and/or client experience do we have to deliver so that we can reach our 1-year plan?',
@@ -15765,6 +16093,7 @@ function _vspRunMigrations(){
       lists.forEach(function(list){ list.forEach(function(sec){
         if(!sec || !sec.bind || sec.facil!==undefined) return;
         if(sec.bind==='goals' && (sec.label||'').toLowerCase().indexOf('establish')<0 && (sec.label||'').toLowerCase().indexOf('swot')<0) return;
+        if(sec.bind==='priorGoals' && (sec.label||'').toLowerCase().indexOf('prior')<0) return;
         var _f=_facilByBind[sec.bind];
         if(_f){ sec.facil=JSON.parse(JSON.stringify(_f)); }
       }); });
@@ -15961,7 +16290,12 @@ function vspApplySnapshot(s){
   // the quarterly namespace on EVERY apply (signature-based, per the v39 heal
   // lesson: a stale cloud copy re-pulled later must not resurrect the old keys).
   try{ if(state.stepNotes){ Object.keys(state.stepNotes).forEach(function(_k){ var _m=_k.match(/^stepNote_(\d+)$/); if(_m){ var _nk='stepNote_quarterly_'+_m[1]; if(state.stepNotes[_nk]===undefined && (state.stepNotes[_k]||'').trim()) state.stepNotes[_nk]=state.stepNotes[_k]; delete state.stepNotes[_k]; } }); } }catch(e){}
-  if(s.meetGoalRatings && typeof s.meetGoalRatings === 'object') state.meetGoalRatings = s.meetGoalRatings;
+  if(s.meetGoalRatings && typeof s.meetGoalRatings === 'object'){
+    state.meetGoalRatings = s.meetGoalRatings;
+    // v44 stored grades as a tap-array without rater attribution; v47 needs a
+    // rater -> grade map. Discard stale array-shaped grade sets on every apply.
+    try{ Object.keys(state.meetGoalRatings).forEach(function(_rk){ var _re=state.meetGoalRatings[_rk]; if(_re && Array.isArray(_re.grades)) _re.grades={}; }); }catch(e){}
+  }
   if(s.meetPlanChecklist && typeof s.meetPlanChecklist === 'object') state.meetPlanChecklist = s.meetPlanChecklist;
   // Restore an interrupted running meeting so a reload mid-session lands back
   // In Meeting at the same step with its notes. Guarded: never yanks a session
