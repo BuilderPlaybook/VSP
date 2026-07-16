@@ -1115,6 +1115,67 @@
            were only in the top Company Goals section). Now it groups ALL active goals
            under their owner, matching the standalone Goals page (which already did this),
            so company goals appear both at the top AND under each owner. Gates green.
+    v41  - 2026-07-15 - MEETING NOTES SURVIVE RELOAD (root cause of the "notes are
+           gone" report). Notes always reached the snapshot, but the running-meeting
+           session (meetTab/meetType/meetStep) was never persisted, so any reload
+           mid-quarterly dropped the user to Upcoming; the only way back in was
+           Start Meeting, and startMeetingByType wiped state.stepNotes on every
+           start (and re-ran the Quarterly advance confirm). Fixes: (1) snapshot
+           gains runningMeeting {type, step, startTime, agendaDay}; apply restores
+           it (guarded: only when not already running, and only within 7 days), so
+           a reload lands back In Meeting at the same step with notes intact.
+           (2) Start of an already-running type redirects to the running session
+           instead of wiping; starting a DIFFERENT type mid-session asks first.
+           A genuinely new start clears only that meeting type's notes. (3) Note
+           keys are now type-scoped (stepNote_<type>_<idx>) so Weekly and Quarterly
+           no longer share keys; legacy bare keys (stepNote_<idx>) migrate to the
+           quarterly namespace on EVERY snapshot apply (signature-based, per the
+           v39 heal lesson) so a stale cloud copy cannot resurrect them, and a
+           read fallback recovers any note a stale local copy still holds.
+           (4) Conclude now resets session state BEFORE the immediate save so the
+           record persists with runningMeeting:null. (5) Meeting records store
+           only the concluded type's notes keyed by bare step index; the recap
+           email now resolves real section labels for them. (6) Dashboard Start
+           routes through startMeetingByType for consistent semantics; textarea
+           note content is esc()d. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v42  - 2026-07-15 - STRATEGIC PLAN IN THE MEETING + PLANNING BOARD KANBAN
+           (Ninety V/TO parity). (1) New bind 'stratplan': the Quarterly
+           "Strategic Plan" step and the Annual "Strategic Plan Review..." and
+           "3-Year Plan" steps embed the REAL Strategic Plan page inline in the
+           running meeting - same tabs (Vision / Operating Plan / SWOT / Full
+           Plan), same inline edit paths, same Archive & Edit unlock gating,
+           because it is the same renderStrategic() surface, not a copy. Edits
+           made in the meeting are edits to the plan. (2) New bind 'swot': the
+           Annual "SWOT" step embeds the plan opened on its SWOT tab (tab is
+           preselected once per step visit; tabs remain navigable). The v34
+           bind-backfill migration map gains the four labels so saved agendas
+           inherit the binds. (3) Goals Planning Board is now a true kanban:
+           cards drag between the Current / Next / Later / Future horizon
+           columns (drop sets goal.horizon); dropping a card on the Long-Term
+           Issues column converts the goal to a long-term issue behind a
+           confirm - the goal is cancelled into the goal archive (recoverable)
+           and a new LT issue is created with the same title and owner. Board
+           extracted to renderGoalsBoard() so it renders identically on the
+           Goals page and in meetings. (4) The Quarterly "SWOT / Establish
+           Goals" step gains a List / Planning Board toggle. Also fixed: the
+           goal step's Quarterly Plan card header hardcoded "Q1 2026" and
+           "June 30, 2026"; both now read _vspQtr(). No change to canon,
+           chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v43  - 2026-07-15 - Bind-backfill map gains the renamed LIDA agenda labels
+           so saved Quarterly sections regain their binds and locks. The saved
+           agenda had "Review Scorecard", "Review Strategic Plan", and "SWOT /
+           Establish Goals for the Quarter" - renames that no longer matched
+           the migration map, leaving the sections unbound and deletable (the
+           content still pulled in via the label-keyword fallback, which is
+           rename-fragile). Map additions: 'review scorecard' -> scorecard,
+           'review strategic plan' -> stratplan, 'swot / establish goals for
+           the quarter' -> goals. On next load each section gets its bind and
+           locked:true: the editor shows the lock instead of the trash icon,
+           and the in-meeting content pull rides the bind (rename-proof) rather
+           than the label. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -3797,7 +3858,7 @@ var meetingAgendas=[
     {label:"Review Prior Quarter Goals",min:45,detail:"Grade each goal: Complete, Not Complete. Move incomplete items to Issues or Long-Term Issues.",visible:true,locked:true,bind:"priorGoals"},
     {label:"Operating Tools",min:1,detail:"Brief review of any operating tools being used or refined.",visible:false,locked:false},
     {label:"Review One Operating Tool",min:25,detail:"Deep dive into one operating tool to sharpen the team\u2019s use of it.",visible:true,locked:false},
-    {label:"Strategic Plan",min:60,detail:"Review and update the Strategic Plan. Ensure alignment on vision and strategy.",visible:true,locked:false},
+    {label:"Strategic Plan",min:60,detail:"Review and update the Strategic Plan. Ensure alignment on vision and strategy.",visible:true,locked:true,bind:"stratplan"},
     {label:"SWOT / Establish Goals",min:90,detail:"Complete a SWOT analysis. Set 3\u20137 company goals and individual goals for the coming quarter.",visible:true,locked:true,bind:"goals"},
     {label:"Issue Solving",min:180,detail:"Work through the Short-Term and Long-Term Issues. Promote Long-Term items as needed.",visible:true,locked:false},
     {label:"Next Steps",min:1,detail:"Review all new to-dos and confirm owners.",visible:false,locked:false},
@@ -3814,9 +3875,9 @@ var meetingAgendas=[
       {label:"Team Building Exercise",min:30,detail:"Team activity.",visible:true,locked:false},
       {label:"Team Health Check",min:30,detail:"Assess team health, accountability, and organizational alignment.",visible:true,locked:false},
       {label:"Lunch",min:35,detail:"Meal break.",visible:true,locked:false},
-      {label:"SWOT",min:60,detail:"Full SWOT analysis  -  Strengths, Weaknesses, Opportunities, Threats.",visible:true,locked:false},
-      {label:"Strategic Plan Review, Prior Year, Scorecard & Financials",min:60,detail:"Review the full Strategic Plan. Review prior year scorecard and financial performance.",visible:true,locked:false},
-      {label:"3-Year Plan",min:60,detail:"Review and update the 3-Year Plan. Confirm targets.",visible:true,locked:false},
+      {label:"SWOT",min:60,detail:"Full SWOT analysis  -  Strengths, Weaknesses, Opportunities, Threats.",visible:true,locked:true,bind:"swot"},
+      {label:"Strategic Plan Review, Prior Year, Scorecard & Financials",min:60,detail:"Review the full Strategic Plan. Review prior year scorecard and financial performance.",visible:true,locked:true,bind:"stratplan"},
+      {label:"3-Year Plan",min:60,detail:"Review and update the 3-Year Plan. Confirm targets.",visible:true,locked:true,bind:"stratplan"},
       {label:"Review Prior Year",min:15,detail:"Grade all prior year goals and review highlights.",visible:false,locked:false},
       {label:"Review Prior Quarter",min:15,detail:"Grade prior quarter goals.",visible:false,locked:false},
       {label:"Conclude",min:5,detail:'Wrap up Day 1. Celebrate progress. Confirm tomorrow\u2019s start time.',visible:true,locked:true},
@@ -3830,7 +3891,7 @@ var meetingAgendas=[
       {label:"Team Health Exercise #5",min:60,detail:"Fifth team health exercise.",visible:true,locked:false},
       {label:"Lunch",min:40,detail:"Meal break.",visible:true,locked:false},
       {label:"Issue Solving",min:120,detail:"Work through the full Issues list. Long-Term items reviewed and promoted or closed.",visible:true,locked:false},
-      {label:"3-Year Plan",min:15,detail:"Final review of the 3-Year Plan before locking.",visible:false,locked:false},
+      {label:"3-Year Plan",min:15,detail:"Final review of the 3-Year Plan before locking.",visible:false,locked:true,bind:"stratplan"},
       {label:"Next Steps",min:5,detail:"Review all new to-dos. Confirm owners and deadlines.",visible:true,locked:false},
       {label:"Conclude",min:5,detail:'Rate the session. Celebrate the plan. Create a "WOW" experience.',visible:true,locked:true},
     ]},
@@ -6915,7 +6976,7 @@ function renderDashboard(){
     if(state.meetTab==='running'){
       h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="nav(\'meetings\')">\u25b6 Resume Meeting</button>';
     } else {
-      h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="state.meetTab=\'running\';state.meetStep=0;state.meetStartTime=Date.now();vspBeginMeetingTracking();nav(\'meetings\')">\u25b6 Start Meeting</button>';
+      h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="startMeetingByType(\''+nextMeet.type+'\')">\u25b6 Start Meeting</button>';
     }
   } else {
     h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:12px">No meetings scheduled.</div>';
@@ -8892,6 +8953,144 @@ function renderScorecard(){
   return h;
 }
 
+// ── Planning Board (kanban) - shared by the Goals page and the meeting
+//    goals step (v42). Drag a card between horizon columns to move it; drop a
+//    card on Long-Term Issues to convert the goal (confirm-gated). ──
+function renderGoalsBoard(){
+  var activeGoals=goals;
+  var h='';
+
+    // Horizon columns - time-based like Ninety
+    var horizons=[
+      {key:"current",label:"Current",desc:"This quarter"},
+      {key:"next",   label:"Next",   desc:"Next quarter"},
+      {key:"later",  label:"Later",  desc:"Quarters ahead"},
+      {key:"future", label:"Future", desc:"Long-range"}
+    ];
+
+    function boardCard(g){
+      var c=statusColor(g.status);
+      var sc=statusChip(g.status);
+      var mDone=(g.milestones||[]).filter(function(m){return m.done;}).length;
+      var mTotal=(g.milestones||[]).length;
+      var ch='<div draggable="true" ondragstart="gbDragStart(event,'+g.id+')" ondragend="gbDragEnd(event)" onclick="openEditItem(\'goal\','+g.id+')" style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:12px 13px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer" onmouseover="this.style.borderColor=\'var(--blu)\'" onmouseout="this.style.borderColor=\'var(--brd)\'">';
+      // Status + date row
+      ch+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+      ch+=sc;
+      ch+='<span style="font-size:var(--fz-base);color:var(--txm)">'+g.due+'</span></div>';
+      // Title
+      ch+='<div style="font-size:var(--fz-body);font-weight:600;line-height:1.45;margin-bottom:9px;color:var(--txt)">'+g.title+'</div>';
+      var _gp=g.parentId?parentLabel(g.parentId):'';
+      if(_gp){ ch+='<div style="font-size:var(--fz-xs);color:var(--txm);margin:-6px 0 9px;display:flex;align-items:center;gap:4px"><span style="color:var(--blu)">\u21B3</span> Supports: '+_gp+'</div>'; }
+      // Progress bar
+      if(mTotal>0){
+        var pct=Math.round(mDone/mTotal*100);
+        ch+='<div style="height:4px;background:var(--brd);border-radius:2px;margin-bottom:8px"><div style="height:100%;width:'+pct+'%;background:'+c+';border-radius:2px;transition:width .3s"></div></div>';
+      }
+      // Milestones + owner
+      ch+='<div style="display:flex;align-items:center;justify-content:space-between">';
+      ch+='<span style="color:var(--txm)">'+( mTotal?mDone+'/'+mTotal+' milestones':'No milestones')+'</span>';
+      ch+=avatar(g.owner,pplColor(g.owner),22);
+      ch+='</div></div>';
+      return ch;
+    }
+
+    // 5-column grid: 4 horizon columns + Long-Term Issues
+    h+='<div style="display:grid;grid-template-columns:repeat(4,minmax(200px,1fr)) minmax(200px,240px);gap:10px;overflow-x:auto">';
+
+    horizons.forEach(function(hz){
+      var hzGoals=activeGoals.filter(function(g){return (g.horizon||"current")===hz.key;});
+      h+='<div>';
+      // Column header
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--sur2);border:1px solid var(--brd);border-radius:7px 7px 0 0;border-bottom:none">';
+      h+='<div style="display:flex;align-items:center;gap:6px">';
+      h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txt)">'+hz.label+'</span>';
+      h+='<span style="color:var(--txm)">'+hz.desc+'</span>';
+      h+='<span style="font-size:var(--fz-base);background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:1px 7px;color:var(--txm)">'+hzGoals.length+'</span>';
+      h+='</div>';
+      h+='<button onclick="openCreateForm(\'goal\');state.createHorizon=\''+hz.key+'\'" title="Add goal to '+hz.label+'" style="width:22px;height:22px;border-radius:4px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;color:var(--blu);font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;font-weight:600">+</button>';
+      h+='</div>';
+      // Cards area (drop target: move goal to this horizon)
+      h+='<div ondragover="gbDragOver(event)" ondragleave="gbDragLeave(event)" ondrop="gbDrop(event,\''+hz.key+'\')" style="background:var(--sur2);border:1px solid var(--brd);border-top:none;border-radius:0 0 7px 7px;padding:8px;min-height:200px">';
+      if(!hzGoals.length){
+        h+='<div style="text-align:center;padding:24px 12px;color:var(--txd);font-size:var(--fz-base)">'+hz.label+' does not contain any items</div>';
+        h+='<div style="text-align:center"><button onclick="openCreateForm(\'goal\')" style="font-size:var(--fz-base);color:var(--blu);background:transparent;border:none;cursor:pointer;text-decoration:underline">+ Add a goal</button></div>';
+      } else {
+        hzGoals.forEach(function(g){h+=boardCard(g);});
+      }
+      h+='</div></div>';
+    });
+
+    // Long-Term Issues column
+    var ltCount=longTermIssues.length;
+    h+='<div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--sur2);border:1px solid var(--brd);border-radius:7px 7px 0 0;border-bottom:none">';
+    h+='<div style="display:flex;align-items:center;gap:6px">';
+    h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txt)">Long-Term Issues</span>';
+    h+='<span style="font-size:var(--fz-base);background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:1px 7px;color:var(--txm)">'+ltCount+'</span>';
+    h+='</div>';
+    h+='<button title="Add long-term issue" onclick="state.issueTab=\'long\';nav(\'issues\')" style="width:22px;height:22px;border-radius:4px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;color:var(--blu);font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;font-weight:600">+</button>';
+    h+='</div>';
+    h+='<div ondragover="gbDragOver(event)" ondragleave="gbDragLeave(event)" ondrop="gbDropIssue(event)" style="background:var(--sur2);border:1px solid var(--brd);border-top:none;border-radius:0 0 7px 7px;padding:8px;min-height:200px">';
+    if(!ltCount){
+      h+='<div style="text-align:center;padding:24px 12px;color:var(--txd);font-size:var(--fz-base)">No long-term issues</div>';
+    } else {
+      longTermIssues.forEach(function(issue){
+        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer" onclick="state.issueTab=\'long\';nav(\'issues\')" onmouseover="this.style.borderColor=\'var(--blu)\'" onmouseout="this.style.borderColor=\'var(--brd)\'">';
+        h+='<div style="color:var(--txm);margin-bottom:5px">Created '+issue.created+'</div>';
+        h+='<div style="font-size:var(--fz-body);font-weight:500;line-height:1.4;margin-bottom:8px">'+issue.title+'</div>';
+        h+='<div style="display:flex;align-items:center;justify-content:space-between">';
+        h+=priChip(issue.priority);
+        h+=avatar(issue.owner,pplColor(issue.owner),22);
+        h+='</div></div>';
+      });
+    }
+    h+='</div></div>';
+    h+='</div>'; // grid
+  return h;
+}
+
+var _gbDragId=null;
+function gbDragStart(ev,id){
+  _gbDragId=id;
+  try{ ev.dataTransfer.effectAllowed='move'; ev.dataTransfer.setData('text/plain',String(id)); }catch(e){}
+}
+function gbDragEnd(ev){ _gbDragId=null; }
+function gbDragOver(ev){
+  if(_gbDragId==null) return;
+  ev.preventDefault();
+  ev.currentTarget.style.outline='2px dashed var(--blu)';
+  ev.currentTarget.style.outlineOffset='-2px';
+}
+function gbDragLeave(ev){ ev.currentTarget.style.outline=''; }
+function gbDrop(ev,hz){
+  ev.preventDefault(); ev.currentTarget.style.outline='';
+  var id=_gbDragId; _gbDragId=null;
+  if(id==null) return;
+  var g=goals.find(function(x){return x.id===id;});
+  if(!g || (g.horizon||'current')===hz) return;
+  g.horizon=hz;
+  renderPage();
+}
+function gbDropIssue(ev){
+  ev.preventDefault(); ev.currentTarget.style.outline='';
+  var id=_gbDragId; _gbDragId=null;
+  if(id==null) return;
+  goalToLongTermIssue(id);
+}
+function goalToLongTermIssue(id){
+  var idx=goals.findIndex(function(x){return x.id===id;});
+  if(idx<0) return;
+  var g=goals[idx];
+  if(typeof confirm==='function' && !confirm('Convert "'+g.title+'" to a Long-Term Issue?\n\nThe goal is cancelled and moved to the goal archive (recoverable). A new long-term issue is created with the same title and owner.')){ renderPage(); return; }
+  longTermIssues.unshift({ id:Date.now(), title:g.title, priority:'low', owner:g.owner||'DS', votes:0, status:'open', created:new Date().toISOString().slice(0,10), attachments:0, notes:'Converted from a goal on the Planning Board.' });
+  goals.splice(idx,1);
+  g.status='cancelled';
+  try{ g.quarter=_vspQtr().label; }catch(e){}
+  archivedGoals.unshift(g);
+  renderPage();
+}
+
 function renderGoals(){
   var view=state.goalsView;
   var f=state.goalsFilter;
@@ -8969,97 +9168,10 @@ function renderGoals(){
     return h;
   }
 
-  // ── PLANNING BOARD VIEW ───────────────────────────────────
-  if(view==="board"){
-    // Horizon columns - time-based like Ninety
-    var horizons=[
-      {key:"current",label:"Current",desc:"This quarter"},
-      {key:"next",   label:"Next",   desc:"Next quarter"},
-      {key:"later",  label:"Later",  desc:"Quarters ahead"},
-      {key:"future", label:"Future", desc:"Long-range"}
-    ];
+  // ── PLANNING BOARD VIEW (extracted to renderGoalsBoard, v42) ──────
+  if(view==="board"){ h+=renderGoalsBoard(); return h; }
 
-    function boardCard(g){
-      var c=statusColor(g.status);
-      var sc=statusChip(g.status);
-      var mDone=(g.milestones||[]).filter(function(m){return m.done;}).length;
-      var mTotal=(g.milestones||[]).length;
-      var ch='<div onclick="openEditItem(\'goal\','+g.id+')" style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:12px 13px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer" onmouseover="this.style.borderColor=\'var(--blu)\'" onmouseout="this.style.borderColor=\'var(--brd)\'">';
-      // Status + date row
-      ch+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-      ch+=sc;
-      ch+='<span style="font-size:var(--fz-base);color:var(--txm)">'+g.due+'</span></div>';
-      // Title
-      ch+='<div style="font-size:var(--fz-body);font-weight:600;line-height:1.45;margin-bottom:9px;color:var(--txt)">'+g.title+'</div>';
-      var _gp=g.parentId?parentLabel(g.parentId):'';
-      if(_gp){ ch+='<div style="font-size:var(--fz-xs);color:var(--txm);margin:-6px 0 9px;display:flex;align-items:center;gap:4px"><span style="color:var(--blu)">\u21B3</span> Supports: '+_gp+'</div>'; }
-      // Progress bar
-      if(mTotal>0){
-        var pct=Math.round(mDone/mTotal*100);
-        ch+='<div style="height:4px;background:var(--brd);border-radius:2px;margin-bottom:8px"><div style="height:100%;width:'+pct+'%;background:'+c+';border-radius:2px;transition:width .3s"></div></div>';
-      }
-      // Milestones + owner
-      ch+='<div style="display:flex;align-items:center;justify-content:space-between">';
-      ch+='<span style="color:var(--txm)">'+( mTotal?mDone+'/'+mTotal+' milestones':'No milestones')+'</span>';
-      ch+=avatar(g.owner,pplColor(g.owner),22);
-      ch+='</div></div>';
-      return ch;
-    }
-
-    // 5-column grid: 4 horizon columns + Long-Term Issues
-    h+='<div style="display:grid;grid-template-columns:repeat(4,minmax(200px,1fr)) minmax(200px,240px);gap:10px;overflow-x:auto">';
-
-    horizons.forEach(function(hz){
-      var hzGoals=activeGoals.filter(function(g){return (g.horizon||"current")===hz.key;});
-      h+='<div>';
-      // Column header
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--sur2);border:1px solid var(--brd);border-radius:7px 7px 0 0;border-bottom:none">';
-      h+='<div style="display:flex;align-items:center;gap:6px">';
-      h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txt)">'+hz.label+'</span>';
-      h+='<span style="color:var(--txm)">'+hz.desc+'</span>';
-      h+='<span style="font-size:var(--fz-base);background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:1px 7px;color:var(--txm)">'+hzGoals.length+'</span>';
-      h+='</div>';
-      h+='<button onclick="openCreateForm(\'goal\');state.createHorizon=\''+hz.key+'\'" title="Add goal to '+hz.label+'" style="width:22px;height:22px;border-radius:4px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;color:var(--blu);font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;font-weight:600">+</button>';
-      h+='</div>';
-      // Cards area
-      h+='<div style="background:var(--sur2);border:1px solid var(--brd);border-top:none;border-radius:0 0 7px 7px;padding:8px;min-height:200px">';
-      if(!hzGoals.length){
-        h+='<div style="text-align:center;padding:24px 12px;color:var(--txd);font-size:var(--fz-base)">'+hz.label+' does not contain any items</div>';
-        h+='<div style="text-align:center"><button onclick="openCreateForm(\'goal\')" style="font-size:var(--fz-base);color:var(--blu);background:transparent;border:none;cursor:pointer;text-decoration:underline">+ Add a goal</button></div>';
-      } else {
-        hzGoals.forEach(function(g){h+=boardCard(g);});
-      }
-      h+='</div></div>';
-    });
-
-    // Long-Term Issues column
-    var ltCount=longTermIssues.length;
-    h+='<div>';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--sur2);border:1px solid var(--brd);border-radius:7px 7px 0 0;border-bottom:none">';
-    h+='<div style="display:flex;align-items:center;gap:6px">';
-    h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txt)">Long-Term Issues</span>';
-    h+='<span style="font-size:var(--fz-base);background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:1px 7px;color:var(--txm)">'+ltCount+'</span>';
-    h+='</div>';
-    h+='<button title="Add long-term issue" onclick="state.issueTab=\'long\';nav(\'issues\')" style="width:22px;height:22px;border-radius:4px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;color:var(--blu);font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;font-weight:600">+</button>';
-    h+='</div>';
-    h+='<div style="background:var(--sur2);border:1px solid var(--brd);border-top:none;border-radius:0 0 7px 7px;padding:8px;min-height:200px">';
-    if(!ltCount){
-      h+='<div style="text-align:center;padding:24px 12px;color:var(--txd);font-size:var(--fz-base)">No long-term issues</div>';
-    } else {
-      longTermIssues.forEach(function(issue){
-        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer" onclick="state.issueTab=\'long\';nav(\'issues\')" onmouseover="this.style.borderColor=\'var(--blu)\'" onmouseout="this.style.borderColor=\'var(--brd)\'">';
-        h+='<div style="color:var(--txm);margin-bottom:5px">Created '+issue.created+'</div>';
-        h+='<div style="font-size:var(--fz-body);font-weight:500;line-height:1.4;margin-bottom:8px">'+issue.title+'</div>';
-        h+='<div style="display:flex;align-items:center;justify-content:space-between">';
-        h+=priChip(issue.priority);
-        h+=avatar(issue.owner,pplColor(issue.owner),22);
-        h+='</div></div>';
-      });
-    }
-    h+='</div></div>';
-    h+='</div>'; // grid
-    return h;
-  }
+  // ── LIST VIEW ─────────────────────────────────────────────
 
   // ── LIST VIEW ─────────────────────────────────────────────
   // Summary stats
@@ -9825,6 +9937,11 @@ function _meetCadenceHealth(m){
 }
 function joinScheduledMeeting(id){
   var f=_findScheduledById(id); var m=f?f.m:null;
+  var _jt=m?String(m.type||'').toLowerCase().replace(/\s+/g,'-'):'';
+  // Same-type session already running (e.g. restored after a reload): return to
+  // it instead of restarting, so in-progress notes survive.
+  if(state.meetTab==='running' && _jt && _vspNoteType()===_jt){ state.page='meetings'; renderPage(); return; }
+  if(state.meetTab==='running' && typeof confirm==='function' && !confirm('A '+(state.meetType||'meeting')+' session is in progress. Joining this meeting will leave it (its notes are kept). Continue?')) return;
   state.meetHuddleReport=''; state.meetScheduledId=id;
   if(m){
     state.meetType=(m.type||'').toLowerCase();
@@ -9838,6 +9955,7 @@ function joinScheduledMeeting(id){
     }
   }
   state.meetTab='running'; state.meetStep=0; state.meetStartTime=Date.now();
+  _vspClearStepNotes(state.meetType);
   vspBeginMeetingTracking(); renderPage();
 }
 function _meetPndScorecardItem(){
@@ -9880,6 +9998,35 @@ function vspBeginMeetingTracking(){
   state.meetIndvRatings = state.meetIndvRatings || {};
   state.meetSectionDurations = state.meetSectionDurations || {};
 }
+// ── Per-step meeting notes: type-scoped keys + resumable running session (v41) ──
+function _vspNoteType(){ return String(state.meetType||'weekly').toLowerCase().replace(/\s+/g,'-'); }
+function _vspEscNote(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _vspStepNoteKey(step){ return 'stepNote_'+_vspNoteType()+'_'+step; }
+function _vspStepNoteRead(step){
+  if(!state.stepNotes) state.stepNotes={};
+  var v=state.stepNotes[_vspStepNoteKey(step)];
+  if(v===undefined) v=state.stepNotes['stepNote_'+step]; // legacy un-typed key (pre-v41)
+  return v||'';
+}
+function _vspClearStepNotes(type){
+  // Clears ONLY the given meeting type's notes (a fresh start of one type must
+  // never destroy another type's in-progress notes).
+  if(!state.stepNotes) return;
+  var pre='stepNote_'+String(type||'').toLowerCase().replace(/\s+/g,'-')+'_';
+  Object.keys(state.stepNotes).forEach(function(k){ if(k.indexOf(pre)===0) delete state.stepNotes[k]; });
+}
+function _vspNotesForRecord(){
+  // Snapshot of the CURRENT meeting type's notes for a concluded-meeting record,
+  // keyed by bare step index so the recap can resolve section labels.
+  var out={}; if(!state.stepNotes) return out;
+  var pre='stepNote_'+_vspNoteType()+'_';
+  Object.keys(state.stepNotes).forEach(function(k){
+    var v=(state.stepNotes[k]||'').trim(); if(!v) return;
+    if(k.indexOf(pre)===0){ out[k.slice(pre.length)]=state.stepNotes[k]; return; }
+    var m=k.match(/^stepNote_(\d+)$/); if(m && out[m[1]]===undefined) out[m[1]]=state.stepNotes[k];
+  });
+  return out;
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 function _vspQtr(){
@@ -9903,6 +10050,13 @@ function advanceQuarter(){
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
 }
 function startMeetingByType(type){
+  var _nt=String(type||'').toLowerCase().split(' ').join('-');
+  // A session of this type is already running (including one restored from the
+  // snapshot after a reload): return to it. Never wipe notes, never re-run the
+  // Quarterly advance. To start over, End the running meeting first.
+  if(state.meetTab==='running' && _vspNoteType()===_nt){ state.page='meetings'; renderPage(); return; }
+  // A DIFFERENT meeting type is mid-session: confirm before leaving it.
+  if(state.meetTab==='running' && typeof confirm==='function' && !confirm('A '+(state.meetType||'meeting')+' session is in progress. Starting a new meeting will leave it (its notes are kept). Continue?')) return;
   if(type==='Quarterly'){
     var _c=_vspQtr(); var _nq=_c.q+1,_ny=_c.year; if(_nq>4){_nq=1;_ny=_c.year+1;}
     if(typeof confirm==='function' && confirm('Start the Quarterly session?\n\nThis saves a reference snapshot of the current V/TO ('+_c.label+') to the archive and advances to Q'+_nq+' '+_ny+'. Your goals and plan stay exactly in place; nothing is cleared.')){
@@ -9911,12 +10065,13 @@ function startMeetingByType(type){
   }
   state.meetTab='running';
   state.meetStep=0;
-  state.meetType=type.toLowerCase().split(' ').join('-');
+  state.meetType=_nt;
   state.meetStartTime=Date.now();
+  state.page='meetings';
   state.aiEnabled=false;  // reset - consent required each meeting
   state.stepSummaries={};
   state.stepSummaryStatus={};
-  state.stepNotes={};
+  _vspClearStepNotes(_nt);
   vspBeginMeetingTracking();
   renderPage();
 }
@@ -10144,7 +10299,7 @@ function renderMeetings(){
     var step=Math.min(state.meetStep||0,runSections.length-1);
     var cur=runSections[step];
     var lbl=(cur.label||"").toLowerCase();
-    var _bindMap={scorecard:'scorecard',priorGoals:'goal',goals:'goal',headlines:'headline',todos:'to-do',issues:'issue',conclude:'conclude'};
+    var _bindMap={scorecard:'scorecard',priorGoals:'goal',goals:'goal',headlines:'headline',todos:'to-do',issues:'issue',conclude:'conclude',stratplan:'strategic plan',swot:'swot'};
     var _bindKw=cur.bind?_bindMap[cur.bind]:null;
     function stepIs(kw){ if(_bindKw) return _bindKw===kw; return lbl.includes(kw); }
 
@@ -10247,6 +10402,18 @@ function renderMeetings(){
     h+='</div>';
 
     // ── Contextual live data panels matched by label text ───
+    // ── Strategic Plan step: the real Strategic Plan page, embedded live ─────
+    // Same renderStrategic() surface as the standalone page: same tabs, same
+    // inline edit paths, same Archive & Edit gating. Edits here ARE plan edits.
+    if(stepIs('strategic plan')){
+      h+='<div style="margin-bottom:14px">'+renderStrategic()+'</div>';
+    }
+    // ── SWOT step: the Strategic Plan opened on its SWOT tab ─────────────────
+    if(stepIs('swot')){
+      var _swm=(state.runningMeetingId||'x')+':'+step;
+      if(state._swotStepInit!==_swm){ state._swotStepInit=_swm; state.stratTab='swot'; }
+      h+='<div style="margin-bottom:14px">'+renderStrategic()+'</div>';
+    }
     if(stepIs("scorecard")){
       h+=_meetPndScorecardItem();
       var _nxtSec = runSections[step+1];
@@ -10282,7 +10449,7 @@ function renderMeetings(){
       h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
       h+='<div style="display:flex;align-items:center;gap:10px">';
       h+='<div style="width:34px;height:34px;border-radius:8px;background:#fef3c7;border:1px solid #fcd34d;display:flex;align-items:center;justify-content:center;font-size:var(--fz-lg)">\ud83d\udcca</div>';
-      h+='<div><div style="font-size:var(--fz-lg);font-weight:600">Q1 2026  -  Quarterly Plan</div>';
+      h+='<div><div style="font-size:var(--fz-lg);font-weight:600">'+_vspQtr().label+'  -  Quarterly Plan</div>';
       h+='<div style="color:var(--txm)">90-Day Goals \u00b7 Revenue, Profit, Measurables</div></div>';
       h+='</div>';
       h+='<span style="font-weight:600;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:12px;padding:3px 10px">Leadership</span>';
@@ -10291,7 +10458,7 @@ function renderMeetings(){
       // 90 Days header
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
       h+='<div style="font-size:var(--fz-2xl);font-weight:700">90 Days</div>';
-      h+='<div style="color:var(--txm)">Future Date: <strong>June 30, 2026</strong></div>';
+      h+='<div style="color:var(--txm)">Future Date: <strong>'+_vspQtr().endDate+'</strong></div>';
       h+='</div>';
       // Revenue / Profit table
       h+='<table style="width:100%;border-collapse:collapse;margin-bottom:14px">';
@@ -10317,8 +10484,14 @@ function renderMeetings(){
       }
       h+='</div></div>';
 
-      // ── 2 & 3. Goals - same layout as standalone Goals tab ────────────
-      h+=renderGoalsInline();
+      // ── 2 & 3. Goals - List / Planning Board toggle (v42) ─────────────
+      var _mgv=state.meetGoalsView||'list';
+      h+='<div class="tab-bar" style="margin-bottom:12px">';
+      [{v:'list',l:'List'},{v:'board',l:'Planning Board'}].forEach(function(t){
+        h+='<button class="tab'+(_mgv===t.v?' active':'')+'" onclick="state.meetGoalsView=\''+t.v+'\';renderPage()">'+t.l+'</button>';
+      });
+      h+='</div>';
+      h+=(_mgv==='board')?renderGoalsBoard():renderGoalsInline();
     }
     if(stepIs("headline")){
       // ── Ninety-style Headlines card ─────────────────────────────────────────
@@ -10660,22 +10833,22 @@ function renderMeetings(){
       h+='</div>';
     }
     // ── Per-Step Notes + AI Recording Panel ──────────────────────────────────
-    var stepNoteKey='stepNote_'+step;
+    var stepNoteKey=_vspStepNoteKey(step);
     if(!state.stepNotes) state.stepNotes={};
     if(!state.stepSummaries) state.stepSummaries={};
     if(!state.stepSummaryStatus) state.stepSummaryStatus={};
-    var savedStepNote=state.stepNotes[stepNoteKey]||'';
+    var savedStepNote=_vspStepNoteRead(step);
     var savedSummary=state.stepSummaries[step]||'';
     var summaryStatus=state.stepSummaryStatus[step]||'idle';
     var isActiveRec=(_recState==='recording'&&_recStep===step);
     var sectionTranscript=_stepTranscripts[step]||'';
-    var isDataStep=stepIs('scorecard')||stepIs('goal')||stepIs('headline')||stepIs('to-do')||stepIs('todo')||stepIs('issue')||stepIs('wrapup')||stepIs('conclude')||stepIs('next step');
+    var isDataStep=stepIs('scorecard')||stepIs('goal')||stepIs('headline')||stepIs('to-do')||stepIs('todo')||stepIs('issue')||stepIs('wrapup')||stepIs('conclude')||stepIs('next step')||stepIs('strategic plan')||stepIs('swot');
 
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:18px 20px;margin-top:'+(isDataStep?'14':'0')+'px">';
 
     // ── Notes ────────────────────────────────────────────────────────────────
     h+='<div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Notes  -  '+cur.label+'</div>';
-    h+='<textarea id="step-note-'+step+'" data-autogrow="1" oninput="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\'stepNote_'+step+'\']=this.value;_vspAutogrow(this);_vspAutosaveQueue()" placeholder="Type notes for this agenda item..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:none;overflow:hidden;min-height:70px;box-sizing:border-box;line-height:1.6" onfocus="this.style.borderColor=\'var(--blu)\'" onblur="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\'stepNote_'+step+'\']=this.value;this.style.borderColor=\'var(--brd2)\'">'+savedStepNote+'</textarea>';
+    h+='<textarea id="step-note-'+step+'" data-autogrow="1" oninput="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\''+stepNoteKey+'\']=this.value;_vspAutogrow(this);_vspAutosaveQueue()" placeholder="Type notes for this agenda item..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:none;overflow:hidden;min-height:70px;box-sizing:border-box;line-height:1.6" onfocus="this.style.borderColor=\'var(--blu)\'" onblur="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\''+stepNoteKey+'\']=this.value;this.style.borderColor=\'var(--brd2)\'">'+_vspEscNote(savedStepNote)+'</textarea>';
 
     // ── AI Recording ─────────────────────────────────────────────────────────
     h+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">';
@@ -12307,7 +12480,7 @@ function generateMeetingRecap(meetingId){
       headlines:headlines.slice(0,10).map(function(h){return {text:h.text,type:h.type,owner:h.owner};}),
       cascades:cascadesRegistry.slice(0,5).map(function(cs){return {subject:cs.subject,fromTeam:cs.fromTeam,toTeams:cs.toTeams,sentAt:cs.sentAt};}),
       sectionDurations:[],
-      notes:state.meetNotes||'',stepNotes:JSON.parse(JSON.stringify(state.stepNotes||{}))
+      notes:state.meetNotes||'',stepNotes:_vspNotesForRecord()
     };
   }
   var team3=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
@@ -12628,7 +12801,8 @@ function vspBuildMeetingRecap(record){
     if(stepEntries.length){
       lines.push('PER-STEP NOTES');
       stepEntries.forEach(function(k){
-        var lbl = (record.sectionDurations[k] && record.sectionDurations[k].label) || ('Step ' + k);
+        var _im=String(k).match(/(\d+)$/); var _ix=_im?+_im[1]:null;
+        var lbl = (_ix!==null && record.sectionDurations && record.sectionDurations[_ix] && record.sectionDurations[_ix].label) || ('Step ' + (_ix!==null?(_ix+1):k));
         lines.push('  ' + lbl + ':');
         lines.push('    ' + record.stepNotes[k].trim().replace(/\n/g, '\n    '));
       });
@@ -12799,7 +12973,7 @@ function endMeeting(){
     headlines:meetHeadlines,
     cascades:meetCascades,
     sectionDurations:sectionDurations,
-    notes:state.meetNotes||'',stepNotes:JSON.parse(JSON.stringify(state.stepNotes||{})),
+    notes:state.meetNotes||'',stepNotes:_vspNotesForRecord(),
     highlights:'Meeting completed on '+dateStr+'. Rating: '+avgRating+'/10. '+solvedThisMeeting.length+' issues solved.'
   };
   // Stats for short-term issues
@@ -12831,8 +13005,8 @@ function endMeeting(){
   // Ending a meeting is the single most important persistence event in the
   // module - closing the tab right after End must not lose the record.
   state.meetAbsent={};
-  try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
-  // Reset tracking state
+  // Reset tracking state FIRST so the immediate save below persists
+  // runningMeeting:null (an ended session must not be resumable after reload).
   state.meetTab='past';
   state.meetRating=0;
   state.timerSeconds=0;
@@ -12845,6 +13019,10 @@ function endMeeting(){
   state.meetStartTime=null;
   state.meetIndvRatings={};
   state.meetNotes='';
+  // Persist the record IMMEDIATELY (bypass the 400ms render debounce).
+  // Ending a meeting is the single most important persistence event in the
+  // module - closing the tab right after End must not lose the record.
+  try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
   renderPage();
 }
 function autoStartTimer(stepId,secs){
@@ -15319,7 +15497,8 @@ function vspSnapshot(){
     reviewBar: (window.SMB_VSP&&window.SMB_VSP.reviewBar)||{minPlus:'majority',maxMinus:0},
     migrations: Object.keys((window.__VSP_MIGRATIONS||{})),
     meetNotes: state.meetNotes || '',
-    stepNotes: state.stepNotes || {}
+    stepNotes: state.stepNotes || {},
+    runningMeeting: (state.meetTab==='running' && state.meetType) ? { type:_vspNoteType(), step:state.meetStep||0, startTime:state.meetStartTime||null, agendaDay:state.meetAgendaDay||0 } : null
   };
 }
 function _vspMig(){ return (window.__VSP_MIGRATIONS = window.__VSP_MIGRATIONS || {}); }
@@ -15332,7 +15511,7 @@ function _vspStripAutoMetric(m){
 function _vspRunMigrations(){
 
   try{
-    var _bindByLabel={'review prior quarter goals':'priorGoals','review prior quarter':'priorGoals','review prior year':'priorGoals','scorecard review':'scorecard','scorecard':'scorecard','swot / establish goals':'goals','establish goals for the quarter':'goals'};
+    var _bindByLabel={'review prior quarter goals':'priorGoals','review prior quarter':'priorGoals','review prior year':'priorGoals','scorecard review':'scorecard','review scorecard':'scorecard','scorecard':'scorecard','swot / establish goals':'goals','swot / establish goals for the quarter':'goals','establish goals for the quarter':'goals','strategic plan':'stratplan','review strategic plan':'stratplan','strategic plan review, prior year, scorecard & financials':'stratplan','3-year plan':'stratplan','swot':'swot'};
     (meetingAgendas||[]).forEach(function(ag){
       var lists=[];
       if(ag&&Array.isArray(ag.sections)) lists.push(ag.sections);
@@ -15527,6 +15706,24 @@ function vspApplySnapshot(s){
   if(typeof s.planEditUnlocked === 'boolean') state.planEditUnlocked = s.planEditUnlocked;
   if(typeof s.meetNotes === 'string') state.meetNotes = s.meetNotes;
   if(s.stepNotes && typeof s.stepNotes === 'object') state.stepNotes = s.stepNotes;
+  // Legacy un-typed note keys (stepNote_<n>, written v31 through v40) migrate to
+  // the quarterly namespace on EVERY apply (signature-based, per the v39 heal
+  // lesson: a stale cloud copy re-pulled later must not resurrect the old keys).
+  try{ if(state.stepNotes){ Object.keys(state.stepNotes).forEach(function(_k){ var _m=_k.match(/^stepNote_(\d+)$/); if(_m){ var _nk='stepNote_quarterly_'+_m[1]; if(state.stepNotes[_nk]===undefined && (state.stepNotes[_k]||'').trim()) state.stepNotes[_nk]=state.stepNotes[_k]; delete state.stepNotes[_k]; } }); } }catch(e){}
+  // Restore an interrupted running meeting so a reload mid-session lands back
+  // In Meeting at the same step with its notes. Guarded: never yanks a session
+  // that is already running locally (adapter tap-to-refresh mid-meeting), and
+  // sessions older than 7 days are treated as abandoned.
+  if(s.runningMeeting && s.runningMeeting.type && state.meetTab!=='running'){
+    var _rmAge=s.runningMeeting.startTime?(Date.now()-s.runningMeeting.startTime):0;
+    if(_rmAge>=0 && _rmAge<7*24*3600*1000){
+      state.meetTab='running';
+      state.meetType=s.runningMeeting.type;
+      state.meetStep=s.runningMeeting.step||0;
+      state.meetStartTime=s.runningMeeting.startTime||Date.now();
+      state.meetAgendaDay=s.runningMeeting.agendaDay||0;
+    }
+  }
   // Restore saved meeting-agenda edits, merged into the defaults by type so
   // user edits win while any meeting type added in a later build still appears.
   if(Array.isArray(s.meetingAgendas)){
