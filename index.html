@@ -1296,6 +1296,26 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v67  - 2026-07-16 - FIX (again, for real this time): the Strategic Plan
+           "Company Goals for the Quarter" card was empty because the filter
+           still required gl.quarter to equal the current quarter label. The
+           plan's currentQuarter had advanced to Q2 2028 while the company
+           goals are tagged Q2 2026, so nothing matched. This quarter-string
+           condition was supposed to be removed earlier but was still present in
+           the shipped code. Removed now: the card shows the current company
+           Rocks (company goals with horizon current), independent of any
+           quarter-string, matching how the Goals page holds them. Verified the
+           deployed line still had the old condition. No change to canon,
+           chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v66  - 2026-07-16 - Quarter financials and measurables tables now line up
+           exactly. The shared colgroup left the first (label) column as
+           width:auto, which resolves independently per table in a fixed layout,
+           so the two tables drifted by a few pixels and the measurables bars sat
+           left of the financials bars. The label column is now a fixed width so
+           both tables compute identical column positions and the vs-Target bars
+           align top-to-bottom. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
     v65  - 2026-07-16 - Full-number normalization now runs on EVERY load, not
            once. The v63 migration used a _fullNumbersMigrated flag; once that
            flag was saved to the cloud, a later cloud snapshot that still held
@@ -4669,8 +4689,7 @@ function planMeasurablesBlock(scope){
     h+=_vspEmpty(_VSP_IC_CHART,'No measurables yet. Set the few numbers that tell you the plan is on track.','','');
     return h;
   }
-  h+='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
-  h+=_q1ColGroup();
+  h+='<table style="width:100%;border-collapse:collapse">';
   h+='<thead><tr>';
   h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis">Measurable</th>';
   h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
@@ -7316,9 +7335,8 @@ function renderStrategic(){
     // v59: read LIVE company goals for the current quarter from goals[] (one
     // source of truth). The old planData.q1.goals copy is ignored. Edit on the
     // Goals page; this card reflects it.
-    var qLabel=_vspQtr().label;
     var cg=goals.filter(function(gl){
-      return gl.company===true && gl.status!=='archived' && (gl.horizon||'current')==='current' && (!gl.quarter || gl.quarter===qLabel);
+      return gl.company===true && gl.status!=='archived' && (gl.horizon||'current')==='current';
     });
     var h='<div class="fl" style="margin-bottom:8px">Company Goals For The Quarter</div>';
     if(!cg.length){
@@ -10484,12 +10502,15 @@ function q1MeasHit(id){ var e=_q1Result(id); e.hit=(e.hit==='hit')?'miss':(e.hit
 function _q1ColGroup(){
   // Shared fixed column layout so the financials table and the measurables
   // table line up exactly and the vs-Target bar is the same width on both.
+  // The label column is a fixed width (not auto) so both tables resolve to
+  // identical column positions in a table-layout:fixed table; auto width
+  // resolves per-table and drifts a few pixels between the two.
   return '<colgroup>'
-    +'<col style="width:auto">'
-    +'<col style="width:120px">'
+    +'<col style="width:34%">'
     +'<col style="width:110px">'
-    +'<col style="width:84px">'
-    +'<col style="width:140px">'
+    +'<col style="width:104px">'
+    +'<col style="width:80px">'
+    +'<col style="width:132px">'
     +'</colgroup>';
 }
 function _q1ActualsCard(){
