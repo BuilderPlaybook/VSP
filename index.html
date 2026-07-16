@@ -1296,6 +1296,14 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v73  - 2026-07-16 - Goal progress now follows status (EOS: a Rock is binary,
+           done = 100%). changeGoalStatus set the status but never touched
+           progress, so goals marked Done through the dropdown stayed at 0%
+           while only the hardcoded seed goal read 100%. Now: marking a goal
+           complete/Done sets progress to 100; moving it off Done recomputes
+           progress from its milestones (or 0 when it has none) so it is not
+           stuck at 100. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
     v72  - 2026-07-16 - Editable per-quarter targets on the quarter measurables.
            Each measurable now carries a quarter target (planData.q1.results[id]
            .qtarget) that defaults to the annual target and is edited in the
@@ -3585,6 +3593,14 @@ function updateMilestoneText(goalId,msId,val){
   if(m)m.text=val.trim()||m.text;
 }
 
+function _normalizeGoalProgress(){
+  try{
+    (goals||[]).concat(archivedGoals||[]).forEach(function(g){
+      if(!g) return;
+      if((g.status==='complete'||g.status==='done') && g.progress!==100){ g.progress=100; }
+    });
+  }catch(e){}
+}
 function _syncGoalProgress(g){
   if(!g.milestones||!g.milestones.length)return;
   var done=g.milestones.filter(function(m){return m.done;}).length;
@@ -12144,7 +12160,18 @@ function changeGoalStatus(id, status){
     renderPage();return;
   }
   var g=goals.find(function(x){return x.id===id;})||archivedGoals.find(function(x){return x.id===id;});
-  if(g) g.status=status;
+  if(g){
+    g.status=status;
+    // A Rock is binary: Done = 100%. Moving off Done recomputes from
+    // milestones (or drops to 0 when there are none) so progress is not stuck.
+    if(status==='complete'||status==='done'){
+      g.progress=100;
+    } else if(g.milestones && g.milestones.length){
+      _syncGoalProgress(g);
+    } else if(g.progress===100){
+      g.progress=0;
+    }
+  }
   renderPage();
 }
 function addHeadlineFromPanel(){
@@ -16214,6 +16241,9 @@ function _vspRunMigrations(){
       _qa._scInserted=true;
     }
   }catch(e){}
+
+  // v73: any completed goal must read 100% (status is the source of truth).
+  try{ _normalizeGoalProgress(); }catch(e){}
 
   // v65: normalize dollar fields to full comma numbers on EVERY load.
   // _vspFullMoney is idempotent (a full number passes through unchanged), so
