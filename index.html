@@ -1296,6 +1296,16 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v65  - 2026-07-16 - Full-number normalization now runs on EVERY load, not
+           once. The v63 migration used a _fullNumbersMigrated flag; once that
+           flag was saved to the cloud, a later cloud snapshot that still held
+           abbreviated values ("$1.9M") loaded with the flag already true, so
+           the migration skipped and the plan reverted to abbreviated numbers.
+           _vspFullMoney is idempotent (full numbers pass through unchanged), so
+           it is now applied to the dollar fields on every load, guaranteeing
+           the plan always shows full numbers regardless of what the cloud
+           sends. No change to canon, chrome, catalog, components, engine,
+           contracts, or VSP_STORAGE_VERSION.
     v64  - 2026-07-16 - Quarter financials and measurables tables now share an
            identical fixed colgroup (table-layout:fixed, same 5 column widths),
            so every column lines up top-to-bottom between the two tables and the
@@ -16119,22 +16129,25 @@ function _vspRunMigrations(){
     }
   }catch(e){}
 
-  // v63: expand abbreviated dollar strings to full comma numbers, once.
+  // v65: normalize dollar fields to full comma numbers on EVERY load.
+  // _vspFullMoney is idempotent (a full number passes through unchanged), so
+  // this is safe to run every time and guarantees the plan always shows full
+  // numbers even if the cloud sends back an old abbreviated snapshot. (The v63
+  // once-only flag caused reverts: once the flag was saved to the cloud, a
+  // later abbreviated snapshot loaded with the flag already true and skipped.)
   try{
-    if(planData && !planData._fullNumbersMigrated){
+    if(planData){
       ['q1','oneyr','pic3yr'].forEach(function(sc){
         var pd=planData[sc]; if(!pd) return;
         ['grossSales','grossProfit','expenses','netProfit'].forEach(function(k){
           if(pd[k]!=null && String(pd[k]).indexOf('%')<0){ pd[k]=_vspFullMoney(pd[k]); }
         });
       });
-      // Expand measurable targets that are dollar amounts (leave "Below 1%", "180", etc.)
       if(planData.oneyr && Array.isArray(planData.oneyr.measurables)){
         planData.oneyr.measurables.forEach(function(m){
           if(m && m.target && /[$]|[MKB]\s*$/i.test(String(m.target)) && String(m.target).indexOf('%')<0){ m.target=_vspFullMoney(m.target); }
         });
       }
-      planData._fullNumbersMigrated=true;
     }
   }catch(e){}
 
