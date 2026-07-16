@@ -1122,6 +1122,30 @@
            can still be renamed, moved, and hidden). A load-time migration backfills
            bind keys onto saved agendas by their original label, then locks them, so
            existing data survives. Gates green.
+    v35  - 2026-07-13 - Meeting notes actually persist now (real fix). v32 added
+           meetNotes/stepNotes to the saved snapshot, but the snapshot is only taken
+           when a save fires, and the autosave is debounced off renderPage(). Typing
+           in a notes box only ran oninput (set state + grow) and never re-rendered,
+           so no save ever fired and the note was lost on reload. Both notes boxes
+           (Conclude meeting-notes and per-agenda-item step-notes) now call
+           _vspAutosaveQueue() on input, which debounces 600ms, writes the snapshot to
+           localStorage, syncs, and flips the Saving/Saved badge. Gates green.
+    v36  - 2026-07-13 - Quarter archive is reference-only; live goals no longer
+           cleared. advanceQuarter() was moving every current goal into the archive
+           and emptying the plan's goal list on quarter advance ("fresh start"), so
+           starting a Quarterly session wiped the Goals page. Now the archive keeps a
+           reference snapshot of the V/TO and the quarter label/date rolls forward,
+           but goals and plan data stay exactly in place until the user changes them.
+           The Quarterly-session confirm dialog wording updated to match (no longer
+           says goals move to archive / new quarter starts fresh). Gates green.
+    v37  - 2026-07-13 - One-time goal recovery. The pre-v36 advanceQuarter had moved
+           live goals into the archive on every quarter advance. A one-time migration
+           (guarded, runs once per browser) pulls those auto-archived goals back into
+           the live list, per team, skipping any goal the user deliberately cancelled
+           or archived (status 'cancelled'/'archived'). So opening v37 restores the
+           Goals page automatically; no manual move needed. Combined with the v36 fix
+           (archive is reference-only, no future clearing), goals stay put from here
+           on. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -9898,20 +9922,20 @@ function _vspQtr(){
 }
 function advanceQuarter(){
   var cur=_vspQtr();
+  // Archive is a reference-only SNAPSHOT of the quarter. Live data (goals, plan)
+  // stays exactly in place until the user deliberately changes it. Only the
+  // quarter label/date rolls forward.
   try{ planArchives.unshift({ label:'V/TO '+cur.label, archivedAt:cur.label, data:JSON.parse(JSON.stringify(planData)) }); }catch(e){}
-  try{
-    for(var _gi=goals.length-1; _gi>=0; _gi--){ var _g=goals[_gi]; if((_g.horizon||'current')==='current'){ _g.quarter=cur.label; archivedGoals.unshift(goals.splice(_gi,1)[0]); } }
-  }catch(e){}
   var nq=cur.q+1, ny=cur.year; if(nq>4){ nq=1; ny=cur.year+1; }
   planData.currentQuarter={q:nq,year:ny};
-  try{ planData.q1.futureDate=_vspQtr().endDate; planData.q1.goals=[]; }catch(e){}
+  try{ planData.q1.futureDate=_vspQtr().endDate; }catch(e){}
   state.stratLastReviewed=cur.label+' quarterly session; advanced to '+_vspQtr().label;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
 }
 function startMeetingByType(type){
   if(type==='Quarterly'){
     var _c=_vspQtr(); var _nq=_c.q+1,_ny=_c.year; if(_nq>4){_nq=1;_ny=_c.year+1;}
-    if(typeof confirm==='function' && confirm('Start the Quarterly session?\n\nThis archives the current V/TO ('+_c.label+') for reference, advances to Q'+_nq+' '+_ny+', rolls the plan date to the quarter end, and moves this quarter\'s goals to the archive so the new quarter starts fresh.')){
+    if(typeof confirm==='function' && confirm('Start the Quarterly session?\n\nThis saves a reference snapshot of the current V/TO ('+_c.label+') to the archive and advances to Q'+_nq+' '+_ny+'. Your goals and plan stay exactly in place; nothing is cleared.')){
       advanceQuarter();
     }
   }
@@ -10657,7 +10681,7 @@ function renderMeetings(){
       // ── Meeting Notes ─────────────────────────────────────────────────
       h+='<div style="margin-bottom:16px">';
       h+='<div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Meeting Notes</div>';
-      h+='<textarea id="meet-notes-ta" data-autogrow="1" oninput="state.meetNotes=this.value;_vspAutogrow(this)" onblur="state.meetNotes=this.value" placeholder="Add notes from this meeting..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-base);font-family:inherit;resize:none;overflow:hidden;min-height:80px;box-sizing:border-box;line-height:1.5">'+state.meetNotes+'</textarea>';
+      h+='<textarea id="meet-notes-ta" data-autogrow="1" oninput="state.meetNotes=this.value;_vspAutogrow(this);_vspAutosaveQueue()" onblur="state.meetNotes=this.value" placeholder="Add notes from this meeting..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-base);font-family:inherit;resize:none;overflow:hidden;min-height:80px;box-sizing:border-box;line-height:1.5">'+state.meetNotes+'</textarea>';
       h+='</div>';
       // ── Actions ───────────────────────────────────────────────────────
       h+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
@@ -10684,7 +10708,7 @@ function renderMeetings(){
 
     // ── Notes ────────────────────────────────────────────────────────────────
     h+='<div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Notes  -  '+cur.label+'</div>';
-    h+='<textarea id="step-note-'+step+'" data-autogrow="1" oninput="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\'stepNote_'+step+'\']=this.value;_vspAutogrow(this)" placeholder="Type notes for this agenda item..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:none;overflow:hidden;min-height:70px;box-sizing:border-box;line-height:1.6" onfocus="this.style.borderColor=\'var(--blu)\'" onblur="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\'stepNote_'+step+'\']=this.value;this.style.borderColor=\'var(--brd2)\'">'+savedStepNote+'</textarea>';
+    h+='<textarea id="step-note-'+step+'" data-autogrow="1" oninput="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\'stepNote_'+step+'\']=this.value;_vspAutogrow(this);_vspAutosaveQueue()" placeholder="Type notes for this agenda item..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:none;overflow:hidden;min-height:70px;box-sizing:border-box;line-height:1.6" onfocus="this.style.borderColor=\'var(--blu)\'" onblur="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\'stepNote_'+step+'\']=this.value;this.style.borderColor=\'var(--brd2)\'">'+savedStepNote+'</textarea>';
 
     // ── AI Recording ─────────────────────────────────────────────────────────
     h+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">';
@@ -15339,6 +15363,32 @@ function _vspStripAutoMetric(m){
   return false;
 }
 function _vspRunMigrations(){
+  // One-time recovery: the pre-v36 advanceQuarter moved live goals into
+  // archivedGoals on every quarter advance. Pull those back into the live list
+  // once, per team. A goal that was deliberately cancelled or archived (status
+  // 'cancelled'/'archived') is left in the archive; only genuinely-live goals
+  // that were relocated by the quarter advance are restored. Guarded so it runs
+  // a single time and never loops.
+  try{
+    var _mig=_vspMig();
+    if(!_mig.goalsUnarchivedV36){
+      Object.keys(teamsRegistry).forEach(function(tid){
+        var t=teamsRegistry[tid];
+        if(!t || !Array.isArray(t.archivedGoals) || !Array.isArray(t.goals)) return;
+        for(var i=t.archivedGoals.length-1;i>=0;i--){
+          var g=t.archivedGoals[i];
+          if(!g) continue;
+          var st=g.status||'';
+          if(st==='cancelled'||st==='archived') continue;      // leave deliberate archives
+          if(t.goals.some(function(x){return x&&x.id===g.id;})) { t.archivedGoals.splice(i,1); continue; } // already live
+          t.goals.unshift(t.archivedGoals.splice(i,1)[0]);      // restore to live list
+        }
+      });
+      _mig.goalsUnarchivedV36=true;
+    }
+  }catch(e){}
+
+
   // Backfill bind keys on saved agendas written before data-bound sections
   // carried a stable bind. Matches the known data-bound sections by their
   // original label once, then locks them so they cannot be deleted (they can
