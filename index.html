@@ -1296,6 +1296,49 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v59  - 2026-07-15 - Strategic Plan "Goals For The Quarter" card now reads
+           the LIVE company goals for the current quarter from goals[] (company
+           && horizon current && this quarter, non-archived), read-only, instead
+           of the separate planData.q1.goals copy. That stale copy was empty in
+           saved cloud data and showed "No goals set" while the Goals page was
+           correct. Now one source: edit on the Goals page, the plan card
+           reflects it. No change to canon, chrome, catalog, components, engine,
+           contracts, or VSP_STORAGE_VERSION.
+    v58  - 2026-07-15 - MEASURABLES FOLLOW THE EOS MODEL: one shared list set
+           on the 1-Year (Annual) plan; each quarter reviews that same list and
+           records only its own results (planData.q1.results keyed by measurable
+           id). Definitions (text, target, owner) live only on oneyr and are
+           edited only there; edit the 1-year plan and the quarter reflects it.
+           Migration folds old q1.measurables up into oneyr (merge by text) and
+           moves q1 actual/hit into q1.results. No change to canon, chrome,
+           catalog, components, engine, contracts, or VSP_STORAGE_VERSION.
+    v57  - 2026-07-15 - Measurables can be assigned an owner (like goals), on
+           both the Quarterly (q1) and Annual (oneyr) Strategic Plan sections.
+           planMeasurablesBlock shows an owner avatar (view) and an owner
+           picker select (edit); measurable.owner defaults to 'DS'. The owner
+           carries into the quarter meeting Hit table (_q1MeasTable renders the
+           avatar) and, since the annual plan section reads the same oneyr
+           measurables, into the annual meeting. New helper planMeasurableOwner.
+           No change to canon, chrome, catalog, components, engine, contracts,
+           or VSP_STORAGE_VERSION.
+    v56  - 2026-07-15 - Goal Completion Ratings matrix restored on the Goal
+           Review step. It was gated on the label containing "prior" (_qIsGrade
+           = lbl.indexOf("prior")>-1), so a section renamed away from "Prior"
+           (e.g. "Rock Review") lost the matrix even though it is bound
+           priorGoals. Now bind-aware: _qIsGrade is true when cur.bind is
+           'priorGoals' OR the label contains "prior", matching the rename-proof
+           pattern used elsewhere. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v55  - 2026-07-15 - NOTES CARD IS NOW A PLAIN AUTO-SAVING TEXT BOX. One
+           simple editable box per step, identical everywhere, saved to
+           sec.facil.text on the agenda section so it survives reorder and
+           reload, syncs to the cloud, and carries to every future meeting.
+           Removed the bullet-list machinery (add/remove/move-line, Edit/Done)
+           and the separate per-step-index notes textarea (that positional
+           store scrambled on reorder). Legacy fold: existing sec.facil.bullets
+           collapse into sec.facil.text on read so nothing typed is lost.
+           Autosave on input (debounced) and blur. No change to canon, chrome,
+           catalog, components, engine, contracts, or VSP_STORAGE_VERSION.
     v54  - 2026-07-15 - (1) Quarterly measurables table gains the vs-Target
            bar so it matches the financial rows: bar is math-driven when the
            target is a plain number (180 Leads), else Hit-driven (green full
@@ -2832,9 +2875,9 @@ var planData={
   pic3yr:{grossSales:"$80M",grossProfit:"15%",expenses:"10%",netProfit:"5%",futureDate:"Dec 31, 2028"},
   pic3yrItems:["57 RP/RS","1 President","1 VP of Capital, Development and Holdings","1 Human Resources Manager (contract)","1 CFO / VP LIDA Group of Companies","3 Sr PM\u2019s (CH, Commercial and Renovation)","8 PM\u2019s","2 Superintendents","6 carpenter teams","2 Estimators","3 Accounting Staff","3 interior designers","1 contract for marketing","1 Company Controller","SOP documented and FBA","2 Project coordinators","2 Maintenance / Warranty Carpenters","4 independent companies operating","1 Property Manager","1 Property Manager Assistant","1 Sales PM","Renovated office basement"],
   q1:{futureDate:"Mar 31, 2026",grossSales:"$1.9M",grossProfit:"$451K",expenses:"$309K",netProfit:"$140K",
-    goals:[["Implement new Drip and Newsletter Campaign (Automation system completed)","MN"],["Team Event","MN"],["Bay DP Received","DS"],["All Sales Collateral Received","MN"],["All website update completed","DS"],["Field operations manual final draft completed for peer review","WL"]],measurables:[{id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",status:"none"},{id:5002,text:"Warranty below 1%",target:"Below 1%",status:"none"},{id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",status:"none"},{id:5004,text:"180 Leads",target:"180",status:"none"},{id:5005,text:"3.6M in FSA",target:"$3.6M",status:"none"},{id:5006,text:"1.8M in Contracts",target:"$1.8M",status:"none"},{id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",status:"none"}]},
+    goals:[["Implement new Drip and Newsletter Campaign (Automation system completed)","MN"],["Team Event","MN"],["Bay DP Received","DS"],["All Sales Collateral Received","MN"],["All website update completed","DS"],["Field operations manual final draft completed for peer review","WL"]],results:{},_measConsolidated:true},
   oneyr:{futureDate:"Dec 31, 2026",grossSales:"$13M",grossProfit:"$1.95M",expenses:"$1.3M",netProfit:"$650K",
-    goals:["2026: LIDA Homes WAY Complete FBA","2026: 1 Land Deal Contract","2026: Step Property Management FBA","2026: Start Bay Condo in August","2026: Hire CFO / Operations Lead"],measurables:[]},
+    goals:["2026: LIDA Homes WAY Complete FBA","2026: 1 Land Deal Contract","2026: Step Property Management FBA","2026: Start Bay Condo in August","2026: Hire CFO / Operations Lead"],measurables:[{id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",owner:"DS",status:"none"},{id:5002,text:"Warranty below 1%",target:"Below 1%",owner:"DS",status:"none"},{id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",owner:"WL",status:"none"},{id:5004,text:"180 Leads",target:"180",owner:"TP",status:"none"},{id:5005,text:"3.6M in FSA",target:"$3.6M",owner:"TP",status:"none"},{id:5006,text:"1.8M in Contracts",target:"$1.8M",owner:"TP",status:"none"},{id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",owner:"WL",status:"none"}]},
   provenProcess:"The LIDA Homes Proven Process",
   guarantee:"The LIDA Homes Promise  -  Extraordinary Communication",
   ourWay:[
@@ -4597,10 +4640,12 @@ function planMeasurablesBlock(scope){
     if(edit){
       h+='<input value="'+String(m.text||'').replace(/"/g,'&quot;')+'" oninput="planMeasurableSet(\''+scope+'\','+m.id+',\'text\',this.value)" onchange="if(typeof vspSaveNow===\'function\')vspSaveNow()" placeholder="Measurable" style="flex:1;font-size:var(--fz-lg);padding:4px 7px;border:1px solid var(--brd2);border-radius:4px;font-family:inherit">';
       h+='<input value="'+String(m.target||'').replace(/"/g,'&quot;')+'" oninput="planMeasurableSet(\''+scope+'\','+m.id+',\'target\',this.value)" onchange="if(typeof vspSaveNow===\'function\')vspSaveNow()" placeholder="Target" style="width:120px;font-size:var(--fz-lg);padding:4px 7px;border:1px solid var(--brd2);border-radius:4px;font-family:inherit;text-align:right">';
+      h+=_measOwnerSelect(scope,m);
       h+='<button onclick="removePlanMeasurable(\''+scope+'\','+m.id+')" title="Remove measurable" style="width:22px;height:22px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:4px;cursor:pointer;flex-shrink:0;font-size:var(--fz-lg);line-height:1">\u00d7</button>';
     } else {
       h+='<div style="flex:1;font-size:var(--fz-lg);color:var(--txt)">'+String(m.text||'')+'</div>';
       if(m.target) h+='<div style="font-size:var(--fz-lg);font-weight:600;color:var(--blu);white-space:nowrap">'+String(m.target)+'</div>';
+      h+=avatar(m.owner||'DS',pplColor(m.owner||'DS'),18);
     }
     h+='</div>';
   });
@@ -4610,9 +4655,19 @@ function planMeasurablesBlock(scope){
   return h;
 }
 function _planMeas(scope,id){ var a=(planData[scope]&&planData[scope].measurables)||[]; return a.find(function(x){return x.id===id;}); }
+function planMeasurableOwner(scope,id,ini){ var m=_planMeas(scope,id); if(!m) return; m.owner=ini; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
+function _measOwnerSelect(scope,m){
+  var cur=m.owner||'DS';
+  var h='<select onchange="planMeasurableOwner(\''+scope+'\','+m.id+',this.value)" title="Owner" style="font-size:var(--fz-base);padding:4px 6px;border:1px solid var(--brd2);border-radius:4px;font-family:inherit;background:var(--sur);max-width:120px">';
+  (ppl||[]).forEach(function(pp){
+    h+='<option value="'+pp.initials+'"'+(pp.initials===cur?' selected':'')+'>'+_vspEscNote((pp.first||'')+' '+(pp.last||'')).trim()+'</option>';
+  });
+  h+='</select>';
+  return h;
+}
 function planMeasurableCycle(scope,id){ var m=_planMeas(scope,id); if(!m) return; var s=m.status||'none'; m.status=(s==='none')?'on-track':(s==='on-track')?'off-track':'none'; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
 function planMeasurableSet(scope,id,field,val){ var m=_planMeas(scope,id); if(!m) return; m[field]=val; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} }
-function addPlanMeasurable(scope){ if(!planData[scope]) return; if(!Array.isArray(planData[scope].measurables)) planData[scope].measurables=[]; planData[scope].measurables.push({id:Date.now(),text:'',target:'',status:'none'}); renderPage(); }
+function addPlanMeasurable(scope){ if(!planData[scope]) return; if(!Array.isArray(planData[scope].measurables)) planData[scope].measurables=[]; planData[scope].measurables.push({id:Date.now(),text:'',target:'',status:'none',owner:'DS'}); renderPage(); }
 function removePlanMeasurable(scope,id){ var a=planData[scope]&&planData[scope].measurables; if(!Array.isArray(a)) return; var i=a.findIndex(function(x){return x.id===id;}); if(i>-1) a.splice(i,1); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
 
 function startEdit(fieldId){state.editingPlanField=fieldId;renderPage();}
@@ -7206,41 +7261,30 @@ function renderStrategic(){
 
   // Helper: goals list with live links to Goals page
   function goalsList(q1Goals){
-    // Goals are stored in planData.q1.goals (key kept for back-compat)
-    // Live status/progress synced from goals[] global by title match
-    var h='<div class="fl" style="margin-bottom:8px">Goals For The Quarter</div>';
-    if(!q1Goals||!q1Goals.length){
-      h+=_vspEmpty(_VSP_IC_GOAL,'No goals set for this quarter yet. Goals turn the plan into weekly action the team can own.','','');
-      if(state.planEditUnlocked){
-        h+='<button onclick="addQ1Goal()" class="btn btn-sm" style="margin-top:6px">+ Add Goal</button>';
-      }
+    // v59: read LIVE company goals for the current quarter from goals[] (one
+    // source of truth). The old planData.q1.goals copy is ignored. Edit on the
+    // Goals page; this card reflects it.
+    var qLabel=_vspQtr().label;
+    var cg=goals.filter(function(gl){
+      return gl.company===true && gl.status!=='archived' && (gl.horizon||'current')==='current' && (!gl.quarter || gl.quarter===qLabel);
+    });
+    var h='<div class="fl" style="margin-bottom:8px">Company Goals For The Quarter</div>';
+    if(!cg.length){
+      h+=_vspEmpty(_VSP_IC_GOAL,'No company goals for this quarter yet. Set company goals on the Goals page; they appear here automatically.','','');
+      h+='<button onclick="nav(\'goals\')" class="btn btn-sm" style="margin-top:6px">Open Goals</button>';
       return h;
     }
-    q1Goals.forEach(function(g,i){
-      var goalTitle=Array.isArray(g)?g[0]:g;
-      var goalOwner=Array.isArray(g)?g[1]:'DS';
-      // Find matching live goal by title or owner for live status
-      var liveGoal=goals.find(function(gl){
-        return gl.status!=='archived'&&(gl.title===goalTitle||(gl.owner===goalOwner&&gl.company));
-      })||goals.find(function(gl){return gl.owner===goalOwner&&gl.status!=='archived';});
-      var statusC=liveGoal?statusColor(liveGoal.status):'#94a3b8';
+    cg.forEach(function(g,i){
+      var statusC=statusColor(g.status);
       h+='<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--brd)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+statusC+';flex-shrink:0"></div>';
-      if(state.planEditUnlocked){
-        h+='<span style="font-size:var(--fz-body);flex:1">'+ef('q1',goalTitle,false,'goals',i,goalOwner)+'</span>';
-      } else {
-        h+='<span style="font-size:var(--fz-body);flex:1;cursor:pointer" onclick="nav(\'goals\')">'+(i+1)+'. '+goalTitle+'</span>';
-      }
-      h+=avatar(goalOwner,pplColor(goalOwner),18);
-      if(liveGoal) h+='<span style="color:'+statusC+';font-weight:600;min-width:34px;text-align:right">'+liveGoal.progress+'%</span>';
-      if(!state.planEditUnlocked){
-        h+='<svg width="10" height="10" fill="none" stroke="var(--txd)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>';
-      }
+      h+='<span style="font-size:var(--fz-body);flex:1;cursor:pointer" onclick="nav(\'goals\')">'+(i+1)+'. '+_vspEscNote(g.title)+'</span>';
+      h+=avatar(g.owner,pplColor(g.owner),18);
+      h+='<span style="color:'+statusC+';font-weight:600;min-width:34px;text-align:right">'+(g.progress||0)+'%</span>';
+      h+='<svg width="10" height="10" fill="none" stroke="var(--txd)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>';
       h+='</div>';
     });
-    if(state.planEditUnlocked){
-      h+='<button onclick="addQ1Goal()" class="btn btn-sm" style="margin-top:8px">+ Add Goal</button>';
-    }
+    h+='<button onclick="nav(\'goals\')" class="btn btn-sm" style="margin-top:8px">Manage on Goals page</button>';
     return h;
   }
 
@@ -7376,8 +7420,8 @@ function renderStrategic(){
     // Quarter results entry (v54): actuals + Hit for financials and measurables,
     // editable anytime (results, not plan structure). Carries into the meeting.
     h+='<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--brd)"><div class="fl" style="font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase;margin-bottom:6px">Quarter Results  -  Actual vs Target</div>'+_q1ActualsCard()+'</div>';
-    // The plan-page measurables editor (add/remove/rename the list) stays too.
-    h+=planMeasurablesBlock('q1');
+    // Measurable definitions live on the 1-Year plan (EOS model). The quarter
+    // shows them read-only via _q1ActualsCard above; edit them on the 1-Year plan.
     return h+'</div>';
   }
 
@@ -7397,6 +7441,7 @@ function renderStrategic(){
       h+='<div onclick="togglePlanYearGoal('+i+')" title="'+(_gd?'Mark not done':'Mark done')+'" style="width:16px;height:16px;border-radius:3px;border:1.5px solid '+(_gd?'var(--grn)':'var(--brd2)')+';background:'+(_gd?'var(--grn)':'transparent')+';flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center">'+(_gd?'<svg width="10" height="10" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
       h+='<div style="font-size:var(--fz-lg);flex:1;'+(_gd?'text-decoration:line-through;color:var(--txm)':'')+'">'+(i+1)+'. '+ef('oneyr',g,false,'goals',i)+'</div></div>';
     });
+    h+='<div class="fl" style="margin:14px 0 4px;font-size:var(--fz-xs);color:var(--txm)">Set here once; every quarter reviews the same measurables.</div>';
     h+=planMeasurablesBlock('oneyr');
     return h+'</div>';
   }
@@ -10304,43 +10349,29 @@ function facilSetBullet(i,v){ var sec=_facilCurSec(); if(!sec) return; var f=_fa
 function facilAddBullet(){ var sec=_facilCurSec(); if(!sec) return; _facilEnsure(sec).bullets.push(''); renderPage(); }
 function facilRemoveBullet(i){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); f.bullets.splice(i,1); renderPage(); }
 function facilMoveBullet(i,dir){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); var j=i+dir; if(j<0||j>=f.bullets.length) return; var t=f.bullets[i]; f.bullets[i]=f.bullets[j]; f.bullets[j]=t; renderPage(); }
+function _facilNoteText(sec){
+  if(!sec) return '';
+  var f=sec.facil;
+  if(f && typeof f.text==='string') return f.text;
+  if(f && Array.isArray(f.bullets) && f.bullets.length){
+    return f.bullets.map(function(b){return String(b||'').trim();}).filter(Boolean).join('\n');
+  }
+  return '';
+}
+function facilNoteSet(v){
+  var sec=_facilCurSec(); if(!sec) return;
+  if(!sec.facil || typeof sec.facil!=='object') sec.facil={};
+  sec.facil.text=v;
+  _vspAutosaveQueue();
+}
 function _facilCard(sec,fallbackTitle,accent){
-  var f=(sec&&sec.facil)||null;
-  var title=(f&&f.title)||fallbackTitle||'How this section runs';
-  var bullets=(f&&Array.isArray(f.bullets))?f.bullets:[];
-  var ac=accent||'var(--blu)';
-  var editing=!!state.facilEditing;
-  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid '+ac+';border-radius:10px;padding:14px 18px;margin-bottom:16px">';
-  h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:7px">';
-  if(editing){
-    h+='<input value="'+_escOpt(title)+'" oninput="facilSetTitle(this.value)" style="flex:1;font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;padding:5px 8px;border:1px solid var(--brd2);border-radius:5px;font-family:inherit;background:var(--sur)">';
-  } else {
-    h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700">'+_vspEscNote(title)+'</div>';
-  }
-  h+='<button type="button" onclick="facilEditToggle()" class="btn btn-sm" style="flex-shrink:0;padding:3px 10px">'+(editing?'Done':'Edit')+'</button>';
-  h+='</div>';
-  if(editing){
-    bullets.forEach(function(bl,i){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
-      h+='<div style="display:flex;flex-direction:column;gap:1px">';
-      h+='<button type="button" onclick="facilMoveBullet('+i+',-1)" title="Move up" style="width:20px;height:15px;border:1px solid var(--brd2);background:var(--sur2);border-radius:3px;cursor:pointer;line-height:1;font-size:9px;color:var(--txm)">\u25b2</button>';
-      h+='<button type="button" onclick="facilMoveBullet('+i+',1)" title="Move down" style="width:20px;height:15px;border:1px solid var(--brd2);background:var(--sur2);border-radius:3px;cursor:pointer;line-height:1;font-size:9px;color:var(--txm)">\u25bc</button>';
-      h+='</div>';
-      h+='<textarea oninput="facilSetBullet('+i+',this.value);_vspAutogrow(this)" rows="1" style="flex:1;font-size:var(--fz-body);padding:6px 9px;border:1px solid var(--brd2);border-radius:6px;font-family:inherit;background:var(--sur);resize:none;overflow:hidden;line-height:1.5">'+_vspEscNote(bl)+'</textarea>';
-      h+='<button type="button" onclick="facilRemoveBullet('+i+')" title="Remove line" style="width:26px;height:26px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:5px;cursor:pointer;flex-shrink:0;font-size:var(--fz-lg);line-height:1">\u00d7</button>';
-      h+='</div>';
-    });
-    h+='<button type="button" onclick="facilAddBullet()" class="btn btn-sm" style="margin-top:4px">+ Add line</button>';
-  } else if(bullets.length){
-    h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.8">';
-    bullets.forEach(function(bl){
-      var ind=/^\s+/.test(bl); // preserve sub-bullet indentation from a leading space
-      h+='<div style="'+(ind?'padding-left:20px;':'')+'">\u2022 '+_vspEscNote(bl.trim())+'</div>';
-    });
-    h+='</div>';
-  } else {
-    h+='<div style="font-size:var(--fz-base);color:var(--txm)">No notes yet. Click Edit to add facilitation notes.</div>';
-  }
+  // One simple auto-saving notes box per step, bound to sec.facil.text on the
+  // agenda section: survives reorder, reload, cloud sync, and future meetings.
+  var label=(sec&&sec.label)||fallbackTitle||'Notes';
+  var val=_facilNoteText(sec);
+  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:16px">';
+  h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:8px">Notes  -  '+_vspEscNote(label)+'</div>';
+  h+='<textarea data-autogrow="1" oninput="facilNoteSet(this.value);_vspAutogrow(this)" onblur="facilNoteSet(this.value)" placeholder="Type what this part of the meeting is doing..." style="width:100%;padding:11px 13px;border:1.5px solid var(--brd2);border-radius:8px;font-size:var(--fz-body);font-family:inherit;resize:none;overflow:hidden;min-height:90px;box-sizing:border-box;line-height:1.6;background:var(--sur)" onfocus="this.style.borderColor=\'var(--blu)\'">'+_vspEscNote(val)+'</textarea>';
   h+='</div>';
   return h;
 }
@@ -10374,12 +10405,11 @@ function q1HitToggle(key){
   a.hit=(a.hit==='hit')?'miss':(a.hit==='miss')?'':'hit'; // none -> hit -> miss -> none
   renderPage();
 }
-function _q1Meas(id){
-  var a=(planData.q1&&planData.q1.measurables)||[];
-  return a.find(function(x){return x.id===id;});
-}
-function q1MeasActual(id,v){ var m=_q1Meas(id); if(!m) return; m.actual=v; _vspAutosaveQueue(); }
-function q1MeasHit(id){ var m=_q1Meas(id); if(!m) return; m.hit=(m.hit==='hit')?'miss':(m.hit==='miss')?'':'hit'; renderPage(); }
+function _measDefs(){ return (planData.oneyr && Array.isArray(planData.oneyr.measurables)) ? planData.oneyr.measurables : []; }
+function _q1Results(){ if(!planData.q1) planData.q1={}; if(!planData.q1.results || typeof planData.q1.results!=='object') planData.q1.results={}; return planData.q1.results; }
+function _q1Result(id){ var r=_q1Results(); if(!r[id]) r[id]={actual:'',hit:''}; return r[id]; }
+function q1MeasActual(id,v){ _q1Result(id).actual=v; _vspAutosaveQueue(); }
+function q1MeasHit(id){ var e=_q1Result(id); e.hit=(e.hit==='hit')?'miss':(e.hit==='miss')?'':'hit'; renderPage(); }
 function _q1ActualsCard(){
   // The Revenue/Profit financial rows (with actual/hit/bar) + the measurables
   // table. Shared by the meeting 90-Day card and the Strategic Plan Q1 section
@@ -10403,28 +10433,27 @@ function _q1ActualsCard(){
   return h;
 }
 function _q1MeasTable(){
-  var ms=(planData.q1&&Array.isArray(planData.q1.measurables))?planData.q1.measurables:[];
+  var ms=_measDefs();
   var h='<div class="fl" style="margin:16px 0 8px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Measurables</div>';
   if(!ms.length){
-    return h+'<div style="font-size:var(--fz-base);color:var(--txm);padding:4px 0 8px">No measurables on this plan yet. Add them on the Strategic Plan page.</div>';
+    return h+'<div style="font-size:var(--fz-base);color:var(--txm);padding:4px 0 8px">No measurables yet. Set them on the 1-Year Plan; every quarter reviews the same list.</div>';
   }
   h+='<table style="width:100%;border-collapse:collapse">';
   h+='<thead><tr>';
   h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Measurable</th>';
+  h+='<th scope="col" style="text-align:center;padding:4px 10px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Owner</th>';
   h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
   h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
   h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
   h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
   h+='</tr></thead><tbody>';
   ms.forEach(function(m){
-    var st=m.hit||'';
+    var res=_q1Result(m.id);
+    var st=res.hit||'';
     var chipCls=st==='hit'?'c-grn':st==='miss'?'c-red':'c-gry';
     var chipTxt=st==='hit'?'Hit':st==='miss'?'Not Hit':'Set';
     var barCol=st==='hit'?'var(--grn)':st==='miss'?'var(--red)':'var(--blu)';
-    // Bar: math-driven only when both target and actual are plain numbers
-    // (e.g. 180 Leads). Threshold targets ("Below 1%", "< 10%") have no ratio,
-    // so the bar reflects the Hit state (full on Hit, full-red on Not Hit).
-    var tnum=_vspParseMoney(m.target), anum=_vspParseMoney(m.actual);
+    var tnum=_vspParseMoney(m.target), anum=_vspParseMoney(res.actual);
     var isThresh=/[<>]|below|less than|under|above|over|max|min/i.test(String(m.target||''));
     var pct=null;
     if(!isThresh && tnum!==null && anum!==null && tnum!==0){ pct=Math.max(0,Math.min(120,(anum/tnum)*100)); }
@@ -10432,8 +10461,9 @@ function _q1MeasTable(){
     var barW=(pct!==null)?Math.min(100,pct):(st==='hit'?100:st==='miss'?100:0);
     h+='<tr style="border-bottom:0.5px solid var(--brd)">';
     h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500">'+_vspEscNote(m.text||'')+'</td>';
+    h+='<td style="padding:8px 10px;text-align:center"><div style="display:flex;justify-content:center">'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),22)+'</div></td>';
     h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body)">'+_vspEscNote(m.target||'')+'</td>';
-    h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(m.actual||'').replace(/"/g,"&quot;")+'" oninput="q1MeasActual('+m.id+',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+_vspEscNote(m.text||'')+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
+    h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(res.actual||'').replace(/"/g,"&quot;")+'" oninput="q1MeasActual('+m.id+',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+_vspEscNote(m.text||'')+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
     h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1MeasHit('+m.id+')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
     h+='<td style="padding:6px 0 6px 14px;min-width:130px"><div style="display:flex;align-items:center;gap:8px">';
     h+='<div style="flex:1;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+barW+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
@@ -10884,7 +10914,7 @@ function renderMeetings(){
     if(stepIs("goal")){
       // ── 0. Completion grade banner (data-driven reflection) ──────
       var _qs=_goalQtrStats();
-      var _qIsGrade=lbl.indexOf("prior")>-1;
+      var _qIsGrade=(cur.bind==='priorGoals')||lbl.indexOf("prior")>-1;
       var _qband=_qs.pct>=80?'#16a34a':_qs.pct>=50?'#d97706':'#dc2626';
       h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid '+_qband+';border-radius:10px;padding:16px 18px;margin-bottom:16px">';
       h+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">';
@@ -11314,9 +11344,6 @@ function renderMeetings(){
 
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:18px 20px;margin-top:'+(isDataStep?'14':'0')+'px">';
 
-    // ── Notes ────────────────────────────────────────────────────────────────
-    h+='<div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Notes  -  '+cur.label+'</div>';
-    h+='<textarea id="step-note-'+step+'" data-autogrow="1" oninput="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\''+stepNoteKey+'\']=this.value;_vspAutogrow(this);_vspAutosaveQueue()" placeholder="Type notes for this agenda item..." style="width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:none;overflow:hidden;min-height:70px;box-sizing:border-box;line-height:1.6" onfocus="this.style.borderColor=\'var(--blu)\'" onblur="if(!state.stepNotes)state.stepNotes={};state.stepNotes[\''+stepNoteKey+'\']=this.value;this.style.borderColor=\'var(--brd2)\'">'+_vspEscNote(savedStepNote)+'</textarea>';
 
     // ── AI Recording ─────────────────────────────────────────────────────────
     h+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">';
@@ -16020,20 +16047,45 @@ function _vspRunMigrations(){
     }
   }catch(e){}
 
+  // EOS measurables consolidation (v58): definitions live on oneyr; the quarter
+  // keeps only results. Fold any legacy q1.measurables up into oneyr (merge by
+  // text, no dupes) and move their actual/hit into planData.q1.results.
+  try{
+    if(planData && planData.q1 && Array.isArray(planData.q1.measurables) && planData.q1.measurables.length && !planData.q1._measConsolidated){
+      if(!planData.oneyr) planData.oneyr={};
+      if(!Array.isArray(planData.oneyr.measurables)) planData.oneyr.measurables=[];
+      if(!planData.q1.results || typeof planData.q1.results!=='object') planData.q1.results={};
+      planData.q1.measurables.forEach(function(qm){
+        var key=String(qm.text||'').trim().toLowerCase();
+        var def=planData.oneyr.measurables.find(function(om){ return String(om.text||'').trim().toLowerCase()===key; });
+        if(!def){ def={id:qm.id||Date.now()+Math.floor(Math.random()*1000), text:qm.text||'', target:qm.target||'', owner:qm.owner||'DS', status:'none'}; planData.oneyr.measurables.push(def); }
+        else { if(!def.owner && qm.owner) def.owner=qm.owner; if(!def.target && qm.target) def.target=qm.target; }
+        // move this quarter's recorded result to q1.results under the def id
+        if((qm.actual!==undefined && qm.actual!=='') || (qm.hit!==undefined && qm.hit!=='')){
+          planData.q1.results[def.id]={actual:qm.actual||'', hit:qm.hit||''};
+        }
+      });
+      delete planData.q1.measurables;
+      planData.q1._measConsolidated=true;
+    }
+    // Ensure results object exists
+    if(planData && planData.q1 && (!planData.q1.results || typeof planData.q1.results!=='object')) planData.q1.results={};
+  }catch(e){}
+
   // q1 measurables backfill (v50): a saved plan from before the seed carried an
   // empty q1.measurables; backfill the seven LIDA measurables ONCE if still empty.
   try{
-    if(planData && planData.q1 && Array.isArray(planData.q1.measurables) && planData.q1.measurables.length===0 && !planData.q1._measSeeded){
-      planData.q1.measurables=[
-        {id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",status:"none"},
-        {id:5002,text:"Warranty below 1%",target:"Below 1%",status:"none"},
-        {id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",status:"none"},
-        {id:5004,text:"180 Leads",target:"180",status:"none"},
-        {id:5005,text:"3.6M in FSA",target:"$3.6M",status:"none"},
-        {id:5006,text:"1.8M in Contracts",target:"$1.8M",status:"none"},
-        {id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",status:"none"}
+    if(planData && planData.oneyr && Array.isArray(planData.oneyr.measurables) && planData.oneyr.measurables.length===0 && !planData.oneyr._measSeeded){
+      planData.oneyr.measurables=[
+        {id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",owner:"DS",status:"none"},
+        {id:5002,text:"Warranty below 1%",target:"Below 1%",owner:"DS",status:"none"},
+        {id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",owner:"WL",status:"none"},
+        {id:5004,text:"180 Leads",target:"180",owner:"TP",status:"none"},
+        {id:5005,text:"3.6M in FSA",target:"$3.6M",owner:"TP",status:"none"},
+        {id:5006,text:"1.8M in Contracts",target:"$1.8M",owner:"TP",status:"none"},
+        {id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",owner:"WL",status:"none"}
       ];
-      planData.q1._measSeeded=true;
+      planData.oneyr._measSeeded=true;
     }
   }catch(e){}
 
