@@ -1204,6 +1204,21 @@
            source process (Rocks, VTO, Ninety) mapped to product terms per
            the terminology rule. No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v45  - 2026-07-15 - FACILITATION CARDS NOW CARRY DAVE'S VERBATIM PROCESS
+           TEXT as LIDA agenda content. Sections gain an optional facil field
+           ({title, bullets}); the three meeting facilitation surfaces render
+           from it when present and fall back to the neutral built-ins
+           otherwise (product default stays EOS-term-free; the LIDA wording
+           rides the tenant agenda data, where EOS terms are permitted). A
+           migration stamps the LIDA text onto bound sections when facil is
+           absent: priorGoals gets "Goal Review" with the four verbatim
+           bullets ("in Ninety" rendered as "here" since the average records
+           in VSP); goals-bound establish/SWOT sections get "Establish Rocks
+           for the Quarter" with the seven verbatim bullets; stratplan gets
+           "VTO Review" as the checklist title with Dave's seven review items
+           as the checklist rows (checklist keys move to positional pc0..pcN).
+           No change to canon, chrome, catalog, components, engine,
+           contracts, or VSP_STORAGE_VERSION.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -10512,19 +10527,21 @@ function renderMeetings(){
     // inline edit paths, same Archive & Edit gating. Edits here ARE plan edits.
     if(stepIs('strategic plan')){
       // Plan Review Checklist (v44): tick each area as the team reviews it.
-      var _pcItems=[['coreValues','Core Values'],['coreFocus','Core Focus'],['tenYear','10-Year Target'],['gtm','Go to Market Strategy'],['pic3','3-Year Goal'],['oneYr','1-Year Plan'],['onPace','Actuals vs plan  -  are we on track? (see On Pace for the Year below)']];
+      var _fcS=cur.facil||null;
+      var _pcLabels=(_fcS&&_fcS.bullets&&_fcS.bullets.length)?_fcS.bullets:['Core Values','Core Focus','10-Year Target','Go to Market Strategy','3-Year Goal','1-Year Plan','Actuals vs plan  -  are we on track? (see On Pace for the Year below)'];
+      var _pcItems=_pcLabels.map(function(_pl,_pi){ return ['pc'+_pi,_pl]; });
       var _pcC=state.meetPlanChecklist||{};
       var _pcDone=_pcItems.filter(function(it){return _pcC[it[0]];}).length;
       h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-      h+='<div style="font-size:var(--fz-lg);font-weight:700">Plan Review Checklist</div>';
+      h+='<div style="font-size:var(--fz-lg);font-weight:700">'+_vspEscNote((_fcS&&_fcS.title)||'Plan Review Checklist')+'</div>';
       h+='<span style="font-size:var(--fz-base);font-weight:600;color:'+(_pcDone===_pcItems.length?'#16a34a':'var(--txm)')+'">'+_pcDone+'/'+_pcItems.length+' reviewed</span>';
       h+='</div>';
       _pcItems.forEach(function(it){
         var _on=!!_pcC[it[0]];
         h+='<div onclick="mpcTog(\''+it[0]+'\')" style="display:flex;align-items:center;gap:10px;padding:6px 4px;cursor:pointer;border-radius:5px" onmouseover="this.style.background=\'var(--sur2)\'" onmouseout="this.style.background=\'transparent\'">';
         h+='<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid '+(_on?'#16a34a':'var(--brd2)')+';background:'+(_on?'#16a34a':'var(--sur)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:var(--fz-xs);font-weight:700">'+(_on?'\u2713':'')+'</div>';
-        h+='<span style="font-size:var(--fz-body);color:'+(_on?'var(--txm)':'var(--txt)')+'">'+it[1]+'</span>';
+        h+='<span style="font-size:var(--fz-body);color:'+(_on?'var(--txm)':'var(--txt)')+'">'+_vspEscNote(it[1])+'</span>';
         h+='</div>';
       });
       h+='</div>';
@@ -10567,9 +10584,16 @@ function renderMeetings(){
       h+='</div>';
       // ── Facilitation + Goal Completion Ratings (v44) ──────────────────────
       if(_qIsGrade){
+        var _fcP=cur.facil||null;
         h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
-        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:5px">How this section runs</div>';
-        h+='<div style="font-size:var(--fz-body);color:var(--txt)">Done or not done. No discussion or explanations.</div>';
+        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:5px">'+_vspEscNote((_fcP&&_fcP.title)||'How this section runs')+'</div>';
+        if(_fcP&&_fcP.bullets&&_fcP.bullets.length){
+          h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.7">';
+          _fcP.bullets.forEach(function(_bl){ h+='\u2022 '+_vspEscNote(_bl)+'<br>'; });
+          h+='</div>';
+        } else {
+          h+='<div style="font-size:var(--fz-body);color:var(--txt)">Done or not done. No discussion or explanations.</div>';
+        }
         h+='</div>';
         var _mgrTeam=(teamsRegistry[state.currentTeam]||teamsRegistry['lt']).members||['DS'];
         h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:16px">';
@@ -10584,16 +10608,21 @@ function renderMeetings(){
       }
       // ── Establish-goals facilitation + Rally Cry (v44; quarterly/annual establish) ──
       if(!_qIsGrade && (_vspNoteType()==='quarterly' || lbl.indexOf('establish')>-1)){
+        var _fcE=cur.facil||null;
         h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
-        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:7px">How this section runs</div>';
+        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:7px">'+_vspEscNote((_fcE&&_fcE.title)||'How this section runs')+'</div>';
         h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.7">';
-        h+='1. Keeping the 1-Year Plan in mind: what team experience and client experience must we deliver to reach it?<br>';
-        h+='2. Everyone lists what they think needs to get done.<br>';
-        h+='3. The top 5 become company Goals.<br>';
-        h+='4. Everyone lists their top 5.<br>';
-        h+='5. What is left over becomes personal Goals or falls off.<br>';
-        h+='6. Everyone on the team carries 1-2 Goals in their division that help hit the 1-year plan.<br>';
-        h+='7. Determine the Rally Cry for the quarter.';
+        if(_fcE&&_fcE.bullets&&_fcE.bullets.length){
+          _fcE.bullets.forEach(function(_bl){ h+='\u2022 '+_vspEscNote(_bl)+'<br>'; });
+        } else {
+          h+='1. Keeping the 1-Year Plan in mind: what team experience and client experience must we deliver to reach it?<br>';
+          h+='2. Everyone lists what they think needs to get done.<br>';
+          h+='3. The top 5 become company Goals.<br>';
+          h+='4. Everyone lists their top 5.<br>';
+          h+='5. What is left over becomes personal Goals or falls off.<br>';
+          h+='6. Everyone on the team carries 1-2 Goals in their division that help hit the 1-year plan.<br>';
+          h+='7. Determine the Rally Cry for the quarter.';
+        }
         h+='</div></div>';
         var _rcCur=(planData.rallyCry&&planData.rallyCry.text)?planData.rallyCry.text:'';
         h+='<div style="background:var(--sur);border:1px solid #fcd34d;border-radius:10px;padding:14px 18px;margin-bottom:16px">';
@@ -15703,6 +15732,44 @@ function _vspRunMigrations(){
       if(ag&&Array.isArray(ag.sections)) lists.push(ag.sections);
       if(ag&&Array.isArray(ag.days)) ag.days.forEach(function(dy){ if(Array.isArray(dy.sections)) lists.push(dy.sections); });
       lists.forEach(function(list){ list.forEach(function(s){ if(!s||s.bind) return; var key=_bindByLabel[(s.label||'').toLowerCase().trim()]; if(key){ s.bind=key; s.locked=true; } }); });
+    });
+  }catch(e){}
+
+  // LIDA facilitation text (v45): stamp Dave's verbatim process wording onto
+  // bound agenda sections when facil is absent. This is LIDA tenant agenda
+  // content (EOS terms permitted there); the neutral built-ins remain the
+  // product fallback for sections without facil.
+  try{
+    var _facilByBind={
+      priorGoals:{title:'Goal Review',bullets:[
+        'Done or not done. No discussion or explanations.',
+        'First rate the company and personal Rocks with grades 1-10. Why?',
+        'Others rock completion rating and give a grade for everyone, 1-10. Why?',
+        'Record the average for the company and each person here.'
+      ]},
+      stratplan:{title:'VTO Review',bullets:[
+        'Core values','Core Focus','10 Year Target','Marketing Strategy','3-year picture','1 year picture','Actuals vs plan? Are we on track?'
+      ]},
+      goals:{title:'Establish Rocks for the Quarter',bullets:[
+        'Keeping the 1-year plan in mind, what team experience and/or client experience do we have to deliver so that we can reach our 1-year plan?',
+        'Everyone lists out what they think we need to get done.',
+        'Top 5 become company Rocks.',
+        'Everyone lists their top 5.',
+        'What is left over becomes personal Rocks or falls off?',
+        'Everyone on the team should have 1-2 Rocks in their division that will help the company achieve the 1 year goal.',
+        'Determine the Rally Cry for the Quarter?'
+      ]}
+    };
+    (meetingAgendas||[]).forEach(function(ag){
+      var lists=[];
+      if(ag&&Array.isArray(ag.sections)) lists.push(ag.sections);
+      if(ag&&Array.isArray(ag.days)) ag.days.forEach(function(dy){ if(Array.isArray(dy.sections)) lists.push(dy.sections); });
+      lists.forEach(function(list){ list.forEach(function(sec){
+        if(!sec || !sec.bind || sec.facil!==undefined) return;
+        if(sec.bind==='goals' && (sec.label||'').toLowerCase().indexOf('establish')<0 && (sec.label||'').toLowerCase().indexOf('swot')<0) return;
+        var _f=_facilByBind[sec.bind];
+        if(_f){ sec.facil=JSON.parse(JSON.stringify(_f)); }
+      }); });
     });
   }catch(e){}
 
