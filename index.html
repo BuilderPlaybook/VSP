@@ -1296,6 +1296,14 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v74  - 2026-07-16 - Goals get a detail side panel (like Issues), openable
+           from a goal row. The panel edits title, owner, status, due date and
+           notes, manages milestones (add / check / delete) in the full view,
+           and includes the shared Attachments section (link-attach now, direct
+           file upload arrives with the file-storage backend, same as Issues).
+           The inline row expand for milestones stays. Goals now carry an
+           attachments array. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
     v73  - 2026-07-16 - Goal progress now follows status (EOS: a Rock is binary,
            done = 100%). changeGoalStatus set the status but never touched
            progress, so goals marked Done through the dropdown stayed at 0%
@@ -9635,6 +9643,8 @@ function goalRow(g,archived,isLast,ctx){
   h+=avatar(g.owner,pplColor(g.owner),20);
   // Due date
   h+='<span class="goal-due">'+g.due+'</span>';
+  // Open full detail panel (notes, milestones, attachments) - like Issues
+  h+='<button type="button" onclick="event.stopPropagation();openGoalDetail('+g.id+')" title="Open goal detail (notes, milestones, attachments)" style="flex-shrink:0;width:26px;height:26px;border:1px solid var(--brd2);background:var(--sur);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--txm)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l7-7M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg></button>';
   // Status select (not in archive)
   if(!archived){
     h+='<select onclick="event.stopPropagation()" onchange="changeGoalStatus('+g.id+',this.value)" class="goal-status-select '+_goalStatusCls(g.status)+'">';
@@ -12370,6 +12380,7 @@ function closeTodoDetail(){
 }
 function _attachFind(kind,id){
   if(kind==='todo') return todos.find(function(x){return x.id===id;})||privateTodos.find(function(x){return x.id===id;});
+  if(kind==='goal') return goals.find(function(x){return x.id===id;})||(archivedGoals||[]).find(function(x){return x.id===id;});
   return issues.find(function(x){return x.id===id;})||longTermIssues.find(function(x){return x.id===id;})||(resolvedIssues||[]).find(function(x){return x.id===id;});
 }
 function _attachList(item){ if(!Array.isArray(item.attachments)) item.attachments=[]; return item.attachments; }
@@ -12406,13 +12417,13 @@ function addAttachment(kind,id){
   var name=((nEl&&nEl.value)||'').trim()||url;
   _attachList(item).push({name:name,url:url});
   renderPage();
-  if(kind==='todo') renderTodoDetailPanel(); else renderIssueDetailPanel();
+  if(kind==='todo') renderTodoDetailPanel(); else if(kind==='goal') renderGoalDetailPanel(); else renderIssueDetailPanel();
 }
 function removeAttachment(kind,id,idx){
   var item=_attachFind(kind,id); if(!item) return;
   var list=_attachList(item); if(idx>=0&&idx<list.length) list.splice(idx,1);
   renderPage();
-  if(kind==='todo') renderTodoDetailPanel(); else renderIssueDetailPanel();
+  if(kind==='todo') renderTodoDetailPanel(); else if(kind==='goal') renderGoalDetailPanel(); else renderIssueDetailPanel();
 }
 function renderTodoDetailPanel(){
   var id = state.todoDetail;
@@ -12574,6 +12585,111 @@ function closeIssueDetail(){
   stopIssueRecording();
   state.issueDetail=null;
   renderPage();
+}
+function openGoalDetail(id){
+  state.goalDetail=id;
+  state.goalCtx=null;
+  var g=goals.find(function(x){return x.id===id;})||(archivedGoals||[]).find(function(x){return x.id===id;});
+  if(g && !Array.isArray(g.attachments)) g.attachments=[];
+  if(g && !Array.isArray(g.milestones)) g.milestones=[];
+  renderPage();
+  renderGoalDetailPanel();
+}
+function closeGoalDetail(){
+  state.goalDetail=null;
+  var m=document.getElementById('goal-detail-modal'); if(m)m.remove();
+  renderPage();
+}
+function _goalDetailFind(id){ return goals.find(function(x){return x.id===id;})||(archivedGoals||[]).find(function(x){return x.id===id;}); }
+function goalDetailSet(id,field,val){
+  var g=_goalDetailFind(id); if(!g) return;
+  if(field==='status'){ changeGoalStatus(id,val); renderGoalDetailPanel(); return; }
+  g[field]=val;
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+  renderPage();
+}
+function goalDetailAddMilestone(id){
+  var g=_goalDetailFind(id); if(!g) return;
+  var el=document.getElementById('gd-new-ms'); var txt=((el&&el.value)||'').trim();
+  if(!txt) return;
+  if(!Array.isArray(g.milestones)) g.milestones=[];
+  var nid=(g.milestones.reduce(function(mx,m){return Math.max(mx,m.id||0);},0))+1;
+  g.milestones.push({id:nid,text:txt,done:false});
+  _syncGoalProgress(g);
+  renderPage(); renderGoalDetailPanel();
+}
+function goalDetailToggleMs(id,msId){
+  var g=_goalDetailFind(id); if(!g||!g.milestones) return;
+  var m=g.milestones.find(function(x){return x.id===msId;}); if(m) m.done=!m.done;
+  _syncGoalProgress(g);
+  if(g.milestones.length && g.milestones.every(function(x){return x.done;})){ /* leave status to user */ }
+  renderPage(); renderGoalDetailPanel();
+}
+function goalDetailDelMs(id,msId){
+  var g=_goalDetailFind(id); if(!g||!g.milestones) return;
+  g.milestones=g.milestones.filter(function(x){return x.id!==msId;});
+  _syncGoalProgress(g);
+  renderPage(); renderGoalDetailPanel();
+}
+function renderGoalDetailPanel(){
+  var id=state.goalDetail; if(!id) return;
+  var g=_goalDetailFind(id); if(!g){ return; }
+  var modal=document.getElementById('goal-detail-modal'); if(modal)modal.remove();
+  var el=document.createElement('div');
+  el.id='goal-detail-modal';
+  el.style.cssText='position:fixed;inset:0;z-index:500;display:flex;align-items:stretch;justify-content:flex-end';
+  var h='<div onclick="closeGoalDetail()" style="flex:1;background:rgba(0,0,0,.3)"></div>';
+  h+='<div onkeydown="event.stopPropagation()" style="width:520px;max-width:95vw;background:var(--sur);border-left:1px solid var(--brd);display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,.14)">';
+  // Header
+  h+='<div style="display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--brd);flex-shrink:0">';
+  h+='<div style="flex:1;font-size:var(--fz-lg);font-weight:600;color:var(--txt)">Edit Goal</div>';
+  h+=statusChip(g.status);
+  h+=avatar(g.owner,pplColor(g.owner),28);
+  h+='<button type="button" onclick="closeGoalDetail()" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur2);cursor:pointer;font-size:var(--fz-xl);color:var(--txm)">&times;</button>';
+  h+='</div>';
+  // Body
+  h+='<div style="flex:1;overflow-y:auto;padding:20px">';
+  // Title
+  h+='<div style="margin-bottom:16px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Title</label>';
+  h+='<input value="'+String(g.title||'').replace(/"/g,'&quot;')+'" onblur="goalDetailSet('+id+',\'title\',this.value)" style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box"></div>';
+  // Status + Owner
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">';
+  h+='<div><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Status</label>';
+  h+='<select onchange="goalDetailSet('+id+',\'status\',this.value)" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur)">';
+  [['on-track','On Track'],['off-track','Off Track'],['complete','Done']].forEach(function(o){ h+='<option value="'+o[0]+'"'+((g.status===o[0]||(o[0]==='complete'&&g.status==='done'))?' selected':'')+'>'+o[1]+'</option>'; });
+  h+='</select></div>';
+  h+='<div><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Owner</label>';
+  h+='<select onchange="goalDetailSet('+id+',\'owner\',this.value)" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur)">'+_vspOwnerOptions(g.owner)+'</select></div>';
+  h+='</div>';
+  // Due date
+  h+='<div style="margin-bottom:16px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Due date</label>';
+  h+='<input type="date" value="'+String(g.due||'').replace(/"/g,'&quot;')+'" onchange="goalDetailSet('+id+',\'due\',this.value)" style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box"></div>';
+  // Notes
+  h+='<div style="margin-bottom:16px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Notes</label>';
+  h+='<textarea onblur="goalDetailSet('+id+',\'notes\',this.value)" placeholder="Context or detail for this goal..." style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:vertical;min-height:80px;box-sizing:border-box;line-height:1.6">'+String(g.notes||'').replace(/</g,'&lt;')+'</textarea></div>';
+  // Milestones
+  h+='<div style="margin-bottom:16px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Milestones</label>';
+  if(Array.isArray(g.milestones)&&g.milestones.length){
+    h+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">';
+    g.milestones.forEach(function(m){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--sur2);border:1px solid var(--brd);border-radius:7px">';
+      h+='<div onclick="goalDetailToggleMs('+id+','+m.id+')" style="width:18px;height:18px;border-radius:4px;border:1.5px solid '+(m.done?'var(--grn)':'var(--brd2)')+';background:'+(m.done?'var(--grn)':'transparent')+';cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+(m.done?'<svg width="11" height="11" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
+      h+='<span style="flex:1;font-size:var(--fz-body);'+(m.done?'text-decoration:line-through;color:var(--txm)':'color:var(--txt)')+'">'+_scEsc(m.text||'')+'</span>';
+      h+='<button type="button" onclick="goalDetailDelMs('+id+','+m.id+')" title="Delete milestone" style="border:none;background:transparent;color:var(--txd);cursor:pointer;font-size:var(--fz-lg);line-height:1;flex-shrink:0">&times;</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  h+='<div style="display:flex;gap:6px;align-items:center">';
+  h+='<input id="gd-new-ms" placeholder="Add a milestone..." onkeydown="event.stopPropagation();if(event.key===\'Enter\'){event.preventDefault();goalDetailAddMilestone('+id+');}" style="flex:1;min-width:0;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-base);font-family:inherit;box-sizing:border-box">';
+  h+='<button type="button" onclick="goalDetailAddMilestone('+id+')" style="padding:8px 14px;border-radius:7px;border:none;background:var(--blu);color:#fff;font-weight:600;font-size:var(--fz-base);cursor:pointer;font-family:inherit;flex-shrink:0">Add</button>';
+  h+='</div></div>';
+  // Attachments (shared section, kind=goal)
+  h+=_attachSection('goal',g);
+  h+='</div>'; // body
+  h+='</div>'; // panel
+  el.innerHTML=h;
+  document.body.appendChild(el);
 }
 
 function renderIssueDetailPanel(){
