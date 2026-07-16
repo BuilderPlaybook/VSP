@@ -1100,6 +1100,15 @@
            (v36). The v37 auto-restore that pulled archived goals into the live list
            is DELIBERATELY EXCLUDED. Correct goal split restored: 32 live, 7 archived.
            Gates green.
+    v39  - 2026-07-13 - PROPER goal-heal fix (v38's heal was broken). v38 healed only
+           on the first load, but the staging adapter re-pulls the corrupted cloud
+           copy on every sync, and that second apply overwrote the fix - so the wrong
+           goals kept coming back. The heal is now signature-based and runs on EVERY
+           apply whose incoming goals carry the corruption marker (a year-end-financial
+           title in the LIVE list, or the bogus 'Read the Bible' goal), forcing the
+           correct seed split each time until the clean data propagates to the cloud.
+           Touches only goals/archivedGoals. Verified against the cloud-re-pull case
+           that v38 missed. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -15339,17 +15348,26 @@ function _vspRunMigrations(){
 }
 function vspApplySnapshot(s){
   if(!s || s.version !== VSP_STORAGE_VERSION) return false;
-  // ONE-TIME goal recovery (v38): v37 corrupted the saved goal list. On the first
-  // load only, skip restoring saved goals so the correct seed split stands; the
-  // corrected data is then saved back. Guarded by a persistent flag so it happens
-  // exactly once and never wipes goals again. Touches ONLY goals/archivedGoals.
+  // GOAL CORRUPTION HEAL (v39): the v37 build corrupted the goal list (completed
+  // year-end financials dumped into the LIVE list; a bogus 'Read the Bible' goal).
+  // The corruption lives in the synced cloud copy, so it arrives on EVERY apply
+  // (initial load AND every adapter cloud-pull), not just the first. So the heal
+  // must run on every apply whose incoming goals carry the corruption signature,
+  // until the clean data has fully propagated. Detection is signature-based:
+  //   - a LIVE goal titled like an archived year-end financial (belongs in archive), or
+  //   - the bogus 'Read the Bible' goal.
+  // When detected, force the correct seed goals/archivedGoals for this apply.
+  // Touches ONLY goals/archivedGoals; all other saved data passes through.
   try{
-    if(!localStorage.getItem('vsp_goalResetV38_done')){
-      window.__VSP_FORCE_SEED_GOALS=true;
-      localStorage.setItem('vsp_goalResetV38_done','1');
-    } else {
-      window.__VSP_FORCE_SEED_GOALS=false;
-    }
+    window.__VSP_FORCE_SEED_GOALS=false;
+    var _lt=(s.teams&&s.teams.lt)?s.teams.lt:null;
+    var _chk=_lt&&Array.isArray(_lt.goals)?_lt.goals:[];
+    var _corrupt=_chk.some(function(g){
+      if(!g||!g.title) return false;
+      var t=String(g.title);
+      return t.indexOf('Complete End of year financials')===0 || t==='Read the Bible';
+    });
+    if(_corrupt) window.__VSP_FORCE_SEED_GOALS=true;
   }catch(e){ window.__VSP_FORCE_SEED_GOALS=false; }
   // Replace array CONTENTS rather than reassigning the binding, so any
   // closure that captured the original array reference keeps working.
