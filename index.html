@@ -1176,6 +1176,34 @@
            and the in-meeting content pull rides the bind (rename-proof) rather
            than the label. No change to canon, chrome, catalog, components,
            engine, contracts, or VSP_STORAGE_VERSION.
+    v44  - 2026-07-15 - QUARTERLY FACILITATION CONTENT + NEXT STEPS SPLIT.
+           (1) Review Prior Quarter Goals step (any 'prior' goals step): a
+           "How this section runs" card (Done or not done, no discussion or
+           explanations) plus a Goal Completion Ratings grid - Company and
+           each team member rated 1-10 (tap each called-out grade; multiple
+           grades per row average live), with an optional Why note per row.
+           Ratings persist in the snapshot (survive reload/resume), are
+           captured on the meeting record at End, and print in the recap
+           email as per-row averages. (2) Review Strategic Plan step: a Plan
+           Review Checklist card above the embedded plan - Core Values, Core
+           Focus, 10-Year Target, Go to Market Strategy, 3-Year Goal, 1-Year
+           Plan, Actuals vs plan / on pace - tick-as-you-go, per-meeting,
+           stored on the record. (3) SWOT / Establish Goals step (quarterly
+           and annual establish steps): a facilitation card with the goal-
+           setting process (1-year plan in mind; everyone lists what needs to
+           get done; top 5 become company Goals; everyone lists their top 5;
+           leftovers become personal Goals or fall off; everyone carries 1-2
+           divisional Goals supporting the 1-year plan) plus a Rally Cry for
+           the Quarter input saved to planData.rallyCry and displayed as a
+           banner on the Strategic Plan page. (4) BUG FIX: a custom "Next
+           Steps" section rendered the FULL Conclude content (rating grid,
+           cascade, recap buttons) because the label fallback lumped 'next
+           step' with 'conclude'. Next Steps now renders only the to-do
+           review (All Open Team To-Dos + New To-Dos This Meeting) with a
+           confirm-owners hint; Conclude is unchanged. EOS terms from the
+           source process (Rocks, VTO, Ninety) mapped to product terms per
+           the terminology rule. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -2653,7 +2681,7 @@ async function autoSummarizeSection(stepIdx, sectionLabel){
 }
 
 
-var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{}};
+var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{}};
 var timerInterval=null;
 
 // Archived plan snapshots - one per quarter
@@ -7334,6 +7362,14 @@ function renderStrategic(){
   // Construction quarterly check: backlog + capacity vs the annual plan
   h+=renderYearOnPace();
 
+  // Rally Cry banner (v44) - set in the quarterly Establish Goals step
+  if(planData.rallyCry && planData.rallyCry.text){
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--gpb,#FBF6E7);border:1px solid #fcd34d;border-radius:9px;margin-bottom:14px">';
+    h+='<span style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:#92400e;font-weight:700;flex-shrink:0">Rally Cry  -  '+(planData.rallyCry.quarter||'')+'</span>';
+    h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txt)">'+_vspEscNote(planData.rallyCry.text)+'</span>';
+    h+='</div>';
+  }
+
   // Edit mode notice
   if(state.planEditUnlocked){
     h+='<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:7px;padding:9px 14px;margin-bottom:14px;font-size:var(--fz-body);color:#92400e;display:flex;align-items:center;gap:8px">';
@@ -9955,6 +9991,8 @@ function joinScheduledMeeting(id){
     }
   }
   state.meetTab='running'; state.meetStep=0; state.meetStartTime=Date.now();
+  state.meetGoalRatings={};
+  state.meetPlanChecklist={};
   _vspClearStepNotes(state.meetType);
   vspBeginMeetingTracking(); renderPage();
 }
@@ -10027,6 +10065,71 @@ function _vspNotesForRecord(){
   });
   return out;
 }
+function _vspGoalRatingsForRecord(){
+  // Goal Completion Ratings for a concluded-meeting record: grades, why, avg.
+  var out={}; var r=state.meetGoalRatings||{};
+  Object.keys(r).forEach(function(k){
+    var e=r[k]||{}; var gs=(e.grades||[]).slice();
+    if(!gs.length && !(e.why||'').trim()) return;
+    var avg=gs.length?Math.round(gs.reduce(function(a,b){return a+b;},0)/gs.length*10)/10:null;
+    out[k]={grades:gs,why:e.why||'',avg:avg};
+  });
+  return out;
+}
+function mgrAdd(key,n){
+  var r=(state.meetGoalRatings=state.meetGoalRatings||{});
+  (r[key]=r[key]||{grades:[],why:''}).grades.push(n);
+  renderPage();
+}
+function mgrRemove(key,i){
+  var r=state.meetGoalRatings||{};
+  if(r[key]&&r[key].grades){ r[key].grades.splice(i,1); }
+  renderPage();
+}
+function mgrWhy(key,v){
+  var r=(state.meetGoalRatings=state.meetGoalRatings||{});
+  (r[key]=r[key]||{grades:[],why:''}).why=v;
+  _vspAutosaveQueue();
+}
+function mgrAvg(key){
+  var e=(state.meetGoalRatings||{})[key];
+  if(!e||!e.grades||!e.grades.length) return null;
+  return Math.round(e.grades.reduce(function(a,b){return a+b;},0)/e.grades.length*10)/10;
+}
+function _mgrRowHtml(key,label,avHtml){
+  var e=(state.meetGoalRatings||{})[key]||{grades:[],why:''};
+  var avg=mgrAvg(key);
+  var h='<div style="padding:10px 0;border-bottom:0.5px solid var(--brd)">';
+  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+  h+='<div style="display:flex;align-items:center;gap:8px;min-width:140px">'+avHtml+'<span style="font-size:var(--fz-body);font-weight:600">'+label+'</span></div>';
+  h+='<div style="display:flex;gap:3px">';
+  for(var n=1;n<=10;n++){ h+='<button type="button" onclick="mgrAdd(\''+key+'\','+n+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-weight:600;cursor:pointer;font-family:inherit">'+n+'</button>'; }
+  h+='</div>';
+  h+='<span style="margin-left:auto;font-size:var(--fz-body);font-weight:700;color:'+(avg===null?'var(--txd)':(avg>=8?'#16a34a':avg>=6?'#d97706':'#dc2626'))+'">Avg: '+(avg===null?'-':avg)+'</span>';
+  h+='</div>';
+  if(e.grades.length){
+    h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:7px">';
+    e.grades.forEach(function(g,i){
+      h+='<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;border:1px solid var(--brd);background:var(--sur2);font-size:var(--fz-base);font-weight:600">'+g+'<span onclick="mgrRemove(\''+key+'\','+i+')" title="Remove this grade" style="cursor:pointer;color:var(--txd)">\u00d7</span></span>';
+    });
+    h+='</div>';
+  }
+  h+='<input value="'+_escOpt(e.why||'')+'" oninput="mgrWhy(\''+key+'\',this.value)" placeholder="Why? (optional)" style="width:100%;margin-top:7px;padding:6px 10px;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
+  h+='</div>';
+  return h;
+}
+function mpcTog(id){
+  var c=(state.meetPlanChecklist=state.meetPlanChecklist||{});
+  c[id]=!c[id];
+  renderPage();
+}
+function saveRallyCry(){
+  var el=document.getElementById('rally-cry-input');
+  if(!el) return;
+  var v=el.value.trim();
+  planData.rallyCry=v?{text:v,quarter:_vspQtr().label}:null;
+  renderPage();
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 function _vspQtr(){
@@ -10071,6 +10174,8 @@ function startMeetingByType(type){
   state.aiEnabled=false;  // reset - consent required each meeting
   state.stepSummaries={};
   state.stepSummaryStatus={};
+  state.meetGoalRatings={};
+  state.meetPlanChecklist={};
   _vspClearStepNotes(_nt);
   vspBeginMeetingTracking();
   renderPage();
@@ -10406,6 +10511,23 @@ function renderMeetings(){
     // Same renderStrategic() surface as the standalone page: same tabs, same
     // inline edit paths, same Archive & Edit gating. Edits here ARE plan edits.
     if(stepIs('strategic plan')){
+      // Plan Review Checklist (v44): tick each area as the team reviews it.
+      var _pcItems=[['coreValues','Core Values'],['coreFocus','Core Focus'],['tenYear','10-Year Target'],['gtm','Go to Market Strategy'],['pic3','3-Year Goal'],['oneYr','1-Year Plan'],['onPace','Actuals vs plan  -  are we on track? (see On Pace for the Year below)']];
+      var _pcC=state.meetPlanChecklist||{};
+      var _pcDone=_pcItems.filter(function(it){return _pcC[it[0]];}).length;
+      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+      h+='<div style="font-size:var(--fz-lg);font-weight:700">Plan Review Checklist</div>';
+      h+='<span style="font-size:var(--fz-base);font-weight:600;color:'+(_pcDone===_pcItems.length?'#16a34a':'var(--txm)')+'">'+_pcDone+'/'+_pcItems.length+' reviewed</span>';
+      h+='</div>';
+      _pcItems.forEach(function(it){
+        var _on=!!_pcC[it[0]];
+        h+='<div onclick="mpcTog(\''+it[0]+'\')" style="display:flex;align-items:center;gap:10px;padding:6px 4px;cursor:pointer;border-radius:5px" onmouseover="this.style.background=\'var(--sur2)\'" onmouseout="this.style.background=\'transparent\'">';
+        h+='<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid '+(_on?'#16a34a':'var(--brd2)')+';background:'+(_on?'#16a34a':'var(--sur)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:var(--fz-xs);font-weight:700">'+(_on?'\u2713':'')+'</div>';
+        h+='<span style="font-size:var(--fz-body);color:'+(_on?'var(--txm)':'var(--txt)')+'">'+it[1]+'</span>';
+        h+='</div>';
+      });
+      h+='</div>';
       h+='<div style="margin-bottom:14px">'+renderStrategic()+'</div>';
     }
     // ── SWOT step: the Strategic Plan opened on its SWOT tab ─────────────────
@@ -10443,6 +10565,47 @@ function renderMeetings(){
       h+='<div style="height:8px;border-radius:4px;background:var(--sur2);overflow:hidden;margin-top:12px"><div style="height:100%;width:'+_qs.pct+'%;background:'+_qband+';border-radius:4px"></div></div>';
       h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:8px">'+(_qIsGrade?'Grade each goal Complete or Not Complete. Move incomplete items to Issues.':'Live progress across this quarter\u2019s goals.')+'</div>';
       h+='</div>';
+      // ── Facilitation + Goal Completion Ratings (v44) ──────────────────────
+      if(_qIsGrade){
+        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
+        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:5px">How this section runs</div>';
+        h+='<div style="font-size:var(--fz-body);color:var(--txt)">Done or not done. No discussion or explanations.</div>';
+        h+='</div>';
+        var _mgrTeam=(teamsRegistry[state.currentTeam]||teamsRegistry['lt']).members||['DS'];
+        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:16px">';
+        h+='<div style="font-size:var(--fz-lg);font-weight:700;margin-bottom:2px">Goal Completion Ratings</div>';
+        h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:8px">Rate company goal completion 1-10, then each person 1-10. Tap each grade as it is called out; the average records here on the meeting record and in the recap.</div>';
+        h+=_mgrRowHtml('company','Company','<div style="width:22px;height:22px;border-radius:50%;background:#e0e7ff;border:1px solid #a5b4fc;display:flex;align-items:center;justify-content:center;font-size:var(--fz-xs);font-weight:700;color:#4338ca;flex-shrink:0">C</div>');
+        _mgrTeam.forEach(function(_mi){
+          var _mp=ppl.find(function(x){return x.initials===_mi;});
+          h+=_mgrRowHtml(_mi,(_mp?(_mp.first+' '+_mp.last):_mi),avatar(_mi,pplColor(_mi),22));
+        });
+        h+='</div>';
+      }
+      // ── Establish-goals facilitation + Rally Cry (v44; quarterly/annual establish) ──
+      if(!_qIsGrade && (_vspNoteType()==='quarterly' || lbl.indexOf('establish')>-1)){
+        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:14px 18px;margin-bottom:16px">';
+        h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:7px">How this section runs</div>';
+        h+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.7">';
+        h+='1. Keeping the 1-Year Plan in mind: what team experience and client experience must we deliver to reach it?<br>';
+        h+='2. Everyone lists what they think needs to get done.<br>';
+        h+='3. The top 5 become company Goals.<br>';
+        h+='4. Everyone lists their top 5.<br>';
+        h+='5. What is left over becomes personal Goals or falls off.<br>';
+        h+='6. Everyone on the team carries 1-2 Goals in their division that help hit the 1-year plan.<br>';
+        h+='7. Determine the Rally Cry for the quarter.';
+        h+='</div></div>';
+        var _rcCur=(planData.rallyCry&&planData.rallyCry.text)?planData.rallyCry.text:'';
+        h+='<div style="background:var(--sur);border:1px solid #fcd34d;border-radius:10px;padding:14px 18px;margin-bottom:16px">';
+        h+='<div style="font-size:var(--fz-lg);font-weight:700;margin-bottom:2px">Rally Cry for the Quarter</div>';
+        h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:8px">One line the whole team rallies behind for '+_vspQtr().label+'. Saved to the Strategic Plan.</div>';
+        h+='<div style="display:flex;gap:8px">';
+        h+='<input id="rally-cry-input" value="'+_escOpt(_rcCur)+'" placeholder="e.g. Every handover WOWs the client" style="flex:1;padding:8px 12px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur)">';
+        h+='<button type="button" class="btn btn-gold" onclick="saveRallyCry()">Save</button>';
+        h+='</div>';
+        if(_rcCur){ h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:7px">Current ('+((planData.rallyCry&&planData.rallyCry.quarter)||_vspQtr().label)+'): <strong>'+_vspEscNote(_rcCur)+'</strong></div>'; }
+        h+='</div>';
+      }
       // ── 1. Quarterly Strategic Plan card (Ninety software equivalent) ──────────
       h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;margin-bottom:16px">';
       // Header
@@ -10689,6 +10852,12 @@ function renderMeetings(){
       h+=renderIssuesInline();
     }
         if(stepIs("wrapup")||stepIs("conclude")||stepIs("next step")){
+      // Next Steps is to-do review ONLY: a custom "Next Steps" section must not
+      // duplicate the Conclude machinery (rating grid, cascade, recap) - v44.
+      var _nsOnly=stepIs("next step")&&!stepIs("wrapup")&&!stepIs("conclude");
+      if(_nsOnly){
+        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:12px 18px;margin-bottom:14px;font-size:var(--fz-body);color:var(--txt)">Review all new to-dos and confirm owners and due dates. Rating and wrap-up happen on the Conclude step.</div>';
+      }
       // ── ALL OPEN TEAM TO-DOS (post-meeting feedback May 21) ────────────────
       // Closes the meeting with a complete to-do picture, not just items
       // created during this meeting.
@@ -10727,6 +10896,7 @@ function renderMeetings(){
         h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span></div>';
       });
       h+='</div>';
+      if(!_nsOnly){
       // ── Rating - individual per person ────────────────────────────────
       h+='<div class="card">';
       h+='<div class="sec">Rate This Meeting</div>';
@@ -10831,6 +11001,7 @@ function renderMeetings(){
       h+='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Preview Meeting Recap</button>';
       h+='</div>';
       h+='</div>';
+      }
     }
     // ── Per-Step Notes + AI Recording Panel ──────────────────────────────────
     var stepNoteKey=_vspStepNoteKey(step);
@@ -12480,7 +12651,8 @@ function generateMeetingRecap(meetingId){
       headlines:headlines.slice(0,10).map(function(h){return {text:h.text,type:h.type,owner:h.owner};}),
       cascades:cascadesRegistry.slice(0,5).map(function(cs){return {subject:cs.subject,fromTeam:cs.fromTeam,toTeams:cs.toTeams,sentAt:cs.sentAt};}),
       sectionDurations:[],
-      notes:state.meetNotes||'',stepNotes:_vspNotesForRecord()
+      notes:state.meetNotes||'',stepNotes:_vspNotesForRecord(),
+      goalRatings:_vspGoalRatingsForRecord(),planChecklist:JSON.parse(JSON.stringify(state.meetPlanChecklist||{}))
     };
   }
   var team3=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
@@ -12791,6 +12963,15 @@ function vspBuildMeetingRecap(record){
     });
     lines.push('');
   }
+  if(record.goalRatings && Object.keys(record.goalRatings).length){
+    lines.push('GOAL COMPLETION RATINGS (1-10)');
+    Object.keys(record.goalRatings).forEach(function(k){
+      var e=record.goalRatings[k]||{};
+      var nm=(k==='company')?'Company':k;
+      lines.push('  - '+nm+': '+((e.avg!==null&&e.avg!==undefined)?e.avg:'-')+((e.why&&e.why.trim())?('  -  '+e.why.trim()):''));
+    });
+    lines.push('');
+  }
   if(record.notes && record.notes.trim()){
     lines.push('NOTES');
     lines.push(record.notes.trim());
@@ -12974,6 +13155,7 @@ function endMeeting(){
     cascades:meetCascades,
     sectionDurations:sectionDurations,
     notes:state.meetNotes||'',stepNotes:_vspNotesForRecord(),
+    goalRatings:_vspGoalRatingsForRecord(),planChecklist:JSON.parse(JSON.stringify(state.meetPlanChecklist||{})),
     highlights:'Meeting completed on '+dateStr+'. Rating: '+avgRating+'/10. '+solvedThisMeeting.length+' issues solved.'
   };
   // Stats for short-term issues
@@ -13018,6 +13200,8 @@ function endMeeting(){
   state.meetSectionDurations={};
   state.meetStartTime=null;
   state.meetIndvRatings={};
+  state.meetGoalRatings={};
+  state.meetPlanChecklist={};
   state.meetNotes='';
   // Persist the record IMMEDIATELY (bypass the 400ms render debounce).
   // Ending a meeting is the single most important persistence event in the
@@ -15498,6 +15682,8 @@ function vspSnapshot(){
     migrations: Object.keys((window.__VSP_MIGRATIONS||{})),
     meetNotes: state.meetNotes || '',
     stepNotes: state.stepNotes || {},
+    meetGoalRatings: state.meetGoalRatings || {},
+    meetPlanChecklist: state.meetPlanChecklist || {},
     runningMeeting: (state.meetTab==='running' && state.meetType) ? { type:_vspNoteType(), step:state.meetStep||0, startTime:state.meetStartTime||null, agendaDay:state.meetAgendaDay||0 } : null
   };
 }
@@ -15710,6 +15896,8 @@ function vspApplySnapshot(s){
   // the quarterly namespace on EVERY apply (signature-based, per the v39 heal
   // lesson: a stale cloud copy re-pulled later must not resurrect the old keys).
   try{ if(state.stepNotes){ Object.keys(state.stepNotes).forEach(function(_k){ var _m=_k.match(/^stepNote_(\d+)$/); if(_m){ var _nk='stepNote_quarterly_'+_m[1]; if(state.stepNotes[_nk]===undefined && (state.stepNotes[_k]||'').trim()) state.stepNotes[_nk]=state.stepNotes[_k]; delete state.stepNotes[_k]; } }); } }catch(e){}
+  if(s.meetGoalRatings && typeof s.meetGoalRatings === 'object') state.meetGoalRatings = s.meetGoalRatings;
+  if(s.meetPlanChecklist && typeof s.meetPlanChecklist === 'object') state.meetPlanChecklist = s.meetPlanChecklist;
   // Restore an interrupted running meeting so a reload mid-session lands back
   // In Meeting at the same step with its notes. Guarded: never yanks a session
   // that is already running locally (adapter tap-to-refresh mid-meeting), and
