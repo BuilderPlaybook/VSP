@@ -1106,6 +1106,22 @@
            Added both to vspSnapshot() and restored them on load. The existing
            debounced autosave (fires on every re-render) writes them to storage and
            syncs them; no per-box save handler needed. Gates green.
+    v33  - 2026-07-13 - Agenda total duration fixed. The Editing-agenda total summed
+           every section including ones toggled off (Visible=off), and formatted the
+           result as a decimal ('8.2 hours'). Now it sums only visible sections and
+           formats as hours and minutes ('8h 9m'). Verified against the Quarterly
+           Session sample: visible sections total 489 minutes = 8h 9m. Gates green.
+    v34  - 2026-07-13 - Data-bound agenda sections get a stable bind key. The
+           running meeting chose which live data block to render (Quarterly Plan,
+           scorecard, etc) by sniffing keywords in the section NAME, so renaming a
+           section like "Review Prior Quarter Goals" would strip or swap its data
+           block. Sections now carry an optional stable bind key ('priorGoals',
+           'scorecard', 'goals', ...) that drives the data block; stepIs() reads the
+           bind key first and falls back to label text for plain/older sections.
+           Data-bound seed sections are marked locked so they cannot be deleted (they
+           can still be renamed, moved, and hidden). A load-time migration backfills
+           bind keys onto saved agendas by their original label, then locks them, so
+           existing data survives. Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -3772,7 +3788,7 @@ var scheduledMeetings=[
 var meetingAgendas=[
   {type:"Weekly",title:"Weekly Meeting",dur:"90 min",color:"#2563eb",role:"all",sections:[
     {label:"Check-In",min:5,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
-    {label:"Scorecard Review",min:5,detail:"Each owner reports their numbers. Any metric off-track is automatically moved to Issues.",visible:true,locked:false},
+    {label:"Scorecard Review",min:5,detail:"Each owner reports their numbers. Any metric off-track is automatically moved to Issues.",visible:true,locked:true,bind:"scorecard"},
     {label:"Goals Review",min:5,detail:"Each owner says On Track or Off Track. Off-track items move to Issues.",visible:true,locked:false},
     {label:"Headlines",min:5,detail:"Good news only  -  client wins and team wins. State it and move on. No discussion.",visible:true,locked:false},
     {label:"To-Do Review",min:5,detail:"Review last week\u2019s to-dos. Done or Not Done. Incomplete items are discussed briefly.",visible:true,locked:false},
@@ -3784,12 +3800,12 @@ var meetingAgendas=[
     {label:"Todays Agenda",min:10,detail:"Review the full day agenda. Set expectations and logistics.",visible:true,locked:false},
     {label:"Objectives",min:1,detail:"State the objectives for the session.",visible:false,locked:false},
     {label:"Check-In",min:30,detail:"Share personal and professional best.",visible:true,locked:false},
-    {label:"Scorecard Review",min:20,detail:"Review the full quarter scorecard. Identify trends and issues.",visible:true,locked:false},
-    {label:"Review Prior Quarter Goals",min:45,detail:"Grade each goal: Complete, Not Complete. Move incomplete items to Issues or Long-Term Issues.",visible:true,locked:false},
+    {label:"Scorecard Review",min:20,detail:"Review the full quarter scorecard. Identify trends and issues.",visible:true,locked:true,bind:"scorecard"},
+    {label:"Review Prior Quarter Goals",min:45,detail:"Grade each goal: Complete, Not Complete. Move incomplete items to Issues or Long-Term Issues.",visible:true,locked:true,bind:"priorGoals"},
     {label:"Operating Tools",min:1,detail:"Brief review of any operating tools being used or refined.",visible:false,locked:false},
     {label:"Review One Operating Tool",min:25,detail:"Deep dive into one operating tool to sharpen the team\u2019s use of it.",visible:true,locked:false},
     {label:"Strategic Plan",min:60,detail:"Review and update the Strategic Plan. Ensure alignment on vision and strategy.",visible:true,locked:false},
-    {label:"SWOT / Establish Goals",min:90,detail:"Complete a SWOT analysis. Set 3\u20137 company goals and individual goals for the coming quarter.",visible:true,locked:false},
+    {label:"SWOT / Establish Goals",min:90,detail:"Complete a SWOT analysis. Set 3\u20137 company goals and individual goals for the coming quarter.",visible:true,locked:true,bind:"goals"},
     {label:"Issue Solving",min:180,detail:"Work through the Short-Term and Long-Term Issues. Promote Long-Term items as needed.",visible:true,locked:false},
     {label:"Next Steps",min:1,detail:"Review all new to-dos and confirm owners.",visible:false,locked:false},
     {label:"Conclude",min:20,detail:'Confirm all to-dos. Rate the meeting. Cascade to the broader team.',visible:true,locked:true},
@@ -3828,7 +3844,7 @@ var meetingAgendas=[
   ]},
   {type:"Weekly Performance Huddle",title:"Weekly Performance Huddle",dur:"30 min",color:"#0891b2",role:"supervisor",sections:[
     {label:"Check-In",min:2,detail:"One word - how are you showing up today?",visible:true,locked:false},
-    {label:"Scorecard Review",min:8,detail:"Review individual KPIs and weekly targets. Each owner reports their numbers. Off-track items flagged immediately.",visible:true,locked:false},
+    {label:"Scorecard Review",min:8,detail:"Review individual KPIs and weekly targets. Each owner reports their numbers. Off-track items flagged immediately.",visible:true,locked:true,bind:"scorecard"},
     {label:"Goals Review",min:5,detail:"Quick status on personal goals - On Track or Off Track. No discussion. Off-track items move to Issues.",visible:true,locked:false},
     {label:"Wins & Headlines",min:5,detail:"Share one client win or team win. Good news only. Keep it brief.",visible:true,locked:false},
     {label:"Issues & Coaching",min:8,detail:"Address any blockers, accountability gaps, or coaching needs. Issue Solving format - work each issue to resolution.",visible:true,locked:false},
@@ -3877,7 +3893,7 @@ var meetingAgendas=[
   ]},
   {type:"Property Meeting",title:"Property Meeting",dur:"85 min",color:"#0d9488",role:"all",sections:[
     {label:"Check-In",min:5,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
-    {label:"Scorecard Review",min:5,detail:"Review the property numbers - occupancy, arrears, NOI. Any metric off-track moves to Issues.",visible:true,locked:false},
+    {label:"Scorecard Review",min:5,detail:"Review the property numbers - occupancy, arrears, NOI. Any metric off-track moves to Issues.",visible:true,locked:true,bind:"scorecard"},
     {label:"Goals Review",min:5,detail:"Each owner says On Track or Off Track. Off-track items move to Issues.",visible:true,locked:false},
     {label:"Portfolio Review",min:15,detail:"Walk the portfolio unit by unit - occupancy, arrears, and upcoming lease expiries and renewals.",visible:true,locked:false},
     {label:"Maintenance & Turnovers",min:10,detail:"Review open work orders and unit turnover status. Flag anything at risk of slipping.",visible:true,locked:false},
@@ -10134,7 +10150,12 @@ function renderMeetings(){
     var step=Math.min(state.meetStep||0,runSections.length-1);
     var cur=runSections[step];
     var lbl=(cur.label||"").toLowerCase();
-    function stepIs(kw){return lbl.includes(kw);}
+    // Data-bound sections carry a stable bind key so renaming the section never
+    // strips its live data block. Fall back to label-text matching for any section
+    // without a bind key (older saved agendas, plain sections).
+    var _bindMap={scorecard:'scorecard',priorGoals:'goal',goals:'goal',headlines:'headline',todos:'to-do',issues:'issue',conclude:'conclude'};
+    var _bindKw=cur.bind?_bindMap[cur.bind]:null;
+    function stepIs(kw){ if(_bindKw) return _bindKw===kw; return lbl.includes(kw); }
 
     // ── AI Recording consent banner ───────────────────────────────────────────
     if(!state.aiEnabled){
@@ -10837,9 +10858,9 @@ function renderMeetings(){
     var isMultiDay=!!agendaData.days;
     var activeDayIdx=isMultiDay?Math.min(state.meetAgendaDay||0,agendaData.days.length-1):0;
     var sections=getAgendaSections(agendaData,activeDayIdx);
-    var totalMin=sections.reduce(function(a,s){return a+s.min;},0);
-    var totalHrs=(totalMin/60);
-    var durLabel=totalHrs===Math.floor(totalHrs)?totalHrs+' hours':totalHrs.toFixed(1)+' hours';
+    var totalMin=sections.reduce(function(a,s){return a+(s.visible===false?0:s.min);},0);
+    var _dH=Math.floor(totalMin/60), _dM=totalMin%60;
+    var durLabel=_dH>0?(_dM>0?_dH+'h '+_dM+'m':_dH+'h'):(_dM+'m');
     var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
 
     // ── Header bar (Ninety-style) ──────────────────────────
@@ -15318,6 +15339,36 @@ function _vspStripAutoMetric(m){
   return false;
 }
 function _vspRunMigrations(){
+  // Backfill bind keys on saved agendas written before data-bound sections
+  // carried a stable bind. Matches the known data-bound sections by their
+  // original label once, then locks them so they cannot be deleted (they can
+  // still be renamed, moved, and hidden). A section already carrying a bind key
+  // is left alone, so a user who renamed one keeps the binding.
+  try{
+    var _bindByLabel={
+      'review prior quarter goals':'priorGoals',
+      'review prior quarter':'priorGoals',
+      'review prior year':'priorGoals',
+      'scorecard review':'scorecard',
+      'scorecard':'scorecard',
+      'swot / establish goals':'goals',
+      'establish goals for the quarter':'goals'
+    };
+    (meetingAgendas||[]).forEach(function(ag){
+      var secs=(ag&&ag.sections)?ag.sections:(ag&&ag.days?null:null);
+      var lists=[];
+      if(ag&&Array.isArray(ag.sections)) lists.push(ag.sections);
+      if(ag&&Array.isArray(ag.days)) ag.days.forEach(function(dy){ if(Array.isArray(dy.sections)) lists.push(dy.sections); });
+      lists.forEach(function(list){
+        list.forEach(function(s){
+          if(!s||s.bind) return;
+          var key=_bindByLabel[(s.label||'').toLowerCase().trim()];
+          if(key){ s.bind=key; s.locked=true; }
+        });
+      });
+    });
+  }catch(e){}
+
   // Until module backends (PM, CFO, ...) are connected, force EVERY auto-fed
   // scorecard metric to manual entry on every load and every sync, so cells
   // always stay editable. Runs unconditionally (not once): a cloud copy that
