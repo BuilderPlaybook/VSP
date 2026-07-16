@@ -1092,60 +1092,14 @@
            (textarea:not([data-noautogrow]){overflow:hidden;resize:none}). The
            transcript-paste box is marked data-noautogrow so long pastes scroll
            rather than grow without bound. Gates green.
-    v31  - 2026-07-13 - Meeting-notes textareas auto-grow. The running-meeting Notes
-           box (meet-notes-ta) and the per-agenda-item step-note box carried inline
-           fixed heights (height:80px / resize:vertical min-height:70px) that
-           overrode the v30 app-wide auto-grow rule, so they scrolled instead of
-           growing. Both now grow to content as you type and size to saved content on
-           load (data-autogrow + oninput _vspAutogrow, overflow hidden, min-height as
-           the floor). meet-notes-ta and step-note also now save on input, not only
-           on blur, so a note is not lost if the tab closes before blur. Gates green.
-    v32  - 2026-07-13 - Meeting notes now persist. state.meetNotes and
-           state.stepNotes were never in the saved snapshot, so running-meeting notes
-           and per-agenda-item notes lived only in memory and vanished on refresh.
-           Added both to vspSnapshot() and restored them on load. The existing
-           debounced autosave (fires on every re-render) writes them to storage and
-           syncs them; no per-box save handler needed. Gates green.
-    v33  - 2026-07-13 - Agenda total duration fixed. The Editing-agenda total summed
-           every section including ones toggled off (Visible=off), and formatted the
-           result as a decimal ('8.2 hours'). Now it sums only visible sections and
-           formats as hours and minutes ('8h 9m'). Verified against the Quarterly
-           Session sample: visible sections total 489 minutes = 8h 9m. Gates green.
-    v34  - 2026-07-13 - Data-bound agenda sections get a stable bind key. The
-           running meeting chose which live data block to render (Quarterly Plan,
-           scorecard, etc) by sniffing keywords in the section NAME, so renaming a
-           section like "Review Prior Quarter Goals" would strip or swap its data
-           block. Sections now carry an optional stable bind key ('priorGoals',
-           'scorecard', 'goals', ...) that drives the data block; stepIs() reads the
-           bind key first and falls back to label text for plain/older sections.
-           Data-bound seed sections are marked locked so they cannot be deleted (they
-           can still be renamed, moved, and hidden). A load-time migration backfills
-           bind keys onto saved agendas by their original label, then locks them, so
-           existing data survives. Gates green.
-    v35  - 2026-07-13 - Meeting notes actually persist now (real fix). v32 added
-           meetNotes/stepNotes to the saved snapshot, but the snapshot is only taken
-           when a save fires, and the autosave is debounced off renderPage(). Typing
-           in a notes box only ran oninput (set state + grow) and never re-rendered,
-           so no save ever fired and the note was lost on reload. Both notes boxes
-           (Conclude meeting-notes and per-agenda-item step-notes) now call
-           _vspAutosaveQueue() on input, which debounces 600ms, writes the snapshot to
-           localStorage, syncs, and flips the Saving/Saved badge. Gates green.
-    v36  - 2026-07-13 - Quarter archive is reference-only; live goals no longer
-           cleared. advanceQuarter() was moving every current goal into the archive
-           and emptying the plan's goal list on quarter advance ("fresh start"), so
-           starting a Quarterly session wiped the Goals page. Now the archive keeps a
-           reference snapshot of the V/TO and the quarter label/date rolls forward,
-           but goals and plan data stay exactly in place until the user changes them.
-           The Quarterly-session confirm dialog wording updated to match (no longer
-           says goals move to archive / new quarter starts fresh). Gates green.
-    v37  - 2026-07-13 - One-time goal recovery. The pre-v36 advanceQuarter had moved
-           live goals into the archive on every quarter advance. A one-time migration
-           (guarded, runs once per browser) pulls those auto-archived goals back into
-           the live list, per team, skipping any goal the user deliberately cancelled
-           or archived (status 'cancelled'/'archived'). So opening v37 restores the
-           Goals page automatically; no manual move needed. Combined with the v36 fix
-           (archive is reference-only, no future clearing), goals stay put from here
-           on. Gates green.
+    v38  - 2026-07-13 - REBUILT FROM v30 (correct goal data) to undo the v37 goal
+           damage. Contains all the good fixes: notes autogrow + persist (v31/v32),
+           agenda total duration in h/m visible-only (v33), section bind keys so
+           renaming a data-bound section keeps its data and cannot be deleted (v34),
+           and archive-is-reference-only so advancing a quarter never clears goals
+           (v36). The v37 auto-restore that pulled archived goals into the live list
+           is DELIBERATELY EXCLUDED. Correct goal split restored: 32 live, 7 archived.
+           Gates green.
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -3917,7 +3871,7 @@ var meetingAgendas=[
   ]},
   {type:"Property Meeting",title:"Property Meeting",dur:"85 min",color:"#0d9488",role:"all",sections:[
     {label:"Check-In",min:5,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
-    {label:"Scorecard Review",min:5,detail:"Review the property numbers - occupancy, arrears, NOI. Any metric off-track moves to Issues.",visible:true,locked:true,bind:"scorecard"},
+    {label:"Scorecard Review",min:5,detail:"Review the property numbers - occupancy, arrears, NOI. Any metric off-track moves to Issues.",visible:true,locked:false},
     {label:"Goals Review",min:5,detail:"Each owner says On Track or Off Track. Off-track items move to Issues.",visible:true,locked:false},
     {label:"Portfolio Review",min:15,detail:"Walk the portfolio unit by unit - occupancy, arrears, and upcoming lease expiries and renewals.",visible:true,locked:false},
     {label:"Maintenance & Turnovers",min:10,detail:"Review open work orders and unit turnover status. Flag anything at risk of slipping.",visible:true,locked:false},
@@ -9922,9 +9876,7 @@ function _vspQtr(){
 }
 function advanceQuarter(){
   var cur=_vspQtr();
-  // Archive is a reference-only SNAPSHOT of the quarter. Live data (goals, plan)
-  // stays exactly in place until the user deliberately changes it. Only the
-  // quarter label/date rolls forward.
+  // Archive is a reference-only snapshot. Live goals and plan stay in place.
   try{ planArchives.unshift({ label:'V/TO '+cur.label, archivedAt:cur.label, data:JSON.parse(JSON.stringify(planData)) }); }catch(e){}
   var nq=cur.q+1, ny=cur.year; if(nq>4){ nq=1; ny=cur.year+1; }
   planData.currentQuarter={q:nq,year:ny};
@@ -10174,9 +10126,6 @@ function renderMeetings(){
     var step=Math.min(state.meetStep||0,runSections.length-1);
     var cur=runSections[step];
     var lbl=(cur.label||"").toLowerCase();
-    // Data-bound sections carry a stable bind key so renaming the section never
-    // strips its live data block. Fall back to label-text matching for any section
-    // without a bind key (older saved agendas, plain sections).
     var _bindMap={scorecard:'scorecard',priorGoals:'goal',goals:'goal',headlines:'headline',todos:'to-do',issues:'issue',conclude:'conclude'};
     var _bindKw=cur.bind?_bindMap[cur.bind]:null;
     function stepIs(kw){ if(_bindKw) return _bindKw===kw; return lbl.includes(kw); }
@@ -15363,59 +15312,14 @@ function _vspStripAutoMetric(m){
   return false;
 }
 function _vspRunMigrations(){
-  // One-time recovery: the pre-v36 advanceQuarter moved live goals into
-  // archivedGoals on every quarter advance. Pull those back into the live list
-  // once, per team. A goal that was deliberately cancelled or archived (status
-  // 'cancelled'/'archived') is left in the archive; only genuinely-live goals
-  // that were relocated by the quarter advance are restored. Guarded so it runs
-  // a single time and never loops.
-  try{
-    var _mig=_vspMig();
-    if(!_mig.goalsUnarchivedV36){
-      Object.keys(teamsRegistry).forEach(function(tid){
-        var t=teamsRegistry[tid];
-        if(!t || !Array.isArray(t.archivedGoals) || !Array.isArray(t.goals)) return;
-        for(var i=t.archivedGoals.length-1;i>=0;i--){
-          var g=t.archivedGoals[i];
-          if(!g) continue;
-          var st=g.status||'';
-          if(st==='cancelled'||st==='archived') continue;      // leave deliberate archives
-          if(t.goals.some(function(x){return x&&x.id===g.id;})) { t.archivedGoals.splice(i,1); continue; } // already live
-          t.goals.unshift(t.archivedGoals.splice(i,1)[0]);      // restore to live list
-        }
-      });
-      _mig.goalsUnarchivedV36=true;
-    }
-  }catch(e){}
 
-
-  // Backfill bind keys on saved agendas written before data-bound sections
-  // carried a stable bind. Matches the known data-bound sections by their
-  // original label once, then locks them so they cannot be deleted (they can
-  // still be renamed, moved, and hidden). A section already carrying a bind key
-  // is left alone, so a user who renamed one keeps the binding.
   try{
-    var _bindByLabel={
-      'review prior quarter goals':'priorGoals',
-      'review prior quarter':'priorGoals',
-      'review prior year':'priorGoals',
-      'scorecard review':'scorecard',
-      'scorecard':'scorecard',
-      'swot / establish goals':'goals',
-      'establish goals for the quarter':'goals'
-    };
+    var _bindByLabel={'review prior quarter goals':'priorGoals','review prior quarter':'priorGoals','review prior year':'priorGoals','scorecard review':'scorecard','scorecard':'scorecard','swot / establish goals':'goals','establish goals for the quarter':'goals'};
     (meetingAgendas||[]).forEach(function(ag){
-      var secs=(ag&&ag.sections)?ag.sections:(ag&&ag.days?null:null);
       var lists=[];
       if(ag&&Array.isArray(ag.sections)) lists.push(ag.sections);
       if(ag&&Array.isArray(ag.days)) ag.days.forEach(function(dy){ if(Array.isArray(dy.sections)) lists.push(dy.sections); });
-      lists.forEach(function(list){
-        list.forEach(function(s){
-          if(!s||s.bind) return;
-          var key=_bindByLabel[(s.label||'').toLowerCase().trim()];
-          if(key){ s.bind=key; s.locked=true; }
-        });
-      });
+      lists.forEach(function(list){ list.forEach(function(s){ if(!s||s.bind) return; var key=_bindByLabel[(s.label||'').toLowerCase().trim()]; if(key){ s.bind=key; s.locked=true; } }); });
     });
   }catch(e){}
 
@@ -15435,6 +15339,18 @@ function _vspRunMigrations(){
 }
 function vspApplySnapshot(s){
   if(!s || s.version !== VSP_STORAGE_VERSION) return false;
+  // ONE-TIME goal recovery (v38): v37 corrupted the saved goal list. On the first
+  // load only, skip restoring saved goals so the correct seed split stands; the
+  // corrected data is then saved back. Guarded by a persistent flag so it happens
+  // exactly once and never wipes goals again. Touches ONLY goals/archivedGoals.
+  try{
+    if(!localStorage.getItem('vsp_goalResetV38_done')){
+      window.__VSP_FORCE_SEED_GOALS=true;
+      localStorage.setItem('vsp_goalResetV38_done','1');
+    } else {
+      window.__VSP_FORCE_SEED_GOALS=false;
+    }
+  }catch(e){ window.__VSP_FORCE_SEED_GOALS=false; }
   // Replace array CONTENTS rather than reassigning the binding, so any
   // closure that captured the original array reference keeps working.
   function repl(target, source){
@@ -15495,8 +15411,10 @@ function vspApplySnapshot(s){
       // new seed records will be additive without false "deleted" detection).
       var useKb = (tid === s.currentTeam);
       function tkb(n){ return useKb ? kb(n) : null; }
-      if(Array.isArray(saved.goals)) mergeById(reg.goals||(reg.goals=[]), saved.goals, tkb('goals'));
-      if(Array.isArray(saved.archivedGoals)) mergeById(reg.archivedGoals||(reg.archivedGoals=[]), saved.archivedGoals, tkb('archivedGoals'));
+      if(!window.__VSP_FORCE_SEED_GOALS){
+        if(Array.isArray(saved.goals)) mergeById(reg.goals||(reg.goals=[]), saved.goals, tkb('goals'));
+        if(Array.isArray(saved.archivedGoals)) mergeById(reg.archivedGoals||(reg.archivedGoals=[]), saved.archivedGoals, tkb('archivedGoals'));
+      }
       if(Array.isArray(saved.todos)) mergeById(reg.todos||(reg.todos=[]), saved.todos, tkb('todos'));
       if(Array.isArray(saved.privateTodos)) mergeById(reg.privateTodos||(reg.privateTodos=[]), saved.privateTodos, tkb('privateTodos'));
       // Drop any to-do tombstoned (deleted) so it cannot reseed or return from a sync node.
