@@ -1296,6 +1296,17 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v72  - 2026-07-16 - Editable per-quarter targets on the quarter measurables.
+           Each measurable now carries a quarter target (planData.q1.results[id]
+           .qtarget) that defaults to the annual target and is edited in the
+           quarter Target column when the plan is unlocked (Archive & Edit). The
+           annual stays the single source for the definition and owner; the
+           quarter target is the number you set for THIS quarter (e.g. 340 leads
+           a year becomes 85 for the quarter, while Below 1% stays Below 1%).
+           The vs-Target bar and Hit judge against the quarter target, not the
+           annual. No auto-divide (rates and thresholds must not be divided).
+           No change to canon, chrome, catalog, components, engine, contracts,
+           or VSP_STORAGE_VERSION.
     v71  - 2026-07-16 - Consistent owner-avatar placement across all three
            surfaces on the plan page. The owner avatar now sits to the LEFT of
            the item name everywhere: company goals list, quarter measurables,
@@ -10537,6 +10548,15 @@ function _measDefs(){ return (planData.oneyr && Array.isArray(planData.oneyr.mea
 function _q1Results(){ if(!planData.q1) planData.q1={}; if(!planData.q1.results || typeof planData.q1.results!=='object') planData.q1.results={}; return planData.q1.results; }
 function _q1Result(id){ var r=_q1Results(); if(!r[id]) r[id]={actual:'',hit:''}; return r[id]; }
 function q1MeasActual(id,v){ _q1Result(id).actual=v; _vspAutosaveQueue(); }
+function q1MeasQTarget(id,v){ _q1Result(id).qtarget=v; _vspAutosaveQueue(); }
+function _q1QTarget(m){
+  // Effective quarter target: the per-quarter value if set, else the annual
+  // target. Never auto-divides; rates/thresholds stay as the annual value
+  // until the user changes the quarter number deliberately.
+  var r=_q1Result(m.id);
+  var qt=(r&&r.qtarget!=null&&String(r.qtarget).trim()!=='')?r.qtarget:m.target;
+  return qt;
+}
 function q1MeasHit(id){ var e=_q1Result(id); e.hit=(e.hit==='hit')?'miss':(e.hit==='miss')?'':'hit'; renderPage(); }
 function _q1ColGroup(){
   // Shared fixed column layout so the financials table and the measurables
@@ -10596,15 +10616,21 @@ function _q1MeasTable(){
     var chipCls=st==='hit'?'c-grn':st==='miss'?'c-red':'c-gry';
     var chipTxt=st==='hit'?'Hit':st==='miss'?'Not Hit':'Set';
     var barCol=st==='hit'?'var(--grn)':st==='miss'?'var(--red)':'var(--blu)';
-    var tnum=_vspParseMoney(m.target), anum=_vspParseMoney(res.actual);
-    var isThresh=/[<>]|below|less than|under|above|over|max|min/i.test(String(m.target||''));
+    var qtarget=_q1QTarget(m);
+    var tnum=_vspParseMoney(qtarget), anum=_vspParseMoney(res.actual);
+    var isThresh=/[<>]|below|less than|under|above|over|max|min/i.test(String(qtarget||''));
     var pct=null;
     if(!isThresh && tnum!==null && anum!==null && tnum!==0){ pct=Math.max(0,Math.min(120,(anum/tnum)*100)); }
     var pctTxt=(pct===null)?'':Math.round(pct)+'%';
     var barW=(pct!==null)?Math.min(100,pct):(st==='hit'?100:st==='miss'?100:0);
+    var qEdit=!!state.planEditUnlocked;
     h+='<tr style="border-bottom:0.5px solid var(--brd)">';
     h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500"><div style="display:flex;align-items:center;gap:7px;min-width:0">'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),20)+'<span style="min-width:0;line-height:1.3">'+_vspEscNote(m.text||'')+'</span></div></td>';
-    h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body);overflow:hidden">'+_vspEscNote(m.target||'')+'</td>';
+    if(qEdit){
+      h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(qtarget||'').replace(/"/g,"&quot;")+'" oninput="q1MeasQTarget('+m.id+',this.value)" onchange="renderPage()" placeholder="'+_vspEscNote(m.target||'')+'" title="Quarter target (annual: '+_vspEscNote(m.target||'')+')" aria-label="'+_vspEscNote(m.text||'')+' quarter target" style="width:92px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:700;font-family:inherit;background:var(--sur)"></td>';
+    } else {
+      h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body);overflow:hidden">'+_vspEscNote(qtarget||'')+'</td>';
+    }
     h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(res.actual||'').replace(/"/g,"&quot;")+'" oninput="q1MeasActual('+m.id+',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+_vspEscNote(m.text||'')+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
     h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1MeasHit('+m.id+')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
     h+='<td style="padding:6px 0 6px 14px"><div style="display:flex;align-items:center;gap:6px;overflow:hidden">';
