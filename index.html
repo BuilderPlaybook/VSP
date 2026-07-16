@@ -1296,6 +1296,33 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v64  - 2026-07-16 - Quarter financials and measurables tables now share an
+           identical fixed colgroup (table-layout:fixed, same 5 column widths),
+           so every column lines up top-to-bottom between the two tables and the
+           measurables vs-Target bar renders full-width like the financials bar
+           instead of a squeezed dot. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
+    v63  - 2026-07-15 - Full dollar amounts throughout the Strategic Plan:
+           financial values render as $1,900,000 instead of $1.9M ($190,000
+           not $190K). Seed values expanded and a load-time migration expands
+           existing saved abbreviated dollar strings (M/K/B) to full comma
+           numbers. Percentages (15%, 10%) and non-dollar values are left
+           unchanged. _vspParseMoney still parses both forms so bars/percent
+           keep working. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
+    v62  - 2026-07-15 - Quarter measurables results table now matches the
+           financials exactly: removed the Owner column from the quarter
+           results row (owner is set on the 1-Year plan), so both tables share
+           the same columns and the vs-Target bar is not squeezed off the edge.
+           No change to canon, chrome, catalog, components, engine, contracts,
+           or VSP_STORAGE_VERSION.
+    v60  - 2026-07-15 - Measurables editor on the 1-Year plan is now a clean
+           table (Measurable | Target | Owner) matching the financials style,
+           replacing the old dot-list look. Removed the on-track/off-track dot
+           (weekly status belongs on the Scorecard, not the plan definition).
+           One consistent measurables presentation across the plan. No change
+           to canon, chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
     v59  - 2026-07-15 - Strategic Plan "Goals For The Quarter" card now reads
            the LIVE company goals for the current quarter from goals[] (company
            && horizon current && this quarter, non-archived), read-only, instead
@@ -2872,12 +2899,12 @@ var planData={
   gtmTagline:"Professionally Run Company That Builds Exceptional Homes",
   gtmTarget:"40\u201360 years of age, professional, middle to upper middle class, who appreciate that there is value in our systems and processes.",
   target10yr:"LIDA Group is a Canada\u2019s Best Managed Company generating $100M+ per year in construction revenue. LIDA Homes is team-owned. LIDA Developments owns $1B+ in real estate producing $1M per month in passive cash flow by Dec 31, 2036.",
-  pic3yr:{grossSales:"$80M",grossProfit:"15%",expenses:"10%",netProfit:"5%",futureDate:"Dec 31, 2028"},
+  pic3yr:{grossSales:"$80,000,000",grossProfit:"15%",expenses:"10%",netProfit:"5%",futureDate:"Dec 31, 2028"},
   pic3yrItems:["57 RP/RS","1 President","1 VP of Capital, Development and Holdings","1 Human Resources Manager (contract)","1 CFO / VP LIDA Group of Companies","3 Sr PM\u2019s (CH, Commercial and Renovation)","8 PM\u2019s","2 Superintendents","6 carpenter teams","2 Estimators","3 Accounting Staff","3 interior designers","1 contract for marketing","1 Company Controller","SOP documented and FBA","2 Project coordinators","2 Maintenance / Warranty Carpenters","4 independent companies operating","1 Property Manager","1 Property Manager Assistant","1 Sales PM","Renovated office basement"],
-  q1:{futureDate:"Mar 31, 2026",grossSales:"$1.9M",grossProfit:"$451K",expenses:"$309K",netProfit:"$140K",
+  q1:{futureDate:"Mar 31, 2026",grossSales:"$1,900,000",grossProfit:"$451,000",expenses:"$309,000",netProfit:"$140,000",
     goals:[["Implement new Drip and Newsletter Campaign (Automation system completed)","MN"],["Team Event","MN"],["Bay DP Received","DS"],["All Sales Collateral Received","MN"],["All website update completed","DS"],["Field operations manual final draft completed for peer review","WL"]],results:{},_measConsolidated:true},
-  oneyr:{futureDate:"Dec 31, 2026",grossSales:"$13M",grossProfit:"$1.95M",expenses:"$1.3M",netProfit:"$650K",
-    goals:["2026: LIDA Homes WAY Complete FBA","2026: 1 Land Deal Contract","2026: Step Property Management FBA","2026: Start Bay Condo in August","2026: Hire CFO / Operations Lead"],measurables:[{id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",owner:"DS",status:"none"},{id:5002,text:"Warranty below 1%",target:"Below 1%",owner:"DS",status:"none"},{id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",owner:"WL",status:"none"},{id:5004,text:"180 Leads",target:"180",owner:"TP",status:"none"},{id:5005,text:"3.6M in FSA",target:"$3.6M",owner:"TP",status:"none"},{id:5006,text:"1.8M in Contracts",target:"$1.8M",owner:"TP",status:"none"},{id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",owner:"WL",status:"none"}]},
+  oneyr:{futureDate:"Dec 31, 2026",grossSales:"$13,000,000",grossProfit:"$1,950,000",expenses:"$1,300,000",netProfit:"$650,000",
+    goals:["2026: LIDA Homes WAY Complete FBA","2026: 1 Land Deal Contract","2026: Step Property Management FBA","2026: Start Bay Condo in August","2026: Hire CFO / Operations Lead"],measurables:[{id:5001,text:"Billable vs Unbillable Below 1%",target:"Below 1%",owner:"DS",status:"none"},{id:5002,text:"Warranty below 1%",target:"Below 1%",owner:"DS",status:"none"},{id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",owner:"WL",status:"none"},{id:5004,text:"180 Leads",target:"180",owner:"TP",status:"none"},{id:5005,text:"3.6M in FSA",target:"$3,600,000",owner:"TP",status:"none"},{id:5006,text:"1.8M in Contracts",target:"$1,800,000",owner:"TP",status:"none"},{id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",owner:"WL",status:"none"}]},
   provenProcess:"The LIDA Homes Proven Process",
   guarantee:"The LIDA Homes Promise  -  Extraordinary Communication",
   ourWay:[
@@ -3769,6 +3796,7 @@ function toggleMod(id){
 var _vspNavInternal = false;  // set true during vspGoBack to prevent re-pushing
 
 function nav(id){
+  if(typeof state!=='undefined' && state.page==='strategic'){ state._planPageInit=false; }
   // Push previous page to nav stack unless this is an internal nav (from vspGoBack)
   // or a duplicate of where we already are.
   if(!_vspNavInternal && state.page && state.page !== id){
@@ -4626,31 +4654,36 @@ function planMeasurablesBlock(scope){
   var pd=planData[scope]; if(!pd) return '';
   if(!Array.isArray(pd.measurables)) pd.measurables=[];
   var edit=!!state.planEditUnlocked;
-  var h='<div class="fl" style="margin:14px 0 6px">Measurables</div>';
+  var h='<div class="fl" style="margin:14px 0 8px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Measurables</div>';
   if(!pd.measurables.length && !edit){
-    h+=_vspEmpty(_VSP_IC_CHART,'No measurables on this plan section yet. Measurables are the few numbers that tell you if the plan is on track week to week.','','');
+    h+=_vspEmpty(_VSP_IC_CHART,'No measurables yet. Set the few numbers that tell you the plan is on track.','','');
+    return h;
   }
+  h+='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
+  h+=_q1ColGroup();
+  h+='<thead><tr>';
+  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis">Measurable</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
+  h+='<th scope="col" style="text-align:center;padding:4px 10px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Owner</th>';
+  if(edit) h+='<th scope="col" style="width:30px"></th>';
+  h+='</tr></thead><tbody>';
   pd.measurables.forEach(function(m){
-    var stt=m.status||'none';
-    var dc=stt==='on-track'?'var(--grn)':stt==='off-track'?'var(--red)':'transparent';
-    var bd=stt==='none'?'1.5px solid var(--brd2)':'1.5px solid transparent';
-    var dt=stt==='on-track'?'On track (click to change)':stt==='off-track'?'Off track (click to change)':'Not reviewed (click to mark)';
-    h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--brd)">';
-    h+='<div onclick="planMeasurableCycle(\''+scope+'\','+m.id+')" title="'+dt+'" style="width:14px;height:14px;border-radius:50%;background:'+dc+';border:'+bd+';flex-shrink:0;cursor:pointer"></div>';
+    h+='<tr style="border-bottom:0.5px solid var(--brd)">';
     if(edit){
-      h+='<input value="'+String(m.text||'').replace(/"/g,'&quot;')+'" oninput="planMeasurableSet(\''+scope+'\','+m.id+',\'text\',this.value)" onchange="if(typeof vspSaveNow===\'function\')vspSaveNow()" placeholder="Measurable" style="flex:1;font-size:var(--fz-lg);padding:4px 7px;border:1px solid var(--brd2);border-radius:4px;font-family:inherit">';
-      h+='<input value="'+String(m.target||'').replace(/"/g,'&quot;')+'" oninput="planMeasurableSet(\''+scope+'\','+m.id+',\'target\',this.value)" onchange="if(typeof vspSaveNow===\'function\')vspSaveNow()" placeholder="Target" style="width:120px;font-size:var(--fz-lg);padding:4px 7px;border:1px solid var(--brd2);border-radius:4px;font-family:inherit;text-align:right">';
-      h+=_measOwnerSelect(scope,m);
-      h+='<button onclick="removePlanMeasurable(\''+scope+'\','+m.id+')" title="Remove measurable" style="width:22px;height:22px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:4px;cursor:pointer;flex-shrink:0;font-size:var(--fz-lg);line-height:1">\u00d7</button>';
+      h+='<td style="padding:5px 8px 5px 0"><input value="'+String(m.text||'').replace(/"/g,'&quot;')+'" oninput="planMeasurableSet(\''+scope+'\','+m.id+',\'text\',this.value)" onchange="if(typeof vspSaveNow===\'function\')vspSaveNow()" placeholder="Measurable" style="width:100%;font-size:var(--fz-body);padding:6px 9px;border:1px solid var(--brd2);border-radius:6px;font-family:inherit;background:var(--sur)"></td>';
+      h+='<td style="padding:5px 14px;text-align:right"><input value="'+String(m.target||'').replace(/"/g,'&quot;')+'" oninput="planMeasurableSet(\''+scope+'\','+m.id+',\'target\',this.value)" onchange="if(typeof vspSaveNow===\'function\')vspSaveNow()" placeholder="Target" style="width:96px;font-size:var(--fz-body);padding:6px 9px;border:1px solid var(--brd2);border-radius:6px;font-family:inherit;text-align:right;background:var(--sur)"></td>';
+      h+='<td style="padding:5px 10px;text-align:center">'+_measOwnerSelect(scope,m)+'</td>';
+      h+='<td style="padding:5px 0;text-align:center"><button onclick="removePlanMeasurable(\''+scope+'\','+m.id+')" title="Remove measurable" style="width:24px;height:24px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:5px;cursor:pointer;font-size:var(--fz-lg);line-height:1">\u00d7</button></td>';
     } else {
-      h+='<div style="flex:1;font-size:var(--fz-lg);color:var(--txt)">'+String(m.text||'')+'</div>';
-      if(m.target) h+='<div style="font-size:var(--fz-lg);font-weight:600;color:var(--blu);white-space:nowrap">'+String(m.target)+'</div>';
-      h+=avatar(m.owner||'DS',pplColor(m.owner||'DS'),18);
+      h+='<td style="padding:9px 8px 9px 0;font-size:var(--fz-body);font-weight:500;color:var(--txt)">'+_vspEscNote(m.text||'')+'</td>';
+      h+='<td style="padding:9px 14px;text-align:right;font-size:var(--fz-body);font-weight:700;white-space:nowrap;color:var(--txt)">'+_vspEscNote(m.target||'')+'</td>';
+      h+='<td style="padding:7px 10px;text-align:center"><div style="display:flex;justify-content:center">'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),22)+'</div></td>';
     }
-    h+='</div>';
+    h+='</tr>';
   });
+  h+='</tbody></table>';
   if(edit){
-    h+='<button onclick="addPlanMeasurable(\''+scope+'\')" class="btn btn-sm" style="margin-top:8px">+ Add Measurable</button>';
+    h+='<button onclick="addPlanMeasurable(\''+scope+'\')" class="btn btn-sm" style="margin-top:10px">+ Add Measurable</button>';
   }
   return h;
 }
@@ -7248,6 +7281,15 @@ function renderDashboard(){
 }
 
 function renderStrategic(){
+  // v61: the standalone plan page must respect the lock. A prior in-meeting
+  // auto-unlock (entering the plan step during a meeting) could leave
+  // planEditUnlocked true; when viewing the plan page directly, re-lock unless
+  // the user is actively in the Archive & Edit session on this page.
+  if(typeof state!=='undefined' && state.page==='strategic' && state._planPageInit!==true){
+    state._planPageInit=true;
+    state.planEditUnlocked=false;
+  }
+
   var t=state.stratTab;
 
   // Helper to render a financial grid
@@ -10391,6 +10433,25 @@ function _vspParseMoney(v){
   var num=parseFloat(str);
   return isNaN(num)?null:num*mult;
 }
+// v63: expand an abbreviated dollar string ("$1.9M") to a full comma number
+// ("$1,900,000"). Leaves percentages, plain text, and already-full numbers as is.
+function _vspFullMoney(v){
+  if(v==null) return v;
+  var raw=String(v).trim();
+  if(!raw) return raw;
+  if(raw.indexOf('%')>-1) return raw;                 // percentage - leave alone
+  if(!/[$]|[0-9]/.test(raw)) return raw;              // no number - leave alone
+  if(!/[MKB]\s*$/i.test(raw) && raw.indexOf(',')>-1) return raw; // already full w/ commas
+  var hadDollar=raw.indexOf('$')>-1;
+  var hasSuffix=/[MKB]\s*$/i.test(raw);
+  // Only expand when there is a $ sign or an M/K/B suffix. A bare number like
+  // "180" is left exactly as typed.
+  if(!hadDollar && !hasSuffix) return raw;
+  var n=_vspParseMoney(raw);
+  if(n===null) return raw;
+  var full=Math.round(n).toLocaleString('en-US');
+  return (hadDollar?'$':'')+full;
+}
 function _q1Actuals(){
   if(!planData.q1.actuals || typeof planData.q1.actuals!=='object') planData.q1.actuals={};
   return planData.q1.actuals;
@@ -10410,11 +10471,23 @@ function _q1Results(){ if(!planData.q1) planData.q1={}; if(!planData.q1.results 
 function _q1Result(id){ var r=_q1Results(); if(!r[id]) r[id]={actual:'',hit:''}; return r[id]; }
 function q1MeasActual(id,v){ _q1Result(id).actual=v; _vspAutosaveQueue(); }
 function q1MeasHit(id){ var e=_q1Result(id); e.hit=(e.hit==='hit')?'miss':(e.hit==='miss')?'':'hit'; renderPage(); }
+function _q1ColGroup(){
+  // Shared fixed column layout so the financials table and the measurables
+  // table line up exactly and the vs-Target bar is the same width on both.
+  return '<colgroup>'
+    +'<col style="width:auto">'
+    +'<col style="width:120px">'
+    +'<col style="width:110px">'
+    +'<col style="width:84px">'
+    +'<col style="width:140px">'
+    +'</colgroup>';
+}
 function _q1ActualsCard(){
   // The Revenue/Profit financial rows (with actual/hit/bar) + the measurables
   // table. Shared by the meeting 90-Day card and the Strategic Plan Q1 section
   // so entering data in either place carries into the other (both read q1).
-  var h='<table style="width:100%;border-collapse:collapse;margin-bottom:8px">';
+  var h='<table style="width:100%;border-collapse:collapse;margin-bottom:8px;table-layout:fixed">';
+  h+=_q1ColGroup();
   h+='<thead><tr>';
   h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em"></th>';
   h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
@@ -10438,10 +10511,10 @@ function _q1MeasTable(){
   if(!ms.length){
     return h+'<div style="font-size:var(--fz-base);color:var(--txm);padding:4px 0 8px">No measurables yet. Set them on the 1-Year Plan; every quarter reviews the same list.</div>';
   }
-  h+='<table style="width:100%;border-collapse:collapse">';
+  h+='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
+  h+=_q1ColGroup();
   h+='<thead><tr>';
-  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Measurable</th>';
-  h+='<th scope="col" style="text-align:center;padding:4px 10px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Owner</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis">Measurable</th>';
   h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
   h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
   h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
@@ -10460,14 +10533,13 @@ function _q1MeasTable(){
     var pctTxt=(pct===null)?'':Math.round(pct)+'%';
     var barW=(pct!==null)?Math.min(100,pct):(st==='hit'?100:st==='miss'?100:0);
     h+='<tr style="border-bottom:0.5px solid var(--brd)">';
-    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500">'+_vspEscNote(m.text||'')+'</td>';
-    h+='<td style="padding:8px 10px;text-align:center"><div style="display:flex;justify-content:center">'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),22)+'</div></td>';
-    h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body)">'+_vspEscNote(m.target||'')+'</td>';
+    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_vspEscNote(m.text||'')+'</td>';
+    h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body);overflow:hidden">'+_vspEscNote(m.target||'')+'</td>';
     h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(res.actual||'').replace(/"/g,"&quot;")+'" oninput="q1MeasActual('+m.id+',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+_vspEscNote(m.text||'')+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
     h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1MeasHit('+m.id+')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
-    h+='<td style="padding:6px 0 6px 14px;min-width:130px"><div style="display:flex;align-items:center;gap:8px">';
-    h+='<div style="flex:1;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+barW+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
-    h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:34px;text-align:right">'+pctTxt+'</span>';
+    h+='<td style="padding:6px 0 6px 14px"><div style="display:flex;align-items:center;gap:6px;overflow:hidden">';
+    h+='<div style="flex:1;min-width:0;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+barW+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
+    h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:30px;flex-shrink:0;text-align:right">'+pctTxt+'</span>';
     h+='</div></td>';
     h+='</tr>';
   });
@@ -10488,14 +10560,14 @@ function _q1RowHtml(key,label,targetVal,invert){
   var barCol=st==='hit'?'var(--grn)':st==='miss'?'var(--red)':'var(--blu)';
   var pctTxt=(pct===null)?'':Math.round(pct)+'%';
   var h='<tr style="border-bottom:0.5px solid var(--brd)">';
-  h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500">'+label+'</td>';
-  h+='<td style="padding:10px 14px;font-size:var(--fz-body);text-align:right;font-weight:700;white-space:nowrap;color:var(--txt)">'+targetVal+'</td>';
+  h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</td>';
+  h+='<td style="padding:10px 14px;font-size:var(--fz-body);text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);overflow:hidden">'+targetVal+'</td>';
   h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(a.actual||'').replace(/"/g,"&quot;")+'" oninput="q1ActualSet(\''+key+'\',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+label+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
   h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1HitToggle(\''+key+'\')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
-  h+='<td style="padding:6px 0 6px 14px;min-width:130px">';
-  h+='<div style="display:flex;align-items:center;gap:8px">';
-  h+='<div style="flex:1;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+(pct===null?0:Math.min(100,pct))+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
-  h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:34px;text-align:right">'+pctTxt+'</span>';
+  h+='<td style="padding:6px 0 6px 14px">';
+  h+='<div style="display:flex;align-items:center;gap:6px;overflow:hidden">';
+  h+='<div style="flex:1;min-width:0;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+(pct===null?0:Math.min(100,pct))+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
+  h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:30px;flex-shrink:0;text-align:right">'+pctTxt+'</span>';
   h+='</div></td>';
   h+='</tr>';
   return h;
@@ -16047,6 +16119,25 @@ function _vspRunMigrations(){
     }
   }catch(e){}
 
+  // v63: expand abbreviated dollar strings to full comma numbers, once.
+  try{
+    if(planData && !planData._fullNumbersMigrated){
+      ['q1','oneyr','pic3yr'].forEach(function(sc){
+        var pd=planData[sc]; if(!pd) return;
+        ['grossSales','grossProfit','expenses','netProfit'].forEach(function(k){
+          if(pd[k]!=null && String(pd[k]).indexOf('%')<0){ pd[k]=_vspFullMoney(pd[k]); }
+        });
+      });
+      // Expand measurable targets that are dollar amounts (leave "Below 1%", "180", etc.)
+      if(planData.oneyr && Array.isArray(planData.oneyr.measurables)){
+        planData.oneyr.measurables.forEach(function(m){
+          if(m && m.target && /[$]|[MKB]\s*$/i.test(String(m.target)) && String(m.target).indexOf('%')<0){ m.target=_vspFullMoney(m.target); }
+        });
+      }
+      planData._fullNumbersMigrated=true;
+    }
+  }catch(e){}
+
   // EOS measurables consolidation (v58): definitions live on oneyr; the quarter
   // keeps only results. Fold any legacy q1.measurables up into oneyr (merge by
   // text, no dupes) and move their actual/hit into planData.q1.results.
@@ -16081,8 +16172,8 @@ function _vspRunMigrations(){
         {id:5002,text:"Warranty below 1%",target:"Below 1%",owner:"DS",status:"none"},
         {id:5003,text:"Construction Creep Less Than 10%",target:"< 10%",owner:"WL",status:"none"},
         {id:5004,text:"180 Leads",target:"180",owner:"TP",status:"none"},
-        {id:5005,text:"3.6M in FSA",target:"$3.6M",owner:"TP",status:"none"},
-        {id:5006,text:"1.8M in Contracts",target:"$1.8M",owner:"TP",status:"none"},
+        {id:5005,text:"3.6M in FSA",target:"$3,600,000",owner:"TP",status:"none"},
+        {id:5006,text:"1.8M in Contracts",target:"$1,800,000",owner:"TP",status:"none"},
         {id:5007,text:"Pre-Construction Creep Less Than 20%",target:"< 20%",owner:"WL",status:"none"}
       ];
       planData.oneyr._measSeeded=true;
