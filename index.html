@@ -1296,6 +1296,22 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v82  - 2026-07-19 - Data-loss fix: scNormalize no longer truncates weekly
+           readings. Root cause of the recurring wipe: a browser running a
+           stale cached build (shorter week list) adopted the shared snapshot,
+           scNormalize cut every weekly array down to its short list length -
+           destroying the newest weeks of data - and its next save pushed that
+           truncated state to every teammate. Monthly arrays are not touched by
+           scNormalize, which is why SQL's monthly values survived and its
+           weekly conversion was the only data left standing. scNormalize now
+           trims only trailing nulls; when real readings exist beyond the local
+           week list it EXTENDS weekRanges forward (correctly labelled weeks)
+           to cover them and pads every other weekly metric, so no reading is
+           ever deleted by normalization. Companion change in the staging
+           adapter (v2.2, deploy graft only): applyRaw runs scExtendBack and
+           scExtendYear before scNormalize so an in-place adopt uses the same
+           week frame as a full boot. No change to canon, chrome, catalog,
+           components, engine, contracts, or VSP_STORAGE_VERSION.
     v81  - 2026-07-19 - Scorecard Archive. Archiving replaces deletion as the
            primary removal path: the edit panel's red Delete is now an amber
            Archive (no data destroyed), and the bulk action archives instead of
@@ -6344,17 +6360,40 @@ function scExtendBack(){
   }catch(e){ if(typeof console!=='undefined') console.warn('[VSP] scExtendBack:', e.message); }
 }
 function scNormalize(){
+  // v82: normalization must NEVER delete a reading. If real data exists beyond
+  // the local week list (snapshot written under a longer frame), the week list
+  // grows forward to cover it; only trailing nulls are ever trimmed.
   try{
-    var N=weekRanges.length;
     var _sn=(typeof WeakSet!=='undefined')?new WeakSet():null; var _sa=[];
     function _once(m){ if(_sn){ if(_sn.has(m))return false; _sn.add(m);return true;} if(_sa.indexOf(m)>=0)return false; _sa.push(m);return true; }
+    // Pass 1: find the highest index holding a real reading across every
+    // weekly metric on every team.
+    var maxData=-1;
+    function scan(m){
+      if(!m||!Array.isArray(m.readings)||((m.cadence)||'weekly')!=='weekly') return;
+      for(var i=m.readings.length-1;i>=0;i--){ if(m.readings[i]!==null&&m.readings[i]!==undefined){ if(i>maxData)maxData=i; break; } }
+    }
+    if(typeof scorecard!=='undefined'&&Array.isArray(scorecard)) scorecard.forEach(function(s){ (s.metrics||[]).forEach(scan); });
+    if(typeof teamsRegistry==='object'&&teamsRegistry){ Object.keys(teamsRegistry).forEach(function(k){ var sc=teamsRegistry[k]&&teamsRegistry[k].scorecard; if(Array.isArray(sc)) sc.forEach(function(s){ (s.metrics||[]).forEach(scan); }); }); }
+    // Grow weekRanges forward with correctly labelled weeks until it covers
+    // every real reading.
+    if(maxData>weekRanges.length-1){
+      var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      function f(x){ return mn[x.getMonth()]+' '+('0'+x.getDate()).slice(-2); }
+      var guard=0;
+      while(weekRanges.length-1<maxData && guard++<600){
+        var d=scWeekDate(weekRanges.length);
+        var e=new Date(d.getTime()+6*86400000);
+        weekRanges.push(f(d)+' - '+f(e));
+      }
+    }
+    var N=weekRanges.length;
     function fix(m){
       if(!m||!Array.isArray(m.readings)||((m.cadence)||'weekly')!=='weekly'||!_once(m)) return;
-      var ex=m.readings.length-N;
-      if(ex>0){
-        var rm=0; while(rm<ex && m.readings.length>N && m.readings[0]==null){ m.readings.shift(); rm++; }
-        if(m.readings.length>N) m.readings.length=N;
-      } else if(ex<0){
+      if(m.readings.length>N){
+        // Trim trailing nulls only; a real reading is never removed.
+        while(m.readings.length>N && m.readings[m.readings.length-1]==null) m.readings.pop();
+      } else {
         while(m.readings.length<N) m.readings.push(null);
       }
     }
@@ -17698,7 +17737,7 @@ document.addEventListener('keydown',function(e){
 
 </script>
 <script>
-/* SMB VSP STAGING ADAPTER v2.1 - shared cloud persistence over Firebase RTDB.
+/* SMB VSP STAGING ADAPTER v2.2 - shared cloud persistence over Firebase RTDB.
    SIMPLE, SAFE MODEL (replaces the v1.x real-time polling model):
      1. ON LOAD: pull the team's latest data from the cloud ONCE and show it.
      2. AS YOU WORK: each save is sent up to the cloud (debounced).
@@ -17787,6 +17826,8 @@ document.addEventListener('keydown',function(e){
     try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){}
     // Keep this user on the team they are viewing, not the team the saver was on.
     try { if(keepTeam && typeof state !== 'undefined' && state){ state.currentTeam = keepTeam; if(typeof syncTeamData === 'function') syncTeamData(); } } catch(e){}
+    try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
+    try { if(typeof scExtendYear === 'function') scExtendYear(); } catch(e){}
     try { if(typeof scNormalize === 'function') scNormalize(); } catch(e){}
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
