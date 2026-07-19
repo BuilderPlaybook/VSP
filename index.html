@@ -1296,6 +1296,27 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v81  - 2026-07-19 - Scorecard Archive. Archiving replaces deletion as the
+           primary removal path: the edit panel's red Delete is now an amber
+           Archive (no data destroyed), and the bulk action archives instead of
+           deleting. Archived measurables keep every reading, goal, unit, flag,
+           plus their origin (team, group owner, seat) and archive date, stored
+           in archivedMetrics and synced in the snapshot. An Archive (N) button
+           on the Scorecard toolbar opens a searchable panel: each entry shows
+           title, origin, cadence, reading count, and archive date, with
+           Restore (returns it to its original group, recreating the group if
+           it was deleted; readings resume with gap periods simply empty) and a
+           true Delete behind a permanent-loss confirm. Group deletion archives
+           the group's measurables instead of destroying them. No change to
+           canon, chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v80  - 2026-07-19 - Date range: Last Quarter added; D-95 applied to VSP.
+           Last Quarter shows the weeks of the previous calendar quarter (by
+           real week date, crossing the year boundary in January). Full Year
+           and Rolling 52 removed from the date-range dropdown per D-95
+           (retired app-wide); persisted preferences pointing at either fall
+           back to Last 13 Weeks on next load. No change to canon, chrome,
+           catalog, components, engine, contracts, or VSP_STORAGE_VERSION.
     v79  - 2026-07-19 - Annual tab. Fourth scorecard period: one column per
            year, current year computed live from the same readings that build
            the quarters (weekly readings by real midweek date, monthly and
@@ -3021,7 +3042,7 @@ async function autoSummarizeSection(stepIdx, sectionLabel){
 }
 
 
-var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{}};
+var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{},scArchivePanel:false,scArchiveSearch:""};
 var timerInterval=null;
 
 // Archived plan snapshots - one per quarter
@@ -4050,6 +4071,7 @@ var goals=[
   {id:31,title:"D & P new admin/accounting role",owner:"LS",horizon:"current",quarter:"Q2 2026",status:"on-track",progress:0,due:"2026-06-30",company:false,milestones:[]},
   {id:32,title:"Read one book",owner:"LS",horizon:"current",quarter:"Q2 2026",status:"on-track",progress:0,due:"2026-06-30",company:false,milestones:[]}
 ];
+var archivedMetrics=[];
 var archivedGoals=[
   {id:100,title:"Complete End of year financials for Bay Street Holdings",owner:"LS",quarter:"Q1 2026",status:"complete",progress:100,due:"2026-03-31",company:false,milestones:[]},
   {id:101,title:"Complete End of year financials for Beckingham LTD",owner:"LS",quarter:"Q1 2026",status:"complete",progress:100,due:"2026-03-31",company:false,milestones:[]},
@@ -6358,6 +6380,9 @@ function scExtendYear(){
   }catch(e){ if(typeof console!=='undefined') console.warn('[VSP] scExtendYear:', e.message); }
 }
 function _scDateRanges(){
+  // D-95: Full Year and Rolling 52 are retired app-wide; persisted prefs fall
+  // back to Last 13 Weeks.
+  if(state.scorecardDateRange==='fullYear'||state.scorecardDateRange==='rolling52') state.scorecardDateRange='last13';
   var N=weekRanges.length;
   // Anchor ranges to the CURRENT week, not just the last week with data, so the
   // current (and any recent empty) weeks are always visible for entry.
@@ -6367,6 +6392,9 @@ function _scDateRanges(){
   function lastN(n){ return desc(cur-n+1, cur); }
   var cd=scWeekDate(cur); var cyr=cd.getFullYear(); var cq=Math.floor(cd.getMonth()/3);
   var qStart=cur; for(var i=cur;i>=0;i--){ var d=scWeekDate(i); if(d.getFullYear()===cyr && Math.floor(d.getMonth()/3)===cq){ qStart=i; } else { break; } }
+  // Last Quarter: the previous calendar quarter's weeks by real week date.
+  var _pq=cq-1,_pyr=cyr; if(_pq<0){_pq=3;_pyr=cyr-1;}
+  var _lqIdxs=[]; for(var _lqi=N-1;_lqi>=0;_lqi--){ var _ld=scWeekDate(_lqi); if(_ld.getFullYear()===_pyr && Math.floor(_ld.getMonth()/3)===_pq) _lqIdxs.push(_lqi); }
   var _ys=-1,_ye=-1; for(var _i=0;_i<N;_i++){ if(scWeekDate(_i).getFullYear()===cyr){ if(_ys<0)_ys=_i; _ye=_i; } } if(_ys<0){ _ys=0; _ye=N-1; }
   function _ci(){
     var s=state.scCustomStart, e=state.scCustomEnd;
@@ -6382,9 +6410,8 @@ function _scDateRanges(){
     last4:    {label:"Last 4 Weeks",      weekIdxs:lastN(4)},
     last13:   {label:"Last 13 Weeks",     weekIdxs:lastN(13)},
     qtd:      {label:"Quarter to Date",   weekIdxs:desc(qStart, cur)},
+    lastQuarter:{label:"Last Quarter",    weekIdxs:_lqIdxs},
     yearToDate:{label:"Year to Date",     weekIdxs:desc(_ys, cur)},
-    fullYear:  {label:"Full Year",         weekIdxs:desc(_ys, _ye)},
-    rolling52:{label:"Rolling 52 Weeks",  weekIdxs:desc(cur-51, cur)},
     custom:   {label:"Custom Range",      weekIdxs:_ci()}
   };
 }
@@ -6547,8 +6574,9 @@ function deleteGroup(di){
   var sec=scorecard[di]; if(!sec) return;
   var nm=sec.ownerName||sec.seat||'this group';
   var cnt=(sec.metrics||[]).length;
-  var msg=cnt>0?('Delete the "'+nm+'" group and its '+cnt+' measurable'+(cnt===1?'':'s')+'? This cannot be undone.'):('Delete the empty "'+nm+'" group?');
+  var msg=cnt>0?('Delete the "'+nm+'" group? Its '+cnt+' measurable'+(cnt===1?'':'s')+' will be moved to Archive (restorable).'):('Delete the empty "'+nm+'" group?');
   if(!confirm(msg)) return;
+  (sec.metrics||[]).forEach(function(m){ archivedMetrics.unshift(_scArchiveEntry(m, sec)); });
   scorecard.splice(di,1);
   var tm=teamsRegistry[state.currentTeam]; if(tm) tm.scorecard=scorecard;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
@@ -6802,8 +6830,8 @@ function renderEditMeasurableOverlay(){
     // Footer - Save + Delete + Cancel
     h+='<div style="padding:14px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--sur)">';
     h+='<button onclick="saveEditMeasurable()" class="btn btn-blu" style="flex:1;justify-content:center;padding:9px">Save Changes</button>';
-    h+='<button onclick="deleteEditMeasurable()" class="btn" style="padding:9px 12px;color:#dc2626;border-color:#fca5a5;background:#fef2f2">';
-    h+='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg></button>';
+    h+='<button onclick="deleteEditMeasurable()" class="btn" title="Archive measurable (kept, restorable)" style="padding:9px 12px;color:#b45309;border-color:#fcd34d;background:#fffbeb">';
+    h+='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg></button>';
     h+='<button onclick="closeEditMeasurable()" class="btn" style="padding:9px 16px">Cancel</button>';
     h+='</div>';
     h+='</div>'; // panel
@@ -6838,19 +6866,60 @@ function deselectAll(){
   renderPage();
 }
 
+// ── Scorecard Archive (v81): archived measurables keep all data and origin ──
+function _scArchiveEntry(metric, section){
+  return {
+    m: metric,
+    teamKey: state.currentTeam || 'lt',
+    ownerId: section ? section.ownerId : '',
+    ownerName: section ? (section.ownerName||'') : '',
+    seat: section ? (section.seat||'') : '',
+    color: section ? (section.color||'') : '',
+    archivedAt: new Date().toISOString().slice(0,10)
+  };
+}
+function archiveMetricById(metricId){
+  var section=scorecard.find(function(sec){return (sec.metrics||[]).some(function(m){return m.id===metricId;});});
+  if(!section) return false;
+  var idx=section.metrics.findIndex(function(m){return m.id===metricId;});
+  if(idx<0) return false;
+  var metric=section.metrics.splice(idx,1)[0];
+  archivedMetrics.unshift(_scArchiveEntry(metric, section));
+  return true;
+}
+function restoreArchivedMetric(i){
+  var e=archivedMetrics[i]; if(!e) return;
+  var board;
+  if((e.teamKey||'lt')===(state.currentTeam||'lt')) board=scorecard;
+  else if(typeof teamsRegistry==='object' && teamsRegistry[e.teamKey]) board=teamsRegistry[e.teamKey].scorecard;
+  if(!board){ board=scorecard; }
+  var section=board.find(function(sec){return sec.ownerId===e.ownerId && (sec.seat||'')===(e.seat||'');});
+  if(!section){
+    section={ownerId:e.ownerId||'DS', ownerName:e.ownerName||e.ownerId||'', seat:e.seat||'', color:e.color||undefined, metrics:[]};
+    board.push(section);
+  }
+  section.metrics.push(e.m);
+  archivedMetrics.splice(i,1);
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+  renderPage();
+}
+function deleteArchivedMetric(i){
+  var e=archivedMetrics[i]; if(!e) return;
+  if(!confirm('Permanently delete "'+(e.m&&e.m.title||'this measurable')+'" and all its readings? This cannot be undone.')) return;
+  archivedMetrics.splice(i,1);
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+  renderPage();
+}
 function bulkDeleteSelected(){
   var keys=Object.keys(state.selectedMetrics);
   if(!keys.length) return;
-  if(!confirm('Delete '+keys.length+' measurable'+(keys.length>1?'s':'')+' ? This cannot be undone.')) return;
+  if(!confirm('Archive '+keys.length+' measurable'+(keys.length>1?'s':'')+'? Data is kept; restore any time from Archive.')) return;
   keys.forEach(function(key){
     var sel=state.selectedMetrics[key];
-    var section=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===sel.metricId;});});
-    if(section){
-      var idx=section.metrics.findIndex(function(m){return m.id===sel.metricId;});
-      if(idx>-1) section.metrics.splice(idx,1);
-    }
+    archiveMetricById(sel.metricId);
   });
   state.selectedMetrics={};
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
   renderPage();
 }
 
@@ -6975,13 +7044,10 @@ function saveEditMeasurable(){
 }
 function deleteEditMeasurable(){
   var p=state.editMeasurablePanel;
-  if(!confirm('Delete this measurable? This cannot be undone.')) return;
-  var section=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===p.metricId;});});
-  if(section){
-    var idx=section.metrics.findIndex(function(m){return m.id===p.metricId;});
-    if(idx>-1) section.metrics.splice(idx,1);
-  }
+  if(!confirm('Archive this measurable? All readings are kept; restore it any time from the Archive panel on the Scorecard.')) return;
+  archiveMetricById(p.metricId);
   state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
   renderPage();
 }
 
@@ -8545,7 +8611,7 @@ function renderScorecardInline(opts){ _recalcAll();
     h += '<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
     if(showMenu){
       h += '<div onclick="event.stopPropagation()" style="position:absolute;top:100%;left:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:7px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;min-width:200px;padding:4px 0">';
-      ['last4','last13','qtd','yearToDate','fullYear','rolling52','custom'].forEach(function(rng){
+      ['last4','last13','qtd','lastQuarter','yearToDate','custom'].forEach(function(rng){
         var active = rng === dr;
         h += '<button onclick="setScorecardDateRange(\''+rng+'\')" style="display:block;width:100%;text-align:left;padding:8px 13px;border:none;background:'+(active?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;font-size:var(--fz-body);color:'+(active?'var(--blu)':'var(--txt)')+'">'+_R1[rng].label+(active?' ✓':'')+'</button>';
       });
@@ -8885,7 +8951,7 @@ function renderScorecard(){
   // Date Range (weekly only; monthly/quarterly show all periods)
   if(period==='weekly'){
   h+='<select onchange="state.scorecardDateRange=this.value;renderPage()" style="font-size:var(--fz-lg);padding:6px 10px;border:1.5px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;cursor:pointer">';
-  ['last4','last13','qtd','yearToDate','fullYear','rolling52','custom'].forEach(function(_drk){
+  ['last4','last13','qtd','lastQuarter','yearToDate','custom'].forEach(function(_drk){
     h+='<option value="'+_drk+'"'+(((state.scorecardDateRange||'last13')===_drk)?' selected':'')+'>Date Range: '+dateRanges[_drk].label+'</option>';
   });
   h+='</select>';
@@ -8927,6 +8993,10 @@ function renderScorecard(){
   h+='<div style="display:flex;align-items:center;gap:8px">';
   h+='<button class="btn btn-sm" onclick="state.newGroupPanel=true;renderPage()" style="display:flex;align-items:center;gap:5px">';
   h+='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> New Group</button>';
+  h+='<button class="btn btn-sm" onclick="state.scArchivePanel=!state.scArchivePanel;renderPage()" title="Archived measurables" style="display:flex;align-items:center;gap:5px'+(state.scArchivePanel?';background:#fffbeb;border-color:#fcd34d;color:#b45309':'')+'">';
+  h+='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg> Archive';
+  if(archivedMetrics.length) h+=' <span style="font-size:var(--fz-xs);font-weight:700;background:'+(state.scArchivePanel?'#fcd34d':'var(--sur2)')+';color:'+(state.scArchivePanel?'#78350f':'var(--txm)')+';border-radius:9px;padding:1px 7px">'+archivedMetrics.length+'</span>';
+  h+='</button>';
   var _scSort=state.scorecardSort||'manual';
   h+='<select onchange="state.scorecardSort=this.value;renderPage()" style="font-size:var(--fz-body);padding:6px 8px;border:1px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;cursor:pointer">';
   h+='<option value="manual"'+(_scSort==='manual'?' selected':'')+'>Sort: Manual</option>';
@@ -8946,6 +9016,41 @@ function renderScorecard(){
   }
   h+='</div>';
   h+='</div></div>';
+
+  // ── Archive panel (v81): searchable, restorable, permanent-delete gated ──
+  if(state.scArchivePanel){
+    h+='<div class="card" style="padding:0;margin-bottom:14px;overflow:hidden;border:1.5px solid #fcd34d">';
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#fffbeb;border-bottom:1px solid #fcd34d">';
+    h+='<svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>';
+    h+='<span style="font-size:var(--fz-lg);font-weight:600;color:#78350f">Archived Measurables</span>';
+    h+='<span style="font-size:var(--fz-body);color:#92400e">'+archivedMetrics.length+' archived \u00b7 all readings kept \u00b7 restore any time</span>';
+    h+='<input value="'+String(state.scArchiveSearch||'').replace(/"/g,'&quot;')+'" oninput="state.scArchiveSearch=this.value;renderPage()" placeholder="Search archive..." style="margin-left:auto;padding:6px 10px;border:1px solid var(--brd2);border-radius:7px;font-size:var(--fz-base);font-family:inherit;width:200px">';
+    h+='</div>';
+    var _arq=String(state.scArchiveSearch||'').trim().toLowerCase();
+    var _arList=archivedMetrics.map(function(e,i){return {e:e,i:i};}).filter(function(x){
+      if(!_arq) return true;
+      var t=((x.e.m&&x.e.m.title)||'')+' '+(x.e.ownerName||'')+' '+(x.e.seat||'');
+      return t.toLowerCase().indexOf(_arq)>-1;
+    });
+    if(!_arList.length){
+      h+='<div style="padding:22px;text-align:center;color:var(--txm);font-size:var(--fz-body)">'+(archivedMetrics.length?'No archived measurables match your search.':'Nothing archived yet. Archiving a measurable moves it here with all its readings, and it can be restored to its group at any time.')+'</div>';
+    } else {
+      h+='<div style="max-height:340px;overflow-y:auto">';
+      _arList.forEach(function(x){
+        var e=x.e, mm=e.m||{}, rc=(mm.readings||[]).filter(function(v){return typeof v==='number'&&!isNaN(v);}).length;
+        h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:0.5px solid var(--brd)">';
+        h+='<div style="flex:1;min-width:0">';
+        h+='<div style="font-size:var(--fz-body);font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_scEsc(mm.title||'(untitled)')+'</div>';
+        h+='<div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(e.ownerName||e.ownerId||'')+(e.seat?' \u00b7 '+_scEsc(e.seat):'')+' \u00b7 '+((mm.cadence)||'weekly')+' \u00b7 '+rc+' reading'+(rc===1?'':'s')+' \u00b7 archived '+(e.archivedAt||'')+'</div>';
+        h+='</div>';
+        h+='<button class="btn btn-sm" onclick="restoreArchivedMetric('+x.i+')" style="color:#166534;border-color:#86efac;background:#f0fdf4;flex-shrink:0">Restore</button>';
+        h+='<button class="btn btn-sm" onclick="deleteArchivedMetric('+x.i+')" title="Permanently delete (cannot be undone)" style="color:#dc2626;border-color:#fca5a5;background:#fef2f2;flex-shrink:0">Delete</button>';
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  }
 
   // Reorder banner
   if(state.scReorder){
@@ -9057,7 +9162,7 @@ function renderScorecard(){
         });
         h+='</select></div>';
         // Delete button
-        h+='<button onclick="bulkDeleteSelected()" style="font-size:var(--fz-body);padding:3px 10px;border-radius:5px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer">Delete</button>';
+        h+='<button onclick="bulkDeleteSelected()" style="font-size:var(--fz-body);padding:3px 10px;border-radius:5px;border:1px solid #fcd34d;background:#fffbeb;color:#b45309;cursor:pointer">Archive</button>';
         // Deselect
         h+='<button onclick="deselectAll()" style="font-size:var(--fz-body);color:var(--txm);background:none;border:none;cursor:pointer;margin-left:auto">Deselect all</button>';
         h+='</div>';
@@ -16556,6 +16661,7 @@ function vspSnapshot(){
     meetGoalRatings: state.meetGoalRatings || {},
     meetPlanChecklist: state.meetPlanChecklist || {},
     monthlyReviewAck: state.monthlyReviewAck || {},
+    archivedMetrics: archivedMetrics || [],
     runningMeeting: (state.meetTab==='running' && state.meetType) ? { type:_vspNoteType(), step:state.meetStep||0, startTime:state.meetStartTime||null, agendaDay:state.meetAgendaDay||0 } : null
   };
 }
@@ -16923,6 +17029,7 @@ function vspApplySnapshot(s){
   }
   if(s.meetPlanChecklist && typeof s.meetPlanChecklist === 'object') state.meetPlanChecklist = s.meetPlanChecklist;
   if(s.monthlyReviewAck && typeof s.monthlyReviewAck === 'object') state.monthlyReviewAck = s.monthlyReviewAck;
+  if(Array.isArray(s.archivedMetrics)) archivedMetrics = s.archivedMetrics;
   // Restore an interrupted running meeting so a reload mid-session lands back
   // In Meeting at the same step with its notes. Guarded: never yanks a session
   // that is already running locally (adapter tap-to-refresh mid-meeting), and
