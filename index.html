@@ -1296,6 +1296,62 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v79  - 2026-07-19 - Annual tab. Fourth scorecard period: one column per
+           year, current year computed live from the same readings that build
+           the quarters (weekly readings by real midweek date, monthly and
+           quarterly by index), type-aware (counts and dollars sum, percentages
+           / Yes-No / Average-rollup metrics average). Year goal scales per
+           cadence (weekly x52, monthly x12, quarterly x4; x periods-with-data
+           for the year in progress; rate goals unchanged). Built multi-year:
+           additional year columns appear automatically when readings for other
+           years exist (arrives with DB persistence). Aggregated-period logic
+           generalized behind _isAgg / _pAgg / _pGoalLabel / _pGoalOverride so
+           quarterly and annual share one path; also fixes the v78 _inCad gap
+           where weekly metrics were excluded from quarterly counts and column
+           sizing. Annual cells are read-only like quarterly. No change to
+           canon, chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v78  - 2026-07-19 - Weekly measurables now roll into the Quarterly
+           scorecard view alongside monthly and quarterly ones, completing the
+           weekly+monthly builds-the-quarter hierarchy. Weekly readings map to
+           quarters by real week date (scWeekDate), aggregated type-aware:
+           counts and dollars sum, percentages / Yes-No / Average-rollup
+           metrics average. Quarter goal for weekly sum-type metrics scales by
+           weeks-with-data (full quarter x13), mirroring the existing monthly
+           x months-with-data rule. Column detection includes weekly data when
+           deciding which quarters to show. No change to canon, chrome,
+           catalog, components, engine, contracts, or VSP_STORAGE_VERSION.
+    v77  - 2026-07-19 - Cadence change now converts the GOAL (and watch
+           threshold when set), not just the readings. Root cause of the SQL
+           incident: monthly goal >=4 stayed unconverted when the metric moved
+           to weekly, so weekly readings of ~1-1.38 (which beat the true weekly
+           target of 48/52 = 0.92) all scored red. Rule matches the readings
+           conversion: counts and dollars scale by the period factor (52/12
+           between weekly and monthly, x13 / x3 to quarterly); percentages,
+           ratings and other average-type metrics keep their goal unchanged.
+           Confirm text updated to say the goal converts. No change to canon,
+           chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v76  - 2026-07-19 - Cadence-change data warning. Changing a measurable's
+           cadence in the edit panel now shows a confirm stating exactly what
+           happens to the readings before converting: weekly to monthly
+           aggregates and discards weekly detail (not restorable by switching
+           back; a round trip spreads monthly values evenly across weeks);
+           monthly to weekly spreads values evenly; any change to or from
+           quarterly clears all readings. Cancel keeps the current cadence and
+           data untouched. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
+    v75  - 2026-07-16 - Monthly scorecard review reminders, in-meeting only.
+           Two independent banners appear on the Scorecard Review step of a
+           running meeting: an operational one from the 1st of each month
+           covering every division, and a financial one from the 15th, after
+           the books are reconciled. Each names the month, counts the monthly
+           metrics waiting, jumps straight to the monthly view, and clears on
+           its own when marked reviewed. Financial metrics are identified by a
+           closeDependent flag on the metric, not by section name, so any
+           metric that waits on close can be tagged. Acknowledgements persist
+           and sync. No change to canon, chrome, catalog, components, engine,
+           contracts, or VSP_STORAGE_VERSION.
     v74  - 2026-07-16 - Goals get a detail side panel (like Issues), openable
            from a goal row. The panel edits title, owner, status, due date and
            notes, manages milestones (add / check / delete) in the full view,
@@ -2965,7 +3021,7 @@ async function autoSummarizeSection(stepIdx, sectionLabel){
 }
 
 
-var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{}};
+var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{}};
 var timerInterval=null;
 
 // Archived plan snapshots - one per quarter
@@ -4109,11 +4165,11 @@ var scorecard=[
   ]},
   {ownerId:"LS",seat:"Financial Controller & Office Manager",metrics:[
     {id:46,title:"All Financial Weekly Workload Rating 1-10",goal:8,goalType:"≥",unit:"#",readings:[8,null,8,8,8,8,8,8,8,8,8,8,8,null,null,null,null,null,null,null,null,null]},
-    {id:47,title:"Cash on Hand >$500,000",goal:500000,goalType:"≥",unit:"$",cadence:"monthly",readings:[-450091.42,-348578.35,364302.73,327303.77,null,null,null,null,null,null,null,null]},
-    {id:48,title:"Income (15M Year, 3.5M Q3)",goal:1166666.66,goalType:"≥",unit:"$",cadence:"monthly",readings:[770198.27,527035.65,649099.15,327217.5,null,null,null,null,null,null,null,null]},
-    {id:49,title:"GP (2.3M Year, 397K Q3)",goal:132333,goalType:"≥",unit:"$",cadence:"monthly",readings:[121340.13,-86187.42,475184.98,43292.45,null,null,null,null,null,null,null,null]},
-    {id:50,title:"OE (1.4M Year, 326K Q3)",goal:108666,goalType:"≤",unit:"$",cadence:"monthly",readings:[112305.69,103148.93,105960.11,105763.47,null,null,null,null,null,null,null,null]},
-    {id:51,title:"NPBT (950K Year, 70K Q3)",goal:23333,goalType:"≥",unit:"$",cadence:"monthly",readings:[8011.88,-190258.49,369987.81,-62471.02,null,null,null,null,null,null,null,null]},
+    {id:47,closeDependent:true,title:"Cash on Hand >$500,000",goal:500000,goalType:"≥",unit:"$",cadence:"monthly",readings:[-450091.42,-348578.35,364302.73,327303.77,null,null,null,null,null,null,null,null]},
+    {id:48,closeDependent:true,title:"Income (15M Year, 3.5M Q3)",goal:1166666.66,goalType:"≥",unit:"$",cadence:"monthly",readings:[770198.27,527035.65,649099.15,327217.5,null,null,null,null,null,null,null,null]},
+    {id:49,closeDependent:true,title:"GP (2.3M Year, 397K Q3)",goal:132333,goalType:"≥",unit:"$",cadence:"monthly",readings:[121340.13,-86187.42,475184.98,43292.45,null,null,null,null,null,null,null,null]},
+    {id:50,closeDependent:true,title:"OE (1.4M Year, 326K Q3)",goal:108666,goalType:"≤",unit:"$",cadence:"monthly",readings:[112305.69,103148.93,105960.11,105763.47,null,null,null,null,null,null,null,null]},
+    {id:51,closeDependent:true,title:"NPBT (950K Year, 70K Q3)",goal:23333,goalType:"≥",unit:"$",cadence:"monthly",readings:[8011.88,-190258.49,369987.81,-62471.02,null,null,null,null,null,null,null,null]},
     {id:52,title:"All Financial Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
   ]},
   {ownerId:"VC",seat:"Accounting Administration",metrics:[
@@ -6208,6 +6264,21 @@ var SC_PLAN_START_DATE=new Date(2026,1,23);
 function scWeekDate(i){ return new Date(SC_PLAN_START_DATE.getTime()+(i-scPlanStartIdx())*7*86400000); }
 // Convert a measurable's readings when its cadence changes, preserving data.
 // weekly<->monthly carry data (counts/$ sum, % average, or honor rollupAs); anything involving quarterly clears.
+// Convert a goal (or watch threshold) between cadences. Sum-type metrics
+// (counts and dollars rolling up as Total) scale by the period factor;
+// average-type (percentages, ratings, rollupAs Average) keep the same goal.
+// Factors use 52 weeks / 12 months / 4 quarters.
+function _scConvGoal(val, oldCad, newCad, m){
+  if(val==null || val==='' || isNaN(Number(val))) return val;
+  oldCad=oldCad||'weekly'; newCad=newCad||'weekly';
+  if(oldCad===newCad) return val;
+  var sum = (m && m.rollupAs==='Total') || (m && m.rollupAs!=='Average' && (m.unit==='#' || m.unit==='$'));
+  if(!sum) return val;
+  var per={weekly:52, monthly:12, quarterly:4};
+  var factor=per[oldCad]/per[newCad];
+  var out=Number(val)*factor;
+  return Math.round(out*100)/100;
+}
 function _scConvReadings(readings, oldCad, newCad, m){
   oldCad=oldCad||'weekly'; newCad=newCad||'weekly';
   if(!Array.isArray(readings) || oldCad===newCad) return _cadNulls(newCad);
@@ -6323,7 +6394,7 @@ function _scMetricOrder(section){
   var srt=state.scorecardSort||'manual';
   var order=(section.metrics||[]).map(function(m,i){return i;});
   var _cad=state.scorecardPeriod||'weekly';
-  order=order.filter(function(i){var _mc=((section.metrics[i]||{}).cadence)||'weekly'; return _cad==='quarterly'?(_mc==='quarterly'||_mc==='monthly'):(_mc===_cad);});
+  order=order.filter(function(i){var _mc=((section.metrics[i]||{}).cadence)||'weekly'; return (_cad==='quarterly'||_cad==='annual')?true:(_mc===_cad);});
   if(s) order=order.filter(function(i){return (section.metrics[i].title||'').toLowerCase().indexOf(s)>-1;});
   if(state.scOffTrackOnly) order=order.filter(function(i){ return _vspScRowIsRed(section.metrics[i]); });
   if(srt==='name-asc') order.sort(function(a,b){return (section.metrics[a].title||'').localeCompare(section.metrics[b].title||'');});
@@ -6874,7 +6945,30 @@ function saveEditMeasurable(){
     metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined;
   } else { metric.calc=undefined; }
   var _newCad=(document.getElementById('em-cadence')||{}).value||'weekly';
-  if(((metric.cadence)||'weekly')!==_newCad){ metric.readings=_scConvReadings(metric.readings, metric.cadence, _newCad, metric); metric.cadence=_newCad; }
+  var _oldCad=(metric.cadence)||'weekly';
+  if(_oldCad!==_newCad){
+    var _hasData=Array.isArray(metric.readings)&&metric.readings.some(function(v){return typeof v==='number'&&!isNaN(v);});
+    var _msg=null;
+    if(_hasData){
+      if(_oldCad==='quarterly'||_newCad==='quarterly'){
+        _msg='Change cadence from '+_oldCad+' to '+_newCad+'?\n\nALL READINGS WILL BE CLEARED. Moves to or from quarterly do not convert data.\n\nCancel to keep the current cadence and data.';
+      } else if(_oldCad==='weekly'&&_newCad==='monthly'){
+        _msg='Change cadence from weekly to monthly?\n\nWeekly readings will be combined into monthly numbers, and count/dollar goals scale to the monthly equivalent. The week-by-week detail is discarded and CANNOT be restored by switching back (switching back spreads each month evenly across its weeks).\n\nCancel to keep weekly.';
+      } else if(_oldCad==='monthly'&&_newCad==='weekly'){
+        _msg='Change cadence from monthly to weekly?\n\nEach monthly number will be spread evenly across the weeks of that month, and count/dollar goals scale to the weekly equivalent. Totals are preserved; there is no real week-by-week detail until you enter it.\n\nCancel to keep monthly.';
+      } else {
+        _msg='Change cadence from '+_oldCad+' to '+_newCad+'? Readings will be converted and detail may be lost.\n\nCancel to keep the current cadence.';
+      }
+    }
+    if(_msg&&!confirm(_msg)){
+      var _cadSel=document.getElementById('em-cadence'); if(_cadSel)_cadSel.value=_oldCad;
+    } else {
+      metric.readings=_scConvReadings(metric.readings, metric.cadence, _newCad, metric);
+      metric.goal=_scConvGoal(metric.goal, _oldCad, _newCad, metric);
+      if(metric.watch!=null && metric.watch!=='') metric.watch=_scConvGoal(metric.watch, _oldCad, _newCad, metric);
+      metric.cadence=_newCad;
+    }
+  }
 
   state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
   renderPage();
@@ -8601,13 +8695,69 @@ function renderScorecard(){
   // sets per cadence (each metric gets a cadence field, each tab filters
   // to its set). For now, weekly only.
   var period=state.scorecardPeriod||'weekly';
-  var _inCad=function(m){var _c=(m&&m.cadence)||'weekly'; return period==='quarterly'?(_c==='quarterly'||_c==='monthly'):(_c===period);};
+  var _isAgg=(period==='quarterly'||period==='annual');
+  var _inCad=function(m){var _c=(m&&m.cadence)||'weekly'; return _isAgg?true:(_c===period);};
   var SC_MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var SC_QUARTERS=['Q1','Q2','Q3','Q4'];
-  function _qAgg(m,q){ var r=m.readings||[],v=[]; for(var k=q*3;k<q*3+3;k++){ if(typeof r[k]==='number'&&!isNaN(r[k])) v.push(r[k]); } if(!v.length) return null; var s=v.reduce(function(a,b){return a+b;},0); return (m.unit==='%'||m.unit==='YN')?(s/v.length):s; }
+  function _qIsAvg(m){ return m.unit==='%'||m.unit==='YN'||m.rollupAs==='Average'; }
+  function _qWeekIdxs(m,q){
+    // Week indices whose real date falls inside quarter q of the current year.
+    var r=m.readings||[], yr=new Date().getFullYear(), out=[];
+    for(var k=0;k<r.length;k++){
+      if(typeof r[k]!=='number'||isNaN(r[k])) continue;
+      var d=scWeekDate(k);
+      if(d.getFullYear()===yr && Math.floor(d.getMonth()/3)===q) out.push(k);
+    }
+    return out;
+  }
+  function _qAgg(m,q){
+    var r=m.readings||[],v=[];
+    if(((m.cadence)||'weekly')==='weekly'){
+      _qWeekIdxs(m,q).forEach(function(k){ v.push(r[k]); });
+    } else {
+      for(var k=q*3;k<q*3+3;k++){ if(typeof r[k]==='number'&&!isNaN(r[k])) v.push(r[k]); }
+    }
+    if(!v.length) return null;
+    var s=v.reduce(function(a,b){return a+b;},0);
+    return _qIsAvg(m)?(s/v.length):s;
+  }
   function _qMonths(m,q){ var r=m.readings||[],n=0; for(var k=q*3;k<q*3+3;k++){ if(typeof r[k]==='number'&&!isNaN(r[k])) n++; } return n; }
-  function _qGoalOverride(m,q){ if(m.unit==='%'||m.unit==='YN') return m.goal; var mw=_qMonths(m,q); return m.goal*(mw||3); }
-  function _qGoalLabel(m){ if(m.goalType==='inside'||m.goalType==='outside') return _goalLabel(m); var isAvg=(m.unit==='%'||m.unit==='YN'); var g=isAvg?m.goal:(m.goal*3); return (m.goalType||'')+fmtVal(g,m.unit)+(isAvg?'':'/q'); }
+  function _qGoalOverride(m,q){
+    if(_qIsAvg(m)) return m.goal;
+    if(((m.cadence)||'weekly')==='weekly'){ var ww=_qWeekIdxs(m,q).length; return m.goal*(ww||13); }
+    var mw=_qMonths(m,q); return m.goal*(mw||3);
+  }
+  function _qGoalLabel(m){
+    if(m.goalType==='inside'||m.goalType==='outside') return _goalLabel(m);
+    if(_qIsAvg(m)) return (m.goalType||'')+fmtVal(m.goal,m.unit);
+    var per=(((m.cadence)||'weekly')==='weekly')?13:3;
+    return (m.goalType||'')+fmtVal(m.goal*per,m.unit)+'/q';
+  }
+  // ── Annual aggregation (v79). Years are real years; weekly readings map by
+  // midweek date so the Dec 29 boundary week lands in the year it belongs to.
+  function _yWeekYear(k){ return new Date(scWeekDate(k).getTime()+3*86400000).getFullYear(); }
+  function _yVals(m,yr){
+    var r=m.readings||[], cad=((m.cadence)||'weekly'), v=[], nowYr=new Date().getFullYear();
+    if(cad==='weekly'){
+      for(var k=0;k<r.length;k++){ if(typeof r[k]==='number'&&!isNaN(r[k])&&_yWeekYear(k)===yr) v.push(r[k]); }
+    } else if(yr===nowYr){
+      var lim=(cad==='monthly')?12:4;
+      for(var j=0;j<r.length&&j<lim;j++){ if(typeof r[j]==='number'&&!isNaN(r[j])) v.push(r[j]); }
+    }
+    return v;
+  }
+  function _yAgg(m,yr){ var v=_yVals(m,yr); if(!v.length) return null; var t=v.reduce(function(a,b){return a+b;},0); return _qIsAvg(m)?(t/v.length):t; }
+  function _yPer(m){ var cad=((m.cadence)||'weekly'); return cad==='weekly'?52:(cad==='monthly'?12:4); }
+  function _yGoalOverride(m,yr){ if(_qIsAvg(m)) return m.goal; var n=_yVals(m,yr).length; return m.goal*(n||_yPer(m)); }
+  function _yGoalLabel(m){
+    if(m.goalType==='inside'||m.goalType==='outside') return _goalLabel(m);
+    if(_qIsAvg(m)) return (m.goalType||'')+fmtVal(m.goal,m.unit);
+    return (m.goalType||'')+fmtVal(m.goal*_yPer(m),m.unit)+'/yr';
+  }
+  // Dispatchers: quarterly and annual share one aggregated-period path.
+  function _pAgg(m,i){ return period==='annual'?_yAgg(m,i):_qAgg(m,i); }
+  function _pGoalOverride(m,i){ return period==='annual'?_yGoalOverride(m,i):_qGoalOverride(m,i); }
+  function _pGoalLabel(m){ return period==='annual'?_yGoalLabel(m):_qGoalLabel(m); }
 
   // Helpers
   function aggReadings(readings, groups){
@@ -8654,22 +8804,35 @@ function renderScorecard(){
   else if(period==='quarterly'){
     var _qyr=new Date().getFullYear();
     var _cq=Math.floor(new Date().getMonth()/3);
-    var _lastQ=0; scorecard.forEach(function(s){ s.metrics.forEach(function(m){ var _mc=(m.cadence||'weekly'); if((_mc==='monthly'||_mc==='quarterly')&&Array.isArray(m.readings)){ for(var _qi=0;_qi<m.readings.length&&_qi<12;_qi++){ if(m.readings[_qi]!=null) _lastQ=Math.max(_lastQ,Math.floor(_qi/3)); } } }); });
+    var _lastQ=0; scorecard.forEach(function(s){ s.metrics.forEach(function(m){ var _mc=(m.cadence||'weekly'); if(!Array.isArray(m.readings)) return;
+      if(_mc==='monthly'||_mc==='quarterly'){ for(var _qi=0;_qi<m.readings.length&&_qi<12;_qi++){ if(m.readings[_qi]!=null) _lastQ=Math.max(_lastQ,Math.floor(_qi/3)); } }
+      else { var _yrQ=new Date().getFullYear(); for(var _wi=0;_wi<m.readings.length;_wi++){ if(typeof m.readings[_wi]==='number'&&!isNaN(m.readings[_wi])){ var _wd=scWeekDate(_wi); if(_wd.getFullYear()===_yrQ) _lastQ=Math.max(_lastQ,Math.floor(_wd.getMonth()/3)); } } }
+    }); });
     var _uptoQ=Math.min(3,Math.max(_cq,_lastQ));
     activeIdxs=[]; for(var _qx=_uptoQ;_qx>=0;_qx--) activeIdxs.push(_qx);
     colLabels=activeIdxs.map(function(q){return 'Q'+(q+1)+' '+_qyr+(q===_cq?' (to date)':'');});
   }
+  else if(period==='annual'){
+    var _yNow=new Date().getFullYear(), _yset={};
+    _yset[_yNow]=true;
+    scorecard.forEach(function(s){ s.metrics.forEach(function(m){
+      if(((m.cadence)||'weekly')!=='weekly'||!Array.isArray(m.readings)) return;
+      for(var _wk=0;_wk<m.readings.length;_wk++){ if(typeof m.readings[_wk]==='number'&&!isNaN(m.readings[_wk])) _yset[_yWeekYear(_wk)]=true; }
+    }); });
+    activeIdxs=Object.keys(_yset).map(Number).sort(function(a,b){return b-a;});
+    colLabels=activeIdxs.map(function(y){return y+(y===_yNow?' (to date)':'');});
+  }
   else { activeIdxs=drCfg.weekIdxs; colLabels=activeIdxs.map(function(i){return weekRanges[i];}); }
-  var colData=scorecard.map(function(s){return {section:s,cols:s.metrics.map(function(m){return activeIdxs.map(function(i){return period==='quarterly'?_qAgg(m,i):(m.readings[i]!==undefined?m.readings[i]:null);});})};});
+  var colData=scorecard.map(function(s){return {section:s,cols:s.metrics.map(function(m){return activeIdxs.map(function(i){return _isAgg?_pAgg(m,i):(m.readings[i]!==undefined?m.readings[i]:null);});})};});
   // Uniform frozen columns: size Goal/Avg/Total once from the widest value across every section so all sections match.
   var _scwG=0,_scwA=0,_scwT=0;
   scorecard.forEach(function(_s){ (_s.metrics||[]).forEach(function(_m){
     if(!_inCad(_m)) return;
-    var _cl=activeIdxs.map(function(i){return period==='quarterly'?_qAgg(_m,i):_m.readings[i];});
+    var _cl=activeIdxs.map(function(i){return _isAgg?_pAgg(_m,i):_m.readings[i];});
     var _vc=_cl.filter(function(v){return v!==null&&v!==undefined&&typeof v==='number';});
     var _av=_vc.length?(_vc.reduce(function(a,b){return a+b;},0)/_vc.length).toFixed(1):' - ';
     var _tt=_vc.length?_vc.reduce(function(a,b){return a+b;},0):'';
-    var _gs=String(period==='quarterly'?_qGoalLabel(_m):_goalLabel(_m));
+    var _gs=String(_isAgg?_pGoalLabel(_m):_goalLabel(_m));
     var _as=String(fmtVal(_av,_m.unit));
     var _ts=String(_tt===''?' - ':(_m.rollupAs==='Average'?'-':fmtVal(_tt,_m.unit)));
     if(_gs.length>_scwG)_scwG=_gs.length; if(_as.length>_scwA)_scwA=_as.length; if(_ts.length>_scwT)_scwT=_ts.length;
@@ -8717,7 +8880,7 @@ function renderScorecard(){
   h+='</div>';
   // Cadence selector: Weekly / Monthly / Quarterly
   h+='<div style="display:inline-flex;border:1.5px solid var(--brd2);border-radius:7px;overflow:hidden">';
-  [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly']].forEach(function(pp){ var on=(state.scorecardPeriod||'weekly')===pp[0]; h+='<button onclick="state.scorecardPeriod=\''+pp[0]+'\';renderPage()" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+pp[1]+'</button>'; });
+  [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly'],['annual','Annual']].forEach(function(pp){ var on=(state.scorecardPeriod||'weekly')===pp[0]; h+='<button onclick="state.scorecardPeriod=\''+pp[0]+'\';renderPage()" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+pp[1]+'</button>'; });
   h+='</div>';
   // Date Range (weekly only; monthly/quarterly show all periods)
   if(period==='weekly'){
@@ -8818,20 +8981,20 @@ function renderScorecard(){
     h+='</tr></thead><tbody>';
     _mg.forEach(function(r){
       var m=r.m;
-      var _winR=activeIdxs.map(function(i){return period==='quarterly'?_qAgg(m,i):m.readings[i];});
+      var _winR=activeIdxs.map(function(i){return _isAgg?_pAgg(m,i):m.readings[i];});
       var nums=_winR.filter(function(v){return typeof v==='number';});
       var sum=nums.reduce(function(a,b){return a+b;},0);
       var avg=nums.length?sum/nums.length:0;
       h+='<tr style="border-bottom:0.5px solid var(--brd)">';
       h+='<td style="padding:8px 10px;font-size:var(--fz-lg);text-align:left;position:sticky;left:0;background:var(--sur)"><div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR}))+'</td>';
       h+='<td style="padding:8px 10px;text-align:left"><span style="display:inline-flex;align-items:center;gap:6px">'+avatar((r.oid||'').slice(0,2),r.ocolor,18)+'<span style="font-size:var(--fz-body);color:var(--txm)">'+r.oname+'</span></span></td>';
-      h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(period==='quarterly'?_qGoalLabel(m):_goalLabel(m))+'</td>';
-      h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(period==='quarterly'?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
+      h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
+      h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);color:'+(m.rollupAs==='Total'?_tierColor(_scTier(m,sum)):'var(--txm)')+';border-right:2px solid var(--brd)">'+(m.rollupAs==='Average'?'-':fmtVal(sum,m.unit))+'</td>';
-      var _isWk2 = (((m.cadence)||'weekly')===period) && period!=='quarterly';
+      var _isWk2 = (((m.cadence)||'weekly')===period) && !_isAgg;
       activeIdxs.forEach(function(_wi){
-        var _mv=(period==='quarterly')?_qAgg(m,_wi):m.readings[_wi];
-        var _mgo=(period==='quarterly')?_qGoalOverride(m,_wi):undefined;
+        var _mv=_isAgg?_pAgg(m,_wi):m.readings[_wi];
+        var _mgo=_isAgg?_pGoalOverride(m,_wi):undefined;
         h+=_renderWeekCell(m, _mv, _wi, r.oid, 'var(--sur)', _isWk2, _mgo);
       });
       h+='</tr>';
@@ -8937,7 +9100,7 @@ function renderScorecard(){
         var cols=d.cols[mi];
         var allVals=m.readings.filter(function(v){return v!==null&&v!==undefined&&typeof v==='number';});
         var validCols=cols.filter(function(v){return v!==null&&v!==undefined&&typeof v==='number';});
-        var avg=(period==='quarterly')?(validCols.length?(validCols.reduce(function(a,b){return a+b;},0)/validCols.length).toFixed(1):' - '):(validCols.length?(validCols.reduce(function(a,b){return a+b;},0)/validCols.length).toFixed(1):' - ');
+        var avg=(validCols.length?(validCols.reduce(function(a,b){return a+b;},0)/validCols.length).toFixed(1):' - ');
         var total=validCols.length?validCols.reduce(function(a,b){return a+b;},0):'';
         // Format total based on unit (uses fmtVal for $/% awareness)
         var totalDisplay=total===''?' - ':fmtVal(total,m.unit);
@@ -8962,14 +9125,14 @@ function renderScorecard(){
         var _scDrag=_scManual?(' draggable="true" ondragstart="scMDragStart(event,'+m.id+')" ondragend="scMDragEnd()"'):'';
         var _scGrip=_scManual?('<svg width="8" height="13" viewBox="0 0 8 13" style="display:inline-block;vertical-align:middle;margin-right:6px;opacity:.35;flex-shrink:0" fill="currentColor"><circle cx="2" cy="2" r="1"/><circle cx="6" cy="2" r="1"/><circle cx="2" cy="6.5" r="1"/><circle cx="6" cy="6.5" r="1"/><circle cx="2" cy="11" r="1"/><circle cx="6" cy="11" r="1"/></svg>'):'';
         h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols}))+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(period==='quarterly'?_qGoalLabel(m):_goalLabel(m))+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(period==='quarterly'?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
+        h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
+        h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
         h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--txm);border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':totalDisplay)+'</td>';
 
-        var _isWk3 = (((m.cadence)||'weekly')===period) && period!=='quarterly';
+        var _isWk3 = (((m.cadence)||'weekly')===period) && !_isAgg;
         cols.forEach(function(_v,_ci){
           var _wi = activeIdxs[_ci];
-          var _go = (period==='quarterly') ? _qGoalOverride(m,_wi) : undefined;
+          var _go = _isAgg ? _pGoalOverride(m,_wi) : undefined;
           h+=_renderWeekCell(m, _v, _wi, section.ownerId, rowBg, _isWk3, _go);
         });
         h+='</tr>';
@@ -10584,6 +10747,78 @@ function _q1QTarget(m){
   return qt;
 }
 function q1MeasHit(id){ var e=_q1Result(id); e.hit=(e.hit==='hit')?'miss':(e.hit==='miss')?'':'hit'; renderPage(); }
+// ── Monthly scorecard review reminders (v75) ─────────────────────────────────
+// Two independent prompts on the in-meeting Scorecard Review step:
+//   ops  - from the 1st, every division's operational monthly metrics
+//   fin  - from the 15th, metrics flagged closeDependent (books reconciled)
+// Each clears on its own when marked reviewed and stays put until then, so a
+// skipped meeting does not silently drop the reminder.
+var VSP_FIN_REVIEW_DAY = 15;
+function _vspMonthKey(d){ d=d||new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
+function _vspMonthName(d){ d=d||new Date(); return d.toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+function _vspMonthlyAck(){ return (state.monthlyReviewAck = state.monthlyReviewAck || {}); }
+function _vspMonthlyAcked(kind){ return !!_vspMonthlyAck()[kind+'-'+_vspMonthKey()]; }
+function ackMonthlyReview(kind){
+  _vspMonthlyAck()[kind+'-'+_vspMonthKey()] = new Date().toISOString();
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+  renderPage();
+}
+function openMonthlyScorecard(kind){
+  state.scorecardPeriod='monthly';
+  if(kind) state.scMonthlyFocus=kind;
+  renderPage();
+}
+// Count monthly metrics across every division, split by close dependency.
+function _vspMonthlyCounts(){
+  var ops=0, fin=0, divisions={};
+  function scan(list, teamName){
+    (list||[]).forEach(function(sec){
+      ((sec&&sec.metrics)||[]).forEach(function(m){
+        if(((m.cadence)||'weekly')!=='monthly') return;
+        if(m.closeDependent){ fin++; } else { ops++; divisions[teamName]=true; }
+      });
+    });
+  }
+  try{
+    if(typeof teamsRegistry==='object' && teamsRegistry){
+      Object.keys(teamsRegistry).forEach(function(k){
+        var t=teamsRegistry[k]; if(!t) return;
+        var sc=(k===state.currentTeam && typeof scorecard!=='undefined')?scorecard:t.scorecard;
+        scan(sc, t.name||k);
+      });
+    } else if(typeof scorecard!=='undefined'){ scan(scorecard,'Team'); }
+  }catch(e){}
+  return {ops:ops, fin:fin, divisions:Object.keys(divisions).length};
+}
+function _vspMonthlyReviewBanners(){
+  var h='', now=new Date(), c=_vspMonthlyCounts();
+  var opsDue = !_vspMonthlyAcked('ops') && c.ops>0;
+  var finDue = (now.getDate()>=VSP_FIN_REVIEW_DAY) && !_vspMonthlyAcked('fin') && c.fin>0;
+  function banner(kind,title,body,btn,accent,bg,brd){
+    var x='<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:'+bg+';border:1.5px solid '+brd+';border-left:5px solid '+accent+';border-radius:9px;margin-bottom:12px">';
+    x+='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+accent+'" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>';
+    x+='<div style="flex:1;min-width:0">';
+    x+='<div style="font-size:var(--fz-lg);font-weight:700;color:'+accent+';margin-bottom:3px">'+title+'</div>';
+    x+='<div style="font-size:var(--fz-body);color:var(--txt);line-height:1.5">'+body+'</div>';
+    x+='</div>';
+    x+='<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">';
+    x+='<button type="button" onclick="openMonthlyScorecard(\''+kind+'\')" style="padding:8px 15px;border-radius:7px;border:none;background:'+accent+';color:#fff;font-size:var(--fz-base);font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">'+btn+'</button>';
+    x+='<button type="button" onclick="ackMonthlyReview(\''+kind+'\')" style="padding:8px 15px;border-radius:7px;border:1px solid var(--brd2);background:var(--sur);color:var(--txm);font-size:var(--fz-base);cursor:pointer;font-family:inherit;white-space:nowrap">Mark reviewed</button>';
+    x+='</div></div>';
+    return x;
+  }
+  if(opsDue){
+    h+=banner('ops','Monthly Scorecard Review Due  -  '+_vspMonthName(),
+      'Review the monthly numbers for all divisions alongside this week\u2019s scorecard. <b>'+c.ops+'</b> monthly measurable'+(c.ops===1?'':'s')+' across <b>'+c.divisions+'</b> division'+(c.divisions===1?'':'s')+' waiting. Anything off track drops to the Issues list.',
+      'Open monthly','#b45309','#fffbeb','#fcd34d');
+  }
+  if(finDue){
+    h+=banner('fin','Financial Monthly Review Due  -  '+_vspMonthName(),
+      'The books are reconciled for last month. Review the <b>'+c.fin+'</b> financial measurable'+(c.fin===1?'':'s')+' that wait on close. Anything off track drops to the Issues list.',
+      'Open monthly','#b91c1c','#fef2f2','#fca5a5');
+  }
+  return h;
+}
 function _q1ColGroup(){
   // Shared fixed column layout so the financials table and the measurables
   // table line up exactly and the vs-Target bar is the same width on both.
@@ -11094,6 +11329,7 @@ function renderMeetings(){
       h+='<div style="margin-bottom:14px">'+renderStrategic()+'</div>';
     }
     if(stepIs("scorecard")){
+      h+=_vspMonthlyReviewBanners();
       h+=_meetPndScorecardItem();
       var _nxtSec = runSections[step+1];
       h+=renderScorecardInline({
@@ -16319,6 +16555,7 @@ function vspSnapshot(){
     stepNotes: state.stepNotes || {},
     meetGoalRatings: state.meetGoalRatings || {},
     meetPlanChecklist: state.meetPlanChecklist || {},
+    monthlyReviewAck: state.monthlyReviewAck || {},
     runningMeeting: (state.meetTab==='running' && state.meetType) ? { type:_vspNoteType(), step:state.meetStep||0, startTime:state.meetStartTime||null, agendaDay:state.meetAgendaDay||0 } : null
   };
 }
@@ -16685,6 +16922,7 @@ function vspApplySnapshot(s){
     try{ Object.keys(state.meetGoalRatings).forEach(function(_rk){ var _re=state.meetGoalRatings[_rk]; if(_re && Array.isArray(_re.grades)) _re.grades={}; }); }catch(e){}
   }
   if(s.meetPlanChecklist && typeof s.meetPlanChecklist === 'object') state.meetPlanChecklist = s.meetPlanChecklist;
+  if(s.monthlyReviewAck && typeof s.monthlyReviewAck === 'object') state.monthlyReviewAck = s.monthlyReviewAck;
   // Restore an interrupted running meeting so a reload mid-session lands back
   // In Meeting at the same step with its notes. Guarded: never yanks a session
   // that is already running locally (adapter tap-to-refresh mid-meeting), and
