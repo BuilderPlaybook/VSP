@@ -1296,6 +1296,22 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v83  - 2026-07-19 - Data Guard. Every snapshot write now passes through
+           _vspGuardedWrite, which compares per-measurable reading counts
+           against the last persisted snapshot. A save that would erase
+           readings from TWO OR MORE measurables is blocked before it reaches
+           storage or the sync layer: the previous good snapshot is preserved
+           in a backup ring (vsp.guard.backup.1-3), the attempted-write stack
+           is logged for diagnosis, the user is told which measurables would
+           have been hit, and the page reloads from the good copy. Every
+           legitimate destructive action in the app (cadence conversion,
+           quarterly clear, permanent archive delete) touches exactly one
+           measurable, so single-metric reductions pass through untouched. A
+           lastGood backup slot updates on every clean save, and a Restore
+           from Backup entry in the Scorecard overflow menu lists all backups
+           with timestamps and reading counts for two-click self-recovery. No
+           change to canon, chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
     v82  - 2026-07-19 - Data-loss fix: scNormalize no longer truncates weekly
            readings. Root cause of the recurring wipe: a browser running a
            stale cached build (shorter week list) adopted the shared snapshot,
@@ -9051,6 +9067,17 @@ function renderScorecard(){
     h+='<div style="height:1px;background:var(--brd);margin:4px 0"></div>';
     h+='<button onclick="state.scorecardMenu=false;exportScorecardCSV()" style="display:block;width:100%;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:var(--txt);text-align:left">Export as CSV</button>';
     h+='<button onclick="state.scorecardMenu=false;printScorecard()" style="display:block;width:100%;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:var(--txt);text-align:left">Print PDF</button>';
+    h+='<div style="height:1px;background:var(--brd);margin:4px 0"></div>';
+    var _gbl=_vspGuardList();
+    if(_gbl.length){
+      h+='<div style="padding:6px 14px 2px;font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.04em">Restore from backup</div>';
+      _gbl.forEach(function(b){
+        var lbl=(b.tag==='lastGood'?'Last good save':'Backup')+' \u00b7 '+String(b.at).replace('T',' ').slice(0,16)+' \u00b7 '+b.total+' readings';
+        h+='<button onclick="state.scorecardMenu=false;vspRestoreBackup(\''+b.key+'\')" style="display:block;width:100%;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:var(--fz-body);color:var(--txt);text-align:left">'+lbl+'</button>';
+      });
+    } else {
+      h+='<div style="padding:8px 14px;font-size:var(--fz-body);color:var(--txm)">No backups yet</div>';
+    }
     h+='</div><div onclick="state.scorecardMenu=false;renderPage()" style="position:fixed;inset:0;z-index:199"></div>';
   }
   h+='</div>';
@@ -17109,6 +17136,83 @@ function vspLoadAll(){
     return false;
   }
 }
+// ── Data Guard (v83): no save may erase readings from measurables the user
+// did not act on. Single-metric reductions are legitimate (cadence
+// conversion, quarterly clear, permanent archive delete); multi-metric
+// reductions are treated as corruption, blocked, and recovered from the last
+// good persisted copy.
+function _vspReadingCounts(snap){
+  var out={};
+  function walkSc(sc){ if(!Array.isArray(sc)) return; sc.forEach(function(sec){ (sec&&sec.metrics||[]).forEach(function(m){ if(!m||m.id==null) return; var n=0,r=m.readings; if(Array.isArray(r)){ for(var i=0;i<r.length;i++){ if(typeof r[i]==='number'&&!isNaN(r[i])) n++; } } out[m.id]=(out[m.id]||0)+n; }); }); }
+  try{
+    if(snap&&snap.teams&&typeof snap.teams==='object'){ Object.keys(snap.teams).forEach(function(k){ walkSc(snap.teams[k]&&snap.teams[k].scorecard); }); }
+    if(snap&&Array.isArray(snap.scorecard)) walkSc(snap.scorecard);
+    if(snap&&Array.isArray(snap.archivedMetrics)) snap.archivedMetrics.forEach(function(e){ var m=e&&e.m; if(!m||m.id==null) return; var n=0,r=m.readings; if(Array.isArray(r)){ for(var i=0;i<r.length;i++){ if(typeof r[i]==='number'&&!isNaN(r[i])) n++; } } out[m.id]=(out[m.id]||0)+n; });
+  }catch(e){}
+  return out;
+}
+function _vspGuardBackup(slotJson, tag){
+  try{
+    var k1=vspStorageKey()+'.guard.backup.1', k2=vspStorageKey()+'.guard.backup.2', k3=vspStorageKey()+'.guard.backup.3';
+    var b1=localStorage.getItem(k1), b2=localStorage.getItem(k2);
+    if(b2!=null) localStorage.setItem(k3,b2);
+    if(b1!=null) localStorage.setItem(k2,b1);
+    localStorage.setItem(k1, JSON.stringify({at:new Date().toISOString(), tag:tag||'', data:slotJson}));
+  }catch(e){}
+}
+function _vspGuardedWrite(json){
+  var prevRaw=null;
+  try{ prevRaw=localStorage.getItem(vspStorageKey()); }catch(e){}
+  if(prevRaw){
+    try{
+      var prev=JSON.parse(prevRaw), next=JSON.parse(json);
+      var pc=_vspReadingCounts(prev), nc=_vspReadingCounts(next);
+      var losers=[];
+      Object.keys(pc).forEach(function(id){
+        var was=pc[id], now=(nc[id]!=null)?nc[id]:0;
+        if(was>0 && now<was) losers.push(id);
+      });
+      if(losers.length>=2){
+        _vspGuardBackup(prevRaw,'blocked-save');
+        var titles=[];
+        try{
+          var seen={};
+          function findT(sc){ if(!Array.isArray(sc))return; sc.forEach(function(sec){ (sec&&sec.metrics||[]).forEach(function(m){ if(m&&losers.indexOf(String(m.id))>-1&&!seen[m.id]){ seen[m.id]=1; titles.push(m.title||('#'+m.id)); } }); }); }
+          if(prev.teams) Object.keys(prev.teams).forEach(function(k){ findT(prev.teams[k]&&prev.teams[k].scorecard); });
+          if(Array.isArray(prev.scorecard)) findT(prev.scorecard);
+        }catch(e){}
+        try{ console.warn('[VSP GUARD] Blocked a save that would erase readings from '+losers.length+' measurables:', titles.join(' | '), '\nAttempted-write stack:', new Error().stack); }catch(e){}
+        try{ alert('Data Guard: this save would have erased readings from '+losers.length+' measurables ('+titles.slice(0,3).join(', ')+(titles.length>3?', ...':'')+').\n\nNothing was saved or synced. Your data is safe. The page will now reload from the last good copy.'); }catch(e){}
+        try{ location.reload(); }catch(e){}
+        return false;
+      }
+      // Clean or single-metric save: keep a rolling lastGood of the outgoing state.
+      try{ localStorage.setItem(vspStorageKey()+'.guard.lastGood', JSON.stringify({at:new Date().toISOString(), tag:'lastGood', data:prevRaw})); }catch(e){}
+    }catch(e){ /* parse trouble: never block on guard failure */ }
+  }
+  localStorage.setItem(vspStorageKey(), json);
+  return true;
+}
+function _vspGuardList(){
+  var out=[], keys=['.guard.backup.1','.guard.backup.2','.guard.backup.3','.guard.lastGood'];
+  keys.forEach(function(sfx){
+    try{
+      var raw=localStorage.getItem(vspStorageKey()+sfx); if(!raw) return;
+      var o=JSON.parse(raw); var c=_vspReadingCounts(JSON.parse(o.data)); var t=0; Object.keys(c).forEach(function(k){t+=c[k];});
+      out.push({key:sfx, at:o.at||'', tag:o.tag||'', total:t});
+    }catch(e){}
+  });
+  return out;
+}
+function vspRestoreBackup(sfx){
+  try{
+    var raw=localStorage.getItem(vspStorageKey()+sfx); if(!raw){ alert('Backup not found.'); return; }
+    var o=JSON.parse(raw);
+    if(!confirm('Restore the backup from '+(o.at||'unknown time')+'? Current unsaved state on this page is replaced by the backup, and the backup will sync to the team on your next change.')) return;
+    localStorage.setItem(vspStorageKey(), o.data);
+    location.reload();
+  }catch(e){ alert('Restore failed: '+e.message); }
+}
 var _vspSaveTimer = null;
 function vspSaveAll(){
   // Debounce: coalesce rapid renders into one save.
@@ -17116,7 +17220,7 @@ function vspSaveAll(){
   _vspSaveTimer = setTimeout(function(){
     _vspSaveTimer = null;
     try {
-      localStorage.setItem(vspStorageKey(), JSON.stringify(vspSnapshot()));
+      _vspGuardedWrite(JSON.stringify(vspSnapshot()));
     } catch(e){
       // QuotaExceeded or serialization error - log once, do not block render.
       console.warn('[VSP] vspSaveAll failed:', e.message);
@@ -17149,8 +17253,7 @@ function vspSaveNow(){
   // envelope. Cancels any pending debounced save since this supersedes it.
   if(_vspSaveTimer){ clearTimeout(_vspSaveTimer); _vspSaveTimer = null; }
   try {
-    localStorage.setItem(vspStorageKey(), JSON.stringify(vspSnapshot()));
-    _vspSetSaveStatus('saved');
+    if(_vspGuardedWrite(JSON.stringify(vspSnapshot()))) _vspSetSaveStatus('saved');
   } catch(e){
     console.warn('[VSP] vspSaveNow failed:', e.message);
   }
