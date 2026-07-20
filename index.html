@@ -1296,6 +1296,32 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v89  - 2026-07-20 - Total column and keep-at-zero bar now score against
+           the goal (the deferred ExpertCFO rollup fix). Total column: for
+           Total-rollup metrics the summed window is compared to the goal
+           scaled by periods-with-data (goal x N; a <=0 goal scales to 0, so
+           any positive total is red; a >=0.92 weekly goal over 10 data weeks
+           scores the total against 9.2). Banded (inside/outside) and Yes-No
+           metrics keep a neutral Total. Applies to both the merged view and
+           the per-section view via the new _scTotTier helper. Keep-at-zero
+           bar: for Total-rollup count metrics the bar now scores the
+           CUMULATIVE total (4 cancellations against <=0 is red regardless of
+           trend) and labels it "N total"; the trend projection remains only
+           for Average-rollup keep-at-zero metrics where the past does not
+           accumulate. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
+    v88  - 2026-07-20 - Future-month entry trap closed on the Monthly
+           scorecard. The month grid no longer extends past the current month
+           just because a metric holds a stray future value; it always leads
+           with the current month. When future-month data DOES exist, those
+           columns still render (so misplaced entries stay visible and
+           fixable) but their headers carry an amber FUTURE tag warning that
+           numbers in them are ahead of today. Root cause of the FSA
+           Cancelled quarterly confusion: entries made against a grid whose
+           leftmost columns were Aug and Sep landed two months ahead of the
+           intended months; the quarterly rollup summed the stored positions
+           faithfully. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
     v87  - 2026-07-20 - Avatar placement consistency. One rule app-wide:
            owner avatars sit at the RIGHT end of list rows (with the due date
            and row menu), matching To-Dos, Issues, and Headlines; avatars sit
@@ -4696,6 +4722,22 @@ function _scHealth(m,val){
 // (isOnTrack uses goalType + goal). Not green: amber if within the watch
 // threshold set in the edit tab, else within a default 10% band off goal
 // when no watch is set; otherwise red. Goal = 0 collapses to binary green/red.
+// v89: score a window TOTAL against the goal scaled by periods-with-data.
+// Returns 'green'/'amber'/'red' or null (null = render neutral).
+function _scTotTier(m,sum,n){
+  if(sum===null||sum===undefined||!n) return null;
+  if(!m || m.unit==='YN' || m.goalType==='inside' || m.goalType==='outside') return null;
+  var g=Number(m.goal); if(!isFinite(g)) return null;
+  var G=g*n, S=Number(sum);
+  var on = (m.goalType==='\u2265') ? (S>=G) : (m.goalType==='\u2264') ? (S<=G) : (S===G);
+  if(on) return 'green';
+  if(m.watch!=null && m.watch!=='' && isFinite(Number(m.watch))){
+    var W=Number(m.watch)*n;
+    var inWatch = (m.goalType==='\u2265') ? (S>=W) : (m.goalType==='\u2264') ? (S<=W) : false;
+    if(inWatch) return 'amber';
+  }
+  return 'red';
+}
 function _scTier(m,val){
   if(val===null||val===undefined||val==='')return null;
   if(m && m.unit==='YN'){
@@ -5583,6 +5625,13 @@ function _renderKeepAtZeroGauge(m){
     rawProjected = pts.reduce(function(a,p){return a+p.y;},0) / pts.length;
     mode = 'avg';
   }
+  // v89: counts accumulate. For Total-rollup keep-at-zero metrics the health
+  // is the CUMULATIVE total, not the trend: 4 cancellations against <=0 is
+  // red no matter which way the last three weeks point.
+  if(m.rollupAs==='Total'){
+    rawProjected = pts.reduce(function(a,p){return a+p.y;},0);
+    mode = 'total';
+  }
   // Progress-to-goal model: 100% fill = at zero (perfect), 0% fill = at worst observed
   // Scale by max observed magnitude so the bar moves visibly as readings change.
   var maxObs = pts.reduce(function(a,p){return Math.max(a, Math.abs(p.y));}, 0);
@@ -5602,6 +5651,8 @@ function _renderKeepAtZeroGauge(m){
   var bgTint = tier==='green' ? '#dcfce7' : tier==='amber' ? '#fef3c7' : '#fee2e2';
   var leftLbl = mode==='projected'
     ? fmtVal(rawProjected, m.unit) + ' projected'
+    : mode==='total'
+    ? fmtVal(rawProjected, m.unit) + ' total'
     : fmtVal(rawProjected, m.unit) + ' avg';
   var tooltip = 'Keep-at-zero metric: 0 = on goal. Full bar = at goal, empty bar = worst observed.';
   var h = '<div title="'+tooltip+'" style="position:relative;height:8px;background:'+bgTint+';border-radius:4px;margin-top:6px;overflow:visible">';
@@ -8798,7 +8849,7 @@ function renderScorecardInline(opts){ _recalcAll();
       h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR}))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+_goalLabel(m)+'</td>';
       h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
-      h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);color:'+(m.rollupAs==='Total'?_tierColor(_scTier(m,sum)):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':fmtVal(sum,m.unit))+'</td>';
+      h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?(_tierColor(_scTotTier(m,sum,allVals.length))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':fmtVal(sum,m.unit))+'</td>';
 
       var _isWk = true;
       colIdxs.forEach(function(_wi){
@@ -8962,9 +9013,12 @@ function renderScorecard(){
   if(period==='monthly'){
     var _cmNow=new Date().getMonth();
     var _lastM=0; scorecard.forEach(function(s){ s.metrics.forEach(function(m){ if(((m.cadence)||'')==='monthly'&&Array.isArray(m.readings)){ for(var _ri=0;_ri<m.readings.length&&_ri<12;_ri++){ if(m.readings[_ri]!=null) _lastM=Math.max(_lastM,_ri); } } }); });
+    // v88: the grid leads with the CURRENT month. Future months render only
+    // when they already hold data (so a misplaced entry stays visible and
+    // fixable), and their headers carry a FUTURE warning tag.
     var _upto=Math.min(11, Math.max(_cmNow,_lastM));
     activeIdxs=[]; for(var _mi=_upto;_mi>=0;_mi--) activeIdxs.push(_mi);
-    colLabels=activeIdxs.map(function(i){return SC_MONTHS[i];});
+    colLabels=activeIdxs.map(function(i){return SC_MONTHS[i]+(i>_cmNow?' <span style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;border-radius:6px;padding:0 5px;font-size:9px;vertical-align:middle" title="This month is ahead of today. Numbers here are probably misplaced.">FUTURE</span>':'');});
   }
   else if(period==='quarterly'){
     var _qyr=new Date().getFullYear();
@@ -9342,7 +9396,7 @@ function renderScorecard(){
         h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols}))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--txm);border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':totalDisplay)+'</td>';
+        h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?(_tierColor(_scTotTier(m,(total===''?null:total),validCols.length))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':totalDisplay)+'</td>';
 
         var _isWk3 = (((m.cadence)||'weekly')===period) && !_isAgg;
         cols.forEach(function(_v,_ci){
