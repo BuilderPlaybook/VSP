@@ -1296,6 +1296,21 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v91  - 2026-07-20 - Percent and Yes-No metrics no longer display a summed
+           Total. A summed percentage (e.g. 102.77% from adding quarterly
+           conversion rates) is meaningless; the Total column now shows a dash
+           for % and YN units exactly as it does for Average-rollup metrics,
+           on all three scorecard table variants. Count and dollar totals are
+           unchanged.
+    v90  - 2026-07-20 - Fix: v89's Total scoring and keep-at-zero bar keyed
+           on rollupAs === 'Total' exactly, which missed metrics created with
+           the field unset (the default for new measurables, including FSA
+           Cancelled). Sum-type detection now matches the engine convention
+           used by the cadence converter and quarterly rollup: a metric is
+           sum-type when rollupAs is not 'Average' and its unit is # or $.
+           _scTotTier additionally returns neutral for % units (a summed
+           percentage scored against goal x N is meaningless). Both Total
+           cells and the keep-at-zero bar use the shared _scIsSum predicate.
     v89  - 2026-07-20 - Total column and keep-at-zero bar now score against
            the goal (the deferred ExpertCFO rollup fix). Total column: for
            Total-rollup metrics the summed window is compared to the goal
@@ -4724,9 +4739,21 @@ function _scHealth(m,val){
 // when no watch is set; otherwise red. Goal = 0 collapses to binary green/red.
 // v89: score a window TOTAL against the goal scaled by periods-with-data.
 // Returns 'green'/'amber'/'red' or null (null = render neutral).
+function _scIsSum(m){
+  return !!m && m.rollupAs!=='Average' && (m.unit==='#' || m.unit==='$');
+}
+// Count of base-cadence readings with data (used to scale the goal for the
+// Total column; on aggregated views the window holds quarter/year rollups,
+// so the scale must come from the underlying readings, not the columns).
+function _scBaseN(m){
+  var r=(m&&m.readings)||[], n=0;
+  for(var i=0;i<r.length;i++){ if(typeof r[i]==='number'&&!isNaN(r[i])) n++; }
+  return n;
+}
 function _scTotTier(m,sum,n){
   if(sum===null||sum===undefined||!n) return null;
-  if(!m || m.unit==='YN' || m.goalType==='inside' || m.goalType==='outside') return null;
+  if(!_scIsSum(m)) return null;
+  if(m.unit==='YN' || m.unit==='%' || m.goalType==='inside' || m.goalType==='outside') return null;
   var g=Number(m.goal); if(!isFinite(g)) return null;
   var G=g*n, S=Number(sum);
   var on = (m.goalType==='\u2265') ? (S>=G) : (m.goalType==='\u2264') ? (S<=G) : (S===G);
@@ -5628,7 +5655,7 @@ function _renderKeepAtZeroGauge(m){
   // v89: counts accumulate. For Total-rollup keep-at-zero metrics the health
   // is the CUMULATIVE total, not the trend: 4 cancellations against <=0 is
   // red no matter which way the last three weeks point.
-  if(m.rollupAs==='Total'){
+  if(_scIsSum(m)){
     rawProjected = pts.reduce(function(a,p){return a+p.y;},0);
     mode = 'total';
   }
@@ -8849,7 +8876,7 @@ function renderScorecardInline(opts){ _recalcAll();
       h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR}))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+_goalLabel(m)+'</td>';
       h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
-      h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?(_tierColor(_scTotTier(m,sum,allVals.length))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':fmtVal(sum,m.unit))+'</td>';
+      h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+'</td>';
 
       var _isWk = true;
       colIdxs.forEach(function(_wi){
@@ -9259,7 +9286,7 @@ function renderScorecard(){
       h+='<td style="padding:8px 10px;text-align:left"><span style="display:inline-flex;align-items:center;gap:6px">'+avatar((r.oid||'').slice(0,2),r.ocolor,18)+'<span style="font-size:var(--fz-body);color:var(--txm)">'+r.oname+'</span></span></td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
-      h+='<td style="text-align:center;font-size:var(--fz-body);color:'+(m.rollupAs==='Total'?_tierColor(_scTier(m,sum)):'var(--txm)')+';border-right:2px solid var(--brd)">'+(m.rollupAs==='Average'?'-':fmtVal(sum,m.unit))+'</td>';
+      h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(nums.length?sum:null),(_isAgg?_scBaseN(m):nums.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)">'+((m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+'</td>';
       var _isWk2 = (((m.cadence)||'weekly')===period) && !_isAgg;
       activeIdxs.forEach(function(_wi){
         var _mv=_isAgg?_pAgg(m,_wi):m.readings[_wi];
@@ -9396,7 +9423,7 @@ function renderScorecard(){
         h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols}))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?(_tierColor(_scTotTier(m,(total===''?null:total),validCols.length))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+(m.rollupAs==='Average'?'-':totalDisplay)+'</td>';
+        h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay)+'</td>';
 
         var _isWk3 = (((m.cadence)||'weekly')===period) && !_isAgg;
         cols.forEach(function(_v,_ci){
