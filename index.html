@@ -1296,6 +1296,15 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v104 - 2026-07-20 - Zero-goal rows: average, always. Toggling Show Total
+           OFF on a keep-at-zero metric routed the gauge into the old trend
+           PROJECTION path (a forecast like "7.17 projected" with a sliver
+           fill) because the average branch keyed on the sum predicate. The
+           regression forecast is retired from the keep-at-zero gauge
+           entirely: every zero-goal row now displays the window average
+           against the goal, red at full width on any breach, green at full
+           width when clean, regardless of the Show Total toggle. Build stamp
+           bumped to v104.
     v103 - 2026-07-20 - One bar language everywhere (Dave's consistency
            ruling): the row gauge ALWAYS displays the per-period average
            against the per-period goal, including keep-at-zero metrics, which
@@ -2623,7 +2632,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v103</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v104</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5741,43 +5750,18 @@ function _renderKeepAtZeroGauge(m){
     if(typeof r==='number' && isFinite(r)) pts.push({x:i, y:r});
   });
   if(!pts.length) return _renderNoDataBar('No readings yet');
-  var weeksOut = _weeksToQuarterEnd();
-  var rawProjected = null, mode = '';
-  if(pts.length >= 3){
-    var n=pts.length, sx=0, sy=0, sxx=0, sxy=0;
-    pts.forEach(function(p){ sx+=p.x; sy+=p.y; sxx+=p.x*p.x; sxy+=p.x*p.y; });
-    var denom = n*sxx - sx*sx;
-    if(denom !== 0){
-      var slope = (n*sxy - sx*sy) / denom;
-      var intercept = (sy - slope*sx) / n;
-      var lastX = pts[pts.length-1].x;
-      var v = slope*(lastX + weeksOut) + intercept;
-      if(isFinite(v)){ rawProjected = v; mode = 'projected'; }
-    }
-  }
-  if(rawProjected === null){
-    rawProjected = pts.reduce(function(a,p){return a+p.y;},0) / pts.length;
-    mode = 'avg';
-  }
-  // v103: one bar language. Keep-at-zero rows display the per-period
-  // average like every other row; any breach still tiers red at full width.
-  if(_scIsSum(m)){
-    var _kzSum = pts.reduce(function(a,p){return a+p.y;},0);
-    rawProjected = pts.length ? (Math.round((_kzSum/pts.length)*100)/100) : 0;
-    mode = 'avg';
-  }
+  // v104: zero-goal rows always speak the window AVERAGE (one bar language).
+  // The old trend-projection forecast is retired from this gauge.
+  var _kzSum = pts.reduce(function(a,p){return a+p.y;},0);
+  var rawProjected = Math.round((_kzSum/pts.length)*100)/100;
+  var mode = 'avg';
   // Progress-to-goal model: 100% fill = at zero (perfect), 0% fill = at worst observed
   // Scale by max observed magnitude so the bar moves visibly as readings change.
   var maxObs = pts.reduce(function(a,p){return Math.max(a, Math.abs(p.y));}, 0);
   if(maxObs === 0) maxObs = 1;
-  var fillPct;
-  if(rawProjected <= 0){
-    fillPct = 100;  // at or below zero = perfect
-  } else if(_scIsSum(m)){
-    fillPct = 100;  // v92/v103: a violated keep-at-zero goal is a FULL red bar, not an empty one
-  } else {
-    fillPct = Math.max(0, Math.min(100, ((maxObs - rawProjected) / maxObs) * 100));
-  }
+  // v104: zero-goal bars paint full width in both directions - full green at
+  // zero, full red on any breach. No partial fills on a binary goal.
+  var fillPct = 100;
   // Tier: at zero = green, small deviation = amber, large = red
   var tier;
   if(rawProjected <= 0) tier = 'green';
@@ -16506,7 +16490,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v103';
+window.VSP_BUILD = 'v104';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
