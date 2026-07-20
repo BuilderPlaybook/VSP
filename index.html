@@ -1296,6 +1296,48 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v87  - 2026-07-20 - Avatar placement consistency. One rule app-wide:
+           owner avatars sit at the RIGHT end of list rows (with the due date
+           and row menu), matching To-Dos, Issues, and Headlines; avatars sit
+           LEFT only when part of a person's identity (group headers, member
+           lists, owner pickers, comment authors, org chart, name captions).
+           Five left-tag violations moved right: dashboard goals card rows,
+           goal list rows (avatar now right of the due date), the plan
+           measurables table cell (title first, avatar at the cell's right
+           edge), meeting inline to-do rows, meeting wrap-up to-do rows, and
+           detail-panel linked to-do rows. No change to canon, chrome,
+           catalog, components, engine, contracts, or VSP_STORAGE_VERSION.
+    v86  - 2026-07-20 - Row layout fixes for the 36px avatars. To-Dos page
+           rows and header: due column 80px to 100px so an overdue date with
+           its warning glyph no longer overflows under the owner avatar, and
+           the owner column 36px to 40px for breathing room. Meeting inline
+           to-do rows and header: the avatar column was 32px (narrower than
+           the avatar itself); template rebalanced to a 40px avatar column
+           with a 100px due column. Headlines (56px owner), agenda rows (64px
+           columns), tables, and flex clusters all absorb the 36px avatar and
+           are unchanged. No change to canon, chrome, catalog, components,
+           engine, contracts, or VSP_STORAGE_VERSION.
+    v85  - 2026-07-20 - Avatar size consistency app-wide. One uniform size for
+           every person avatar in content: the shared avatar() helper now pins
+           all avatars to 36px regardless of the size argument (supersedes the
+           v84 1.5x proportional scale), and the call sites that bypassed the
+           helper are brought to the same 36px: the .av CSS class (goal /
+           to-do / issue / meeting rows), the local av() builder in the
+           meeting-agenda print view, and the New Group preview circle. The
+           topbar user chip moves 26px to 32px (chrome context, sized to the
+           bar). Photo-error fallback circles inherit the same 36px via the
+           size argument avatar() forwards. No change to canon, chrome,
+           catalog, components, engine, contracts, or VSP_STORAGE_VERSION.
+    v84  - 2026-07-20 - Bigger team headshots. The shared avatar() helper now
+           scales every requested size by 1.5x (rounded), so all team photo
+           avatars across the entire module (scorecard group headers, goals,
+           to-dos, issues, meetings, member lists, owner pickers) render half
+           again as large. Photo-error fallback initials circles scale
+           identically via the same factor applied in avatarErr's size
+           argument at the call point inside avatar(). No per-call-site
+           changes; layout rows absorb the size via existing flex containers.
+           No change to canon, chrome, catalog, components, engine, contracts,
+           or VSP_STORAGE_VERSION.
     v83  - 2026-07-19 - Data Guard. Every snapshot write now passes through
            _vspGuardedWrite, which compares per-measurable reading counts
            against the last persisted snapshot. A save that would erase
@@ -1893,7 +1935,7 @@ td:hover > .sc-note-pop{display:block}
 .tb-search{position:relative;flex:1}
 .tb-r{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .tb-user:hover{border-color:var(--brd2)}
-.tb-user-av{width:26px;height:26px;border-radius:50%;font-size:var(--fz-xs);font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.tb-user-av{width:32px;height:32px;border-radius:50%;font-size:var(--fz-sm);font-weight:700;display:inline-flex;align-items:center;justify-content:center}
 .tb-user-name{font-size:var(--fz-sm);font-weight:500;color:var(--txt)}
 .tb-logout:hover{border-color:var(--red);color:var(--red)}
 /* legacy alias kept for compatibility with existing render code */
@@ -1986,7 +2028,7 @@ td:hover > .sc-note-pop{display:block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── PERSON COLOR SLOT POOL - locked Shell Standard v1.4 ── */
-.av{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:var(--fz-sm);font-weight:700;flex-shrink:0;background:var(--bg);color:var(--cat-slt)}
+.av{width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:700;flex-shrink:0;background:var(--bg);color:var(--cat-slt)}
 .av-slot0{background:var(--ambb);color:var(--cat-brz)}
 .av-slot1{background:var(--blub);color:var(--cat-blu-ink)}
 .av-slot2{background:var(--grnb);color:var(--grn-ink)}
@@ -2265,6 +2307,8 @@ summary:focus-visible,
   border-radius:6px;
 }
 /* === SHELL CHROME v1 END === */
+/* v85 module override (chrome candidate): topbar avatar 32px for avatar-consistency; fold into next chrome bump */
+.tb-user-av{width:32px;height:32px}
 
 /* === SMB COMPONENTS v1 BEGIN === DO NOT EDIT - change SMB Components source instead === */
 /* SMB Components v1 (Standards v2.38 / D-102).
@@ -3477,7 +3521,7 @@ function printMeeting(type){
   var today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   function stIcon(s){return s==="complete"?'✓':s==="off-track"?'\u2193':'\u2191';}
   function stColor(s){return s==="complete"?"#16a34a":s==="off-track"?"#dc2626":"#2563eb";}
-  function av(o){var c=pplColor(o);return '<div style="width:28px;height:28px;border-radius:50%;background:'+c+';display:inline-flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:700;color:#fff">'+o.slice(0,2)+'</div>';}
+  function av(o){var c=pplColor(o);return '<div style="width:36px;height:36px;border-radius:50%;background:'+c+';display:inline-flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:700;color:#fff">'+o.slice(0,2)+'</div>';}
 
   function renderSections(sectionsArr, dayLabel){
     var out='';
@@ -4721,7 +4765,7 @@ function avatarErr(el,size){
   el.parentElement.outerHTML='<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+col+'20;border:1.5px solid '+col+'50;display:inline-flex;align-items:center;justify-content:center;font-size:'+(size*.38)+'px;font-weight:600;color:'+col+';flex-shrink:0">'+ini+'</div>';
 }
 function avatar(initials,color,size,photoUrl){
-  size=size||22;
+  size=36; // v85: one uniform avatar size app-wide (consistency rule)
   var person=peoplePhotos[initials];
   var src=photoUrl||(person?person.photo:null);
   if(src){
@@ -7632,9 +7676,9 @@ function renderStrategic(){
       var statusC=statusColor(g.status);
       h+='<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--brd)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+statusC+';flex-shrink:0"></div>';
-      h+=avatar(g.owner,pplColor(g.owner),18);
       h+='<span style="font-size:var(--fz-body);flex:1;cursor:pointer" onclick="nav(\'goals\')">'+(i+1)+'. '+_vspEscNote(g.title)+'</span>';
       h+='<span style="color:'+statusC+';font-weight:600;min-width:34px;text-align:right">'+(g.progress||0)+'%</span>';
+      h+=avatar(g.owner,pplColor(g.owner),18);
       h+='<svg width="10" height="10" fill="none" stroke="var(--txd)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>';
       h+='</div>';
     });
@@ -9380,7 +9424,7 @@ function renderScorecard(){
     h+='<div style="background:var(--sur2);border-radius:8px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:4px">';
     h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Preview</div>';
     h+='<div style="display:flex;align-items:center;gap:8px">';
-    h+='<div id="ng-preview-avatar" style="width:28px;height:28px;border-radius:50%;background:#94a3b820;border:2px solid #94a3b850;display:flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:700;color:#94a3b8">GRP</div>';
+    h+='<div id="ng-preview-avatar" style="width:36px;height:36px;border-radius:50%;background:#94a3b820;border:2px solid #94a3b850;display:flex;align-items:center;justify-content:center;font-size:var(--fz-base);font-weight:700;color:#94a3b8">GRP</div>';
     h+='<div>';
     h+='<div style="font-size:var(--fz-body);font-weight:500;color:var(--txm)" id="ng-preview-name">Group Name</div>';
     h+='<div style="font-size:var(--fz-body);color:var(--txd)" id="ng-preview-seat">Seat / Role</div>';
@@ -9973,10 +10017,10 @@ function goalRow(g,archived,isLast,ctx){
     h+='<span class="goal-title '+_pcls+'" style="font-weight:600;min-width:28px;text-align:right">'+g.progress+'%</span>';
     h+='</div>';
   }
-  // Owner avatar
-  h+=avatar(g.owner,pplColor(g.owner),20);
   // Due date
   h+='<span class="goal-due">'+g.due+'</span>';
+  // Owner avatar (right of due per v87 placement rule)
+  h+=avatar(g.owner,pplColor(g.owner),20);
   // Open full detail panel (notes, milestones, attachments) - like Issues
   h+='<button type="button" onclick="event.stopPropagation();openGoalDetail('+g.id+')" title="Open goal detail (notes, milestones, attachments)" style="flex-shrink:0;width:26px;height:26px;border:1px solid var(--brd2);background:var(--sur);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--txm)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l7-7M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg></button>';
   // Status select (not in archive)
@@ -10084,7 +10128,7 @@ function renderTodos(){
     var menuOpen=state.todoCtx===t.id;
     var allTeams=Object.values(teamsRegistry).filter(function(tm){return tm.id!==state.currentTeam;});
     // Grid: checkbox | title+attachments | due | owner | menu
-    var h='<div style="display:grid;grid-template-columns:36px 1fr 80px 36px 32px;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--brd);background:'+(t.done?'var(--sur2)':'var(--sur)')+';gap:4px">';
+    var h='<div style="display:grid;grid-template-columns:36px 1fr 100px 40px 32px;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--brd);background:'+(t.done?'var(--sur2)':'var(--sur)')+';gap:4px">';
     // ── Checkbox ──────────────────────────────────────────
     h+='<div onclick="toggleTodo('+t.id+')" style="width:20px;height:20px;border-radius:50%;border:1.5px solid '+(t.done?'#16a34a':'var(--brd2)')+';background:'+(t.done?'#f0fdf4':'transparent')+';display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">';
     h+=(t.done?'<svg width="10" height="10" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
@@ -10243,7 +10287,7 @@ function renderTodos(){
     h+='<span style="font-size:var(--fz-body);background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:1px 8px;color:var(--txm)">'+totalShowing+'</span>';
     h+='</div>';
     // Column labels - match Ninety: checkbox | Title | Due By | Owner | menu
-    h+='<div style="display:grid;grid-template-columns:36px 1fr 80px 36px 32px;align-items:center;gap:4px;padding:7px 14px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
+    h+='<div style="display:grid;grid-template-columns:36px 1fr 100px 40px 32px;align-items:center;gap:4px;padding:7px 14px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
     h+='<div></div>';
     h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em">Title</span>';
     h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;text-align:right">Due By</span>';
@@ -11057,7 +11101,7 @@ function _q1MeasTable(){
     var barW=(pct!==null)?Math.min(100,pct):(st==='hit'?100:st==='miss'?100:0);
     var qEdit=!!state.planEditUnlocked;
     h+='<tr style="border-bottom:0.5px solid var(--brd)">';
-    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500"><div style="display:flex;align-items:center;gap:7px;min-width:0">'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),20)+'<span style="min-width:0;line-height:1.3">'+_vspEscNote(m.text||'')+'</span></div></td>';
+    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500"><div style="display:flex;align-items:center;gap:7px;min-width:0">'+'<span style="min-width:0;flex:1;line-height:1.3">'+_vspEscNote(m.text||'')+'</span>'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),20)+'</div></td>';
     if(qEdit){
       h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(qtarget||'').replace(/"/g,"&quot;")+'" oninput="q1MeasQTarget('+m.id+',this.value)" onchange="renderPage()" placeholder="'+_vspEscNote(m.target||'')+'" title="Quarter target (annual: '+_vspEscNote(m.target||'')+')" aria-label="'+_vspEscNote(m.text||'')+' quarter target" style="width:92px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:700;font-family:inherit;background:var(--sur)"></td>';
     } else {
@@ -11747,9 +11791,9 @@ function renderMeetings(){
         // Checkbox
         h+='<div onclick="toggleTodo('+t.id+')" style="width:18px;height:18px;border-radius:50%;border:1.5px solid '+(t.done?'#16a34a':'var(--brd2)')+';background:'+(t.done?'#f0fdf4':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">';
         h+=(t.done?'<svg width="9" height="9" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
-        h+=avatar(t.owner,oc,18);
         h+=_meetQuickPair('todo',t.id);
         h+=_mtgTodoTitle(t,'span','flex:1;font-size:var(--fz-body);color:'+(t.done?'var(--txm)':'var(--txt)')+';text-decoration:'+(t.done?'line-through':'none')+'');
+        h+=avatar(t.owner,oc,18);
         h+='<span style="color:var(--txm)">'+t.due+'</span>';
         // 3-dot menu
         h+='<div style="position:relative;flex-shrink:0" onclick="event.stopPropagation()">';
@@ -11799,14 +11843,14 @@ function renderMeetings(){
       if(!allOpenTodos.length){
         h+='<div style="padding:24px;text-align:center;color:var(--txm)">All to-dos complete \u2713</div>';
       } else {
-        h+='<div style="display:grid;grid-template-columns:36px 1fr 110px 32px;align-items:center;gap:4px;padding:7px 18px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
+        h+='<div style="display:grid;grid-template-columns:36px 1fr 100px 40px;align-items:center;gap:4px;padding:7px 18px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
         h+='<div></div>';
         h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;font-size:var(--fz-base)">Title</span>';
         h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;font-size:var(--fz-base);text-align:right">Due By</span>';
         h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;font-size:var(--fz-base);text-align:center">Owner</span>';
         h+='</div>';
         allOpenTodos.forEach(function(t){
-          h+='<div style="display:grid;grid-template-columns:36px 1fr 110px 32px;align-items:center;gap:4px;padding:9px 18px;border-bottom:0.5px solid var(--brd)">';
+          h+='<div style="display:grid;grid-template-columns:36px 1fr 100px 40px;align-items:center;gap:4px;padding:9px 18px;border-bottom:0.5px solid var(--brd)">';
           h+='<div style="display:flex;justify-content:center"><input type="checkbox" onchange="toggleTodo('+t.id+')" '+(t.done?'checked':'')+' style="width:18px;height:18px;cursor:pointer"></div>';
           h+=_mtgTodoTitle(t,'div','font-size:var(--fz-body)');
           h+='<div style="font-size:var(--fz-body);text-align:right;color:var(--txm)">'+t.due+'</div>';
@@ -11820,9 +11864,9 @@ function renderMeetings(){
       todos.filter(function(t){return !t.done;}).slice(0,5).forEach(function(t){
         var oc=pplColor(t.owner);
         h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--sur2);border-radius:5px;margin-bottom:4px">';
-        h+=avatar(t.owner,oc,17);
         h+='<span style="flex:1;font-size:var(--fz-body)">'+t.task+'</span>';
-        h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span></div>';
+        h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span>';
+        h+=avatar(t.owner,oc,17)+'</div>';
       });
       h+='</div>';
       // ── Rating - individual per person ────────────────────────────────
@@ -13222,9 +13266,9 @@ function renderIssueDetailPanel(){
       h+='<div onclick="event.stopPropagation();toggleTodo('+t.id+')" style="width:18px;height:18px;border-radius:50%;border:1.5px solid '+(t.done?'#16a34a':'var(--brd2)')+';background:'+(t.done?'#f0fdf4':'transparent')+';display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">';
       if(t.done)h+='<svg width="9" height="9" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
       h+='</div>';
-      h+=avatar(t.owner,pplColor(t.owner),20);
       h+='<span style="flex:1;font-size:var(--fz-base);color:'+(t.done?'var(--txm)':'var(--txt)')+';text-decoration:'+(t.done?'line-through':'none')+'">'+t.task+'</span>';
       h+='<span style="color:var(--txm);font-size:var(--fz-base)">'+t.due+'</span>';
+      h+=avatar(t.owner,pplColor(t.owner),20);
       h+='<svg width="11" height="11" fill="none" stroke="var(--txd)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>';
       h+='</div>';
     });
