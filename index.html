@@ -1296,6 +1296,35 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v96  - 2026-07-20 - Restore now wins the sync race. Restoring a backup
+           (file Restore or the guard ring's Restore from backup) previously
+           lost silently: the page reloaded before the sync push completed,
+           and the fresh page's first pull adopted the cloud's bad copy over
+           the just-restored data. Both restore paths now set a one-shot
+           vsp.restore.pending flag before reloading; Staging Adapter v2.3
+           checks the flag at the adopt decision and, when set, treats the
+           local restored snapshot as authoritative exactly once: it pushes
+           the restored data to the team instead of adopting the cloud. Build
+           stamp bumped to v96.
+    v95  - 2026-07-20 - Self-updating fleet. Every snapshot save carries the
+           writer's build number; whenever a browser loads or adopts data
+           written by a NEWER build, it silently re-fetches the page with
+           cache bypassed and reloads onto the current code (throttled to one
+           attempt per two minutes to avoid loops while a CDN edge catches
+           up). Net effect: the moment one team member runs the latest build,
+           every other open browser upgrades itself on its next sync; nobody
+           ever needs a manual hard refresh. Data is untouched by the reload:
+           it lives in localStorage and Firebase. Build stamp bumped to v95.
+    v94  - 2026-07-20 - Data Guard v2: settings protected. The guard now also
+           diffs each measurable's goal, goalType, cadence, unit, and rollupAs
+           against the last persisted snapshot. A save that changes settings
+           on TWO OR MORE measurables is blocked exactly like a reading wipe
+           (backup kept, alert naming the metrics, reload from the good copy),
+           because every legitimate edit touches one measurable's settings at
+           a time. This blocks the mass goal/cadence revert pattern at the
+           source whenever the writer runs a current build. Single-metric
+           setting edits, archives, restores, and group moves pass untouched.
+           Build stamp bumped to v94.
     v93  - 2026-07-20 - Visible build stamp. The running build number renders
            in the topbar next to the save-status area and is exposed at
            window.VSP_BUILD, ending any ambiguity about which version a
@@ -2533,7 +2562,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v93</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v96</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7293,7 +7322,8 @@ function vspRestoreData(){
       if(!confirm('Restore from this backup? It replaces the data currently in this browser. (Your current data is not changed until you confirm.)')) return;
       try{
         Object.keys(o).forEach(function(k){ localStorage.setItem(k, o[k]); });
-        alert('Data restored. The page will now reload.');
+        try{ localStorage.setItem('vsp.restore.pending','1'); }catch(e){}
+        alert('Data restored. The page will now reload and your restored data will be pushed to the whole team.');
         location.reload();
       }catch(e){ alert('Restore failed: '+e.message); }
     };
@@ -16399,7 +16429,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v93';
+window.VSP_BUILD = 'v96';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -16871,6 +16901,7 @@ function vspSnapshot(){
     meetPlanChecklist: state.meetPlanChecklist || {},
     monthlyReviewAck: state.monthlyReviewAck || {},
     archivedMetrics: archivedMetrics || [],
+    build: (typeof window!=='undefined'&&window.VSP_BUILD)||'',
     runningMeeting: (state.meetTab==='running' && state.meetType) ? { type:_vspNoteType(), step:state.meetStep||0, startTime:state.meetStartTime||null, agendaDay:state.meetAgendaDay||0 } : null
   };
 }
@@ -17239,6 +17270,7 @@ function vspApplySnapshot(s){
   if(s.meetPlanChecklist && typeof s.meetPlanChecklist === 'object') state.meetPlanChecklist = s.meetPlanChecklist;
   if(s.monthlyReviewAck && typeof s.monthlyReviewAck === 'object') state.monthlyReviewAck = s.monthlyReviewAck;
   if(Array.isArray(s.archivedMetrics)) archivedMetrics = s.archivedMetrics;
+  try{ _vspCheckBuild(s.build); }catch(e){}
   // Restore an interrupted running meeting so a reload mid-session lands back
   // In Meeting at the same step with its notes. Guarded: never yanks a session
   // that is already running locally (adapter tap-to-refresh mid-meeting), and
@@ -17284,6 +17316,24 @@ function vspLoadAll(){
 // conversion, quarterly clear, permanent archive delete); multi-metric
 // reductions are treated as corruption, blocked, and recovered from the last
 // good persisted copy.
+// v95: self-update. If the data we just loaded was written by a NEWER build
+// than the one running here, this copy of the code is stale; re-fetch the
+// page bypassing cache and reload onto current code. Throttled so a lagging
+// CDN edge cannot cause a reload loop.
+function _vspCheckBuild(remote){
+  try{
+    var mine=parseInt(String((typeof window!=='undefined'&&window.VSP_BUILD)||'').replace(/[^0-9]/g,''),10);
+    var theirs=parseInt(String(remote||'').replace(/[^0-9]/g,''),10);
+    if(!isFinite(mine)||!isFinite(theirs)||theirs<=mine) return;
+    var K='vsp.selfUpdate.last', now=Date.now(), last=0;
+    try{ last=Number(sessionStorage.getItem(K))||0; }catch(e){}
+    if(now-last<120000) return;
+    try{ sessionStorage.setItem(K,String(now)); }catch(e){}
+    try{ console.warn('[VSP] Data written by build v'+theirs+' but this page runs v'+mine+'. Updating...'); }catch(e){}
+    var done=function(){ try{ location.reload(); }catch(e){} };
+    try{ fetch(location.href,{cache:'reload'}).then(done,done); }catch(e){ done(); }
+  }catch(e){}
+}
 function _vspReadingCounts(snap){
   var out={};
   function walkSc(sc){ if(!Array.isArray(sc)) return; sc.forEach(function(sec){ (sec&&sec.metrics||[]).forEach(function(m){ if(!m||m.id==null) return; var n=0,r=m.readings; if(Array.isArray(r)){ for(var i=0;i<r.length;i++){ if(typeof r[i]==='number'&&!isNaN(r[i])) n++; } } out[m.id]=(out[m.id]||0)+n; }); }); }
@@ -17291,6 +17341,16 @@ function _vspReadingCounts(snap){
     if(snap&&snap.teams&&typeof snap.teams==='object'){ Object.keys(snap.teams).forEach(function(k){ walkSc(snap.teams[k]&&snap.teams[k].scorecard); }); }
     if(snap&&Array.isArray(snap.scorecard)) walkSc(snap.scorecard);
     if(snap&&Array.isArray(snap.archivedMetrics)) snap.archivedMetrics.forEach(function(e){ var m=e&&e.m; if(!m||m.id==null) return; var n=0,r=m.readings; if(Array.isArray(r)){ for(var i=0;i<r.length;i++){ if(typeof r[i]==='number'&&!isNaN(r[i])) n++; } } out[m.id]=(out[m.id]||0)+n; });
+  }catch(e){}
+  return out;
+}
+function _vspSettingsMap(snap){
+  var out={};
+  function walk(sc){ if(!Array.isArray(sc)) return; sc.forEach(function(sec){ (sec&&sec.metrics||[]).forEach(function(m){ if(!m||m.id==null) return; out[m.id]=[m.goal,m.goalType,(m.cadence)||'weekly',m.unit,(m.rollupAs)||''].join('|'); }); }); }
+  try{
+    if(snap&&snap.teams&&typeof snap.teams==='object'){ Object.keys(snap.teams).forEach(function(k){ walk(snap.teams[k]&&snap.teams[k].scorecard); }); }
+    if(snap&&Array.isArray(snap.scorecard)) walk(snap.scorecard);
+    if(snap&&Array.isArray(snap.archivedMetrics)) snap.archivedMetrics.forEach(function(e){ var m=e&&e.m; if(!m||m.id==null) return; out[m.id]=[m.goal,m.goalType,(m.cadence)||'weekly',m.unit,(m.rollupAs)||''].join('|'); });
   }catch(e){}
   return out;
 }
@@ -17315,6 +17375,22 @@ function _vspGuardedWrite(json){
         var was=pc[id], now=(nc[id]!=null)?nc[id]:0;
         if(was>0 && now<was) losers.push(id);
       });
+      // v94: settings mass-change check. Legit edits touch one metric's
+      // settings per save; two or more changing at once is corruption.
+      var ps=_vspSettingsMap(prev), ns=_vspSettingsMap(next), sChanged=[];
+      Object.keys(ps).forEach(function(id){ if(ns[id]!=null && ns[id]!==ps[id]) sChanged.push(id); });
+      if(sChanged.length>=2 && losers.length<2){
+        _vspGuardBackup(prevRaw,'blocked-settings');
+        var st=[]; try{
+          var seen2={};
+          function fT(sc){ if(!Array.isArray(sc))return; sc.forEach(function(sec){ (sec&&sec.metrics||[]).forEach(function(m){ if(m&&sChanged.indexOf(String(m.id))>-1&&!seen2[m.id]){ seen2[m.id]=1; st.push(m.title||('#'+m.id)); } }); }); }
+          if(prev.teams) Object.keys(prev.teams).forEach(function(k){ fT(prev.teams[k]&&prev.teams[k].scorecard); });
+        }catch(e){}
+        try{ console.warn('[VSP GUARD] Blocked a save changing settings (goal/cadence/unit/rollup) on '+sChanged.length+' measurables:', st.join(' | '), '\nStack:', new Error().stack); }catch(e){}
+        try{ alert('Data Guard: this save would have changed goals or cadence on '+sChanged.length+' measurables at once ('+st.slice(0,3).join(', ')+(st.length>3?', ...':'')+').\n\nNothing was saved or synced. The page will reload from the last good copy.'); }catch(e){}
+        try{ location.reload(); }catch(e){}
+        return false;
+      }
       if(losers.length>=2){
         _vspGuardBackup(prevRaw,'blocked-save');
         var titles=[];
@@ -17353,6 +17429,7 @@ function vspRestoreBackup(sfx){
     var o=JSON.parse(raw);
     if(!confirm('Restore the backup from '+(o.at||'unknown time')+'? Current unsaved state on this page is replaced by the backup, and the backup will sync to the team on your next change.')) return;
     localStorage.setItem(vspStorageKey(), o.data);
+    try{ localStorage.setItem('vsp.restore.pending','1'); }catch(e){}
     location.reload();
   }catch(e){ alert('Restore failed: '+e.message); }
 }
@@ -17983,7 +18060,7 @@ document.addEventListener('keydown',function(e){
 
 </script>
 <script>
-/* SMB VSP STAGING ADAPTER v2.2 - shared cloud persistence over Firebase RTDB.
+/* SMB VSP STAGING ADAPTER v2.3 - shared cloud persistence over Firebase RTDB.
    SIMPLE, SAFE MODEL (replaces the v1.x real-time polling model):
      1. ON LOAD: pull the team's latest data from the cloud ONCE and show it.
      2. AS YOU WORK: each save is sent up to the cloud (debounced).
@@ -18191,6 +18268,17 @@ document.addEventListener('keydown',function(e){
       if(_sig(remote) === _sig(lastSyncedRaw)){ lastSyncedRaw = remote; ready = true; flash('ok', 'Up to date', 1200); return; }
       if(_sig(remote) === _sig(local)){ lastSyncedRaw = remote; ready = true; flash('ok', 'Up to date', 1200); return; }
 
+      // v2.3: a backup the user just restored on this device is authoritative
+      // exactly once - push it to the team instead of adopting the cloud copy.
+      var _rp = null; try { _rp = localStorage.getItem('vsp.restore.pending'); } catch(e){}
+      if(_rp && local){
+        try { localStorage.removeItem('vsp.restore.pending'); } catch(e){}
+        lastSyncedRaw = local;
+        pushUp(local);
+        ready = true;
+        flash('ok', 'Restored data pushed to team', 2000);
+        return;
+      }
       // Cloud has data this browser does not. Adopt it (this only happens on the
       // load-time pull or when the user taps refresh while not mid-entry).
       lastSyncedRaw = remote;
