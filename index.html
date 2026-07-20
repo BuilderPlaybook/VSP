@@ -1296,6 +1296,15 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v92  - 2026-07-20 - Keep-at-zero bar draws failure at full width. The
+           gauge's distance-to-goal fill meant a violated <=0 goal rendered a
+           ZERO-width fill (4 cancellations against a max month of 2 clamps
+           to 0%), so the red tier was invisible and the row read as empty
+           instead of failing. A keep-at-zero metric with a positive
+           cumulative total now draws a solid 100% red bar with the "N total"
+           label; at zero it remains a full green bar. Applies wherever the
+           gauge renders: weekly, monthly, quarterly, annual, merged and
+           section views.
     v91  - 2026-07-20 - Percent and Yes-No metrics no longer display a summed
            Total. A summed percentage (e.g. 102.77% from adding quarterly
            conversion rates) is meaningless; the Total column now shows a dash
@@ -5666,6 +5675,8 @@ function _renderKeepAtZeroGauge(m){
   var fillPct;
   if(rawProjected <= 0){
     fillPct = 100;  // at or below zero = perfect
+  } else if(mode === 'total'){
+    fillPct = 100;  // v92: a violated keep-at-zero goal is a FULL red bar, not an empty one
   } else {
     fillPct = Math.max(0, Math.min(100, ((maxObs - rawProjected) / maxObs) * 100));
   }
