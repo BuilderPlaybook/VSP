@@ -1296,6 +1296,16 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v97  - 2026-07-20 - Row gauge scores sum-type metrics against PACE. The
+           projection gauge summed Total-rollup readings but scored the sum
+           against the per-period goal (8 SQLs vs a >=1 weekly goal rendered a
+           full green bar while Avg and Total were red). Sum-type metrics
+           (via the shared _scIsSum predicate, covering unset rollup on # and
+           $ units) now score the window total against goal x periods-with-
+           data, matching the Total column: tier from _scTotTier, fill =
+           progress toward the paced goal, right label shows the paced goal
+           ("N pace"). Average-type metrics keep the average-vs-goal gauge
+           unchanged. Build stamp bumped to v97.
     v96  - 2026-07-20 - Restore now wins the sync race. Restoring a backup
            (file Restore or the guard ring's Restore from backup) previously
            lost silently: the page reloaded before the sync push completed,
@@ -2562,7 +2572,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v96</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v97</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5747,18 +5757,27 @@ function _renderProjectionGauge(m){
   if(!vals.length) return _renderNoDataBar('No readings yet');
   var avg = vals.reduce(function(a,b){return a+b;},0) / vals.length;
   if(!isFinite(avg)) return _renderNoDataBar('No readings yet');
-  var rv = (m.rollupAs==='Total') ? vals.reduce(function(a,b){return a+b;},0) : avg;
-  var tier = _scTier(m, rv);
+  // v97: sum-type metrics score the window TOTAL against the PACED goal
+  // (goal x periods-with-data), exactly like the Total column. Average-type
+  // metrics keep average-vs-goal.
+  var isSum = (typeof _scIsSum==='function') ? _scIsSum(m) : (m.rollupAs==='Total');
+  // On aggregated views the readings are quarter/year rollups; _paceN carries
+  // the base-period count so the paced goal matches the Total column's scale.
+  var n = (m._paceN!=null) ? m._paceN : vals.length;
+  var rv = isSum ? vals.reduce(function(a,b){return a+b;},0) : avg;
+  var effGoal = isSum ? goal * n : goal;
+  var tier;
+  if(isSum && typeof _scTotTier==='function'){ tier = _scTotTier(m, rv, n) || 'red'; }
+  else { tier = _scTier(m, rv); }
   var tierVar = tier==='green' ? 'var(--grn)' : tier==='amber' ? 'var(--amb)' : 'var(--red)';
   var bgTint = tier==='green' ? '#dcfce7' : tier==='amber' ? '#fef3c7' : '#fee2e2';
-  // Progress-to-goal fill driven by the period average and the edit-tab orientation.
   var fillPct;
   if(m.goalType === '\u2265'){
-    fillPct = goal !== 0 ? Math.max(0, Math.min(100, (rv/goal)*100)) : 0;
+    fillPct = effGoal !== 0 ? Math.max(0, Math.min(100, (rv/effGoal)*100)) : 0;
   } else if(m.goalType === '\u2264'){
-    fillPct = goal !== 0 ? Math.max(0, Math.min(100, ((goal-rv)/goal)*100)) : 0;
+    fillPct = effGoal !== 0 ? Math.max(0, Math.min(100, ((effGoal-rv)/effGoal)*100)) : 0;
   } else {
-    var dev = goal !== 0 ? Math.abs(rv - goal) / Math.abs(goal) : 0;
+    var dev = effGoal !== 0 ? Math.abs(rv - effGoal) / Math.abs(effGoal) : 0;
     fillPct = Math.max(0, Math.min(100, (1-dev)*100));
   }
   var tooltip = 'Bar fill = period average against goal. Color follows the red/amber/green rule from the edit tab.';
@@ -5767,8 +5786,8 @@ function _renderProjectionGauge(m){
   h += '<div title="Goal" style="position:absolute;left:100%;top:-2px;bottom:-2px;width:2px;background:var(--sb);transform:translateX(-2px)"></div>';
   h += '</div>';
   h += '<div style="display:flex;justify-content:space-between;font-size:var(--fz-xs);color:var(--txm);margin-top:3px;line-height:1.2">';
-  h += '<span>'+fmtVal(rv, m.unit)+(m.rollupAs==='Total'?' total':' avg')+'</span>';
-  h += '<span>'+m.goalType+' '+fmtVal(goal, m.unit)+' goal</span>';
+  h += '<span>'+fmtVal(rv, m.unit)+(isSum?' total':' avg')+'</span>';
+  h += '<span>'+m.goalType+' '+fmtVal(effGoal, m.unit)+(isSum?' pace':' goal')+'</span>';
   h += '</div>';
   return h;
 }
@@ -8920,7 +8939,7 @@ function renderScorecardInline(opts){ _recalcAll();
 
       h+='<tr>';
       h+='<td style="'+scStkB(SC_OFF.trend,SC_W.trend,rowBg,'text-align:center;padding:0 2px')+'" title="'+(trend==="good"?"Trending right":"Trend wrong way")+'">'+trendIconInline(trend)+'</td>';
-      h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR}))+'</td>';
+      h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+_goalLabel(m)+'</td>';
       h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
       h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+'</td>';
@@ -9329,7 +9348,7 @@ function renderScorecard(){
       var sum=nums.reduce(function(a,b){return a+b;},0);
       var avg=nums.length?sum/nums.length:0;
       h+='<tr style="border-bottom:0.5px solid var(--brd)">';
-      h+='<td style="padding:8px 10px;font-size:var(--fz-lg);text-align:left;position:sticky;left:0;background:var(--sur)"><div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR}))+'</td>';
+      h+='<td style="padding:8px 10px;font-size:var(--fz-lg);text-align:left;position:sticky;left:0;background:var(--sur)"><div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       h+='<td style="padding:8px 10px;text-align:left"><span style="display:inline-flex;align-items:center;gap:6px">'+avatar((r.oid||'').slice(0,2),r.ocolor,18)+'<span style="font-size:var(--fz-body);color:var(--txm)">'+r.oname+'</span></span></td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+fmtVal(avg,m.unit)+'</td>';
@@ -9467,7 +9486,7 @@ function renderScorecard(){
         // Title (click to edit measurable; the name cell is the drag handle to reorder)
         var _scDrag=_scManual?(' draggable="true" ondragstart="scMDragStart(event,'+m.id+')" ondragend="scMDragEnd()"'):'';
         var _scGrip=_scManual?('<svg width="8" height="13" viewBox="0 0 8 13" style="display:inline-block;vertical-align:middle;margin-right:6px;opacity:.35;flex-shrink:0" fill="currentColor"><circle cx="2" cy="2" r="1"/><circle cx="6" cy="2" r="1"/><circle cx="2" cy="6.5" r="1"/><circle cx="6" cy="6.5" r="1"/><circle cx="2" cy="11" r="1"/><circle cx="6" cy="11" r="1"/></svg>'):'';
-        h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols}))+'</td>';
+        h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(_isAgg?_pGoalLabel(m):_goalLabel(m))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+fmtVal(avg,m.unit)+'</td>';
         h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay)+'</td>';
@@ -16429,7 +16448,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v96';
+window.VSP_BUILD = 'v97';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -18268,8 +18287,6 @@ document.addEventListener('keydown',function(e){
       if(_sig(remote) === _sig(lastSyncedRaw)){ lastSyncedRaw = remote; ready = true; flash('ok', 'Up to date', 1200); return; }
       if(_sig(remote) === _sig(local)){ lastSyncedRaw = remote; ready = true; flash('ok', 'Up to date', 1200); return; }
 
-      // v2.3: a backup the user just restored on this device is authoritative
-      // exactly once - push it to the team instead of adopting the cloud copy.
       var _rp = null; try { _rp = localStorage.getItem('vsp.restore.pending'); } catch(e){}
       if(_rp && local){
         try { localStorage.removeItem('vsp.restore.pending'); } catch(e){}
