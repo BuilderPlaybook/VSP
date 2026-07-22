@@ -1296,6 +1296,33 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v108 - 2026-07-22 - Same-origin bridge added: VSP writes a shared-storage
+           snapshot on every save so P&D (loaded on a separate URL under the
+           same builderplaybook.github.io origin) can read live VSP data
+           without both modules being in one page. Snapshot key
+           SMB_BRIDGE_VSP_v1 carries per-person measurables and goals for the
+           four quarters of the current year, plus meetings, and a
+           writtenAt timestamp. This is D-111's "same-origin note" applied
+           as a staging convenience, not a contract; it retires the day
+           Anand's master shell loads both modules together. VSP also polls
+           SMB_BRIDGE_VSP_GOAL_SETSTATUS_v1 so a P&D goal-status flip made
+           in another tab reaches the writer within ~2s. Build stamp bumped
+           to v108.
+    v107 - 2026-07-22 - D-111 publishers built. VSP now publishes the three
+           cross-module APIs P&D consumes, shapes exactly per the Decision
+           Log D-111 / Data Contracts A6-A7 (not redesigned):
+           window.SMB_VSP_MEASURABLES.forPerson(personId, year, q) returns
+           [{id, title, goal, unit, average, total, status, owner}] or null;
+           window.SMB_VSP_GOALS.forPerson(personId, year, q) returns the
+           person's goal objects for that quarter (id, title, status, plus
+           native fields); window.SMB_VSP_GOALS.setStatus(goalId, status)
+           accepts on-track / off-track / complete, silent-fail-safe, VSP
+           authoritative, persists through the guarded save and re-renders
+           the Goals page when open. personId resolves by registry id or
+           initials, same convention as SMB_VSP_MEETINGS. Measurable status
+           uses the live engine tiers (binary rules). Quarter membership
+           follows the quarterly view convention (week start date). Build
+           stamp bumped to v107.
     v106 - 2026-07-20 - Quarterly view shows COMPLETED quarters only (Dave's
            ruling: weekly and monthly boards manage the quarter; the
            Quarterly view is reporting for the quarterly review, which
@@ -2650,7 +2677,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v106</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v108</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -2882,6 +2909,132 @@ function vspEmitSignals(){
     try{
       window.SMB_CORE_VALUES = { asOf: (typeof nowIso!=='undefined'?nowIso:new Date().toISOString()), values: (typeof _vspCvList==='function'?_vspCvList():((planData&&planData.cv)||[])).map(function(v){ return { id: v.id, title: v.title, description: v.desc }; }) };
       window.SMB_COMPANY_FOCUS = { asOf: (typeof nowIso!=='undefined'?nowIso:new Date().toISOString()), tagline: (planData&&planData.cfTagline)||'', description: (planData&&planData.cfDesc)||'' };
+      // D-111: VSP is sole writer of the measurables and goals contracts
+      // consumed by P&D Quarterly and Annual. Shapes per Data Contracts
+      // A6/A7; person resolution matches SMB_VSP_MEETINGS (id or initials).
+      window.SMB_VSP_MEASURABLES = {
+        forPerson: function(personId, year, q){
+          try{
+            var person = ppl.find(function(pp){ return pp.id===personId || pp.initials===personId; });
+            if(!person) return null;
+            var ini = person.initials;
+            var out = [];
+            Object.keys(teamsRegistry).forEach(function(tid){
+              var sc = (teamsRegistry[tid] && teamsRegistry[tid].scorecard) || [];
+              sc.forEach(function(sec){
+                if(sec.ownerId !== ini) return;
+                (sec.metrics || []).forEach(function(m){
+                  var vals = [];
+                  var cad = (m.cadence) || 'weekly';
+                  var r = m.readings || [];
+                  if(cad === 'monthly'){
+                    if(year === new Date().getFullYear()){
+                      for(var i = q*3; i < q*3+3 && i < 12 && i < r.length; i++){
+                        if(typeof r[i] === 'number' && !isNaN(r[i])) vals.push(r[i]);
+                      }
+                    }
+                  } else {
+                    for(var k = 0; k < r.length; k++){
+                      if(typeof r[k] !== 'number' || isNaN(r[k])) continue;
+                      var wd = scWeekDate(k);
+                      if(wd.getFullYear() === year && Math.floor(wd.getMonth()/3) === q) vals.push(r[k]);
+                    }
+                  }
+                  if(!vals.length) return;
+                  var sum = vals.reduce(function(a,b){ return a+b; }, 0);
+                  var avg = sum / vals.length;
+                  var tier;
+                  if(_scIsSum(m)) tier = _scTotTier(m, sum, vals.length) || 'red';
+                  else tier = _scTier(m, avg) || 'gray';
+                  out.push({
+                    id: m.id,
+                    title: m.title || '',
+                    goal: (m.goalType || '') + fmtVal(m.goal, m.unit),
+                    unit: m.unit || '#',
+                    average: Math.round(avg*100)/100,
+                    total: _scIsSum(m) ? Math.round(sum*100)/100 : null,
+                    status: tier,
+                    owner: sec.ownerName || ini
+                  });
+                });
+              });
+            });
+            return out.length ? out : null;
+          }catch(e){ return null; }
+        }
+      };
+      window.SMB_VSP_GOALS = {
+        forPerson: function(personId, year, q){
+          try{
+            var person = ppl.find(function(pp){ return pp.id===personId || pp.initials===personId; });
+            if(!person) return null;
+            var ini = person.initials;
+            var qkey = 'Q' + (q+1) + ' ' + year;
+            var out = goals.filter(function(g){
+              return g.owner === ini && g.status !== 'archived' && (g.quarter || '') === qkey;
+            }).map(function(g){
+              return { id: g.id, title: g.title, text: g.title, status: g.status, progress: g.progress, due: g.due, company: !!g.company };
+            });
+            return out.length ? out : null;
+          }catch(e){ return null; }
+        },
+        setStatus: function(goalId, status){
+          // Silent-fail-safe per D-92: never throws; VSP stays authoritative.
+          try{
+            if(['on-track','off-track','complete'].indexOf(status) < 0) return false;
+            var g = goals.find(function(x){ return String(x.id) === String(goalId); });
+            if(!g) return false;
+            g.status = status;
+            try{ vspSaveNow(); }catch(e){}
+            try{ if(state.page === 'goals') renderPage(); }catch(e){}
+            return true;
+          }catch(e){ return false; }
+        }
+      };
+      // v108: same-origin bridge for cross-URL consumers (P&D standalone).
+      // Not a contract; retires when the master shell loads both modules in
+      // one page. Snapshot written on every save; consumer reads and moves on.
+      try{
+        var _bridgeKey = 'SMB_BRIDGE_VSP_v1';
+        var _yr = new Date().getFullYear();
+        var _bridgePayload = { writtenAt: new Date().toISOString(), writtenAtMs: Date.now(), year: _yr, byPerson: {} };
+        ppl.forEach(function(pp){
+          var pid = pp.id, ini = pp.initials;
+          var perPerson = { measurables: {}, goals: {}, meetings: null };
+          try{ perPerson.meetings = window.SMB_VSP_MEETINGS.forPerson(pid) || null; }catch(e){}
+          for(var _q=0;_q<4;_q++){
+            try{ perPerson.measurables['Q'+(_q+1)] = window.SMB_VSP_MEASURABLES.forPerson(pid, _yr, _q); }catch(e){ perPerson.measurables['Q'+(_q+1)] = null; }
+            try{ perPerson.goals['Q'+(_q+1)] = window.SMB_VSP_GOALS.forPerson(pid, _yr, _q); }catch(e){ perPerson.goals['Q'+(_q+1)] = null; }
+          }
+          _bridgePayload.byPerson[pid] = perPerson;
+          _bridgePayload.byPerson[ini] = perPerson;
+        });
+        try{ localStorage.setItem(_bridgeKey, JSON.stringify(_bridgePayload)); }catch(e){}
+      }catch(e){}
+      // v108: inbox for goal-status flips originating in another tab (P&D).
+      // Poller starts lazily on first user interaction; each new item calls setStatus.
+      if(typeof document !== 'undefined' && !window._vspBridgeInboxPolling){
+        window._vspBridgeInboxPolling = true;
+        var _inboxKey = 'SMB_BRIDGE_VSP_GOAL_SETSTATUS_v1';
+        var _seen = {};
+        var _tick = function(){
+          try{
+            var raw = localStorage.getItem(_inboxKey); if(!raw) return;
+            var items = JSON.parse(raw); if(!Array.isArray(items)) return;
+            items.forEach(function(it){
+              if(!it || !it.id || _seen[it.id]) return;
+              _seen[it.id] = true;
+              try{ window.SMB_VSP_GOALS.setStatus(it.goalId, it.status); }catch(e){}
+            });
+          }catch(e){}
+        };
+        var _startPoll = function(){
+          if(window._vspBridgePollStarted) return; window._vspBridgePollStarted = true;
+          _tick(); setInterval(_tick, 2000);
+        };
+        try{ document.addEventListener('click', _startPoll, { once: true, passive: true }); }catch(e){}
+        try{ document.addEventListener('keydown', _startPoll, { once: true, passive: true }); }catch(e){}
+      }
       // VSP is sole writer of the 1:1 meeting contract consumed by P&D (D-98).
       window.SMB_VSP_MEETINGS = {
         forPerson: function(personId){
@@ -16518,7 +16671,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v106';
+window.VSP_BUILD = 'v108';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
