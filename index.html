@@ -1296,6 +1296,31 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v112 - 2026-07-23 - P&D-to-VSP Performance Points Compliance bridge
+           wired (D-111 direction A, Compliance scope). Three moves:
+           (1) Task 1 - auto-strip migration scoped: _vspStripAutoMetric
+           now preserves any metric whose auto key starts with
+           "pnd.compliance." while continuing to strip everything else
+           (metric 29 pm.scheduleSlippage still stripped as before).
+           (2) Task 2 - the puller: vspPullPndCompliance() reads
+           localStorage key smb_pnd_compliance_bridge_v1 (P&D-authored,
+           closed-weeks only, per-week values keyed on Monday ISO date),
+           maps each ISO date to a VSP column via SC_PLAN_START_DATE +
+           scPlanStartIdx, and writes m.readings[idx] on the matching
+           measurable. Silently skips weeks outside the range. Runs at
+           boot after _vspRunMigrations/scNormalize and again on every
+           staging-adapter pull; the adapter has a bridge-pull hook
+           installed in the deployable index.html only.
+           (3) The four Compliance measurables (ids 45, 32, 38, 52) gain
+           auto:"pnd.compliance.<groupId>" and autoSrc:"P&D" so scCell's
+           existing isAuto branch renders them read-only with the A badge
+           and the "Auto-fed from P&D" tooltip.
+           Task 3 (single-cell manual override with device-user gate)
+           deferred pending Dave's ruling on Device User v1 vs the
+           smb_pnd_device_user cheap read. Data-shape stub included:
+           the puller respects m.manualOverride[wk] when present, so a
+           later UI ships without breaking the wire. Build stamp bumped
+           to v112.
     v111 - 2026-07-22 - Complete the v109/v110 Visible-toggle fix: the
            agenda EDITOR was also reading from the filtered
            getAgendaSections helper, so toggling a section off made its row
@@ -2706,7 +2731,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v111</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v112</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4621,7 +4646,7 @@ var scorecard=[
     {id:29,title:"All PM Construction Schedules Slippage #Months <1",goal:1,goalType:"≤",unit:"#",_autoKey:"pm.scheduleSlippage",_autoSrc:"PM",readings:[null,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,3,3,3,null]},
     {id:30,title:"All PM TODO's not done upto date <0",goal:0,goalType:"=",unit:"#",readings:[null,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,null]},
     {id:31,title:"All PM Sites Clean, Organized, Safe, & Sign Posted with Compliance Documents",goal:"Yes",goalType:"=",unit:"YN",readings:[null,"Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes",null]},
-    {id:32,title:"All PM Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",readings:[null,97.5,97.5,94,100,95,100,100,95,100,100,100,100,100,95,100,100,100,100,0,100,null]}
+    {id:32,title:"All PM Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.pm",autoSrc:"P&D",readings:[null,97.5,97.5,94,100,95,100,100,95,100,100,100,100,100,95,100,100,100,100,0,100,null]}
   ]},
   {ownerId:"MN",seat:"Client Experience Manager & Interior Design",metrics:[
     {id:33,title:"All ID Weekly Workload Rating 1-10",goal:8,goalType:"=",unit:"#",readings:[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,null]},
@@ -4629,7 +4654,7 @@ var scorecard=[
     {id:35,title:"All ID Weekly/Monthly Client Updates done <0",goal:0,goalType:"=",unit:"#",readings:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,null]},
     {id:36,title:"All ID Selections Past Milestone <0",goal:0,goalType:"=",unit:"#",readings:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,null]},
     {id:37,title:"Number of Client Deficiencies at Turn Over <5",goal:5,goalType:"≤",unit:"#",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
-    {id:38,title:"All ID Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",readings:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,0,100,100,null]}
+    {id:38,title:"All ID Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.id",autoSrc:"P&D",readings:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,0,100,100,null]}
   ]},
   {ownerId:"TP",seat:"VP of Construction Operations",metrics:[
     {id:39,title:"Companywide Weekly Workload Rating 1-10",goal:8,goalType:"≤",unit:"#",readings:[8,8,8,8,8,8,8,8,8,8,8,8,8.25,null,8,8,8,8,8.25,8,8,null]},
@@ -4638,7 +4663,7 @@ var scorecard=[
     {id:42,title:"Company Culture & Job Satisfaction Rating >8",goal:8,goalType:"≥",unit:"#",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
     {id:43,title:"Companywide FSA & Construction Schedule Slippage #months <0",goal:1,goalType:"≤",unit:"#",readings:[null,null,0,0,0,1,1,0,1,1,1,1,1,1,2,2,2,2,2,3,3,null]},
     {id:44,title:"Companywide Budgets >%500 W/O CWO <0",goal:0,goalType:"=",unit:"#",readings:[null,null,0,0,1,0,0,0,0,0,0,0,1,null,0,0,0,0,0,1,0,null]},
-    {id:45,title:"Companywide Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",readings:[null,null,98.75,97,100,72.5,100,97.5,97.5,100,100,100,null,null,97.5,100,100,100,75,100,100,null]}
+    {id:45,title:"Companywide Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.companywide",autoSrc:"P&D",readings:[null,null,98.75,97,100,72.5,100,97.5,97.5,100,100,100,null,null,97.5,100,100,100,75,100,100,null]}
   ]},
   {ownerId:"LS",seat:"Financial Controller & Office Manager",metrics:[
     {id:46,title:"All Financial Weekly Workload Rating 1-10",goal:8,goalType:"≥",unit:"#",readings:[8,null,8,8,8,8,8,8,8,8,8,8,8,null,null,null,null,null,null,null,null,null]},
@@ -4647,7 +4672,7 @@ var scorecard=[
     {id:49,closeDependent:true,title:"GP (2.3M Year, 397K Q3)",goal:132333,goalType:"≥",unit:"$",cadence:"monthly",readings:[121340.13,-86187.42,475184.98,43292.45,null,null,null,null,null,null,null,null]},
     {id:50,closeDependent:true,title:"OE (1.4M Year, 326K Q3)",goal:108666,goalType:"≤",unit:"$",cadence:"monthly",readings:[112305.69,103148.93,105960.11,105763.47,null,null,null,null,null,null,null,null]},
     {id:51,closeDependent:true,title:"NPBT (950K Year, 70K Q3)",goal:23333,goalType:"≥",unit:"$",cadence:"monthly",readings:[8011.88,-190258.49,369987.81,-62471.02,null,null,null,null,null,null,null,null]},
-    {id:52,title:"All Financial Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
+    {id:52,title:"All Financial Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.financial",autoSrc:"P&D",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
   ]},
   {ownerId:"VC",seat:"Accounting Administration",metrics:[
     {id:53,title:"Number of A/P over 35 days <0 & Controller Advised.",goal:0,goalType:"≤",unit:"#",readings:[0,null,1,null,2,1,1,0,0,null,0,0,0,null,0,0,0,0,0,0,0,null]},
@@ -6746,6 +6771,57 @@ function scCurrentWeekIdx(){
     if(now>=start && now<end) return i;
   }
   return Math.min(scLastDataIdx()+1, weekRanges.length-1);
+}
+function vspPullPndCompliance(){
+  // v112: read the P&D-authored Compliance bridge and write per-week
+  // values onto the four Compliance measurables. Silent on any failure.
+  // Called at boot (after migrations/normalize) and on every staging pull.
+  try{
+    var raw=null; try{ raw=localStorage.getItem('smb_pnd_compliance_bridge_v1'); }catch(e){}
+    if(!raw) return;
+    var bridge; try{ bridge=JSON.parse(raw); }catch(e){ return; }
+    if(!bridge || bridge.v!==1 || !bridge.groups) return;
+    // Map ISO Monday date to VSP column index using SC_PLAN_START_DATE and scPlanStartIdx.
+    // scWeekDate(i) = SC_PLAN_START_DATE + (i - scPlanStartIdx()) * 7 days
+    // so for a target Monday d: i = scPlanStartIdx() + round((d - SC_PLAN_START_DATE) / 7d)
+    var startIdx = (typeof scPlanStartIdx==='function') ? scPlanStartIdx() : 0;
+    var startMs = SC_PLAN_START_DATE.getTime();
+    var maxCol = (typeof weekRanges!=='undefined' && Array.isArray(weekRanges)) ? weekRanges.length : 0;
+    function _idxForIso(iso){
+      var d=new Date(iso+'T00:00:00');
+      if(isNaN(d.getTime())) return -1;
+      var wk=Math.round((d.getTime()-startMs) / (7*86400000));
+      return startIdx + wk;
+    }
+    function _findMetric(id){
+      var hit=null;
+      if(typeof teamsRegistry==='object' && teamsRegistry){
+        Object.keys(teamsRegistry).forEach(function(tid){
+          var t=teamsRegistry[tid];
+          if(!t || !Array.isArray(t.scorecard)) return;
+          t.scorecard.forEach(function(sec){
+            (sec && sec.metrics || []).forEach(function(m){ if(m && m.id===id) hit=m; });
+          });
+        });
+      }
+      return hit;
+    }
+    Object.keys(bridge.groups).forEach(function(gk){
+      var g=bridge.groups[gk]; if(!g || !g.vspMetricId || !g.weeks) return;
+      var m=_findMetric(g.vspMetricId); if(!m) return;
+      if(!Array.isArray(m.readings)) m.readings=[];
+      Object.keys(g.weeks).forEach(function(iso){
+        var idx=_idxForIso(iso);
+        if(idx<0 || idx>=maxCol) return;
+        // Task-3 stub: skip any week the user has manually overridden.
+        if(m.manualOverride && m.manualOverride[idx]!=null) return;
+        while(m.readings.length<=idx) m.readings.push(null);
+        var v=g.weeks[iso];
+        if(typeof v!=='number' || isNaN(v)) return;
+        m.readings[idx]=Math.round(v*100)/100;
+      });
+    });
+  }catch(e){ /* silent */ }
 }
 function scApplyFeed(){
   try{
@@ -16725,7 +16801,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v111';
+window.VSP_BUILD = 'v112';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -17205,8 +17281,12 @@ function _vspMig(){ return (window.__VSP_MIGRATIONS = window.__VSP_MIGRATIONS ||
 function _vspStripAutoMetric(m){
   // Convert an auto-fed metric to manual entry, remembering its source in
   // _autoKey/_autoSrc so Edit Measurable can switch it back on later.
-  if(m && m.auto){ m._autoKey=m.auto; m._autoSrc=m.autoSrc; delete m.auto; delete m.autoSrc; return true; }
-  return false;
+  // v112: preserve metrics wired to the P&D Compliance bridge (pnd.compliance.*)
+  // since that transport is live and pulls per-week, not per-current-cell.
+  // Every other auto key continues to strip.
+  if(!(m && m.auto)) return false;
+  if(typeof m.auto==='string' && m.auto.indexOf('pnd.compliance.')===0) return false;
+  m._autoKey=m.auto; m._autoSrc=m.autoSrc; delete m.auto; delete m.autoSrc; return true;
 }
 function _vspRunMigrations(){
 
@@ -17827,6 +17907,7 @@ try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof 
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
 try { scNormalize(); } catch(e){ console.warn(e); }
+try { vspPullPndCompliance(); } catch(e){ console.warn(e); }  // v112: P&D->VSP Compliance bridge
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
 // One-time priority migration: any persisted 'medium' becomes 'low' (new model is High/Low only)
@@ -18386,7 +18467,7 @@ try{
 }catch(e){}
 </script>
 <script>
-/* SMB VSP STAGING ADAPTER v2.3 - shared cloud persistence over Firebase RTDB.
+/* SMB VSP STAGING ADAPTER v2.4 - shared cloud persistence over Firebase RTDB.
    SIMPLE, SAFE MODEL (replaces the v1.x real-time polling model):
      1. ON LOAD: pull the team's latest data from the cloud ONCE and show it.
      2. AS YOU WORK: each save is sent up to the cloud (debounced).
@@ -18478,6 +18559,7 @@ try{
     try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
     try { if(typeof scExtendYear === 'function') scExtendYear(); } catch(e){}
     try { if(typeof scNormalize === 'function') scNormalize(); } catch(e){}
+    try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}  // v112: P&D->VSP Compliance rehydrate on remote pull
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
     try { if(typeof renderTopbarV2 === 'function') renderTopbarV2(); } catch(e){}
