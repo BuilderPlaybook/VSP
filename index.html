@@ -971,7 +971,7 @@
            duplicate meeting banner; the single Next Meeting card shows Start
            normally and Resume when a meeting is in progress. Gates green.
     v16  - 2026-07-08 - Meeting rename + per-team meeting scoping. Renamed the
-           Leadership Sync team to Executive Team Meeting. Team meetings scoped:
+           Leadership Sync team to Executive. Team meetings scoped:
            Weekly for every team; Quarterly for every team except the Executive
            Team; Annual for the Leadership Team only; the Executive Team has just
            the Weekly (run weekly or monthly, same meeting). Removed the special
@@ -991,7 +991,7 @@
            green.
     v20  - 2026-07-08 - Migration: saved/synced team data kept the old "Leadership
            Sync" name (restore copies saved scalar fields over the seed). Added a
-           load-time rename to "Executive Team Meeting" so the team dropdown shows
+           load-time rename to "Executive" so the team dropdown shows
            the correct name; next save propagates it to the cloud. Gates green.
     v21  - 2026-07-08 - Meeting scheduling: real recurrence + calendar placeholders.
            Recurring is now a cadence select (One-time / Weekly / Every 2 weeks /
@@ -1296,6 +1296,35 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v111 - 2026-07-22 - Complete the v109/v110 Visible-toggle fix: the
+           agenda EDITOR was also reading from the filtered
+           getAgendaSections helper, so toggling a section off made its row
+           disappear from the editor itself (data still intact, but with
+           no way to see it or toggle it back). A raw section list is now
+           used for editor rendering; the running meeting keeps the
+           filtered list. Editor always shows every section regardless of
+           visibility; running meeting hides the invisibles. Build stamp
+           bumped to v111.
+    v110 - 2026-07-22 - Fix a serious v109 regression: the editor's Visible
+           toggle used getAgendaSections(agendaData) to look up the section
+           by index, but v109 made getAgendaSections filter out invisible
+           entries - so the first click hid a section, then the next click
+           on the visually-same row hit a DIFFERENT real section (indices
+           shifted). Successive clicks silently hid additional sections one
+           by one. The editor toggle now indexes into the raw
+           agendaData.sections (or the raw day.sections) directly; the
+           running meeting keeps using the filtered list. Nothing is ever
+           deleted; sections toggled off can always be toggled back on.
+           Build stamp bumped to v110.
+    v109 - 2026-07-22 - Two fixes. (1) The Visible toggle on the agenda
+           editor now takes effect in the RUNNING meeting: getAgendaSections
+           filters out sections marked visible:false so a toggled-off
+           section does not appear in the live agenda, the section
+           navigator, the print preview, or the total-time calculator. The
+           agenda editor still shows every section (it is the editor). (2)
+           Team rename: LT-Meeting -> Leadership, ET-Meeting -> Executive.
+           Load-time migration updates stored data still holding the old
+           strings. Build stamp bumped to v109.
     v108 - 2026-07-22 - Same-origin bridge added: VSP writes a shared-storage
            snapshot on every save so P&D (loaded on a separate URL under the
            same builderplaybook.github.io origin) can read live VSP data
@@ -2677,7 +2706,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v108</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v111</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -3525,6 +3554,21 @@ function markCascadeRead(id,teamId){
 
 // ── AGENDA EDITING ─────────────────────────────────────────────────────────────
 function getAgendaSections(agendaData,dayIdx){
+  // v109: hide sections toggled off in the agenda editor from the running
+  // meeting, section navigator, print preview, and total-time totals. This
+  // helper is for the RUNNING meeting and any presentation-time consumer;
+  // the editor must use getAgendaSectionsRaw so hidden sections stay
+  // toggle-able.
+  function _v(arr){ return (arr||[]).filter(function(x){ return x && x.visible!==false; }); }
+  if(agendaData.days){
+    var d=agendaData.days[dayIdx!==undefined?dayIdx:state.meetAgendaDay]||agendaData.days[0];
+    return d?_v(d.sections):[];
+  }
+  return _v(agendaData.sections);
+}
+function getAgendaSectionsRaw(agendaData,dayIdx){
+  // v111: unfiltered - used by the AGENDA EDITOR so a section toggled to
+  // visible:false still renders as a row that can be toggled back on.
   if(agendaData.days){
     var d=agendaData.days[dayIdx!==undefined?dayIdx:state.meetAgendaDay]||agendaData.days[0];
     return d?d.sections:[];
@@ -3565,9 +3609,18 @@ function saveAgendaDur(idx,val){
   renderPage();
 }
 function toggleSectionVisible(idx){
+  // v110: index into the RAW section list so successive toggles do not shift
+  // (getAgendaSections filters out invisible entries for the running meeting).
   var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
-  var sections=getAgendaSections(agendaData);
-  if(sections[idx]) sections[idx].visible=!sections[idx].visible;
+  if(!agendaData) return;
+  var sections;
+  if(agendaData.days){
+    var d=agendaData.days[state.meetAgendaDay!=null?state.meetAgendaDay:0]||agendaData.days[0];
+    sections=d&&d.sections;
+  } else {
+    sections=agendaData.sections;
+  }
+  if(sections && sections[idx]) sections[idx].visible=!sections[idx].visible;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
@@ -3685,7 +3738,7 @@ function printStrategicPlan(){
   // Header
   D.push('<div class="header">');
   D.push('<div><div class="co">'+esc(orgName)+'</div><div style="font-size:20px;font-weight:800;margin-top:4px">Vision &amp; Strategic Plan</div></div>');
-  D.push('<div class="team">Team: Leadership Team Meeting<br>Printed on '+dateStr+'</div>');
+  D.push('<div class="team">Team: Leadership<br>Printed on '+dateStr+'</div>');
   D.push('</div>');
   D.push('<div style="color:#64748b;margin-bottom:8px">Last reviewed: '+esc(state.stratLastReviewed)+'</div>');
 
@@ -4638,7 +4691,7 @@ var annualAgenda=[
 ];
 var pastMeetings=[];
 var scheduledMeetings=[
-  {id:1,type:"Weekly",date:"2026-05-21",time:"9:00 AM",attendees:["DS","TP","WL","MN","LS"],location:"LIDA Office - Boardroom",recurring:"Weekly Leadership Team Meeting"}
+  {id:1,type:"Weekly",date:"2026-05-21",time:"9:00 AM",attendees:["DS","TP","WL","MN","LS"],location:"LIDA Office - Boardroom",recurring:"Weekly Leadership"}
 ];
 var meetingAgendas=[
   {type:"Weekly",title:"Weekly Meeting",dur:"90 min",color:"#2563eb",role:"all",sections:[
@@ -4774,7 +4827,7 @@ var meetingAgendas=[
 var teamsRegistry={
   "lt":{
     id:"lt",
-    name:"Leadership Team Meeting",
+    name:"Leadership",
     color:"#2563eb",
     quarter:"Q2 2026",
     members:['DS','TP','WL','MN','LS'],
@@ -4853,7 +4906,7 @@ var teamsRegistry={
   },
   "ltsync":{
     id:"ltsync",
-    name:"Executive Team Meeting",
+    name:"Executive",
     color:"#7c3aed",
     quarter:"Q2 2026",
     members:['DS','TP'],
@@ -8408,7 +8461,7 @@ function renderStrategic(){
     h+='<div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--brd)">';
     h+='<div style="font-size:var(--fz-body);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">'+((window.SMB_TENANT&&window.SMB_TENANT.orgName)||'Company')+'</div>';
     h+='<div style="font-size:var(--fz-2xl);font-weight:700;color:var(--txt);margin-bottom:4px">Vision & Strategic Plan</div>';
-    h+='<div style="font-size:var(--fz-lg);color:var(--txm)">Leadership Team Meeting \u00b7 Last reviewed: '+state.stratLastReviewed+'</div>';
+    h+='<div style="font-size:var(--fz-lg);color:var(--txm)">Leadership \u00b7 Last reviewed: '+state.stratLastReviewed+'</div>';
     h+='</div>';
     // All sections - exact same order as printStrategicPlan
     // ── VISION ──────────────────────────────────────────────────────────
@@ -12531,7 +12584,8 @@ function renderMeetings(){
     var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;})||meetingAgendas[0];
     var isMultiDay=!!agendaData.days;
     var activeDayIdx=isMultiDay?Math.min(state.meetAgendaDay||0,agendaData.days.length-1):0;
-    var sections=getAgendaSections(agendaData,activeDayIdx);
+    // v111: editor uses raw list so hidden sections stay toggle-able
+    var sections=getAgendaSectionsRaw(agendaData,activeDayIdx);
     var totalMin=sections.reduce(function(a,s){return a+(s.visible===false?0:s.min);},0);
     var _dH=Math.floor(totalMin/60), _dM=totalMin%60;
     var durLabel=_dH>0?(_dM>0?_dH+'h '+_dM+'m':_dH+'h'):(_dM+'m');
@@ -12690,29 +12744,29 @@ var orgSeats=[
   // ── LEVEL 1 ──
   {id:"principal", seat:"Principal, LIDA Group of Companies", person:"Dave Stephens", initials:"DS", open:false,
     responsibilities:["Ideas & Innovation","Strategic Relationships","Culture & Inspiration","R&D & Big Issues","Emotional & Strategic Leadership"],
-    teams:["Leadership Team Meeting"], reportsTo:null, directReports:["president"]},
+    teams:["Leadership"], reportsTo:null, directReports:["president"]},
 
   // ── LEVEL 2 ──
   {id:"president", seat:"President & CFO, LIDA Group of Companies", person:"Dave Stephens", initials:"DS", open:false,
     responsibilities:["Leadership & Management","Financial Stewardship","Operational Execution","Problem Solving & Alignment","Strategic Projects"],
-    teams:["Leadership Team Meeting"], reportsTo:"principal", directReports:["fc","vpops","mkt_mgr","vpcap"]},
+    teams:["Leadership"], reportsTo:"principal", directReports:["fc","vpops","mkt_mgr","vpcap"]},
 
   // ── LEVEL 3 ──
   {id:"fc", seat:"Financial Controller & Office Manager", person:"Lisa Stephens", initials:"LS", open:false,
     responsibilities:["Leadership & Management","Financial Stewardship","Compliance & HR","Administrative Operations","Reporting & Remittances"],
-    teams:["Leadership Team Meeting"], reportsTo:"president", directReports:["acct_admin"]},
+    teams:["Leadership"], reportsTo:"president", directReports:["acct_admin"]},
 
   {id:"vpops", seat:"VP of Construction Operations", person:"Terry Pearson", initials:"TP", open:false,
     responsibilities:["Leadership & Management","Operational Excellence","Financial Oversight","Problem Solving & Issue Removal","Strategic & Special Projects"],
-    teams:["Leadership Team Meeting","Construction Operations"], reportsTo:"president", directReports:["ce_id","sales","sr_pm","pre_const"]},
+    teams:["Leadership","Construction Operations"], reportsTo:"president", directReports:["ce_id","sales","sr_pm","pre_const"]},
 
   {id:"mkt_mgr", seat:"Marketing Manager", person:"Dave Stephens", initials:"DS", open:false,
     responsibilities:["Leadership & Management","Strategic Planning & Budgeting","Branding, Materials & Public Relations","Customer Insights & Experience","Performance Measurement & Reporting"],
-    teams:["Leadership Team Meeting"], reportsTo:"president", directReports:["mkt_coord"]},
+    teams:["Leadership"], reportsTo:"president", directReports:["mkt_coord"]},
 
   {id:"vpcap", seat:"VP of Capital, Development & Holdings", person:"Dave Stephens", initials:"DS", open:false,
     responsibilities:["Leadership & Management","Deal Sourcing & Analysis","Stakeholder & Partner Relations","Development Process Management","Capital Strategy & Growth"],
-    teams:["Leadership Team Meeting"], reportsTo:"president", directReports:["prop_mgr","dev_mgr"]},
+    teams:["Leadership"], reportsTo:"president", directReports:["prop_mgr","dev_mgr"]},
 
   // ── LEVEL 4 ──
   {id:"acct_admin", seat:"Accounting Administrator", person:"Vanessa Chang", initials:"VC", open:false,
@@ -12721,7 +12775,7 @@ var orgSeats=[
 
   {id:"ce_id", seat:"Client Experience Manager & Interior Design", person:"Mika Nishimura", initials:"MN", open:false,
     responsibilities:["Leadership & Management","Interior Design & Selections","Client Experience & Relationships","Project Administration","Leadership Team Participation"],
-    teams:["Leadership Team Meeting","Interior Design"], reportsTo:"vpops", directReports:[]},
+    teams:["Leadership","Interior Design"], reportsTo:"vpops", directReports:[]},
 
   {id:"sales", seat:"Sales", person:"Terry Pearson", initials:"TP", open:false,
     responsibilities:["Lead Management & Intake","Sales Process Execution","CRM & Communication Systems","Project Review & Handoff","Estimating & Sales Presentations"],
@@ -16671,7 +16725,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v108';
+window.VSP_BUILD = 'v111';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -17445,8 +17499,8 @@ function vspApplySnapshot(s){
         if(saved[f] !== undefined) reg[f] = saved[f];
       });
     });
-    // Migration: the "Leadership Sync" team was renamed to "Executive Team Meeting".
-    try{ if(teamsRegistry.ltsync && teamsRegistry.ltsync.name==='Leadership Sync') teamsRegistry.ltsync.name='Executive Team Meeting'; }catch(e){}
+    // Migration: the "Leadership Sync" team was renamed to "Executive".
+    try{ if(teamsRegistry.ltsync && teamsRegistry.ltsync.name==='Leadership Sync') teamsRegistry.ltsync.name='Executive'; }catch(e){}
     // Migration: saved data written before the Property Management team was seeded
     // carries members:[] and overwrites the seed (the ['name','color','quarter',
     // 'members'] copy above), which drops every owner dropdown back to the
@@ -18300,6 +18354,36 @@ document.addEventListener('keydown',function(e){
 });
 /* ═══ END MEETING SHORTCUTS ═══ */
 
+
+// v109 migration (placed at END of script chain, after all vars exist and
+// vspLoadAll+_vspRunMigrations have run). Rename legacy team labels in any
+// stored data loaded from localStorage before v109.
+try{
+  (function(){
+    var oldL='Leader'+'ship Team Meeting';
+    var oldE='Executive Team '+'Meeting';
+    function _fix(t){ if(t===oldL) return 'Leadership'; if(t===oldE) return 'Executive'; return t; }
+    if(typeof meetings!=='undefined' && Array.isArray(meetings)){
+      meetings.forEach(function(m){
+        if(m && typeof m.recurring==='string'){
+          m.recurring=m.recurring.split(oldL).join('Leadership').split(oldE).join('Executive');
+        }
+      });
+    }
+    if(typeof teamsRegistry!=='undefined' && teamsRegistry && typeof teamsRegistry==='object'){
+      Object.keys(teamsRegistry).forEach(function(k){
+        var t=teamsRegistry[k];
+        if(t && typeof t.name==='string') t.name=_fix(t.name);
+      });
+    }
+    if(typeof orgSeats!=='undefined' && Array.isArray(orgSeats)){
+      orgSeats.forEach(function(seat){
+        if(Array.isArray(seat.teams)) seat.teams=seat.teams.map(_fix);
+      });
+    }
+    if(typeof syncTeamData==='function'){ try{ syncTeamData(); }catch(e){} }
+  })();
+}catch(e){}
 </script>
 <script>
 /* SMB VSP STAGING ADAPTER v2.3 - shared cloud persistence over Firebase RTDB.
