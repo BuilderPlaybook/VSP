@@ -6772,6 +6772,59 @@ function scCurrentWeekIdx(){
   }
   return Math.min(scLastDataIdx()+1, weekRanges.length-1);
 }
+/* ============================================================
+   v113 ONE-TIME RESTORE
+   Recovered from the Data Guard backup written 2026-07-22T20:00:35Z, with the
+   six Companywide cells for Jun 01 through Jul 06 taken from Dave's screenshot
+   of the working scorecard (100, 100, 80, 80, 80, 100), since the backup had
+   already caught those as zeros.
+   Deliberately additive: a cell is only filled when it is currently blank or
+   zero AND the recovered copy has a real number for it. Nothing is ever
+   removed or replaced, so a value newer than the backup survives.
+   Runs once per browser, then marks itself done and never runs again.
+   ============================================================ */
+var VSP_RESTORE_V113 = {"45": [null, null, 98.75, 97, 100, 72.5, 100, 97.5, 97.5, 100, 100, 100, null, null, 97.5, 100, 100, 100, 75, 100, 100, null, 100, 100, 80, 80, 80, 100, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "32": [null, 97.5, 97.5, 94, 100, 95, 100, 100, 95, 100, 100, 100, 100, 100, 95, 100, 100, 100, 100, 0, 100, null, 90, 100, 50, null, null, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "38": [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 0, 100, 100, null, 100, 100, 100, 100, null, null, 100, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "52": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]};
+var VSP_RESTORE_V113_FLAG = 'vsp.restore.v113.done';
+function vspRestoreV113(){
+  try{
+    if(localStorage.getItem(VSP_RESTORE_V113_FLAG)) return 0;
+    var filled = 0;
+    function fix(m){
+      if(!m || m.id == null) return;
+      var want = VSP_RESTORE_V113[String(m.id)];
+      if(!Array.isArray(want)) return;
+      if(!Array.isArray(m.readings)) m.readings = [];
+      for(var i = 0; i < want.length; i++){
+        var v = want[i];
+        if(typeof v !== 'number' || isNaN(v)) continue;      /* nothing to give */
+        while(m.readings.length <= i) m.readings.push(null);
+        var cur = m.readings[i];
+        var empty = (cur === null || cur === undefined || cur === '' || cur === 0);
+        if(!empty) continue;                                  /* never overwrite real data */
+        if(cur === v) continue;
+        m.readings[i] = v; filled++;
+      }
+    }
+    function walk(sc){ if(!Array.isArray(sc)) return; sc.forEach(function(sec){ ((sec && sec.metrics) || []).forEach(fix); }); }
+    if(typeof teamsRegistry === 'object' && teamsRegistry){
+      Object.keys(teamsRegistry).forEach(function(k){ walk(teamsRegistry[k] && teamsRegistry[k].scorecard); });
+    }
+    if(typeof scorecard !== 'undefined') walk(scorecard);
+    localStorage.setItem(VSP_RESTORE_V113_FLAG, new Date().toISOString());
+    return filled;
+  }catch(e){ return 0; }
+}
+// v113: the first week P&D published for. Every scorecard column before this
+// is history and is off limits to the puller.
+var PND_BRIDGE_FIRST_WEEK_ISO = '2026-07-13';
+function _vspComplianceFloorIdx(){
+  try{
+    var startIdx = (typeof scPlanStartIdx === 'function') ? scPlanStartIdx() : 0;
+    var d = new Date(PND_BRIDGE_FIRST_WEEK_ISO + 'T00:00:00');
+    if (isNaN(d.getTime())) return Number.MAX_SAFE_INTEGER;   // unknown floor: write nothing
+    return startIdx + Math.round((d.getTime() - SC_PLAN_START_DATE.getTime()) / (7*86400000));
+  }catch(e){ return Number.MAX_SAFE_INTEGER; }
+}
 function vspPullPndCompliance(){
   // v112: read the P&D-authored Compliance bridge and write per-week
   // values onto the four Compliance measurables. Silent on any failure.
@@ -6813,6 +6866,10 @@ function vspPullPndCompliance(){
       Object.keys(g.weeks).forEach(function(iso){
         var idx=_idxForIso(iso);
         if(idx<0 || idx>=maxCol) return;
+        // v113 FLOOR: never write a column before the week P&D went live.
+        // Columns before this hold readings entered by hand over months and
+        // are not this code's to touch, whatever the bridge offers.
+        if(idx < _vspComplianceFloorIdx()) return;
         // Task-3 stub: skip any week the user has manually overridden.
         if(m.manualOverride && m.manualOverride[idx]!=null) return;
         while(m.readings.length<=idx) m.readings.push(null);
@@ -17907,6 +17964,15 @@ try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof 
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
 try { scNormalize(); } catch(e){ console.warn(e); }
+try {
+  var _r113 = (typeof vspRestoreV113==='function') ? vspRestoreV113() : 0;
+  if(_r113 > 0){
+    /* Purely additive, so Data Guard has nothing to object to, but write the
+       baseline anyway so the restore is durable before any other save runs. */
+    localStorage.setItem(vspStorageKey(), JSON.stringify(vspSnapshot()));
+    console.warn('[VSP] v113 restore filled ' + _r113 + ' reading(s).');
+  }
+} catch(e){ console.warn('[VSP] v113 restore:', e.message); }
 try { vspPullPndCompliance(); } catch(e){ console.warn(e); }  // v112: P&D->VSP Compliance bridge
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
