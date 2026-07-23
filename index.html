@@ -1296,6 +1296,82 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v143 - 2026-07-23 - Routed items can no longer be orphaned into invisibility.
+           A to-do or issue sent to a person's huddle matched only that exact
+           route, so archiving the person, changing their initials or removing
+           a team left the item matching no meeting at all: present in the data
+           and absent from every list, with nothing to indicate it had gone.
+           Routes are now validated against the live people and team registries.
+           An item whose destination no longer exists falls back to its owner's
+           meetings so it stays reachable, and carries a Lost route flag so
+           someone redirects it rather than it rotting quietly. The Send to
+           control reads Lost route rather than naming a destination that is
+           gone. Build stamp bumped to v143.
+    v142 - 2026-07-23 - Past meetings record which direct report a Performance
+           Huddle was with. A huddle is one meeting type but a different
+           meeting per report, and the saved record carried only the type, so
+           Will's four huddles were indistinguishable in history and there was
+           no per-person trail to open before a quarterly review. The record
+           now carries huddleReport, the history row names the person beside
+           the meeting type, and attendance is recorded as the two people in
+           the room rather than the whole team. Team meetings are unchanged.
+           Build stamp bumped to v142.
+    v141 - 2026-07-23 - Job Review data now syncs with the rest of VSP. The
+           job list and every verification note lived in standalone
+           localStorage keys the staging adapter never carried, so a huddle's
+           record existed only on the machine it was typed on: the report
+           could not see it, a second supervisor could not see it, and
+           clearing the browser destroyed it. Both now ride inside the VSP
+           snapshot. The job list replaces wholesale as a small managed list;
+           job notes merge key by key with the newer timestamp winning, since
+           two supervisors running huddles the same day would otherwise
+           overwrite each other. Build stamp bumped to v141.
+    v140 - 2026-07-23 - The huddle scorecard is rendered by VSP's own
+           renderScorecardInline instead of a bespoke table, using the same
+           data shape P&D assembles: Yes/No metrics grouped by deliverable,
+           hard-fail rows tagged, deadline column, thirteen weeks. Same shape
+           through the same renderer means the huddle looks exactly like P&D
+           rather than merely showing the same numbers, and it stays matched
+           when either module's scorecard styling moves. Cell clicks are
+           intercepted the way P&D intercepts them, cycling empty to Yes to No
+           to empty and writing straight to P&D's storage. The scorecard
+           globals are swapped for the duration of one synchronous render and
+           restored in a finally block, so the team scorecard is untouched.
+           Also: the LIDA team facilitation script is no longer stamped onto
+           huddle agendas. It is L10 wording about reviewing as a team and
+           keeping 5 to 15 company numbers, which does not describe a
+           one-to-one, and it was appearing unasked in the huddle's notes
+           panel. Build stamp bumped to v140.
+    v139 - 2026-07-23 - Stored-shape migrations now re-run after a snapshot is
+           applied, not only at boot. This is why repaired agendas kept
+           reverting: the huddle migration ran correctly on the local copy at
+           startup, then the staging adapter pulled the shared copy from
+           Firebase, applied it over the top, and reinstated the
+           pre-migration sections. On a synced tenant the repair was undone
+           within seconds of every load, so a fix that tested clean in
+           isolation never survived on the deployed site. The migration is
+           now a named function called at boot and again after every
+           vspApplySnapshot. Any future migration that repairs stored data
+           must be wired the same way. Build stamp bumped to v139.
+    v138 - 2026-07-23 - "New To-Dos This Meeting" now lists the to-dos the
+           meeting actually created. It was rendering the first five open
+           to-dos belonging to anyone on the team, under a heading claiming
+           they came from this session, and it ignored meetCreatedTodoIds
+           entirely. The v128 pass fixed a different function that builds the
+           saved record and never touched the block that renders on screen.
+           Both now resolve the recorded ids, apply the same meeting scope as
+           every other list, and the live section states plainly when nothing
+           was created rather than filling the space with unrelated work. The
+           concluded-meeting record carried the same defect and is fixed with
+           it, so a past meeting no longer reports every open to-do as its own
+           output. Build stamp bumped to v138.
+    v137 - 2026-07-23 - The Monthly Scorecard Review banner no longer appears
+           in a Performance Huddle. It is a reminder to review the monthly
+           divisional numbers alongside the weekly board in a team meeting;
+           a huddle reviews one person's weekly standards and has no monthly
+           board, so the banner was prompting work that does not exist in
+           that meeting. Team meetings are unchanged. Build stamp bumped to
+           v137.
     v136 - 2026-07-23 - Unlinked goals are flagged in meetings. A goal row
            already showed "Supports: X" when a parent was set, but nothing
            marked its absence, so a goal that laddered up to nothing looked
@@ -3081,7 +3157,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v136</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v143</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9922,8 +9998,15 @@ function renderScorecardInline(opts){ _recalcAll();
     // (the global .tbl uses collapse).
     var _scKey='__scboard__';
     var _scw=scTitleW(_scKey);
-    var SC_W={trend:26,title:_scw,goal:_IGW,avg:_IAW,total:_ITW};
-    var SC_OFF={trend:0,title:26,goal:26+_scw,avg:26+_scw+_IGW,total:26+_scw+_IGW+_IAW};
+    // v140: Role Deliverables and Deadline columns per D-93. They render only
+    // when at least one metric on this scorecard carries the field, so a board
+    // that never uses them is unchanged and one that does matches P&D.
+    var _mAll=[]; (scorecard||[]).forEach(function(_s){ (_s.metrics||[]).forEach(function(_m){ _mAll.push(_m); }); });
+    var _hasRD=_mAll.some(function(_m){ return _m && _m.deliverable; });
+    var _hasDL=_mAll.some(function(_m){ return _m && _m.deadline; });
+    var _RDW=_hasRD?170:0, _DLW=_hasDL?170:0;
+    var SC_W={trend:26,rd:_RDW,title:_scw,deadline:_DLW,goal:_IGW,avg:_IAW,total:_ITW};
+    var SC_OFF={trend:0,rd:26,title:26+_RDW,deadline:26+_RDW+_scw,goal:26+_RDW+_scw+_DLW,avg:26+_RDW+_scw+_DLW+_IGW,total:26+_RDW+_scw+_DLW+_IGW+_IAW};
     function scStkH(left,w,extra){
       return 'position:sticky;left:'+left+'px;top:0;z-index:5;background:var(--sur2);min-width:'+w+'px;width:'+w+'px;'+(extra||'');
     }
@@ -9933,7 +10016,9 @@ function renderScorecardInline(opts){ _recalcAll();
     h+='<div style="overflow-x:auto;position:relative"><table class="tbl" style="border-collapse:separate;border-spacing:0">';
     h+='<thead><tr>';
     h+='<th style="'+scStkH(SC_OFF.trend,SC_W.trend)+'" title="Trend"></th>';
+    if(_hasRD) h+='<th style="'+scStkH(SC_OFF.rd,SC_W.rd,'text-align:left;padding:6px 12px;border-right:1px solid var(--brd)')+'">Role Deliverables</th>';
     h+='<th style="'+scStkH(SC_OFF.title,SC_W.title,'text-align:left;border-right:1px solid var(--brd)')+'">Title<div onmousedown="scStartResize(event)" data-w-key="'+_escOpt(_scKey)+'" title="Drag to widen the Title column so long names fit on fewer lines" onmouseover="this.firstChild.style.background=\'var(--blu)\'" onmouseout="this.firstChild.style.background=\'var(--brd2)\'" style="position:absolute;top:0;right:-4px;width:11px;height:100%;cursor:col-resize;z-index:6;display:flex;align-items:center;justify-content:center"><div style="width:3px;height:58%;border-radius:2px;background:var(--brd2)"></div></div></th>';
+    if(_hasDL) h+='<th style="'+scStkH(SC_OFF.deadline,SC_W.deadline,'text-align:left;padding:6px 12px')+'">Deadline</th>';
     h+='<th style="'+scStkH(SC_OFF.goal,SC_W.goal,'text-align:center')+'">Goal</th>';
     h+='<th style="'+scStkH(SC_OFF.avg,SC_W.avg,'text-align:center')+'">Avg</th>';
     h+='<th style="'+scStkH(SC_OFF.total,SC_W.total,'text-align:center;border-right:2px solid var(--brd)')+'">Total</th>';
@@ -9953,7 +10038,9 @@ function renderScorecardInline(opts){ _recalcAll();
 
       h+='<tr>';
       h+='<td style="'+scStkB(SC_OFF.trend,SC_W.trend,rowBg,'text-align:center;padding:0 2px')+'" title="'+(trend==="good"?"Trending right":"Trend wrong way")+'">'+trendIconInline(trend)+'</td>';
+      if(_hasRD) h+='<td style="'+scStkB(SC_OFF.rd,SC_W.rd,rowBg,'text-align:left;padding:10px 12px;font-size:var(--fz-body);color:var(--txb);border-right:1px solid var(--brd);vertical-align:top;line-height:1.3;white-space:normal')+'">'+_scEsc(String(m.deliverable||''))+'</td>';
       h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
+      if(_hasDL) h+='<td style="'+scStkB(SC_OFF.deadline,SC_W.deadline,rowBg,'text-align:left;padding:10px 12px;font-size:var(--fz-body);color:var(--txm);vertical-align:top;line-height:1.3;white-space:normal')+'">'+_scEsc(String(m.deadline||''))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':_goalLabel(m))+'</td>';
       var _cnpVals = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
       var _cnpAvgTipHtml = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals, avg);
@@ -11539,6 +11626,7 @@ function issueRow(issue,idx){
   h+='<span style="font-size:var(--fz-body);color:var(--txd);min-width:18px;text-align:right;flex-shrink:0">'+(idx+1)+'.</span>';
   // Title
   h+=_meetQuickPair('issue',issue.id);
+  h+=_vspOrphanFlag(issue);
   h+=_vspIssueRouteControl(issue);
   h+='<span style="flex:1;font-size:var(--fz-lg);font-weight:500;color:var(--txt);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+issue.title+'</span>';
   // Attachment
@@ -12153,6 +12241,7 @@ function _vspCurrentMeetingRoute(){
 }
 function _vspRouteLabel(route){
   if(!route) return 'Unrouted';
+  if(!_vspRouteIsValid(route)) return 'Lost route';
   if(route.indexOf('huddle:')===0){
     var ini=route.slice(7);
     var p=ppl.find(function(x){ return x && x.initials===ini; });
@@ -12179,6 +12268,31 @@ function _vspRouteOptions(){
        .forEach(function(x){ out.push({ route:'huddle:'+x.initials, label:x.first+' '+x.last+"\u2019s huddle" }); });
   }catch(e){}
   return out;
+}
+/* v143: a route can go stale. Archive the person a to-do was routed to, or
+   delete a team, and the item matches no meeting and disappears from every
+   list while still sitting in the data. Routes are now validated, and an
+   orphaned item falls back to its owner's meetings so it stays reachable,
+   flagged so someone fixes it rather than it quietly rotting. */
+function _vspRouteIsValid(route){
+  if(!route) return true;                       // unrouted is always valid
+  if(route.indexOf('huddle:')===0){
+    var ini=route.slice(7);
+    var p=ppl.find(function(x){ return x && x.initials===ini; });
+    return !!(p && p.status!=='archived' && p.reportsTo);
+  }
+  if(route.indexOf('team:')===0){
+    var tid=route.slice(5);
+    return !!(teamsRegistry && teamsRegistry[tid]);
+  }
+  return false;
+}
+function _vspIsOrphanRouted(it){
+  return !!(it && it.reviewIn && !_vspRouteIsValid(it.reviewIn));
+}
+function _vspOrphanFlag(it){
+  if(!_vspIsOrphanRouted(it)) return '';
+  return '<span title="This item was sent to a meeting that no longer exists. It is showing here so it does not get lost. Use Send to and pick a current destination." style="font-size:var(--fz-xs);background:var(--ambb);color:var(--amb);border:1px solid var(--amb);border-radius:6px;padding:1px 7px;margin-right:6px;white-space:nowrap">Lost route</span>';
 }
 function vspTodoRouteTo(id, route){
   var t = todos.find(function(x){ return x.id===id; });
@@ -12253,7 +12367,9 @@ function _vspIssueRouteControl(i){
 function _vspItemInThisMeeting(it){
   var route = _vspCurrentMeetingRoute();
   if(!route) return true;
-  if(it && it.reviewIn) return it.reviewIn === route;
+  // v143: an item routed somewhere that no longer exists falls back to its
+  // owner's meetings rather than vanishing from all of them.
+  if(it && it.reviewIn && _vspRouteIsValid(it.reviewIn)) return it.reviewIn === route;
   return _vspInHuddleScope(it && it.owner);
 }
 /* A to-do belongs in the current meeting when it is routed here explicitly,
@@ -12332,8 +12448,9 @@ function _vspTodoCompletionBanner(list){
 function _vspTodoInThisMeeting(t){
   var route = _vspCurrentMeetingRoute();
   if(!route) return true;                         // not in a running meeting
-  if(t.reviewIn) return t.reviewIn === route;     // explicit routing wins
-  return _vspInHuddleScope(t.owner);              // else: owner in the room
+  // Explicit routing wins, but only while the destination still exists (v143).
+  if(t && t.reviewIn && _vspRouteIsValid(t.reviewIn)) return t.reviewIn === route;
+  return _vspInHuddleScope(t && t.owner);         // else: owner in the room
 }
 function _vspInHuddleScope(ownerIni){
   var scope = _vspHuddleScopeInitials();
@@ -12350,14 +12467,15 @@ function _vspHuddleScopeNote(){
   return '<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:8px">Showing items for '+_vspHuddleEsc(names.join(' and '))+', plus anything another meeting sent here. Use Send to on a row to move it to a different meeting.</div>';
 }
 function _vspRenderHuddleScorecard(){
-  /* Returns the HTML for the direct report's full P&D Weekly Performance
-     scorecard, live-editable and writing back to P&D's own key. */
-  var repIni=state.meetHuddleReport||'';
-  var repP=repIni?ppl.find(function(x){return x.initials===repIni;}):null;
+  /* v140: render the direct report's Weekly Performance scorecard through
+     VSP's OWN renderScorecardInline, using the same data shape P&D builds.
+     The previous build drew a bespoke table, which meant the huddle looked
+     nothing like P&D even though it showed the same numbers. Same shape plus
+     same renderer equals identical output, and it stays identical when either
+     module's scorecard styling changes. */
+  var repIni = state.meetHuddleReport || '';
+  var repP = repIni ? ppl.find(function(x){ return x && x.initials===repIni; }) : null;
   if(!repP){
-    // v120: no report resolved (huddle started from the generic tile).
-    // Offer a picker of the signed-in user's direct reports instead of a
-    // dead end, so the huddle can still run its scorecard step.
     var me = (typeof currentUser!=='undefined' && currentUser) ? currentUser : null;
     var reports = me ? ppl.filter(function(x){ return x && x.reportsTo===me.id && x.status!=='archived'; }) : [];
     var hh = '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:12px">';
@@ -12375,22 +12493,16 @@ function _vspRenderHuddleScorecard(){
     hh += '</div>';
     return hh;
   }
-  // Role label - accommodate both roleLabel (P&D) and role (VSP) field names.
   var roleLabel = repP.roleLabel || repP.role || null;
   if(!roleLabel){
     return '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:12px"><div style="font-size:var(--fz-body);color:var(--txm)">'+_vspHuddleEsc(repP.first+' '+repP.last)+' does not have a role set. Assign a role in People before this scorecard can render.</div></div>';
   }
   var stds = _vspPndReadStandards(roleLabel);
   if(!stds || !stds.length){
-    // v133: say exactly which role label was looked for and what P&D actually
-    // holds, so a rename on either side is diagnosable from the meeting rather
-    // than from devtools. Role definitions move to HR when that module lands;
-    // until then VSP reads .role and P&D keys on roleLabel, and the two can
-    // drift apart silently.
     var known = [];
     try{
       var raw = localStorage.getItem('smb_perf_role_standards_v1');
-      if(raw){ var m = JSON.parse(raw); if(m && typeof m==='object') known = Object.keys(m); }
+      if(raw){ var mm = JSON.parse(raw); if(mm && typeof mm==='object') known = Object.keys(mm); }
     }catch(e){}
     var d = '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:12px">';
     d += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:var(--fz-lg);font-weight:600">Weekly Performance scorecard - '+_vspHuddleEsc(repP.first+' '+repP.last)+'</span><span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Source: P&D</span></div>';
@@ -12408,57 +12520,104 @@ function _vspRenderHuddleScorecard(){
     d += '</div></div>';
     return d;
   }
+
+  // Build the same shape P&D builds, then hand it to VSP's own renderer.
   var weeks = _vspHuddleWeeksIsos();
   var all = _vspPndReadHuddles();
   var personId = repP.id;
-  // Group rows by section
-  var bySec = {}; var secOrder = [];
-  stds.forEach(function(r){
-    var sec = r.sec || 'General';
-    if(!bySec[sec]){ bySec[sec]=[]; secOrder.push(sec); }
-    bySec[sec].push(r);
+  function readingsFor(rowId){
+    return weeks.map(function(iso){
+      var rec = all[personId+'__'+iso];
+      if(!rec || !rec.answers) return null;
+      var v = rec.answers[rowId];
+      return v==='yes' ? 'Yes' : (v==='no' ? 'No' : null);
+    });
+  }
+  var metrics = stds.map(function(row, idx){
+    return {
+      id: idx+1,
+      _rowId: row.id,
+      title: (row.hard ? '<div style="margin-bottom:5px"><span style="display:inline-block;background:#dc2626;color:#fff;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Hard Fail if not Yes</span></div>' : '') + row.std,
+      description: row.due,
+      unit: 'YN',
+      goalType: '=',
+      goal: 'Yes',
+      rollupAs: 'Average',
+      cadence: 'weekly',
+      readings: readingsFor(row.id),
+      notes: {},
+      deliverable: row.sec,
+      deadline: row.due || '',
+      _hard: row.hard
+    };
   });
+  var cs = (typeof colorForSlot==='function') ? colorForSlot(repP.colorSlot) : {fg:'#334155'};
+  var built = [{
+    ownerId: repP.initials,
+    ownerName: (repP.first+' '+repP.last),
+    seat: roleLabel,
+    color: (cs && cs.fg) || '#334155',
+    metrics: metrics
+  }];
+
+  // Keep the built state where the click adapter can reach it after render.
+  window._vspHuddleSc = { scorecard: built[0], weeks: weeks, personId: personId };
+  _vspInstallHuddleCellAdapter();
+
+  // Swap the scorecard globals for the duration of one synchronous render.
+  var _sc=scorecard, _wr=weekRanges, _pl=SC_PLAN_LABEL, _ps=SC_PLAN_START_DATE;
+  var _period=state.scorecardPeriod, _range=state.scorecardDateRange, _merged=state.scMerged, _search=state.scorecardSearch;
+  var out='';
+  try{
+    scorecard = built;
+    weekRanges = weeks.map(_vspHuddleWeekLabel);
+    SC_PLAN_LABEL = weekRanges[0];
+    var _p0 = weeks[0].split('-');
+    SC_PLAN_START_DATE = new Date(+_p0[0], +_p0[1]-1, +_p0[2]);
+    state.scorecardPeriod='weekly';
+    state.scorecardDateRange='last13';
+    state.scMerged=false;
+    state.scorecardSearch='';
+    out = renderScorecardInline({ showFilters:false, editable:true, linkable:false });
+  }catch(e){
+    out = '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:12px"><div style="font-size:var(--fz-body);color:var(--red)">The scorecard could not be rendered: '+_vspHuddleEsc(e.message||'unknown error')+'</div></div>';
+  }finally{
+    scorecard=_sc; weekRanges=_wr; SC_PLAN_LABEL=_pl; SC_PLAN_START_DATE=_ps;
+    state.scorecardPeriod=_period; state.scorecardDateRange=_range; state.scMerged=_merged; state.scorecardSearch=_search;
+  }
+
   var h = '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:12px">';
-  h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+  h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">';
   h += '<span style="font-size:var(--fz-lg);font-weight:600">Weekly Performance scorecard - '+_vspHuddleEsc(repP.first+' '+repP.last)+'</span>';
   h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Source: P&D</span>';
-  h += '<span style="font-size:var(--fz-xs);color:var(--txd);margin-left:auto">Click any cell: empty -> Yes -> No -> empty. Writes back to P&D live.</span>';
+  h += '<span style="font-size:var(--fz-xs);color:var(--txd);margin-left:auto">Click any cell: empty to Yes to No to empty. Writes back to P&D live.</span>';
   h += '</div>';
-  // Wide table with 13 week columns.
-  h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:var(--fz-body);min-width:100%;table-layout:fixed">';
-  h += '<colgroup><col style="width:34%"><col style="width:14%">';
-  for(var wI=0;wI<weeks.length;wI++) h += '<col style="width:auto">';
-  h += '</colgroup><thead><tr>';
-  h += '<th style="text-align:left;padding:6px 8px;font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.04em;color:var(--txm);border-bottom:1px solid var(--brd)">Standard</th>';
-  h += '<th style="text-align:left;padding:6px 8px;font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.04em;color:var(--txm);border-bottom:1px solid var(--brd)">Deadline</th>';
-  weeks.forEach(function(w, i){
-    var isCurrent = i===weeks.length-1;
-    h += '<th style="text-align:center;padding:6px 4px;font-size:var(--fz-xs);color:var(--txm);border-bottom:1px solid var(--brd);'+(isCurrent?'background:var(--blub);border-radius:6px 6px 0 0':'')+'">'+_vspHuddleEsc(_vspHuddleWeekLabel(w))+'</th>';
-  });
-  h += '</tr></thead><tbody>';
-  secOrder.forEach(function(sec){
-    h += '<tr><td colspan="'+(2+weeks.length)+'" style="padding:10px 8px 4px;font-size:var(--fz-body);font-weight:700;color:var(--txt);border-bottom:1px solid var(--brd)">'+_vspHuddleEsc(sec)+'</td></tr>';
-    bySec[sec].forEach(function(r){
-      h += '<tr>';
-      var hardTag = r.hard ? '<span style="display:inline-block;background:#dc2626;color:#fff;border-radius:4px;padding:1px 6px;font-size:var(--fz-xs);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-right:6px">Hard fail</span>' : '';
-      h += '<td style="padding:8px 8px;vertical-align:top;border-bottom:1px solid var(--brd);white-space:normal">'+hardTag+_vspHuddleEsc(r.std)+'</td>';
-      h += '<td style="padding:8px 8px;vertical-align:top;border-bottom:1px solid var(--brd);color:var(--txm);font-size:var(--fz-body)">'+_vspHuddleEsc(r.due||'')+'</td>';
-      weeks.forEach(function(w, i){
-        var rec = all[personId+'__'+w];
-        var ans = rec && rec.answers ? rec.answers[r.id] : null;
-        var cell, bg;
-        if(ans==='yes'){ cell='Yes'; bg='var(--grnb)'; }
-        else if(ans==='no'){ cell='No'; bg='var(--redb)'; }
-        else { cell=''; bg='transparent'; }
-        var color = ans==='yes' ? 'var(--grn)' : (ans==='no' ? 'var(--red)' : 'var(--txm)');
-        var isCurrent = i===weeks.length-1;
-        h += '<td onclick="_vspHuddleCellClick(\''+personId+'\',\''+w+'\',\''+r.id+'\')" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();_vspHuddleCellClick(\''+personId+'\',\''+w+'\',\''+r.id+'\');}" style="text-align:center;padding:8px 4px;border-bottom:1px solid var(--brd);cursor:pointer;background:'+bg+';color:'+color+';font-weight:'+(ans?'700':'400')+';'+(isCurrent?'outline:2px solid var(--blu);outline-offset:-2px':'')+'">'+cell+'</td>';
-      });
-      h += '</tr>';
-    });
-  });
-  h += '</tbody></table></div>';
+  h += out;
+  h += '</div>';
   return h;
+}
+function _vspInstallHuddleCellAdapter(){
+  /* Intercept VSP's own cell editor for the huddle's Yes/No grid and write
+     straight to P&D's storage, mirroring what P&D does with its adapter. */
+  if(window._vspHuddleCellAdapterInstalled) return;
+  window._vspHuddleCellAdapterInstalled = true;
+  var orig = openCellEdit;
+  openCellEdit = function(ownerId, metricId, weekIdx){
+    var st = window._vspHuddleSc;
+    var inHuddle = (state.page==='meetings' && state.meetTab==='running' && (state.meetType||'').indexOf('performance')>-1);
+    if(!st || !inHuddle) return orig(ownerId, metricId, weekIdx);
+    var m = st.scorecard.metrics.find(function(x){ return x.id===metricId; });
+    if(!m || m.unit!=='YN') return orig(ownerId, metricId, weekIdx);
+    var cur = m.readings[weekIdx];
+    var t = cur==null ? null : String(cur).toLowerCase();
+    var next = (t==='yes') ? 'No' : ((t==='no') ? null : 'Yes');
+    m.readings[weekIdx] = next;
+    var iso = st.weeks[weekIdx];
+    if(iso && st.personId && m._rowId){
+      _vspPndWriteHuddle(st.personId, iso, m._rowId, next===null ? null : (next==='Yes' ? 'yes' : 'no'));
+    }
+    renderPage();
+  };
 }
 function _meetPndScorecardItem(){
   if((state.meetType||'').indexOf('performance')===-1) return '';
@@ -13337,7 +13496,11 @@ function renderMeetings(){
       h+='<div style="margin-bottom:14px">'+renderStrategic()+'</div>';
     }
     if(stepIs("scorecard")){
-      h+=_vspMonthlyReviewBanners();
+      // v137: the monthly-scorecard-review reminder belongs to team meetings
+      // that review monthly divisional numbers. A Performance Huddle reviews
+      // one person's weekly standards and has no monthly board, so the banner
+      // is noise there.
+      if((state.meetType||'').indexOf('performance')===-1) h+=_vspMonthlyReviewBanners();
       var _nxtSec = runSections[step+1];
       /* v123: a Performance Huddle is a one-to-one about ONE person, so the
          scorecard step shows only that person's P&D Weekly Performance
@@ -13612,6 +13775,7 @@ function renderMeetings(){
         h+=(t.done?'<svg width="9" height="9" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
         h+=_meetQuickPair('todo',t.id);
         h+=_mtgTodoTitle(t,'span','flex:1;font-size:var(--fz-body);color:'+(t.done?'var(--txm)':'var(--txt)')+';text-decoration:'+(t.done?'line-through':'none')+'');
+        h+=_vspOrphanFlag(t);
         h+=_vspTodoRouteControl(t);
         h+=avatar(t.owner,oc,18);
         h+='<span style="color:var(--txm)">'+t.due+'</span>';
@@ -13683,14 +13847,26 @@ function renderMeetings(){
       }
       h+='</div>';
       // Show todos + issues summary at wrap-up
+      // v138: this section claimed to list what the meeting created but was
+      // rendering the first five open to-dos on the team, ignoring
+      // meetCreatedTodoIds entirely. It now resolves the ids actually
+      // recorded during this session, applies the same meeting scope as
+      // every other list, and says so plainly when nothing was created.
       h+='<div class="card"><div class="sec">New To-Dos This Meeting</div>';
-      todos.filter(function(t){return !t.done;}).slice(0,5).forEach(function(t){
-        var oc=pplColor(t.owner);
-        h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--sur2);border-radius:5px;margin-bottom:4px">';
-        h+='<span style="flex:1;font-size:var(--fz-body)">'+t.task+'</span>';
-        h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span>';
-        h+=avatar(t.owner,oc,17)+'</div>';
-      });
+      var _newTd=(state.meetCreatedTodoIds||[])
+        .map(function(id){ return todos.find(function(x){ return x.id===id; }); })
+        .filter(function(t){ return t && _vspTodoInThisMeeting(t); });
+      if(!_newTd.length){
+        h+='<div style="font-size:var(--fz-body);color:var(--txm)">No new to-dos were created in this meeting.</div>';
+      } else {
+        _newTd.forEach(function(t){
+          var oc=pplColor(t.owner);
+          h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--sur2);border-radius:5px;margin-bottom:4px">';
+          h+='<span style="flex:1;font-size:var(--fz-body)">'+t.task+'</span>';
+          h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span>';
+          h+=avatar(t.owner,oc,17)+'</div>';
+        });
+      }
       h+='</div>';
       // ── Rating - individual per person ────────────────────────────────
       h+='<div class="card">';
@@ -13922,7 +14098,13 @@ function renderMeetings(){
       h+='<div style="flex:1">';
       h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
       h+='<svg width="10" height="10" fill="none" stroke="'+tc+'" stroke-width="2" viewBox="0 0 24 24" style="transform:'+(isExpanded?'rotate(90deg)':'rotate(0)')+';transition:transform .15s"><path d="M9 18l6-6-6-6"/></svg>';
-      h+='<span style="font-size:var(--fz-body);font-weight:500">'+m.type+' Meeting</span>';
+      var _hrName='';
+      if(m.huddleReport){
+        var _hp=ppl.find(function(x){ return x && x.initials===m.huddleReport; });
+        _hrName = _hp ? (_hp.first+' '+_hp.last) : m.huddleReport;
+      }
+      h+='<span style="font-size:var(--fz-body);font-weight:500">'+m.type+(_hrName?'':' Meeting')+'</span>';
+      if(_hrName) h+='<span style="font-size:var(--fz-body);font-weight:600;color:'+tc+'">'+_scEsc(_hrName)+'</span>';
       h+='<span style="font-size:var(--fz-base);color:'+tc+';background:'+tc+'12;border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.date+'</span></div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">'+m.highlights+'</div>';
       h+='</div>';
@@ -15562,8 +15744,13 @@ function generateMeetingRecap(meetingId){
       resolved:state.meetSolvedIds.length,
       resolvedIssues:state.meetSolvedIds.map(function(id){return resolvedIssues.find(function(i){return i.id===id;})||{title:'Issue',owner:'DS'};}),
       todos:todos.filter(function(t){return !t.done;}).length,
-      createdTodos:todos.filter(function(t){return !t.done;}).map(function(t){return {task:t.task,owner:t.owner,due:t.due};}),
-      attended:(team2.members||['DS']),
+      createdTodos:(state.meetCreatedTodoIds||[]).map(function(id){ return todos.find(function(x){ return x.id===id; }); }).filter(function(t){ return t; }).map(function(t){return {task:t.task,owner:t.owner,due:t.due};}),
+      // v142: a huddle is one meeting type but a different meeting per direct
+      // report. Without the report on the record, four of Will's huddles are
+      // indistinguishable in history and there is no per-person trail to open
+      // before a quarterly review.
+      huddleReport: ((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport) ? state.meetHuddleReport : null,
+      attended:(((state.meetType||'').indexOf('performance')>-1 && _vspHuddleScopeInitials()) || team2.members || ['DS']),
       headlines:headlines.slice(0,10).map(function(h){return {text:h.text,type:h.type,owner:h.owner};}),
       cascades:cascadesRegistry.slice(0,5).map(function(cs){return {subject:cs.subject,fromTeam:cs.fromTeam,toTeams:cs.toTeams,sentAt:cs.sentAt};}),
       sectionDurations:[],
@@ -16066,7 +16253,11 @@ function endMeeting(){
     createdTodos:createdTodos,
     createdIssues:createdIssues,
     createdGoals:createdGoals,
-    attended:team.members||['DS'],
+    // v142: record which direct report this huddle was with, and who was
+    // actually in the room. This is the record endMeeting writes; the other
+    // builder above serves a different path.
+    huddleReport: ((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport) ? state.meetHuddleReport : null,
+    attended: (((state.meetType||'').indexOf('performance')>-1 && _vspHuddleScopeInitials()) || team.members || ['DS']),
     headlines:meetHeadlines,
     cascades:meetCascades,
     sectionDurations:sectionDurations,
@@ -18149,7 +18340,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v136';
+window.VSP_BUILD = 'v143';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -18599,6 +18790,13 @@ function vspSnapshot(){
     teams: teams,
     planData: planData,
     meetingAgendas: meetingAgendas,
+    // v141: the huddle's Job Review data is VSP's own, so it belongs inside
+    // the snapshot and rides the existing sync. Previously it lived in
+    // standalone localStorage keys the adapter never touched, which meant a
+    // job list and every verification note existed only on the laptop they
+    // were typed on.
+    vspJobs: (function(){ try{ var v=localStorage.getItem(VSP_JOBS_KEY); return v?JSON.parse(v):[]; }catch(e){ return []; } })(),
+    vspJobNotes: (function(){ try{ var v=localStorage.getItem(VSP_JOBNOTES_KEY); return v?JSON.parse(v):{}; }catch(e){ return {}; } })(),
     orgSeats: orgSeats,
     cascadesRegistry: cascadesRegistry,
     teamsData: (typeof teamsData !== 'undefined' ? teamsData : null),
@@ -18787,6 +18985,11 @@ function _vspRunMigrations(){
       if(ag&&Array.isArray(ag.days)) ag.days.forEach(function(dy){ if(Array.isArray(dy.sections)) lists.push(dy.sections); });
       lists.forEach(function(list){ list.forEach(function(sec){
         if(!sec || !sec.bind || sec.facil!==undefined) return;
+        // v140: this is the LIDA team-meeting facilitation script ("review as
+        // a team", "the 5-15 numbers", quarterly hygiene). None of it applies
+        // to a one-to-one reviewing one person's Yes/No standards, so huddle
+        // agendas are left with their own section guidance instead.
+        if(String(ag && ag.type || '').indexOf('Performance Huddle')>-1) return;
         if(sec.bind==='goals' && (sec.label||'').toLowerCase().indexOf('establish')<0 && (sec.label||'').toLowerCase().indexOf('swot')<0) return;
         if(sec.bind==='priorGoals' && (sec.label||'').toLowerCase().indexOf('prior')<0) return;
         var _f=_facilByBind[sec.bind];
@@ -19011,6 +19214,29 @@ function vspApplySnapshot(s){
   }
   // Restore saved meeting-agenda edits, merged into the defaults by type so
   // user edits win while any meeting type added in a later build still appears.
+  // v141: restore the huddle's job data. The job LIST is replaced wholesale
+  // (it is a small managed list, last write wins). Job NOTES are merged key by
+  // key, because two supervisors running huddles on the same day would
+  // otherwise overwrite each other's verification notes.
+  try{
+    if(Array.isArray(s.vspJobs)) localStorage.setItem(VSP_JOBS_KEY, JSON.stringify(s.vspJobs));
+  }catch(e){}
+  try{
+    if(s.vspJobNotes && typeof s.vspJobNotes==='object'){
+      var _mine={}; try{ var _v=localStorage.getItem(VSP_JOBNOTES_KEY); _mine=_v?JSON.parse(_v):{}; }catch(e){}
+      Object.keys(s.vspJobNotes).forEach(function(k){
+        var incoming=s.vspJobNotes[k], have=_mine[k];
+        if(!have){ _mine[k]=incoming; return; }
+        var a=(have&&have.at)||'', b=(incoming&&incoming.at)||'';
+        if(b>a) _mine[k]=incoming;      // newer note wins
+      });
+      localStorage.setItem(VSP_JOBNOTES_KEY, JSON.stringify(_mine));
+    }
+  }catch(e){}
+  // v139: a snapshot can carry a pre-migration agenda from another device or
+  // from the cloud, so every migration that repairs stored shapes has to run
+  // again after the snapshot lands, not only once at boot.
+  try{ setTimeout(function(){ try{ _vspMigrateHuddleAgenda(); }catch(e){} }, 0); }catch(e){}
   if(Array.isArray(s.meetingAgendas)){
     s.meetingAgendas.forEach(function(savedA){
       if(!savedA || !savedA.type) return;
@@ -19827,8 +20053,8 @@ try{
 // v118 shape. Tenants who saved agendas before v118 kept the old six-section
 // list; the seed change alone does not reach them. Custom sections the tenant
 // added are preserved, and visibility toggles carry across renames.
-try{
-  (function(){
+function _vspMigrateHuddleAgenda(){
+  try{
     if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
     var a = meetingAgendas.find(function(x){ return x && x.type==='Weekly Performance Huddle'; });
     if(!a || !Array.isArray(a.sections)) return;
@@ -19874,11 +20100,12 @@ try{
     a.sections = rebuilt;
     a.dur = '52 min';
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  })();
-}catch(e){}
+  }catch(e){}
+}
+try{ _vspMigrateHuddleAgenda(); }catch(e){}
 </script>
 <script>
-/* SMB VSP STAGING ADAPTER v2.4 - shared cloud persistence over Firebase RTDB.
+/* SMB VSP STAGING ADAPTER v2.5 - shared cloud persistence over Firebase RTDB.
    SIMPLE, SAFE MODEL (replaces the v1.x real-time polling model):
      1. ON LOAD: pull the team's latest data from the cloud ONCE and show it.
      2. AS YOU WORK: each save is sent up to the cloud (debounced).
@@ -19970,12 +20197,66 @@ try{
     try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
     try { if(typeof scExtendYear === 'function') scExtendYear(); } catch(e){}
     try { if(typeof scNormalize === 'function') scNormalize(); } catch(e){}
+    try { pullPerfAnswers(); } catch(e){}   // v141: adopt huddle answers entered elsewhere
     try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}  // v112: P&D->VSP Compliance rehydrate on remote pull
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
     try { if(typeof renderTopbarV2 === 'function') renderTopbarV2(); } catch(e){}
     try { if(typeof renderNav === 'function') renderNav(); } catch(e){}
     try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
+  }
+
+  /* v141: the Weekly Performance Huddle writes Yes/No answers into P&D's own
+     key, smb_perf_huddles_v1. That key is stewarded and synced by P&D at its
+     own node, so VSP must not publish it inside the VSP node or there would be
+     two competing copies. Instead VSP PATCHes just that one child of P&D's
+     node, which Firebase merges rather than replacing, so P&D's other keys are
+     untouched. Pull is symmetric: read that child and adopt it when it is
+     newer, so answers entered on another machine appear in the huddle. */
+  var PD_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/pd/lida-001/data.json';
+  var PERF_KEY = 'smb_perf_huddles_v1';
+  var lastPerfPushed = null;
+  function pushPerfAnswers(){
+    if(typeof fetch !== 'function') return;
+    var raw = null;
+    try { raw = localStorage.getItem(PERF_KEY); } catch(e){}
+    if(!raw || raw === lastPerfPushed) return;
+    var body = {}; body[PERF_KEY] = raw;
+    fetch(PD_ENDPOINT, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(){ lastPerfPushed = raw; }).catch(function(){});
+  }
+  function pullPerfAnswers(){
+    if(typeof fetch !== 'function') return;
+    fetch(FB_URL.replace(/\/+$/,'') + '/pd/lida-001/data/' + PERF_KEY + '.json?_=' + Date.now())
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(remote){
+        if(typeof remote !== 'string' || !remote) return;
+        var local = null; try { local = localStorage.getItem(PERF_KEY); } catch(e){}
+        if(remote === local) { lastPerfPushed = remote; return; }
+        // Merge per person-week so two supervisors huddling the same day do
+        // not erase each other. Answers are last-write-wins per row.
+        try {
+          var R = JSON.parse(remote) || {};
+          var L = local ? (JSON.parse(local) || {}) : {};
+          Object.keys(R).forEach(function(k){
+            if(!L[k]) { L[k] = R[k]; return; }
+            var lr = L[k], rr = R[k];
+            var la = (lr && lr.updatedAt) || '', ra = (rr && rr.updatedAt) || '';
+            if(ra > la){
+              rr.answers = Object.assign({}, lr.answers || {}, rr.answers || {});
+              L[k] = rr;
+            } else {
+              lr.answers = Object.assign({}, rr.answers || {}, lr.answers || {});
+            }
+          });
+          var merged = JSON.stringify(L);
+          localStorage.setItem(PERF_KEY, merged);
+          lastPerfPushed = merged;
+        } catch(e){}
+      }).catch(function(){});
   }
 
   // Send the local value up to the shared store.
@@ -19989,6 +20270,7 @@ try{
     }).then(function(){
       lastSyncedRaw = raw;
       if(pendingLocal === raw) pendingLocal = null;
+      try { pushPerfAnswers(); } catch(e){}
       flash('ok', 'Saved', 1200);
     }).catch(function(){
       setBadge('off', 'Offline - will retry on next save');
