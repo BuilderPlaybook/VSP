@@ -5910,6 +5910,31 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     : "openEditMeasurable('"+ownerId+"',"+m.id+")";
   var autoBadge = isAuto ? '<span title="Auto-fed, read-only" style="position:absolute;top:2px;left:3px;font-size:var(--fz-xs);font-weight:700;color:var(--txm);line-height:1">A</span>' : '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(String(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
+  /* v113: Performance Points Compliance cells show their own arithmetic. The
+     P&D bridge sends the per-person percentages behind each combined number,
+     so the tooltip lists every person who counted, states the rule, and shows
+     the sum and the division. Anyone can check the figure by hand from it
+     rather than taking the number on trust. */
+  var _pndBd = (m.pndBreakdown && m.pndBreakdown[weekIdx]) ? m.pndBreakdown[weekIdx] : null;
+  if(_pndBd && _pndBd.length){
+    var _w = 0;
+    _pndBd.forEach(function(x){ if(x && x.name && x.name.length > _w) _w = x.name.length; });
+    var _sum = 0;
+    var _lines = _pndBd.map(function(x){
+      var pv = Number(x.pct) || 0; _sum += pv;
+      var pad = ''; for(var i=x.name.length; i<_w; i++) pad += ' ';
+      return '  ' + x.name + pad + '   ' + pv + '%';
+    });
+    var _n = _pndBd.length;
+    var _mean = Math.round((_sum / _n) * 100) / 100;
+    cellTitle = 'From P&D, week of ' + _scEsc(String((typeof weekRanges!=='undefined' && weekRanges[weekIdx]) ? weekRanges[weekIdx] : ('week '+(weekIdx+1)))) + '\n\n'
+      + _lines.join('\n') + '\n\n'
+      + '  Total ' + (Math.round(_sum*100)/100) + '%  over ' + _n + ' ' + (_n===1?'person':'people') + '\n'
+      + '  Average ' + _mean + '%\n\n'
+      + 'Simple average, no weighting. Anyone away, not yet tracked, or without a\n'
+      + 'scorecard for their role is left out of both the list and the division.\n'
+      + 'A Priority Rule answered No scores that person 0% for the whole week.';
+  }
   if(hasNote){ cellTitle = 'Note: '+_scEsc(String(m.notes[weekIdx]))+'   '+cellTitle; }
   return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl+' '
     + 'title="'+cellTitle+'" '
