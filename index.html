@@ -2704,22 +2704,21 @@ summary:focus-visible,
    neighbouring cells cannot clip the tip. */
 .pnd-cell{position:relative}
 .pnd-cell:hover,.pnd-cell:focus-within{overflow:visible;z-index:60}
-.pnd-cell .pnd-tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+.pnd-cell .pnd-tip{display:none}
+#pnd-float{display:none;position:fixed;
   background:var(--sb);color:#fff;padding:11px 13px;border-radius:6px;font-size:var(--fz-body);font-weight:400;
   line-height:1.45;letter-spacing:0;text-transform:none;width:280px;max-width:280px;white-space:normal;
   text-align:left;box-shadow:0 4px 12px rgba(15,23,42,0.22);z-index:1000;pointer-events:none;font-variant-numeric:tabular-nums}
-.pnd-cell .pnd-tip::before{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);
+#pnd-float::before{content:"";position:absolute;top:-5px;left:var(--pnd-ax,50%);transform:translateX(-50%);
   border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid var(--sb)}
-.pnd-cell:hover .pnd-tip,.pnd-cell:focus-within .pnd-tip{display:block}
+#pnd-float[data-above="yes"]::before{top:auto;bottom:-5px;border-bottom:none;border-top:6px solid var(--sb)}
+#pnd-float.on{display:block}
 .pnd-tip-hd{font-weight:700;margin-bottom:7px}
 .pnd-tip-r{display:flex;justify-content:space-between;gap:14px;padding:1px 0}
 .pnd-tip-r.pnd-out{opacity:.62}
 .pnd-tip-sum{display:flex;justify-content:space-between;gap:14px;margin-top:7px;padding-top:7px;
   border-top:1px solid rgba(255,255,255,.28);font-weight:700}
 .pnd-tip-ft{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.18);opacity:.78;font-size:var(--fz-sm)}
-/* Right-edge weeks: flip so the tip cannot run off the table. */
-.tbl-wrap tr > .pnd-cell:nth-last-child(-n+2) .pnd-tip{left:auto;right:0;transform:none}
-.tbl-wrap tr > .pnd-cell:nth-last-child(-n+2) .pnd-tip::before{left:auto;right:14px;transform:none}
 .dash-kpis .kpi-card:last-child .info-icon .tip,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip{left:auto;right:0;transform:none}
 .dash-kpis .kpi-card:last-child .info-icon .tip::before,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip::before{left:auto;right:8px;transform:none}
 
@@ -5903,6 +5902,68 @@ function _classifyIndicator(title){
 //    otherwise opens the full measurable editor (aggregated periods
 //    don't map 1:1 to a reading slot). Right-click opens the cell note
 //    editor. Renders an inline input when state.editingCell matches.
+/* The scorecard sits inside four nested scroll containers (.tbl-wrap, .card,
+   .page, .main), every one of which clips an absolutely-positioned child. A
+   tooltip anchored to the cell renders but is never visible. So the cell keeps
+   the content in a hidden node and a single fixed-position layer, appended to
+   body, does the drawing. Fixed positioning is relative to the viewport, so no
+   ancestor can clip it. The layer is clamped to the viewport on both axes and
+   its arrow tracks the cell. */
+function _pndFloatEl(){
+  var el = document.getElementById('pnd-float');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'pnd-float';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function _pndShowTip(cell){
+  var src = cell.querySelector('.pnd-tip');
+  if(!src) return;
+  var el = _pndFloatEl();
+  el.innerHTML = src.innerHTML;
+  el.className = 'on';
+  var r = cell.getBoundingClientRect();
+  var w = el.offsetWidth, h = el.offsetHeight, pad = 8;
+  var left = r.left + (r.width/2) - (w/2);
+  left = Math.max(pad, Math.min(left, window.innerWidth - w - pad));
+  var top = r.bottom + 8;
+  var below = true;
+  if(top + h > window.innerHeight - pad){ top = r.top - h - 8; below = false; }
+  el.style.left = Math.round(left)+'px';
+  el.style.top  = Math.round(Math.max(pad, top))+'px';
+  /* Arrow points at the cell, flipping to the underside when the tip sits above. */
+  var ax = Math.max(12, Math.min(r.left + r.width/2 - left, w - 12));
+  el.style.setProperty('--pnd-ax', Math.round(ax)+'px');
+  el.setAttribute('data-above', below ? 'no' : 'yes');
+}
+function _pndHideTip(){
+  var el = document.getElementById('pnd-float');
+  if(el) el.className = '';
+}
+(function(){
+  function bind(){
+    document.addEventListener('mouseover', function(e){
+      var c = e.target.closest ? e.target.closest('.pnd-cell') : null;
+      if(c) _pndShowTip(c);
+    }, true);
+    document.addEventListener('mouseout', function(e){
+      var c = e.target.closest ? e.target.closest('.pnd-cell') : null;
+      if(c && !(e.relatedTarget && c.contains(e.relatedTarget))) _pndHideTip();
+    }, true);
+    document.addEventListener('focusin', function(e){
+      var c = e.target.closest ? e.target.closest('.pnd-cell') : null;
+      if(c) _pndShowTip(c);
+    }, true);
+    document.addEventListener('focusout', _pndHideTip, true);
+    /* Any scroll moves the cell out from under a viewport-fixed tip. */
+    window.addEventListener('scroll', _pndHideTip, true);
+    window.addEventListener('resize', _pndHideTip, true);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();
 function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride){
   // Inline editor when this cell is the active editingCell
   var c = state.editingCell;
