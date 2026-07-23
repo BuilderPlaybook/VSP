@@ -5963,6 +5963,24 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       + 'A Priority Rule answered No scores that person 0% for the whole week.</span>'
       + '</span>';
     cellTitle = '';
+  } else if(m.pndGroup || String(m.auto||m._autoKey||'').indexOf('pnd.compliance') === 0){
+    /* A Compliance cell with no breakdown still has to account for itself.
+       Two cases: a number that predates the P&D feed and was entered by hand,
+       or a week P&D has not published because it has not closed for everyone
+       in the group. Silence would read as the tooltip being broken. */
+    var _wk2 = (typeof weekRanges!=='undefined' && weekRanges[weekIdx]) ? weekRanges[weekIdx] : ('week '+(weekIdx+1));
+    var _has2 = (val !== null && val !== undefined && val !== '');
+    _pndTipHtml = '<span class="pnd-tip">'
+      + '<span class="pnd-tip-hd">'+_scEsc(String(_wk2))+'</span>'
+      + (_has2
+          ? '<span class="pnd-tip-r"><span>Entered by hand</span><span>'+_scEsc(String(val))+'%</span></span>'
+            + '<span class="pnd-tip-ft">This week predates the P&amp;D feed, so there is no per-person working to show. '
+            + 'Weeks fed by P&amp;D list every person and the division.</span>'
+          : '<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span>'
+            + '<span class="pnd-tip-ft">P&amp;D publishes a week only once it has closed for everyone in the group. '
+            + 'Until then nothing is sent, so a partly finished average is never reported here.</span>')
+      + '</span>';
+    cellTitle = '';
   }
   if(hasNote){ cellTitle = 'Note: '+_scEsc(String(m.notes[weekIdx]))+'   '+cellTitle; }
   return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl
@@ -6921,6 +6939,9 @@ function vspPullPndCompliance(){
     Object.keys(bridge.groups).forEach(function(gk){
       var g=bridge.groups[gk]; if(!g || !g.vspMetricId || !g.weeks) return;
       var m=_findMetric(g.vspMetricId); if(!m) return;
+      // v113: mark the metric as P&D-backed regardless of readings, so every
+      // cell on the row can explain itself, not just the fed ones.
+      m.pndGroup = gk;
       if(!Array.isArray(m.readings)) m.readings=[];
       Object.keys(g.weeks).forEach(function(iso){
         var idx=_idxForIso(iso);
