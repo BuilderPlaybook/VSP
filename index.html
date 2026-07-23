@@ -2693,6 +2693,33 @@ summary:focus-visible,
 .info-icon .tip::before{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid var(--sb)}
 .info-icon:hover .tip,.info-icon:focus .tip,.info-icon:focus-within .tip{display:block}
 .dash-kpis .kpi-card:hover,.dash-kpis .kpi-card:focus-within{overflow:visible;z-index:5}
+/* Compliance cell breakdown tooltip. Same visual language as Info-Icon
+   Tooltip v1 (navy body, white text, --fz-body, arrow, soft shadow) rather
+   than a native title=, which renders in the OS font with a delay and reads
+   nothing like the rest of the product. Same 280px width as CRM.
+   No circle-i glyph here: the icon exists to create an affordance on surfaces
+   that have none, such as a card title. A fed cell already carries the "A"
+   auto-badge as its marker, and an icon in every one of a hundred cells would
+   fight the density the scorecard depends on. Hover-lift on the cell so
+   neighbouring cells cannot clip the tip. */
+.pnd-cell{position:relative}
+.pnd-cell:hover,.pnd-cell:focus-within{overflow:visible;z-index:60}
+.pnd-cell .pnd-tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--sb);color:#fff;padding:11px 13px;border-radius:6px;font-size:var(--fz-body);font-weight:400;
+  line-height:1.45;letter-spacing:0;text-transform:none;width:280px;max-width:280px;white-space:normal;
+  text-align:left;box-shadow:0 4px 12px rgba(15,23,42,0.22);z-index:1000;pointer-events:none;font-variant-numeric:tabular-nums}
+.pnd-cell .pnd-tip::before{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);
+  border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid var(--sb)}
+.pnd-cell:hover .pnd-tip,.pnd-cell:focus-within .pnd-tip{display:block}
+.pnd-tip-hd{font-weight:700;margin-bottom:7px}
+.pnd-tip-r{display:flex;justify-content:space-between;gap:14px;padding:1px 0}
+.pnd-tip-r.pnd-out{opacity:.62}
+.pnd-tip-sum{display:flex;justify-content:space-between;gap:14px;margin-top:7px;padding-top:7px;
+  border-top:1px solid rgba(255,255,255,.28);font-weight:700}
+.pnd-tip-ft{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.18);opacity:.78;font-size:var(--fz-sm)}
+/* Right-edge weeks: flip so the tip cannot run off the table. */
+.tbl-wrap tr > .pnd-cell:nth-last-child(-n+2) .pnd-tip{left:auto;right:0;transform:none}
+.tbl-wrap tr > .pnd-cell:nth-last-child(-n+2) .pnd-tip::before{left:auto;right:14px;transform:none}
 .dash-kpis .kpi-card:last-child .info-icon .tip,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip{left:auto;right:0;transform:none}
 .dash-kpis .kpi-card:last-child .info-icon .tip::before,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip::before{left:auto;right:8px;transform:none}
 
@@ -5909,37 +5936,40 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     ? "openCellEdit('"+ownerId+"',"+m.id+","+weekIdx+")"
     : "openEditMeasurable('"+ownerId+"',"+m.id+")";
   var autoBadge = isAuto ? '<span title="Auto-fed, read-only" style="position:absolute;top:2px;left:3px;font-size:var(--fz-xs);font-weight:700;color:var(--txm);line-height:1">A</span>' : '';
+  var _pndTipHtml = '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(String(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
-  /* v113: Performance Points Compliance cells show their own arithmetic. The
-     P&D bridge sends the per-person percentages behind each combined number,
-     so the tooltip lists every person who counted, states the rule, and shows
-     the sum and the division. Anyone can check the figure by hand from it
-     rather than taking the number on trust. */
+  /* v113: Performance Points Compliance cells carry their own arithmetic.
+     P&D sends the per-person percentages behind each combined number, so the
+     tooltip lists everyone in the group, marks anyone away, and shows the sum
+     and the division. The figure can be checked by hand from what is on
+     screen. Rendered in the Info-Icon Tooltip v1 visual language. */
   var _pndBd = (m.pndBreakdown && m.pndBreakdown[weekIdx]) ? m.pndBreakdown[weekIdx] : null;
   if(_pndBd && _pndBd.length){
-    var _w = 0;
-    _pndBd.forEach(function(x){ if(x && x.name && x.name.length > _w) _w = x.name.length; });
-    var _sum = 0;
-    var _lines = _pndBd.map(function(x){
-      var pv = Number(x.pct) || 0; _sum += pv;
-      var pad = ''; for(var i=x.name.length; i<_w; i++) pad += ' ';
-      return '  ' + x.name + pad + '   ' + pv + '%';
-    });
-    var _n = _pndBd.length;
-    var _mean = Math.round((_sum / _n) * 100) / 100;
-    cellTitle = 'From P&D, week of ' + _scEsc(String((typeof weekRanges!=='undefined' && weekRanges[weekIdx]) ? weekRanges[weekIdx] : ('week '+(weekIdx+1)))) + '\n\n'
-      + _lines.join('\n') + '\n\n'
-      + '  Total ' + (Math.round(_sum*100)/100) + '%  over ' + _n + ' ' + (_n===1?'person':'people') + '\n'
-      + '  Average ' + _mean + '%\n\n'
-      + 'Simple average, no weighting. Anyone away, not yet tracked, or without a\n'
-      + 'scorecard for their role is left out of both the list and the division.\n'
-      + 'A Priority Rule answered No scores that person 0% for the whole week.';
+    var _sum = 0, _n = 0;
+    var _rows = _pndBd.map(function(x){
+      var away = (x && x.status === 'away') || x.pct === null || x.pct === undefined;
+      if(!away){ _sum += (Number(x.pct)||0); _n++; }
+      return '<span class="pnd-tip-r'+(away?' pnd-out':'')+'"><span>'+_scEsc(String(x.name||''))+'</span>'
+           + '<span>'+(away ? 'away' : ((Math.round((Number(x.pct)||0)*100)/100)+'%'))+'</span></span>';
+    }).join('');
+    var _mean = _n ? Math.round((_sum/_n)*100)/100 : 0;
+    var _wk = (typeof weekRanges!=='undefined' && weekRanges[weekIdx]) ? weekRanges[weekIdx] : ('week '+(weekIdx+1));
+    _pndTipHtml = '<span class="pnd-tip">'
+      + '<span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_wk))+'</span>'
+      + _rows
+      + '<span class="pnd-tip-sum"><span>'+(Math.round(_sum*100)/100)+'% over '+_n+' '+(_n===1?'person':'people')+'</span>'
+      + '<span>'+_mean+'%</span></span>'
+      + '<span class="pnd-tip-ft">Simple average, no weighting. Away weeks are left out of the division. '
+      + 'A Priority Rule answered No scores that person 0% for the whole week.</span>'
+      + '</span>';
+    cellTitle = '';
   }
   if(hasNote){ cellTitle = 'Note: '+_scEsc(String(m.notes[weekIdx]))+'   '+cellTitle; }
-  return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl+' '
-    + 'title="'+cellTitle+'" '
+  return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl
+    + (_pndTipHtml ? ' class="pnd-cell" tabindex="0"' : '')+' '
+    + (cellTitle ? 'title="'+cellTitle+'" ' : '')
     + 'style="position:relative;text-align:center;background:'+bg+';color:'+color+';font-size:var(--fz-body);padding:8px 4px;cursor:pointer;border-right:0.5px solid var(--brd);font-variant-numeric:tabular-nums'+cellWeight+'">'
-    + offGlyph + display + noteDot + autoBadge
+    + offGlyph + display + noteDot + autoBadge + _pndTipHtml
     + '</td>';
 }
 
