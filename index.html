@@ -6814,9 +6814,13 @@ function vspRestoreV113(){
     return filled;
   }catch(e){ return 0; }
 }
-// v113: the first week P&D published for. Every scorecard column before this
-// is history and is off limits to the puller.
-var PND_BRIDGE_FIRST_WEEK_ISO = '2026-07-13';
+// v113: the earliest week the P&D feed may write. Every column before this is
+// off limits to the puller, whatever the feed offers.
+// Moved from 2026-07-13 to 2026-01-05 on 2026-07-23: LIDA backfilled the full
+// year in P&D and Dave confirmed P&D is the record of truth, so the computed
+// numbers now replace the estimates that had been typed into these columns.
+// This value must stay in step with PND_BRIDGE_FIRST_WEEK in the P&D module.
+var PND_BRIDGE_FIRST_WEEK_ISO = '2026-01-05';
 function _vspComplianceFloorIdx(){
   try{
     var startIdx = (typeof scPlanStartIdx === 'function') ? scPlanStartIdx() : 0;
@@ -6873,9 +6877,17 @@ function vspPullPndCompliance(){
         // Task-3 stub: skip any week the user has manually overridden.
         if(m.manualOverride && m.manualOverride[idx]!=null) return;
         while(m.readings.length<=idx) m.readings.push(null);
-        var v=g.weeks[iso];
+        // v113: the bridge value is either a bare number (P&D v1.0) or
+        // {total, breakdown[]} (v1.1). Accept both so a P&D of either vintage
+        // keeps working, and keep the breakdown for the cell tooltip.
+        var raw=g.weeks[iso];
+        var v = (raw && typeof raw==='object') ? raw.total : raw;
         if(typeof v!=='number' || isNaN(v)) return;
         m.readings[idx]=Math.round(v*100)/100;
+        if(raw && Array.isArray(raw.breakdown)){
+          if(!m.pndBreakdown) m.pndBreakdown={};
+          m.pndBreakdown[idx]=raw.breakdown;
+        }
       });
     });
   }catch(e){ /* silent */ }
