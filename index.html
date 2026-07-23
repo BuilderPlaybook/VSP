@@ -1296,6 +1296,68 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v116 - 2026-07-23 - Item D of the handoff: device user in VSP. Every
+           browser was Dave because currentUser initialized to ppl[0]. VSP
+           now reads P&D's device-user key smb_pnd_device_user on boot,
+           resolves the id or initials against VSP's own people registry,
+           and sets currentUser to the match. When the key is absent (P&D
+           never opened on this browser) or the person no longer exists in
+           VSP's registry, currentUser falls back to ppl[0], preserving
+           prior behaviour. VSP does not write to the key; P&D remains the
+           edit surface. This closes per-role gating and any "only admin
+           can override" rule against the actual person sitting at the
+           browser. Cheap fix per D-111 same-origin note; retires with
+           the master shell in the same wave as the P&D compliance
+           bridge. Build stamp bumped to v116.
+    v115 - 2026-07-23 - Item C of the handoff: the floor date now rides
+           the bridge, not two hardcoded constants that must agree by
+           discipline. Rule: the producer is the source. If the bridge
+           carries bridge.firstWeek as an ISO date, VSP reads that.
+           Otherwise VSP falls back to its own PND_BRIDGE_FIRST_WEEK_ISO,
+           kept as a safety net that matches the last-known P&D value.
+           When both are present and disagree, the BRIDGE wins and a
+           console.warn is emitted once per boot so a genuine drift is
+           visible without noisy prompting. Same idea as D-106
+           producer-owned data: shape lives in Data Contracts, value
+           lives on the payload. Companion prompt for the P&D thread is
+           in outputs; that thread adds firstWeek to the bridge writer.
+           Build stamp bumped to v115.
+    v114 - 2026-07-23 - Item B of the handoff: Computed Number Provenance
+           v1. Every number a person did not type now explains itself on
+           hover, using the same floating-tooltip infrastructure the
+           Compliance cells introduced. Three carriers: (1) the AVG column
+           cell shows the values used, the count, the divisor and the
+           result (with the level-vs-flow doctrine surfaced when Show
+           Total is off); (2) the TOTAL column cell shows the values
+           summed, their count, and the sum (with a note on when Total is
+           dashed by rule); (3) the goal bar shows what the bar's number
+           represents, the per-period goal, and the tier verdict
+           (green/red/amber) with the reason. Cell-triggered per Info-Icon
+           Tooltip v1's cell-affordance rule, no glyph. Not a Standards
+           bump yet; runs as a VSP-local pattern candidate for the
+           Standards thread to promote if they agree the shape is right.
+           Build stamp bumped to v114.
+    v113 - 2026-07-23 - Item A of the P&D-thread handoff: split the staging
+           adapter back out and restore the master/deployable pair. Base of
+           record for this ship is the file Dave uploaded at md5
+           3a629f7aa15e3a01c5f16ecc5fe8432d - v112 plus six unstamped edits
+           made from the P&D thread during the compliance-bridge incident:
+           (1) floor guard on the puller keyed on PND_BRIDGE_FIRST_WEEK_ISO
+           2026-01-05, (2) puller accepts both bridge value shapes -
+           number and {total, breakdown[]}, (3) m.pndGroup marker set on
+           targeted metrics regardless of whether a reading landed,
+           (4) breakdown tooltip on the four Compliance cells rendered in
+           Info-Icon Tooltip v1 language, cell-triggered rather than
+           icon-triggered, (5) vspRepairComplianceHistory removed and
+           must not return, (6) tooltip positioning switched from CSS
+           anchoring inside .pnd-cell to a single body-appended
+           #pnd-float layer so the bubble cannot be clipped by any of the
+           four nested overflow ancestors (.tbl-wrap, .card, .page,
+           .main); the layer tracks the cell, clamps to the viewport, and
+           flips above on the bottom edge. This ship promotes the six to
+           the master and bumps the visible build stamp so the badge
+           stops lying. Adapter split out to a companion block in the
+           deployable index.html only. Build stamp bumped to v113.
     v112 - 2026-07-23 - P&D-to-VSP Performance Points Compliance bridge
            wired (D-111 direction A, Compliance scope). Three moves:
            (1) Task 1 - auto-strip migration scoped: _vspStripAutoMetric
@@ -2561,6 +2623,26 @@ summary:focus-visible,
   border-radius:6px;
 }
 /* === SHELL CHROME v1 END === */
+
+/* v113: module-level runtime tokens declared outside the locked chrome block. */
+:root{
+  --pnd-ax: 50%; /* runtime-set by _pndPositionTip in JS */
+}
+/* v114: Computed Number Provenance v1 tooltip content styles. The bubble
+   chrome (background, border, arrow, positioning) is Info-Icon Tooltip v1
+   introduced in v113; these are the inner content rules only. */
+#pnd-float .pnd-tt{ font-size:var(--fz-body); font-weight:700; margin-bottom:6px; }
+#pnd-float .pnd-body{ display:flex; flex-direction:column; gap:3px; font-size:var(--fz-body); }
+#pnd-float .pnd-row{ display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+#pnd-float .pnd-row > span:first-child{ opacity:.75; }
+#pnd-float .pnd-row > span:last-child{ text-align:right; }
+#pnd-float .pnd-eq{ margin-top:4px; border-top:1px solid rgba(255,255,255,.18); padding-top:4px; font-weight:700; }
+#pnd-float .pnd-note{ margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.18); font-size:var(--fz-body); opacity:.85; }
+#pnd-float .pnd-sub{ font-size:var(--fz-body); opacity:.85; }
+#pnd-float .pnd-mut{ opacity:.6; }
+[data-cnp]{ position:relative; cursor:help; }
+[data-cnp]:focus{ outline:2px solid var(--blu); outline-offset:-2px; }
+
 /* v85 module override (chrome candidate): topbar avatar 32px for avatar-consistency; fold into next chrome bump */
 .tb-user-av{width:32px;height:32px}
 
@@ -2757,7 +2839,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v112</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v116</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5942,18 +6024,121 @@ function _pndHideTip(){
   var el = document.getElementById('pnd-float');
   if(el) el.className = '';
 }
+/* ------------------------------------------------------------------ */
+/* Computed Number Provenance v1 (Item B of the 2026-07-23 handoff).  */
+/* Same floating-tooltip infrastructure as the Compliance bubble; the */
+/* cell carries a hidden .pnd-tip node, _pndShowTip copies its HTML   */
+/* into #pnd-float on hover/focus.                                    */
+/* ------------------------------------------------------------------ */
+function _cnpEsc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _cnpFmt(v, unit){
+  try{ return (typeof fmtVal==='function') ? fmtVal(v, unit) : String(v); }
+  catch(e){ return String(v); }
+}
+function _cnpValList(vals, unit, limit){
+  // Show up to N readings, comma separated. Ellipsis if more.
+  limit = limit || 13;
+  var arr = vals.slice(0, limit).map(function(v){ return _cnpEsc(_cnpFmt(v, unit)); });
+  var tail = vals.length > limit ? ', ...' : '';
+  return arr.join(', ') + tail;
+}
+function _cnpAvgTip(m, vals, avg){
+  var unit = m.unit || '#';
+  var n = vals.length;
+  if(!n) return '<div class="pnd-tip"><div class="pnd-tt">Average</div><div class="pnd-sub">No readings in the current window yet.</div></div>';
+  var sum = vals.reduce(function(a,b){ return a+b; }, 0);
+  var showTotalOff = m.showTotal === false;
+  var isPct = unit === '%';
+  var isYN  = unit === 'YN';
+  var note = '';
+  if(showTotalOff) note = 'This is a snapshot measurable (Show Total off), so the AVG is the meaningful reading; the TOTAL column is dashed by rule.';
+  else if(isPct)   note = 'Percentages average, they do not sum, so the TOTAL column is dashed by rule.';
+  else if(isYN)    note = 'Yes/No measurables report a Yes-rate percentage, so the AVG is the meaningful reading.';
+  var h  = '<div class="pnd-tip">';
+  h += '<div class="pnd-tt">Average = '+_cnpEsc(_cnpFmt(avg, unit))+'</div>';
+  h += '<div class="pnd-body">';
+  h += '<div class="pnd-row"><span>Readings ('+n+')</span><span>'+_cnpValList(vals, unit)+'</span></div>';
+  h += '<div class="pnd-row"><span>Sum</span><span>'+_cnpEsc(_cnpFmt(sum, unit))+'</span></div>';
+  h += '<div class="pnd-row"><span>Divisor</span><span>'+n+'</span></div>';
+  h += '<div class="pnd-row pnd-eq"><span>Result</span><span>'+_cnpEsc(_cnpFmt(sum/n, unit))+'</span></div>';
+  h += '</div>';
+  if(note) h += '<div class="pnd-note">'+_cnpEsc(note)+'</div>';
+  h += '</div>';
+  return h;
+}
+function _cnpTotalTip(m, vals){
+  var unit = m.unit || '#';
+  var isPct = unit === '%';
+  var isYN  = unit === 'YN';
+  var isAvgRollup = m.rollupAs === 'Average';
+  var showTotalOff = m.showTotal === false;
+  var dashed = isPct || isYN || isAvgRollup || showTotalOff;
+  var h = '<div class="pnd-tip">';
+  h += '<div class="pnd-tt">Total</div>';
+  if(dashed){
+    var why = isPct ? 'Percentages average, they do not sum.'
+            : isYN  ? 'Yes/No measurables report a Yes-rate, not a sum.'
+            : isAvgRollup ? 'This measurable rolls up as an Average, not a sum.'
+            : 'Show Total is off for this measurable (level, not flow).';
+    h += '<div class="pnd-sub">Dashed by rule: '+_cnpEsc(why)+'</div>';
+  } else if(!vals.length){
+    h += '<div class="pnd-sub">No readings in the current window yet.</div>';
+  } else {
+    var sum = vals.reduce(function(a,b){ return a+b; }, 0);
+    h += '<div class="pnd-body">';
+    h += '<div class="pnd-row"><span>Readings ('+vals.length+')</span><span>'+_cnpValList(vals, unit)+'</span></div>';
+    h += '<div class="pnd-row pnd-eq"><span>Sum</span><span>'+_cnpEsc(_cnpFmt(sum, unit))+'</span></div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+function _cnpGoalTip(m, vals){
+  var unit = m.unit || '#';
+  var goalTxt = (typeof _goalLabel==='function') ? _goalLabel(m) : String(m.goal);
+  var isSum = (typeof _scIsSum==='function') && _scIsSum(m);
+  var n = vals.length;
+  var h = '<div class="pnd-tip">';
+  h += '<div class="pnd-tt">Bar reading vs goal</div>';
+  if(!n){
+    h += '<div class="pnd-sub">No readings in the current window yet, so the bar is neutral.</div>';
+    h += '</div>';
+    return h;
+  }
+  var sum = vals.reduce(function(a,b){ return a+b; }, 0);
+  var avg = sum/n;
+  var bar = isSum ? sum : Math.round(avg*100)/100;
+  var barLabel = isSum ? 'sum of readings' : 'average of readings';
+  var tier = 'gray', tierText = 'no verdict yet';
+  try{
+    if(isSum){
+      tier = (typeof _scTotTier==='function') ? _scTotTier(m, sum, n) : 'gray';
+    } else {
+      tier = (typeof _scTier==='function') ? _scTier(m, avg) : 'gray';
+    }
+  }catch(e){}
+  var tierColor = tier === 'red' ? 'var(--red)' : tier === 'grn' ? 'var(--grn)' : tier === 'amb' ? 'var(--amb)' : 'var(--txm)';
+  var tierWord = tier === 'red' ? 'off goal' : tier === 'grn' ? 'on goal' : tier === 'amb' ? 'watch' : 'no verdict';
+  h += '<div class="pnd-body">';
+  h += '<div class="pnd-row"><span>Bar reading</span><span>'+_cnpEsc(_cnpFmt(bar, unit))+' <span class="pnd-mut">('+barLabel+')</span></span></div>';
+  h += '<div class="pnd-row"><span>Goal</span><span>'+_cnpEsc(goalTxt)+'</span></div>';
+  h += '<div class="pnd-row pnd-eq"><span>Verdict</span><span style="color:'+tierColor+'">'+_cnpEsc(tierWord)+'</span></div>';
+  h += '</div>';
+  h += '</div>';
+  return h;
+}
 (function(){
   function bind(){
     document.addEventListener('mouseover', function(e){
-      var c = e.target.closest ? e.target.closest('.pnd-cell') : null;
+      var c = e.target.closest ? e.target.closest('.pnd-cell,[data-cnp]') : null;
       if(c) _pndShowTip(c);
     }, true);
     document.addEventListener('mouseout', function(e){
-      var c = e.target.closest ? e.target.closest('.pnd-cell') : null;
+      var c = e.target.closest ? e.target.closest('.pnd-cell,[data-cnp]') : null;
       if(c && !(e.relatedTarget && c.contains(e.relatedTarget))) _pndHideTip();
     }, true);
     document.addEventListener('focusin', function(e){
-      var c = e.target.closest ? e.target.closest('.pnd-cell') : null;
+      var c = e.target.closest ? e.target.closest('.pnd-cell,[data-cnp]') : null;
       if(c) _pndShowTip(c);
     }, true);
     document.addEventListener('focusout', _pndHideTip, true);
@@ -6948,18 +7133,23 @@ function vspRestoreV113(){
     return filled;
   }catch(e){ return 0; }
 }
-// v113: the earliest week the P&D feed may write. Every column before this is
-// off limits to the puller, whatever the feed offers.
-// Moved from 2026-07-13 to 2026-01-05 on 2026-07-23: LIDA backfilled the full
-// year in P&D and Dave confirmed P&D is the record of truth, so the computed
-// numbers now replace the estimates that had been typed into these columns.
-// This value must stay in step with PND_BRIDGE_FIRST_WEEK in the P&D module.
+// v113/v115: the earliest week the P&D feed may write. Every column before
+// this is off limits to the puller, whatever the feed offers.
+// The value here is the module's SAFETY-NET fallback, kept only so a bridge
+// without firstWeek keeps working. The producer (P&D) publishes the real
+// floor as bridge.firstWeek on every write; when present, the bridge value
+// wins. See v115 changelog for the rule.
 var PND_BRIDGE_FIRST_WEEK_ISO = '2026-01-05';
-function _vspComplianceFloorIdx(){
+window._vspFloorMismatchWarned = false;
+function _vspComplianceFloorIdx(iso){
+  // iso: optional. When passed, uses that ISO instead of the hardcoded fallback.
+  // Returns MAX_SAFE_INTEGER on any parse error so a garbage input writes
+  // nothing rather than writing everything.
   try{
+    var use = (typeof iso === 'string' && iso) ? iso : PND_BRIDGE_FIRST_WEEK_ISO;
     var startIdx = (typeof scPlanStartIdx === 'function') ? scPlanStartIdx() : 0;
-    var d = new Date(PND_BRIDGE_FIRST_WEEK_ISO + 'T00:00:00');
-    if (isNaN(d.getTime())) return Number.MAX_SAFE_INTEGER;   // unknown floor: write nothing
+    var d = new Date(use + 'T00:00:00');
+    if (isNaN(d.getTime())) return Number.MAX_SAFE_INTEGER;
     return startIdx + Math.round((d.getTime() - SC_PLAN_START_DATE.getTime()) / (7*86400000));
   }catch(e){ return Number.MAX_SAFE_INTEGER; }
 }
@@ -6972,6 +7162,15 @@ function vspPullPndCompliance(){
     if(!raw) return;
     var bridge; try{ bridge=JSON.parse(raw); }catch(e){ return; }
     if(!bridge || bridge.v!==1 || !bridge.groups) return;
+    // v115: the producer publishes its floor on every write. When present,
+    // the bridge value wins over the fallback constant. A mismatch is a
+    // genuine drift worth surfacing (once per boot, no user prompt).
+    var bridgeFirstWeek = (typeof bridge.firstWeek === 'string') ? bridge.firstWeek : null;
+    if(bridgeFirstWeek && bridgeFirstWeek !== PND_BRIDGE_FIRST_WEEK_ISO && !window._vspFloorMismatchWarned){
+      try{ console.warn('[VSP] P&D bridge firstWeek ' + bridgeFirstWeek + ' does not match module fallback ' + PND_BRIDGE_FIRST_WEEK_ISO + '. Bridge wins.'); }catch(e){}
+      window._vspFloorMismatchWarned = true;
+    }
+    var floorIdx = _vspComplianceFloorIdx(bridgeFirstWeek);
     // Map ISO Monday date to VSP column index using SC_PLAN_START_DATE and scPlanStartIdx.
     // scWeekDate(i) = SC_PLAN_START_DATE + (i - scPlanStartIdx()) * 7 days
     // so for a target Monday d: i = scPlanStartIdx() + round((d - SC_PLAN_START_DATE) / 7d)
@@ -7010,7 +7209,7 @@ function vspPullPndCompliance(){
         // v113 FLOOR: never write a column before the week P&D went live.
         // Columns before this hold readings entered by hand over months and
         // are not this code's to touch, whatever the bridge offers.
-        if(idx < _vspComplianceFloorIdx()) return;
+        if(idx < floorIdx) return;
         // Task-3 stub: skip any week the user has manually overridden.
         if(m.manualOverride && m.manualOverride[idx]!=null) return;
         while(m.readings.length<=idx) m.readings.push(null);
@@ -8899,7 +9098,30 @@ function loadVspTenantSeedTeams(){
 
 var teamsData = loadVspTenantSeedTeams();
 var ppl       = loadVspTenantSeedPpl();
-var currentUser = ppl[0] || null;
+// v116: read P&D's device-user key rather than defaulting to ppl[0] so a
+// browser opened by (e.g.) Terry is Terry in VSP, not Dave. P&D remains the
+// single edit surface; VSP consumes what it wrote. Silent fall-through to
+// ppl[0] when the key is absent or the id no longer resolves. Retires with
+// the master shell.
+function _vspResolveDeviceUser(){
+  try{
+    var raw=null;
+    try{ raw=localStorage.getItem('smb_pnd_device_user'); }catch(e){}
+    if(!raw) return ppl[0] || null;
+    // Key may be a bare id string ('p2'), an initials string ('TP'), or a
+    // JSON object. Accept all three; the shape belongs to P&D.
+    var key=null;
+    if(raw.charAt(0)==='{' || raw.charAt(0)==='"'){
+      try{ var parsed=JSON.parse(raw); key = (parsed && (parsed.id || parsed.initials)) || (typeof parsed==='string'?parsed:null); }catch(e){}
+    } else {
+      key = raw;
+    }
+    if(!key) return ppl[0] || null;
+    var hit = ppl.find(function(x){ return x && (x.id===key || x.initials===key); });
+    return hit || ppl[0] || null;
+  }catch(e){ return ppl[0] || null; }
+}
+var currentUser = _vspResolveDeviceUser();
 // Phase 3: pplColor consults Directory module if loaded, else falls back to local ppl.
 // Same return shape (single hex string) for backward compat with avatar() / av().
 function pplColor(ini){
@@ -9488,8 +9710,11 @@ function renderScorecardInline(opts){ _recalcAll();
       h+='<td style="'+scStkB(SC_OFF.trend,SC_W.trend,rowBg,'text-align:center;padding:0 2px')+'" title="'+(trend==="good"?"Trending right":"Trend wrong way")+'">'+trendIconInline(trend)+'</td>';
       h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':_goalLabel(m))+'</td>';
-      h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+'</td>';
-      h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+'</td>';
+      var _cnpVals = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
+      var _cnpAvgTipHtml = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals, avg);
+      var _cnpTotTipHtml = _cnpTotalTip(m, _cnpVals);
+      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml+'</td>';
+      h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+_cnpTotTipHtml+'</td>';
 
       var _isWk = true;
       colIdxs.forEach(function(_wi){
@@ -9908,8 +10133,12 @@ function renderScorecard(){
       h+='<td style="padding:8px 10px;font-size:var(--fz-lg);text-align:left;position:sticky;left:0;background:var(--sur)"><div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       h+='<td style="padding:8px 10px;text-align:left"><span style="display:inline-flex;align-items:center;gap:6px">'+avatar((r.oid||'').slice(0,2),r.ocolor,18)+'<span style="font-size:var(--fz-body);color:var(--txm)">'+r.oname+'</span></span></td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(m.showGoal===false?'-':(_isAgg?_pGoalLabel(m):_goalLabel(m)))+'</td>';
-      h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+'</td>';
-      h+='<td style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(nums.length?sum:null),(_isAgg?_scBaseN(m):nums.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+'</td>';
+      var _cnpVals2 = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
+      var _cnpAvgTipHtml2 = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals2, avg);
+      h+='<td tabindex="0" data-cnp="avg" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml2+'</td>';
+      var _cnpVals3 = nums || [];
+      var _cnpTotTipHtml3 = _cnpTotalTip(m, _cnpVals3);
+      h+='<td tabindex="0" data-cnp="total" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(nums.length?sum:null),(_isAgg?_scBaseN(m):nums.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+_cnpTotTipHtml3+'</td>';
       var _isWk2 = (((m.cadence)||'weekly')===period) && !_isAgg;
       activeIdxs.forEach(function(_wi){
         var _mv=_isAgg?_pAgg(m,_wi):m.readings[_wi];
@@ -10046,8 +10275,11 @@ function renderScorecard(){
         var _scGrip=_scManual?('<svg width="8" height="13" viewBox="0 0 8 13" style="display:inline-block;vertical-align:middle;margin-right:6px;opacity:.35;flex-shrink:0" fill="currentColor"><circle cx="2" cy="2" r="1"/><circle cx="6" cy="2" r="1"/><circle cx="2" cy="6.5" r="1"/><circle cx="6" cy="6.5" r="1"/><circle cx="2" cy="11" r="1"/><circle cx="6" cy="11" r="1"/></svg>'):'';
         h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':(_isAgg?_pGoalLabel(m):_goalLabel(m)))+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay)+'</td>';
+        var _cnpVals4 = validCols || [];
+        var _cnpAvgTipHtml4 = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals4, avg);
+        var _cnpTotTipHtml4 = _cnpTotalTip(m, _cnpVals4);
+        h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml4+'</td>';
+        h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay)+'</td>';
 
         var _isWk3 = (((m.cadence)||'weekly')===period) && !_isAgg;
         cols.forEach(function(_v,_ci){
@@ -17007,7 +17239,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v112';
+window.VSP_BUILD = 'v116';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
