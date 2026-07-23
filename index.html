@@ -1296,6 +1296,46 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v149 - 2026-07-23 - Escalated issues now report back to the meeting that
+           raised them. An item sent from a huddle up to the Leadership
+           meeting disappeared from the huddle by design, and the person who
+           raised it had no way to learn what became of it short of someone
+           remembering to mention it. That is how a team quietly stops raising
+           things: the silence is the symptom and it is close to undetectable.
+           Routing now records raisedIn alongside reviewIn, resolving an issue
+           stamps resolvedIn and resolvedAt, and the Issues step of the
+           originating meeting shows a Closed since last time card naming each
+           item, where it was resolved and when. Entries drop off after two
+           weeks - this closes a loop rather than keeping a log. It fires
+           because the issue was resolved, not because anyone chose to
+           communicate, which is the property worth having. Build stamp bumped
+           to v149.
+    v148 - 2026-07-23 - Both people in a huddle can put items on its list, the
+           way anyone can add to an L10 issues list. Two changes. (1) A to-do
+           or issue created inside a running huddle is routed to that huddle
+           automatically, whoever owns it. Previously a supervisor logging
+           their own commitment to the report watched it vanish the moment it
+           was created, because the huddle scopes to the report; now the act
+           of raising it in the meeting is what puts it on the meeting. (2)
+           The Send to control now also renders on the To-Dos and Issues
+           pages, not only inside a running meeting, so either person can
+           queue something for their next huddle before it starts instead of
+           having to wait until the meeting is under way to move it. Build
+           stamp bumped to v148.
+    v147 - 2026-07-23 - A Performance Huddle now opens on the person's
+           trajectory instead of cold. The Check-In step leads with a strip
+           showing last week's score, the direction over the last eight closed
+           weeks, to-do completion, goal count with off-track flagged, and how
+           many of the last eight weeks actually had a huddle, plus a
+           sparkline so the shape is visible rather than only the latest
+           number. Direction compares the mean of the last three scored weeks
+           against the three before, and reads improving, slipping or holding
+           rather than pretending precision. Away weeks and the running week
+           are excluded from scoring, matching how the grid treats them. Every
+           figure already existed in the product; none of it was visible at
+           the moment the conversation starts, so the supervisor had to
+           remember whether things were getting better or worse. Build stamp
+           bumped to v147.
     v146 - 2026-07-23 - The Goals step in a huddle shows the supervisor's goals
            above the report's own. Goals differ from to-dos and issues: a
            report cannot write a goal that supports their supervisor without
@@ -3196,7 +3236,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v146</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v149</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4773,6 +4813,11 @@ function submitCreateForm(){
     _newId = Date.now();
     todos.unshift({id:_newId,task:title.value.trim(),owner:owner?owner.value:'DS',due:due?due.value:'2026-04-30',done:false,private:false,attachments:[],notes:(document.getElementById('cf-notes')||{}).value||'',linkedIssueId:((document.getElementById('cf-linked-issue')||{}).value)?+document.getElementById('cf-linked-issue').value:null});
     if(state.meetTab==='running'){ state.meetCreatedTodoIds = state.meetCreatedTodoIds || []; state.meetCreatedTodoIds.push(_newId); }
+    // v148: an item raised inside a huddle belongs to that huddle whoever owns
+    // it. Without this, a supervisor logging their own commitment to the
+    // report vanished from the meeting the moment it was created, because the
+    // huddle scopes to the report.
+    try{ var _r=_vspCurrentMeetingRoute(); if(_r && _r.indexOf('huddle:')===0){ var _t=todos.find(function(x){return x.id===_newId;}); if(_t) _t.reviewIn=_r; } }catch(e){}
   } else if(type==='issue'){
     var title=document.getElementById('cf-title');
     var owner=document.getElementById('cf-owner');
@@ -4789,6 +4834,9 @@ function submitCreateForm(){
     }
     target.push(_issueObj);   // chronological: new issues append to the end (numbered 1..N). Priority pick / drag / Top-of-List move them up.
     if(state.meetTab==='running'){ state.meetCreatedIssueIds = state.meetCreatedIssueIds || []; state.meetCreatedIssueIds.push(_newId); }
+    // v148: same for issues - either person can raise one in the huddle and it
+    // stays on that huddle's list, exactly as an L10 issues list works.
+    try{ var _r2=_vspCurrentMeetingRoute(); if(_r2 && _r2.indexOf('huddle:')===0){ var _i2=issues.find(function(x){return x.id===_newId;})||longTermIssues.find(function(x){return x.id===_newId;}); if(_i2){ _i2.reviewIn=_r2; _i2.raisedIn=_r2; } } }catch(e){}
   } else if(type==='headline'){
     var title=document.getElementById('cf-title');
     var owner=document.getElementById('cf-owner');
@@ -12355,6 +12403,12 @@ function _vspOrphanFlag(it){
 function vspTodoRouteTo(id, route){
   var t = todos.find(function(x){ return x.id===id; });
   if(!t) return;
+  try{
+    if(route && !t.raisedIn){
+      var _here2=_vspCurrentMeetingRoute();
+      if(_here2 && _here2!==route) t.raisedIn=_here2;
+    }
+  }catch(e){}
   if(route === '') delete t.reviewIn; else t.reviewIn = route;
   state.todoRouteMenu = null;
   try{ var tm=teamsRegistry[state.currentTeam]; if(tm) tm.todos=todos; }catch(e){}
@@ -12367,7 +12421,11 @@ function vspToggleTodoRouteMenu(id){
   renderPage();
 }
 function _vspTodoRouteControl(t){
-  if(!(state.page==='meetings' && state.meetTab==='running')) return '';
+  // v148: available on the To-Dos page as well as inside a running meeting, so
+  // a person can queue an item for their next huddle before it starts rather
+  // than only being able to move things once the meeting is under way.
+  var _inMtg = (state.page==='meetings' && state.meetTab==='running');
+  if(!(_inMtg || state.page==='todos')) return '';
   var open = state.todoRouteMenu === t.id;
   var cur = t.reviewIn || '';
   var h = '<span style="position:relative;display:inline-flex" onclick="event.stopPropagation()">';
@@ -12391,6 +12449,16 @@ function _vspTodoRouteControl(t){
 function vspIssueRouteTo(id, route){
   var i = issues.find(function(x){ return x.id===id; }) || longTermIssues.find(function(x){ return x.id===id; });
   if(!i) return;
+  // v149: remember where this came from the first time it is sent somewhere
+  // else. Without an origin, a resolved item has no way home and the person
+  // who raised it never learns what happened - which is how people quietly
+  // stop raising things.
+  try{
+    if(route && !i.raisedIn){
+      var _here=_vspCurrentMeetingRoute();
+      if(_here && _here!==route) i.raisedIn=_here;
+    }
+  }catch(e){}
   if(route === '') delete i.reviewIn; else i.reviewIn = route;
   state.issueRouteMenu = null;
   try{ var tm=teamsRegistry[state.currentTeam]; if(tm){ tm.issues=issues; tm.longTermIssues=longTermIssues; } }catch(e){}
@@ -12403,7 +12471,10 @@ function vspToggleIssueRouteMenu(id){
   renderPage();
 }
 function _vspIssueRouteControl(i){
-  if(!(state.page==='meetings' && state.meetTab==='running')) return '';
+  // v148: available on the Issues page as well, same reasoning - either person
+  // brings an issue to the huddle by sending it there ahead of time.
+  var _inMtg2 = (state.page==='meetings' && state.meetTab==='running');
+  if(!(_inMtg2 || state.page==='issues')) return '';
   var open = state.issueRouteMenu === i.id;
   var cur = i.reviewIn || '';
   var h = '<span style="position:relative;display:inline-flex" onclick="event.stopPropagation()">';
@@ -12732,6 +12803,142 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     h+='</div></td>';
   });
   h+='</tr>';
+  return h;
+}
+/* v147: the huddle opens with the person's trajectory rather than cold. Every
+   number here already exists somewhere in the product; none of it was visible
+   at the moment the conversation starts, so the supervisor had to remember
+   whether things were getting better or worse. Reads the last 8 closed weeks
+   of P&D answers, the report's open to-dos, their goals, and the huddle
+   history for cadence. */
+/* v149: the receipt. An item raised in this meeting and resolved somewhere
+   else reports back here once, so the person who raised it learns what
+   happened without anyone having to remember to tell them. Shown for two
+   weeks after resolution, then it stops - this is a closing loop, not a log. */
+function _vspResolvedElsewhere(){
+  var here=_vspCurrentMeetingRoute();
+  if(!here) return [];
+  var cutoff=Date.now() - 14*86400000;
+  var pool=[];
+  try{ pool=(typeof resolvedIssues!=='undefined' && Array.isArray(resolvedIssues)) ? resolvedIssues : []; }catch(e){ return []; }
+  return pool.filter(function(it){
+    if(!it || it.raisedIn!==here) return false;
+    if(it.resolvedIn===here) return false;          // solved here, no news to report
+    if(!it.resolvedAt) return false;
+    var t=Date.parse(it.resolvedAt);
+    return isFinite(t) && t>=cutoff;
+  });
+}
+function _vspReceiptCard(){
+  var list=_vspResolvedElsewhere();
+  if(!list.length) return '';
+  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--grn);border-radius:10px;padding:12px 16px;margin-bottom:14px">';
+  h+='<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:6px">Closed since last time</div>';
+  list.forEach(function(it){
+    var whenTxt='';
+    try{ var d=new Date(it.resolvedAt); whenTxt=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+    h+='<div style="font-size:var(--fz-body);color:var(--txt);padding:4px 0;display:flex;gap:8px;align-items:baseline">';
+    h+='<span style="color:var(--grn);font-weight:700">\u2713</span>';
+    h+='<span style="flex:1">'+_vspHuddleEsc(it.title||'Issue')+'</span>';
+    h+='<span style="font-size:var(--fz-xs);color:var(--txm);white-space:nowrap">resolved in '+_vspHuddleEsc(_vspRouteLabel(it.resolvedIn))+(whenTxt?(' \u00b7 '+whenTxt):'')+'</span>';
+    h+='</div>';
+  });
+  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:6px">Raised here and closed elsewhere. Shown for two weeks after resolution.</div>';
+  h+='</div>';
+  return h;
+}
+function _vspHuddleTrend(){
+  var repIni = state.meetHuddleReport || '';
+  var repP = repIni ? ppl.find(function(x){ return x && x.initials===repIni; }) : null;
+  if(!repP) return '';
+  var roleLabel = repP.roleLabel || repP.role || null;
+  var stds = roleLabel ? _vspPndReadStandards(roleLabel) : null;
+  var all = _vspPndReadHuddles();
+  var weeks = _vspHuddleWeeksIsos();          // 13, oldest first, current last
+
+  // Weekly score for each CLOSED week (exclude the running week and Away weeks).
+  var pts = [];
+  if(stds && stds.length){
+    for(var i=0;i<weeks.length-1;i++){
+      var iso=weeks[i], rec=all[repP.id+'__'+iso];
+      if(rec && rec.away) continue;
+      if(!rec || !rec.answers || !Object.keys(rec.answers).length) continue;
+      var yes=0, hardFail=false;
+      stds.forEach(function(r){
+        var v=rec.answers[r.id];
+        if(v==='yes') yes++;
+        else if(r.hard) hardFail=true;
+      });
+      pts.push({ iso: iso, pct: hardFail ? 0 : Math.round(yes/stds.length*100) });
+    }
+  }
+  var recent = pts.slice(-8);
+
+  // Direction: mean of the last three closed weeks vs the three before them.
+  var dir='flat', delta=0;
+  if(recent.length>=4){
+    var half=Math.min(3, Math.floor(recent.length/2));
+    var late=recent.slice(-half), early=recent.slice(-(half*2), -half);
+    var avg=function(a){ return a.reduce(function(x,y){return x+y.pct;},0)/a.length; };
+    delta = Math.round(avg(late)-avg(early));
+    dir = delta>=5 ? 'up' : (delta<=-5 ? 'down' : 'flat');
+  }
+  var last = recent.length ? recent[recent.length-1].pct : null;
+  var band = last==null ? 'var(--txm)' : (last>=90?'#16a34a':(last>=75?'#d97706':'#dc2626'));
+
+  // To-do completion for this person.
+  var mine = todos.filter(function(t){ return t && t.status!=='archived' && t.owner===repIni; });
+  var tdDone = mine.filter(function(t){ return t.done; }).length;
+  var tdPct = mine.length ? Math.round(tdDone/mine.length*100) : null;
+
+  // Goals.
+  var gs = goals.filter(function(g){ return g && g.owner===repIni && g.status!=='archived' && g.status!=='cancelled'; });
+  var gOff = gs.filter(function(g){ return g.status==='off-track'; }).length;
+
+  // Cadence: how many of the last 8 weeks actually have a huddle record.
+  var held=0;
+  for(var k=Math.max(0,weeks.length-9);k<weeks.length-1;k++){
+    var r2=all[repP.id+'__'+weeks[k]];
+    if(r2 && (r2.away || (r2.answers && Object.keys(r2.answers).length))) held++;
+  }
+
+  function tile(label, value, color, sub){
+    var t='<div style="flex:1;min-width:120px;text-align:center;padding:10px 8px;border-right:1px solid var(--brd)">';
+    t+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);font-weight:700;margin-bottom:4px">'+label+'</div>';
+    t+='<div style="font-size:var(--fz-2xl);font-weight:700;color:'+(color||'var(--txt)')+';line-height:1.1">'+value+'</div>';
+    if(sub) t+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:3px">'+sub+'</div>';
+    t+='</div>';
+    return t;
+  }
+  var arrow = dir==='up' ? '\u25b2' : (dir==='down' ? '\u25bc' : '\u2192');
+  var arrowCol = dir==='up' ? '#16a34a' : (dir==='down' ? '#dc2626' : 'var(--txm)');
+
+  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;margin-bottom:14px;overflow:hidden">';
+  h+='<div style="padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+  h+=avatar(repP.initials, pplColor(repP.initials), 28);
+  h+='<span style="font-size:var(--fz-lg);font-weight:600">'+_vspHuddleEsc(repP.first+' '+repP.last)+'</span>';
+  h+='<span style="font-size:var(--fz-body);color:var(--txm)">'+_vspHuddleEsc(roleLabel||'')+'</span>';
+  h+='<span style="font-size:var(--fz-xs);color:var(--txd);margin-left:auto">Last 8 closed weeks</span>';
+  h+='</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;align-items:stretch">';
+  h+=tile('Last week', last==null?'\u2013':(last+'%'), band, recent.length?(recent.length+' weeks scored'):'no scored weeks');
+  h+=tile('Trend', arrow+(delta?(' '+(delta>0?'+':'')+delta+'%'):''), arrowCol, dir==='up'?'improving':(dir==='down'?'slipping':'holding'));
+  h+=tile('To-dos', tdPct==null?'\u2013':(tdPct+'%'), tdPct==null?'var(--txm)':(tdPct>=90?'#16a34a':(tdPct>=70?'#d97706':'#dc2626')), mine.length?(tdDone+' of '+mine.length+' done'):'none assigned');
+  h+=tile('Goals', gs.length?String(gs.length):'\u2013', gOff?'#dc2626':'var(--txt)', gOff?(gOff+' off track'):(gs.length?'all on track':'none set'));
+  h+=tile('Huddles held', held+' of 8', held>=7?'#16a34a':(held>=5?'#d97706':'#dc2626'), 'last 8 weeks');
+  h+='</div>';
+
+  // Sparkline of the scored weeks, so the shape is visible not just the number.
+  if(recent.length>1){
+    h+='<div style="display:flex;align-items:flex-end;gap:3px;height:34px;padding:8px 16px 10px;border-top:1px solid var(--brd)">';
+    recent.forEach(function(pt){
+      var col = pt.pct>=90?'#16a34a':(pt.pct>=75?'#d97706':'#dc2626');
+      var ht = Math.max(3, Math.round(pt.pct*0.24));
+      h+='<div title="'+pt.iso+': '+pt.pct+'%" style="flex:1;height:'+ht+'px;background:'+col+';border-radius:2px 2px 0 0;opacity:.85"></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
   return h;
 }
 function _vspHuddleHardFailCard(){
@@ -13542,6 +13749,10 @@ function renderMeetings(){
     var _bindKw=cur.bind?_bindMap[cur.bind]:null;
     function stepIs(kw){ if(_bindKw) return _bindKw===kw; return lbl.includes(kw); }
 
+    // v147: open the huddle with the person's trajectory, on the first step only.
+    if(step===0 && (state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport){
+      try{ h+=_vspHuddleTrend(); }catch(e){}
+    }
     // ── AI Recording consent banner ───────────────────────────────────────────
     if(!state.aiEnabled){
       h+='<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--sur);border:1px solid var(--brd);border-radius:9px;margin-bottom:14px">';
@@ -14000,6 +14211,7 @@ function renderMeetings(){
       h+=_vspRenderJobReview();
     }
     if(stepIs("issue")){
+      h+=_vspReceiptCard();
       h+=renderIssuesInline();
     }
     // ── NEXT STEPS: facilitation card only (v48). Its own step, no Conclude
@@ -15643,7 +15855,11 @@ function issueUpvote(id){
 function issueMarkSolved(id){
   var src=issues, idx=issues.findIndex(function(i){return i.id===id;});
   if(idx<0){ src=longTermIssues; idx=longTermIssues.findIndex(function(i){return i.id===id;}); }
-  if(idx>-1){var it=src.splice(idx,1)[0];it.status="resolved";it._wasLong=(src===longTermIssues);resolvedIssues.push(it);
+  if(idx>-1){var it=src.splice(idx,1)[0];it.status="resolved";it._wasLong=(src===longTermIssues);
+    // v149: record where and when it was resolved so it can report back to the
+    // meeting that raised it.
+    try{ it.resolvedAt=new Date().toISOString(); it.resolvedIn=_vspCurrentMeetingRoute()||null; }catch(e){}
+    resolvedIssues.push(it);
     if(state.meetTab==="running"&&state.meetSolvedIds.indexOf(id)===-1) state.meetSolvedIds.push(id);
     state.issueCtx=null;renderPage();issueSolveToast(id,it);return;}
   state.issueCtx=null;renderPage();
@@ -18530,7 +18746,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v146';
+window.VSP_BUILD = 'v149';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
