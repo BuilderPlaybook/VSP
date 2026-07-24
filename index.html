@@ -1296,6 +1296,146 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v157 - 2026-07-24 - Job Health page added, and SMB_JOB_HEALTH published.
+           Second half of Will's request: a running record of each job's health
+           so a Production Manager can see which projects are improving and
+           which are sliding, and open the weeks behind the number. The score is
+           the SAME verified Yes-over-(Yes+No) the v156 Job Review grid computes,
+           read back across every person and week, so it reflects what was
+           confirmed on the ground rather than what was claimed. New VSP sub-page
+           (Job Health, between Goals and To-Dos): summary tiles (average health,
+           counts by band, declining count), then one row per active job worst
+           first, each with this-week score, a direction arrow, an inline trend
+           spark, and the last eight weeks as compact chips. Jobs with no
+           verified data yet still list, so an un-reviewed job is visible rather
+           than absent. VSP publishes window.SMB_JOB_HEALTH as a read contract
+           ({asOf, tenantId, weeks, jobs:[{id,name,owner,latest,prev,direction,
+           series:[{week,pct}]}], forJob(id)}), sole writer, refreshed on every
+           emit so a huddle save shows up without a reload; PM and Coach read it
+           on cutover the same way P&D publishes SMB_PND_HUDDLES. No double
+           entry - the page consumes the data Job Review already writes. Build
+           stamp bumped to v157. No change to canon, chrome, catalog,
+           components, engine, or VSP_STORAGE_VERSION.
+    v156 - 2026-07-24 - Job Review rebuilt as a verification pass over the
+           person's own scorecard, job by job. Asked for by Will, who wanted a
+           consistent set of prompts per job instead of a blank note box.
+           The lines are NOT a new checklist: they are the direct report's own
+           Weekly Performance standards, read from the same P&D store the
+           Scorecard Review step reads, so there is nothing extra to maintain
+           and the two steps can never drift apart. Layout is the scorecard's:
+           standards down a frozen left column, one column per active job,
+           totals along the bottom. The person still answers their own
+           scorecard; this audits the claim. The left column shows what they
+           reported so the supervisor can see "said Yes" while looking at the
+           job, and lines they reported No are marked so nothing needs
+           verifying twice. Cells answer Yes / No / N/A, and opening one gives
+           a note field and a Raise a to-do control on the same panel. Those
+           to-dos are ordinary to-dos owned by the direct report, due at the
+           next huddle, carrying the job, the line and the week, so next week's
+           To-Do Review shows why each exists and they count in the completion
+           banner like everything else. Per-job score is verified Yes over
+           verified Yes plus No with N/A excluded from both sides (Service-
+           Metric Exclusion Math Rule v1), chipped green at 90 and amber at 75.
+           Where the claim was Yes and a job says No, the line flags and a
+           single control corrects that ONE line on the scorecard through the
+           same P&D write path the Scorecard Review cells use; every correction
+           is logged with who, when, which job and the value before and after,
+           because a corrected Yes must never read the same as an honest one.
+           Lines that are about the person rather than the work are switched off
+           per role from Manage lines (held VSP-side, so P&D's standards shape
+           is untouched). The v126 free-text job notes are carried into the new
+           store on load rather than dropped. Build stamp bumped to v156. No
+           change to canon, chrome, catalog, components, engine, or
+           VSP_STORAGE_VERSION.
+    v155 - 2026-07-24 - Native dialogs removed app-wide, and the empty goals
+           state in a huddle got a working create control. Two separate causes
+           of the same field report: a button that does nothing when tapped.
+           (1) No-Native-Dialogs Rule v1 (Standards v2.46) sweep. iPad
+           configurations silently suppress confirm/alert/prompt, so any button
+           whose path ran through one was an invisible dead click: tap, nothing,
+           no dialog, no error. 77 call sites retired (55 alert, 17 confirm, 5
+           prompt) and replaced with three in-surface helpers - vspAlert (toast
+           for short copy, readable panel for long or multi-line), vspConfirm
+           (two-button gate, callback style because a native confirm is
+           synchronous and an in-DOM one cannot be), and vspPrompt (single
+           input). Every gated caller was restructured so the work after the
+           gate runs in a callback rather than falling through; the cadence
+           change, the Quarterly snapshot, and the meeting-in-progress warnings
+           keep both branches. The panel follows Modal Keydown StopPropagation
+           Rule v1 (keydown and click stopped at the container, type=button on
+           every button), registers in _vspAnyModalOpen so page hotkeys stay
+           quiet while it is open, closes on Escape and on overlay click, and
+           draws only from canon tokens. (2) A direct report with no goals hit
+           an empty state that was a dead sentence, so a supervisor could not
+           set the first goal without leaving the huddle, which is the exact
+           moment the goal should be written. The empty state now carries the
+           same create control the populated list has, pre-owned to the person
+           the huddle is about. Build stamp bumped to v155. No change to canon,
+           chrome, catalog, components, engine, contracts, or
+           VSP_STORAGE_VERSION.
+    v154 - 2026-07-24 - Reporting lines corrected: Nicolas Hatfield and Daniel
+           Blanco Guillen report to Will Liddell, not Adrian Surdu. Reported by
+           Will, who could not see either of them under Direct Reports in his
+           Weekly Performance Huddle. The huddle scopes to direct reports and
+           was reading the org data correctly; the org data was wrong. Fixed in
+           the people seed (p11, p12 reportsTo p3) and in the org chart seats
+           (lead_nicolas, lead_blanco reportsTo sr_pm, with the directReports
+           arrays on foreman_adrian and sr_pm moved to match). A seed edit alone
+           would not have reached anyone who already has data, because both the
+           ppl restore and the orgSeats restore are wholesale replaces, so a
+           load-time migration (_vspMigrateReportingLines) repoints a saved copy
+           as well. It fires only on the exact stale value, so a later
+           deliberate change by the tenant is never overwritten, and it runs at
+           boot AND after a snapshot lands per the v139 rule. Adrian keeps his
+           Foreman seat and both Lead Hands keep their own reports (Finlay
+           under Nicolas, Julian under Daniel BG). Build stamp bumped to v154.
+           No change to canon, chrome, catalog, components, engine, contracts,
+           or VSP_STORAGE_VERSION.
+    v153 - 2026-07-24 - Create forms scroll into view when opened. The create
+           panel mounts inside the topbar Create control, so clicking Create a
+           Goal from the Goals section of a long huddle page opened the form
+           above the viewport: the page did not move, nothing visible changed,
+           and the click read as broken. Reported by Will against a live
+           huddle. The panel now scrolls to centre and focuses its first
+           field, so the form is where the eye already is regardless of how
+           far down the page the click came from. Build stamp bumped to v153.
+    v152 - 2026-07-23 - Three errors in the meeting recap, all visible on a real
+           Will-and-Keith huddle PDF. (1) The title took the TEAM name, so the
+           huddle printed as "Leadership Meeting Recap". It now names the
+           meeting that happened and, for a huddle, the person it was about.
+           (2) The recipient line read "To: KT" with the supervisor missing:
+           v142 derived attendance from the huddle scope and v145 then
+           narrowed that scope to the report alone, so the attendance record
+           quietly followed a decision about which ITEMS to show. Attendance
+           is now resolved independently as the two people in the room. (3)
+           The recap reported 127 total tracked issues on a two-person
+           meeting, being every issue in the company; it now counts the
+           issues that meeting actually carries. Build stamp bumped to v152.
+    v151 - 2026-07-23 - The huddle's goal lists render through the real Goals
+           renderer again. v150 solved cross-team lookup by substituting a
+           hand-written read-only list, which quietly cost the status
+           dropdown, milestones, the row menu and everything else the Goals
+           page provides - a regression traded for a fix. The cross-team
+           gather stays; it now feeds renderGoals directly, with the goals
+           global swapped for the duration of one synchronous call and
+           restored in a finally, the same pattern the huddle scorecard uses
+           for the scorecard globals. A huddle's goal section now behaves
+           exactly like the Goals page, on whichever team each goal was set.
+           Build stamp bumped to v151.
+    v150 - 2026-07-23 - Field Operations added as a team, Construction
+           Operations gains Keith and Venessa, and - the part that makes those
+           useful - a huddle now finds a person's goals in whichever team they
+           were set. Goals are stored per team, and the huddle read only the
+           team currently selected in the topbar, so a goal Keith set in
+           Construction Operations would not have appeared in his huddle at
+           all. The Goals step now gathers a person's goals from every team,
+           de-duplicated by id, and names the team each was set in, for both
+           the supervisor's context list and the report's own. Field
+           Operations seeds with Will, Daniel Turgeon, Adrian and Daniel
+           Blanco Guillen; Construction Operations with Terry, Will, Keith and
+           Venessa. A migration adds both to existing tenants and re-runs after
+           a snapshot so a shared copy cannot revert them. Build stamp bumped
+           to v150.
     v149 - 2026-07-23 - Escalated issues now report back to the meeting that
            raised them. An item sent from a huddle up to the Leadership
            meeting disappeared from the huddle by design, and the person who
@@ -3236,7 +3376,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v149</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v157</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -3245,7 +3385,7 @@ summary:focus-visible,
           <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
         </button>
       </div>
-      <button class="tb-switch" onclick="alert('Org switcher  -  multi-tenant feature')">
+      <button class="tb-switch" onclick="vspAlert('Org switcher  -  multi-tenant feature')">
         <span>Switch org</span>
         <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </button>
@@ -3623,6 +3763,10 @@ function vspEmitSignals(){
           }catch(e){ return null; }
         }
       };
+      // v157: VSP is sole writer of SMB_JOB_HEALTH, the verified per-job weekly
+      // score series. Read by PM and Coach on cutover. Refreshed on every emit
+      // so a huddle save shows up without a reload.
+      try{ if(typeof _vspPublishJobHealth==='function') _vspPublishJobHealth(); }catch(e){}
     }catch(e){}
   } catch(e){
     // Signal emission must never break the module. Log and continue.
@@ -3635,6 +3779,7 @@ function vspEmitSignals(){
 var VSP_CHILDREN=[
     {id:"dashboard",label:"Dashboard"},{id:"strategic",label:"Strategic Plan"},
     {id:"scorecard",label:"Scorecard"},{id:"goals",label:"Goals"},
+    {id:"jobhealth",label:"Job Health"},
     {id:"todos",label:"To-Dos"},
     {id:"issues",label:"Issues"},{id:"meetings",label:"Meetings"},
     {id:"cascades",label:"Cascading Messages"},{id:"people",label:"People"}
@@ -3724,7 +3869,7 @@ async function _summarizeTranscript(transcript, meetingTitle){
 async function summarizeSection(stepIdx, sectionLabel){
   var inputEl = document.getElementById('sec-input-'+stepIdx);
   if(!inputEl || !inputEl.value.trim()){
-    alert('Paste the conversation or notes from this section first.');
+    vspAlert('Paste the conversation or notes from this section first.');
     return;
   }
   var text = inputEl.value.trim();
@@ -3784,7 +3929,7 @@ function _aiTeamRoster(){
 
 async function summarizeManualTranscript(){
   var el=document.getElementById("transcript-paste-input");
-  if(!el||!el.value.trim()){alert("Paste the meeting transcript first.");return;}
+  if(!el||!el.value.trim()){vspAlert("Paste the meeting transcript first.");return;}
   transcriptState.status="loading";
   transcriptState.error=null;
   renderPage();
@@ -3897,7 +4042,7 @@ function aiProxyRequiredMsg(){
 function startRecording(stepIdx, sectionLabel){
   var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRec){
-    alert('Speech recognition requires Chrome or Edge browser. Please switch browsers to use this feature.');
+    vspAlert('Speech recognition requires Chrome or Edge browser. Please switch browsers to use this feature.');
     return;
   }
   stopRecording(false); // stop any existing session cleanly
@@ -3940,7 +4085,7 @@ function startRecording(stepIdx, sectionLabel){
 
   _speechRec.onerror = function(e){
     if(e.error === 'not-allowed'){
-      alert('Microphone access denied. Please allow microphone access in your browser settings.');
+      vspAlert('Microphone access denied. Please allow microphone access in your browser settings.');
       _recState = 'off';
       renderPage();
     } else if(e.error !== 'no-speech' && e.error !== 'aborted'){
@@ -3954,7 +4099,7 @@ function startRecording(stepIdx, sectionLabel){
     renderPage();
   } catch(e){
     _recState = 'off';
-    alert('Could not start recording: ' + e.message);
+    vspAlert('Could not start recording: ' + e.message);
   }
 }
 
@@ -4061,9 +4206,9 @@ function sendCascade(){
   var subject=document.getElementById('cas-subject');
   var message=document.getElementById('cas-message');
   var checkboxes=document.querySelectorAll('.cas-team-check:checked');
-  if(!subject||!subject.value.trim()){alert('Subject is required.');return;}
-  if(!message||!message.value.trim()){alert('Message is required.');return;}
-  if(!checkboxes.length){alert('Select at least one team to cascade to.');return;}
+  if(!subject||!subject.value.trim()){vspAlert('Subject is required.');return;}
+  if(!message||!message.value.trim()){vspAlert('Message is required.');return;}
+  if(!checkboxes.length){vspAlert('Select at least one team to cascade to.');return;}
   var toTeams=Array.from(checkboxes).map(function(c){return c.value;});
   cascadesRegistry.unshift({
     id:Date.now(),fromTeam:state.currentTeam,toTeams:toTeams,
@@ -4192,11 +4337,12 @@ function deleteAgendaStep(idx){
   if(!sections||sections.length<=1) return;
   if(!sections[idx]) return;
   if(sections[idx].locked) return;
-  if(!confirm('Delete "'+sections[idx].label+'"?')) return;
-  sections.splice(idx,1);
-  state.editingAgendaStep=null;
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  renderPage();
+  vspConfirm('Delete "'+sections[idx].label+'"?', function(){
+    sections.splice(idx,1);
+    state.editingAgendaStep=null;
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    renderPage();
+  }, {okLabel:'Delete'});
 }
 function moveAgendaStep(idx,dir){
   var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
@@ -4687,7 +4833,7 @@ function saveEditItem(){
   var titleEl=document.getElementById('edit-title');
   var ownerEl=document.getElementById('edit-owner');
   var title=titleEl?titleEl.value.trim():'';
-  if(!title){alert('Title cannot be empty.');return;}
+  if(!title){vspAlert('Title cannot be empty.');return;}
   if(type==='issue'||type==='issue-long'){
     var src=type==='issue-long'?longTermIssues:issues;
     var it=src.find(function(x){return x.id===id;});
@@ -4767,6 +4913,25 @@ function renderCreateMenuBtn(menuKey){
   return h;
 }
 
+/* v155: open the create form for a goal from inside a huddle, pre-owned to the
+   direct report the huddle is about, then set the owner select once the form
+   has painted. Keeps the supervisor in the meeting instead of sending them to
+   the Goals page to do it. */
+function _vspHuddleNewGoal(ini){
+  openCreateForm('goal');
+  setTimeout(function(){
+    try{
+      var o=document.getElementById('cf-owner');
+      if(o && ini){
+        for(var i=0;i<o.options.length;i++){
+          if(o.options[i].value===ini){ o.selectedIndex=i; break; }
+        }
+      }
+      var t=document.getElementById('cf-title');
+      if(t && t.focus) t.focus();
+    }catch(e){}
+  }, 60);
+}
 function openCreateForm(type,subject,message){
   if(type==='headline'){
     // Route every "Create Headline" entry point (topbar Create, in-meeting
@@ -4783,6 +4948,19 @@ function openCreateForm(type,subject,message){
     return;
   }
   state.createPanel=type;
+  // v153: the create form mounts in the topbar. Opened from a section partway
+  // down a long meeting page it appears above the viewport, so the click reads
+  // as doing nothing. Bring it into view and focus the first field.
+  try{
+    setTimeout(function(){
+      try{
+        var _w=document.getElementById('create-btn-wrap');
+        if(_w && _w.scrollIntoView) _w.scrollIntoView({behavior:'smooth',block:'center'});
+        var _f=document.getElementById('cf-title')||document.getElementById('cf-text');
+        if(_f && _f.focus) _f.focus();
+      }catch(e){}
+    }, 60);
+  }catch(e){}
   state.cascadeSubject=subject||"";
   state.cascadeMessage=message||"";
   state.createPrefillTitle=subject||"";
@@ -4799,7 +4977,7 @@ function submitCreateForm(){
     var owner=document.getElementById('cf-owner');
     var companyChk=document.getElementById('cf-company');
     var due=document.getElementById('cf-due');
-    if(!title||!title.value.trim()){alert('Title is required.');return;}
+    if(!title||!title.value.trim()){vspAlert('Title is required.');return;}
     _newId = Date.now();
     var _cfpRaw=(document.getElementById('cf-parent')||{}).value||'';
     var _cfpid = !_cfpRaw ? null : (_cfpRaw.indexOf('y1:')===0 ? _cfpRaw : (parseInt(_cfpRaw,10)||null));
@@ -4809,7 +4987,7 @@ function submitCreateForm(){
     var title=document.getElementById('cf-title');
     var owner=document.getElementById('cf-owner');
     var due=document.getElementById('cf-due');
-    if(!title||!title.value.trim()){alert('Title is required.');return;}
+    if(!title||!title.value.trim()){vspAlert('Title is required.');return;}
     _newId = Date.now();
     todos.unshift({id:_newId,task:title.value.trim(),owner:owner?owner.value:'DS',due:due?due.value:'2026-04-30',done:false,private:false,attachments:[],notes:(document.getElementById('cf-notes')||{}).value||'',linkedIssueId:((document.getElementById('cf-linked-issue')||{}).value)?+document.getElementById('cf-linked-issue').value:null});
     if(state.meetTab==='running'){ state.meetCreatedTodoIds = state.meetCreatedTodoIds || []; state.meetCreatedTodoIds.push(_newId); }
@@ -4823,7 +5001,7 @@ function submitCreateForm(){
     var owner=document.getElementById('cf-owner');
     var priority=document.getElementById('cf-priority');
     var interval=document.getElementById('cf-interval');
-    if(!title||!title.value.trim()){alert('Title is required.');return;}
+    if(!title||!title.value.trim()){vspAlert('Title is required.');return;}
     var target=interval&&interval.value==='long'?longTermIssues:issues;
     _newId = Date.now();
     var _issueObj = {id:_newId,title:title.value.trim(),owner:owner?owner.value:'DS',priority:priority?priority.value:'low',votes:0,status:'open',created:vspToday(),notes:(document.getElementById('cf-notes')||{}).value||'',attachments:[]};
@@ -4840,20 +5018,20 @@ function submitCreateForm(){
   } else if(type==='headline'){
     var title=document.getElementById('cf-title');
     var owner=document.getElementById('cf-owner');
-    if(!title||!title.value.trim()){alert('Headline text is required.');return;}
+    if(!title||!title.value.trim()){vspAlert('Headline text is required.');return;}
     _newId = Date.now();
     headlines.unshift({id:_newId,type:'employee',text:title.value.trim(),owner:owner?owner.value:'DS',date:vspToday()});
     if(state.meetTab==='running'){ state.meetCreatedHeadlineIds = state.meetCreatedHeadlineIds || []; state.meetCreatedHeadlineIds.push(_newId); }
   } else if(type==='cascade'){
     var subject=document.getElementById('cf-title');
     var msg=document.getElementById('cf-body');
-    if(!subject||!subject.value.trim()){alert('Subject is required.');return;}
+    if(!subject||!subject.value.trim()){vspAlert('Subject is required.');return;}
     var toTeams=[];
     Object.keys(teamsRegistry).forEach(function(tid){
       var cb=document.getElementById('cf-team-'+tid);
       if(cb&&cb.checked)toTeams.push(tid);
     });
-    if(!toTeams.length){alert('Select at least one team.');return;}
+    if(!toTeams.length){vspAlert('Select at least one team.');return;}
     _newId = Date.now();
     cascadesRegistry.unshift({id:_newId,subject:subject.value.trim(),message:msg?msg.value:'',fromTeam:state.currentTeam,toTeams:toTeams,sentBy:'DS',sentAt:vspToday(),read:{}});
     if(state.meetTab==='running'){ state.meetSentCascadeIds = state.meetSentCascadeIds || []; state.meetSentCascadeIds.push(_newId); }
@@ -4949,7 +5127,7 @@ function renderNav(){
       // cross-module links - they alert until cross-module routing is wired.
       var click = mod.id==='vsp'
         ? 'nav(\''+c.id+'\')'
-        : 'alert(\'Cross-module routing required: '+mod.label.replace(/'/g,'')+' \u2192 '+c.label.replace(/'/g,'')+'\')';
+        : 'vspAlert(\'Cross-module routing required: '+mod.label.replace(/'/g,'')+' \u2192 '+c.label.replace(/'/g,'')+'\')';
       h+='<button class="'+(state.page===c.id?'active':'')+'" onclick="'+click+'">'+c.label+'</button>';
     });
     h+='  </div>';
@@ -5383,12 +5561,35 @@ var teamsRegistry={
     scheduledMeetings:scheduledMeetings,
     pastMeetings:pastMeetings
   },
+  "fieldops":{
+    id:"fieldops",
+    name:"Field Operations",
+    color:"#0891b2",
+    quarter:"Q2 2026",
+    members:["WL","DT","AS","DB"],
+    goals:[],
+    archivedGoals:[],
+    todos:[],
+    privateTodos:[],
+    issues:[],
+    longTermIssues:[],
+    resolvedIssues:[],
+    scorecard:[
+      {ownerId:"WL",seat:"Sr. PM of Production",metrics:[]},
+      {ownerId:"DT",seat:"Foreman",metrics:[]},
+      {ownerId:"AS",seat:"Foreman",metrics:[]},
+      {ownerId:"DB",seat:"Lead Hand",metrics:[]}
+    ],
+    headlines:[],
+    scheduledMeetings:[],
+    pastMeetings:[]
+  },
   "conops":{
     id:"conops",
     name:"Construction Operations",
     color:"#4f46e5",
     quarter:"Q2 2026",
-    members:["TP","WL"],
+    members:["TP","WL","KT","VC"],
     goals:[],
     archivedGoals:[],
     todos:[],
@@ -5550,7 +5751,7 @@ function switchTeam(teamId){
 function createTeam(){
   var name=document.getElementById('nt-name');
   var color=document.getElementById('nt-color');
-  if(!name||!name.value.trim()){alert('Team name is required.');return;}
+  if(!name||!name.value.trim()){vspAlert('Team name is required.');return;}
   var id='team_'+Date.now();
   teamsRegistry[id]={
     id:id,
@@ -5841,11 +6042,14 @@ function savePlanField(key,subkey,idx){
   renderPage();
 }
 function addQ1Goal(){
-  var title=prompt('New goal title:');
-  if(!title||!title.trim()) return;
-  var owner=prompt('Owner initials (DS, TR, WL, MK):','DS');
-  planData.q1.goals.push([title.trim(),owner?owner.trim():'DS']);
-  renderPage();
+  vspPrompt('New goal title:', '', function(title){
+    if(!title||!title.trim()) return;
+    vspPrompt('Owner initials (DS, TR, WL, MK):', 'DS', function(owner){
+      planData.q1.goals.push([title.trim(),owner&&owner.trim()?owner.trim():'DS']);
+      try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+      renderPage();
+    }, {title:'Goal owner', okLabel:'Add goal'});
+  }, {title:'New goal', okLabel:'Next'});
 }
 function togglePlanYearGoal(i){
   if(!Array.isArray(planData.oneyr.goalsDone)) planData.oneyr.goalsDone=[];
@@ -6049,7 +6253,7 @@ function renderKpiLibList(){
   KPI_STREAMS.forEach(function(_s){ out+='<option value="'+_s.id+'"'+(_s.id===bs?' selected':'')+'>'+_s.name+'</option>'; });
   out+='</select>';
   // Placeholder: annual benchmark refresh editor (stub - see roadmap)
-  out+='<button onclick="alert(\'Benchmark editor - coming soon.\\n\\nLets an admin update the industry benchmark numbers per stream each year from your NAHB / CFMA report copies, versioned by year. No code change needed.\')" style="margin-left:auto;font-size:var(--fz-xs);font-weight:600;color:var(--blu);background:none;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;font-family:inherit">Edit benchmarks</button>';
+  out+='<button onclick="vspAlert(\'Benchmark editor - coming soon.\\n\\nLets an admin update the industry benchmark numbers per stream each year from your NAHB / CFMA report copies, versioned by year. No code change needed.\')" style="margin-left:auto;font-size:var(--fz-xs);font-weight:600;color:var(--blu);background:none;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;font-family:inherit">Edit benchmarks</button>';
   out+='</div>';
   out+='<div style="font-size:var(--fz-xs);color:var(--txm);background:var(--sur2);border:1px dashed var(--brd);border-radius:6px;padding:7px 10px;margin:-4px 0 10px;line-height:1.45"><b style="color:var(--txd)">Prototype - benchmarks not finished.</b> Only gross and net margin are seeded (cited to NAHB / CFMA); other KPIs show none. Per-stream benchmarks and the yearly editor move to Settings as tenant data once the report numbers are loaded and verified.</div>';
   KPI_PILLAR_ORDER.forEach(function(pillar){
@@ -7953,7 +8157,7 @@ function saveNewGroup(){
   var name=document.getElementById('ng-name');
   var seat=document.getElementById('ng-seat');
   var color=document.getElementById('ng-color');
-  if(!name||!name.value.trim()){alert('Group name is required.');return;}
+  if(!name||!name.value.trim()){vspAlert('Group name is required.');return;}
   var id='grp_'+Date.now();
   scorecard.push({
     ownerId:id,
@@ -7970,12 +8174,13 @@ function deleteGroup(di){
   var nm=sec.ownerName||sec.seat||'this group';
   var cnt=(sec.metrics||[]).length;
   var msg=cnt>0?('Delete the "'+nm+'" group? Its '+cnt+' measurable'+(cnt===1?'':'s')+' will be moved to Archive (restorable).'):('Delete the empty "'+nm+'" group?');
-  if(!confirm(msg)) return;
-  (sec.metrics||[]).forEach(function(m){ archivedMetrics.unshift(_scArchiveEntry(m, sec)); });
-  scorecard.splice(di,1);
-  var tm=teamsRegistry[state.currentTeam]; if(tm) tm.scorecard=scorecard;
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  renderPage();
+  vspConfirm(msg, function(){
+    (sec.metrics||[]).forEach(function(m){ archivedMetrics.unshift(_scArchiveEntry(m, sec)); });
+    scorecard.splice(di,1);
+    var tm=teamsRegistry[state.currentTeam]; if(tm) tm.scorecard=scorecard;
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    renderPage();
+  }, {okLabel:'Delete group'});
 }
 
 function openEditGroup(di){ state.editGroupPanel={idx:di}; renderPage(); }
@@ -8003,7 +8208,7 @@ function saveEditGroup(){
   var person=document.getElementById('eg-person');
   var seat=document.getElementById('eg-seat');
   var color=document.getElementById('eg-color');
-  if(!name||!name.value.trim()){ alert('Title is required.'); return; }
+  if(!name||!name.value.trim()){ vspAlert('Title is required.'); return; }
   sec.ownerName=name.value.trim();
   if(person){ sec.ownerId = person.value ? person.value : ((/^grp_/.test(sec.ownerId||''))?sec.ownerId:('grp_'+Date.now())); }
   sec.seat = (person && person.value && seat) ? seat.value.trim() : '';
@@ -8300,22 +8505,24 @@ function restoreArchivedMetric(i){
 }
 function deleteArchivedMetric(i){
   var e=archivedMetrics[i]; if(!e) return;
-  if(!confirm('Permanently delete "'+(e.m&&e.m.title||'this measurable')+'" and all its readings? This cannot be undone.')) return;
-  archivedMetrics.splice(i,1);
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
-  renderPage();
+  vspConfirm('Permanently delete "'+(e.m&&e.m.title||'this measurable')+'" and all its readings? This cannot be undone.', function(){
+    archivedMetrics.splice(i,1);
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+    renderPage();
+  }, {title:'Delete permanently', okLabel:'Delete'});
 }
 function bulkDeleteSelected(){
   var keys=Object.keys(state.selectedMetrics);
   if(!keys.length) return;
-  if(!confirm('Archive '+keys.length+' measurable'+(keys.length>1?'s':'')+'? Data is kept; restore any time from Archive.')) return;
-  keys.forEach(function(key){
-    var sel=state.selectedMetrics[key];
-    archiveMetricById(sel.metricId);
-  });
-  state.selectedMetrics={};
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
-  renderPage();
+  vspConfirm('Archive '+keys.length+' measurable'+(keys.length>1?'s':'')+'? Data is kept; restore any time from Archive.', function(){
+    keys.forEach(function(key){
+      var sel=state.selectedMetrics[key];
+      archiveMetricById(sel.metricId);
+    });
+    state.selectedMetrics={};
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+    renderPage();
+  }, {okLabel:'Archive'});
 }
 
 function bulkMoveSelected(targetIdx){
@@ -8356,7 +8563,7 @@ function saveEditMeasurable(){
   var val=document.getElementById('em-value');
   var rollup=document.getElementById('em-rollup');
 
-  if(!title||!title.value.trim()){alert('Title is required.');return;}
+  if(!title||!title.value.trim()){vspAlert('Title is required.');return;}
 
   var orientMap={
     'Greater than or equal to goal':'\u2265','Greater than goal':'>','Equal to goal':'=',
@@ -8405,7 +8612,7 @@ function saveEditMeasurable(){
   var _ecop=(document.getElementById('em-calcop')||{}).value||'none';
   if(_ecop!=='none'){
     var _esrc=[].slice.call(document.querySelectorAll('.em-calcsrc:checked')).map(function(c){return c.value;});
-    if(_esrc.length < ((_ecop==='ratio'||_ecop==='divide')?2:1)){ alert((_ecop==='ratio'||_ecop==='divide')?'Pick at least two measurables - first is A, second is B.':'Pick at least one source measurable.'); return; }
+    if(_esrc.length < ((_ecop==='ratio'||_ecop==='divide')?2:1)){ vspAlert((_ecop==='ratio'||_ecop==='divide')?'Pick at least two measurables - first is A, second is B.':'Pick at least one source measurable.'); return; }
     metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined;
   } else { metric.calc=undefined; }
   var _newCad=(document.getElementById('em-cadence')||{}).value||'weekly';
@@ -8424,26 +8631,39 @@ function saveEditMeasurable(){
         _msg='Change cadence from '+_oldCad+' to '+_newCad+'? Readings will be converted and detail may be lost.\n\nCancel to keep the current cadence.';
       }
     }
-    if(_msg&&!confirm(_msg)){
-      var _cadSel=document.getElementById('em-cadence'); if(_cadSel)_cadSel.value=_oldCad;
-    } else {
+    var _applyCad=function(){
       metric.readings=_scConvReadings(metric.readings, metric.cadence, _newCad, metric);
       metric.goal=_scConvGoal(metric.goal, _oldCad, _newCad, metric);
       if(metric.watch!=null && metric.watch!=='') metric.watch=_scConvGoal(metric.watch, _oldCad, _newCad, metric);
       metric.cadence=_newCad;
+    };
+    var _keepCad=function(){
+      var _cadSel=document.getElementById('em-cadence'); if(_cadSel)_cadSel.value=_oldCad;
+    };
+    if(_msg){
+      // v155: the cadence warning is a real gate, so it cannot be a native
+      // native dialog (suppressed on iPad). Both branches close the panel.
+      vspConfirm(_msg, function(){ _applyCad(); _emClosePanel(); },
+        {title:'Change cadence', okLabel:'Change cadence',
+         onCancel:function(){ _keepCad(); _emClosePanel(); }});
+      return;
     }
+    _applyCad();
   }
-
+  _emClosePanel();
+}
+function _emClosePanel(){
   state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
   renderPage();
 }
 function deleteEditMeasurable(){
   var p=state.editMeasurablePanel;
-  if(!confirm('Archive this measurable? All readings are kept; restore it any time from the Archive panel on the Scorecard.')) return;
-  archiveMetricById(p.metricId);
-  state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
-  renderPage();
+  vspConfirm('Archive this measurable? All readings are kept; restore it any time from the Archive panel on the Scorecard.', function(){
+    archiveMetricById(p.metricId);
+    state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+    renderPage();
+  }, {okLabel:'Archive'});
 }
 
 // Inline scorecard cell editing
@@ -8479,7 +8699,7 @@ function vspBackupData(){
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(a.href);},1500);
     if(typeof showToast==='function') showToast('Backup downloaded - keep it somewhere safe');
-  }catch(e){ alert('Could not create a backup: '+e.message); }
+  }catch(e){ vspAlert('Could not create a backup: '+e.message); }
 }
 function vspRestoreData(){
   var inp=document.createElement('input');
@@ -8489,15 +8709,16 @@ function vspRestoreData(){
     var r=new FileReader();
     r.onload=function(){
       var o;
-      try{ o=JSON.parse(r.result); }catch(e){ alert('That file is not a valid backup.'); return; }
-      if(!o || typeof o!=='object'){ alert('That file is not a valid backup.'); return; }
-      if(!confirm('Restore from this backup? It replaces the data currently in this browser. (Your current data is not changed until you confirm.)')) return;
-      try{
-        Object.keys(o).forEach(function(k){ localStorage.setItem(k, o[k]); });
-        try{ localStorage.setItem('vsp.restore.pending','1'); }catch(e){}
-        alert('Data restored. The page will now reload and your restored data will be pushed to the whole team.');
-        location.reload();
-      }catch(e){ alert('Restore failed: '+e.message); }
+      try{ o=JSON.parse(r.result); }catch(e){ vspAlert('That file is not a valid backup.'); return; }
+      if(!o || typeof o!=='object'){ vspAlert('That file is not a valid backup.'); return; }
+      vspConfirm('Restore from this backup? It replaces the data currently in this browser. (Your current data is not changed until you confirm.)', function(){
+        try{
+          Object.keys(o).forEach(function(k){ localStorage.setItem(k, o[k]); });
+          try{ localStorage.setItem('vsp.restore.pending','1'); }catch(e){}
+          if(typeof showToast==='function') showToast('Data restored. Reloading, then your data pushes to the team.');
+          setTimeout(function(){ location.reload(); }, 900);
+        }catch(e){ vspAlert('Restore failed: '+e.message); }
+      }, {title:'Restore backup', okLabel:'Restore'});
     };
     r.readAsText(f);
   };
@@ -8602,7 +8823,7 @@ function saveNewMeasurable(){
   var showTotal=document.getElementById('nm-showTotal');
   var showAvg=document.getElementById('nm-showAvg');
   var showGoal=document.getElementById('nm-showGoal');
-  if(!title||!title.value.trim()){alert('Title is required.');return;}
+  if(!title||!title.value.trim()){vspAlert('Title is required.');return;}
   // Map orientation rule to goalType symbol
   var orientMap={
     'Greater than or equal to goal':'\u2265',
@@ -8641,7 +8862,7 @@ function saveNewMeasurable(){
   var _ncop=(document.getElementById('nm-calcop')||{}).value||'none';
   if(_ncop!=='none'){
     var _nsrc=[].slice.call(document.querySelectorAll('.nm-calcsrc:checked')).map(function(c){return c.value;});
-    if(_nsrc.length < ((_ncop==='ratio'||_ncop==='divide')?2:1)){ alert((_ncop==='ratio'||_ncop==='divide')?'Pick at least two measurables - first is A, second is B.':'Pick at least one source measurable.'); return; }
+    if(_nsrc.length < ((_ncop==='ratio'||_ncop==='divide')?2:1)){ vspAlert((_ncop==='ratio'||_ncop==='divide')?'Pick at least two measurables - first is A, second is B.':'Pick at least one source measurable.'); return; }
     newMetric.calc={op:_ncop, sources:_nsrc}; newMetric.auto=undefined; newMetric.autoSrc=undefined;
   }
   // Add to correct scorecard section (by section index - sections are role-based)
@@ -9484,8 +9705,8 @@ var LIDA_VSP_PPL_SEED=[
   {id:'p8', first:'Keith',   last:'Tennert',        initials:'KT', role:'Project Manager',                                   department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:0, teams:['t2'],      reportsTo:'p3', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p9', first:'Adrian',  last:'Surdu',          initials:'AS', role:'Foreman',                                           department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:1, teams:['t2'],      reportsTo:'p3', supervisor:true,  hr:false, notes:'Working foreman.', status:'active'},
   {id:'p10',first:'Cody',    last:'Johnstone',      initials:'CJ', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:2, teams:['t2'],      reportsTo:'p7', supervisor:false, hr:false, notes:'', status:'active'},
-  {id:'p11',first:'Nicolas', last:'Hatfield',       initials:'NH', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:3, teams:['t2'],      reportsTo:'p9', supervisor:false, hr:false, notes:'', status:'active'},
-  {id:'p12',first:'Daniel',  last:'Blanco Guillen', initials:'DB', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:4, teams:['t2'],      reportsTo:'p9', supervisor:false, hr:false, notes:'', status:'active'},
+  {id:'p11',first:'Nicolas', last:'Hatfield',       initials:'NH', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:3, teams:['t2'],      reportsTo:'p3', supervisor:false, hr:false, notes:'', status:'active'},
+  {id:'p12',first:'Daniel',  last:'Blanco Guillen', initials:'DB', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:4, teams:['t2'],      reportsTo:'p3', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p13',first:'Finlay',  last:'Gifford',        initials:'FG', role:'Apprentice (1st Year)',                             department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:5, teams:['t2'],      reportsTo:'p11',supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p15',first:'Rob',     last:'Piercy',         initials:'RP', role:'Property Manager',                                 department:'Property Mgmt', email:'',                     phone:'', startDate:'', colorSlot:7, teams:['t6'],      reportsTo:'p1', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p14',first:'Julian',  last:'Pleasant',       initials:'JP', role:'Apprentice (4th Year)',                             department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:6, teams:['t2'],      reportsTo:'p12',supervisor:false, hr:false, notes:'', status:'active'}
@@ -9761,9 +9982,9 @@ function _openPersonPanel(mode,id){
 function _savePerson(){
   var first=(document.getElementById('ppF').value||'').trim();var last=(document.getElementById('ppL').value||'').trim();
   var initials=(document.getElementById('ppI').value||'').trim().toUpperCase();var role=(document.getElementById('ppR').value||'').trim();
-  if(!first||!last||!initials||!role){alert('Please fill in First Name, Last Name, Initials, and Role.');return;}
+  if(!first||!last||!initials||!role){vspAlert('Please fill in First Name, Last Name, Initials, and Role.');return;}
   var dup=ppl.find(function(p){return p.initials===initials&&p.id!==_pplEditId;});
-  if(dup){alert('Initials "'+initials+'" already used by '+dup.first+' '+dup.last+'.');return;}
+  if(dup){vspAlert('Initials "'+initials+'" already used by '+dup.first+' '+dup.last+'.');return;}
   var teams=[];document.querySelectorAll('#ppTcb input:checked').forEach(function(inp){teams.push(inp.value);});
   var d={first:first,last:last,initials:initials,role:role,color:document.getElementById('ppC').value,department:document.getElementById('ppD').value,startDate:document.getElementById('ppS').value,email:(document.getElementById('ppE').value||'').trim(),phone:(document.getElementById('ppP').value||'').trim(),reportsTo:document.getElementById('ppRT').value,supervisor:document.getElementById('ppSup').checked,hr:document.getElementById('ppHR').checked,notes:(document.getElementById('ppN').value||'').trim(),teams:teams};
   if(_pplEditId){var idx=ppl.findIndex(function(p){return p.id===_pplEditId;});if(idx>-1){ppl[idx]=Object.assign({},ppl[idx],d);if(currentUser.id===_pplEditId)currentUser=ppl[idx];}}
@@ -9804,7 +10025,7 @@ function _openTeamPanel(mode,id){
 }
 
 function _saveTeam(){
-  var name=(document.getElementById('ptN').value||'').trim();if(!name){alert('Team name is required.');return;}
+  var name=(document.getElementById('ptN').value||'').trim();if(!name){vspAlert('Team name is required.');return;}
   var color=document.getElementById('ptC').value;var desc=(document.getElementById('ptD').value||'').trim();
   if(_pplEditTeamId){var t=teamsData.find(function(x){return x.id===_pplEditTeamId;});if(t){t.name=name;t.color=color;t.desc=desc;}}
   else teamsData.push({id:'t'+(_pplNextTId++),name:name,color:color,desc:desc});
@@ -9813,10 +10034,12 @@ function _saveTeam(){
 
 function _deleteTeam(){
   if(!_pplEditTeamId)return;var t=teamsData.find(function(x){return x.id===_pplEditTeamId;});
-  if(!t||!confirm('Delete team "'+t.name+'"? Members will be unassigned.'))return;
-  ppl.forEach(function(p){p.teams=(p.teams||[]).filter(function(tid){return tid!==_pplEditTeamId;});});
-  teamsData=teamsData.filter(function(x){return x.id!==_pplEditTeamId;});
-  _closePplPanels();try{renderTopbarV2();}catch(e){}renderPage();showToast('Team deleted');
+  if(!t)return;
+  vspConfirm('Delete team "'+t.name+'"? Members will be unassigned.', function(){
+    ppl.forEach(function(p){p.teams=(p.teams||[]).filter(function(tid){return tid!==_pplEditTeamId;});});
+    teamsData=teamsData.filter(function(x){return x.id!==_pplEditTeamId;});
+    _closePplPanels();try{renderTopbarV2();}catch(e){}renderPage();showToast('Team deleted');
+  }, {okLabel:'Delete team'});
 }
 
 
@@ -11187,13 +11410,15 @@ function goalToLongTermIssue(id){
   var idx=goals.findIndex(function(x){return x.id===id;});
   if(idx<0) return;
   var g=goals[idx];
-  if(typeof confirm==='function' && !confirm('Convert "'+g.title+'" to a Long-Term Issue?\n\nThe goal is cancelled and moved to the goal archive (recoverable). A new long-term issue is created with the same title and owner.')){ renderPage(); return; }
-  longTermIssues.unshift({ id:Date.now(), title:g.title, priority:'low', owner:g.owner||'DS', votes:0, status:'open', created:new Date().toISOString().slice(0,10), attachments:0, notes:'Converted from a goal on the Planning Board.' });
-  goals.splice(idx,1);
-  g.status='cancelled';
-  try{ g.quarter=_vspQtr().label; }catch(e){}
-  archivedGoals.unshift(g);
-  renderPage();
+  vspConfirm('Convert "'+g.title+'" to a Long-Term Issue?\n\nThe goal is cancelled and moved to the goal archive (recoverable). A new long-term issue is created with the same title and owner.', function(){
+    longTermIssues.unshift({ id:Date.now(), title:g.title, priority:'low', owner:g.owner||'DS', votes:0, status:'open', created:new Date().toISOString().slice(0,10), attachments:0, notes:'Converted from a goal on the Planning Board.' });
+    goals.splice(idx,1);
+    g.status='cancelled';
+    try{ g.quarter=_vspQtr().label; }catch(e){}
+    archivedGoals.unshift(g);
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    renderPage();
+  }, {title:'Convert to Long-Term Issue', okLabel:'Convert', onCancel:function(){ renderPage(); }});
 }
 
 function renderGoals(){
@@ -12073,7 +12298,15 @@ function joinScheduledMeeting(id){
   // report. Opening Adrian's huddle while Keith's is running is a different
   // meeting and must start fresh, or Keith's created-item tracking leaks in.
   if(state.meetTab==='running' && _jt && _vspNoteType()===_jt && _vspSameHuddle(m)){ state.page='meetings'; renderPage(); return; }
-  if(state.meetTab==='running' && typeof confirm==='function' && !confirm('A '+(state.meetType||'meeting')+' session is in progress. Joining this meeting will leave it (its notes are kept). Continue?')) return;
+  if(state.meetTab==='running'){
+    vspConfirm('A '+(state.meetType||'meeting')+' session is in progress. Joining this meeting will leave it (its notes are kept). Continue?',
+      function(){ _joinScheduledCommit(id, m); }, {title:'Leave the running meeting', okLabel:'Join anyway'});
+    return;
+  }
+  _joinScheduledCommit(id, m);
+}
+function _joinScheduledCommit(id, m){
+  state.jobRevCell=null;
   state.meetHuddleReport=''; state.meetScheduledId=id;
   if(m){
     state.meetType=(m.type||'').toLowerCase();
@@ -12161,6 +12394,117 @@ function _vspHuddleEsc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').rep
 var VSP_PERF_HUDDLES_KEY = 'smb_perf_huddles_v1';
 var VSP_JOBS_KEY = 'smb.vsp.jobs.v1';
 var VSP_JOBNOTES_KEY = 'smb.vsp.jobnotes.v1';
+/* ------------------------------------------------------------------ */
+/* v156: Job Review becomes a verification pass over the person's own   */
+/* Weekly Performance scorecard, job by job.                            */
+/*                                                                      */
+/* The person answers their scorecard. Job Review then audits the       */
+/* claim: for each standard line, the supervisor looks at each job and  */
+/* confirms what was claimed is actually true THERE. Rows come from the */
+/* same P&D role standards the Scorecard Review step reads, so there is */
+/* no second checklist to maintain and no drift between the two.        */
+/*                                                                      */
+/* Storage. Verification answers live in VSP, keyed by                  */
+/* person + week + job + standard line. The person's own scorecard      */
+/* answer is NOT derived from these - it stays theirs. When a claim of  */
+/* Yes is contradicted by a job, the supervisor can correct that one    */
+/* line, and every correction is logged so a corrected Yes never looks  */
+/* identical to an honest one.                                          */
+/*                                                                      */
+/* Not every standard is job-specific ("weekly one-on-ones held" is     */
+/* not). The job-scoped flag is held here, per role label per line, and */
+/* is tenant-editable from the grid header rather than requiring a      */
+/* shape change to P&D's standards.                                     */
+/* ------------------------------------------------------------------ */
+var VSP_JOBREVIEW_KEY = 'smb.vsp.jobreview.v1';
+var VSP_JOBSCOPE_KEY = 'smb.vsp.jobscope.v1';
+var VSP_JOBCORR_KEY = 'smb.vsp.jobcorrections.v1';
+var VSP_JOBREVIEW_VERSION = 1;
+
+function _vspLoadJobReview(){
+  try{ var v=localStorage.getItem(VSP_JOBREVIEW_KEY); var o=v?JSON.parse(v):{}; return (o&&typeof o==='object')?o:{}; }
+  catch(e){ return {}; }
+}
+function _vspJobRevKey(repIni, iso, jobId, rowId){ return repIni+'__'+iso+'__'+jobId+'__'+rowId; }
+function _vspSaveJobReview(all){
+  try{ localStorage.setItem(VSP_JOBREVIEW_KEY, JSON.stringify(all||{})); }catch(e){}
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+}
+function _vspGetJobRev(repIni, iso, jobId, rowId){
+  var all=_vspLoadJobReview();
+  return all[_vspJobRevKey(repIni, iso, jobId, rowId)] || null;
+}
+function _vspSetJobRev(repIni, iso, jobId, rowId, patch){
+  var all=_vspLoadJobReview();
+  var k=_vspJobRevKey(repIni, iso, jobId, rowId);
+  var rec=all[k] || {};
+  for(var p in patch){ if(Object.prototype.hasOwnProperty.call(patch,p)) rec[p]=patch[p]; }
+  rec.at=new Date().toISOString();
+  if(!rec.a && !(rec.note && rec.note.trim())) delete all[k];
+  else all[k]=rec;
+  _vspSaveJobReview(all);
+}
+
+/* Job-scoped flags. Default is job-scoped; a line is only skipped when the
+   tenant has explicitly turned it off for that role. */
+function _vspLoadJobScope(){
+  try{ var v=localStorage.getItem(VSP_JOBSCOPE_KEY); var o=v?JSON.parse(v):{}; return (o&&typeof o==='object')?o:{}; }
+  catch(e){ return {}; }
+}
+function _vspIsJobScoped(roleLabel, rowId){
+  var m=_vspLoadJobScope();
+  var r=m[roleLabel];
+  if(!r || typeof r!=='object') return true;
+  return r[rowId]===false ? false : true;
+}
+function _vspToggleJobScope(roleLabel, rowId){
+  var m=_vspLoadJobScope();
+  if(!m[roleLabel] || typeof m[roleLabel]!=='object') m[roleLabel]={};
+  m[roleLabel][rowId] = (m[roleLabel][rowId]===false) ? true : false;
+  try{ localStorage.setItem(VSP_JOBSCOPE_KEY, JSON.stringify(m)); }catch(e){}
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  renderPage();
+}
+
+/* Correction log. Without it a corrected Yes reads identical to an honest Yes
+   next week and the scorecard stops being worth anything. */
+function _vspLoadJobCorrections(){
+  try{ var v=localStorage.getItem(VSP_JOBCORR_KEY); var a=v?JSON.parse(v):[]; return Array.isArray(a)?a:[]; }
+  catch(e){ return []; }
+}
+function _vspLogJobCorrection(entry){
+  try{
+    var log=_vspLoadJobCorrections();
+    log.unshift(entry);
+    if(log.length>500) log=log.slice(0,500);
+    localStorage.setItem(VSP_JOBCORR_KEY, JSON.stringify(log));
+  }catch(e){}
+}
+
+/* One-time carry of the v126 free-text job notes into the new store, so the
+   rebuild does not throw away what the team already wrote. The old note has no
+   standard line, so it lands on a reserved general row for that job. */
+var VSP_JOBREV_GENERAL_ROW='__general';
+function _vspMigrateJobNotes(){
+  try{
+    var old=_vspLoadJobNotes();
+    var keys=Object.keys(old||{});
+    if(!keys.length) return;
+    var all=_vspLoadJobReview();
+    var moved=0;
+    keys.forEach(function(k){
+      var parts=k.split('__');
+      if(parts.length<3) return;
+      var nk=k+'__'+VSP_JOBREV_GENERAL_ROW;
+      if(all[nk]) return;
+      var rec=old[k];
+      if(!rec || !rec.text || !String(rec.text).trim()) return;
+      all[nk]={ a:null, note:String(rec.text), at:rec.at||new Date().toISOString(), _from:'v126' };
+      moved++;
+    });
+    if(moved) _vspSaveJobReview(all);
+  }catch(e){}
+}
 function _vspLoadJobs(){
   // Prefer a live PM feed when one exists; fall back to the local list.
   try{
@@ -12201,14 +12545,15 @@ function vspJobNoteInput(el, repIni, iso, jobId){
   try{ var st=document.getElementById('jobnote-status-'+jobId); if(st){ st.textContent='Saved'; st.style.opacity='1'; setTimeout(function(){ st.style.opacity='0'; }, 1200); } }catch(e){}
 }
 function vspAddJob(){
-  var name = (typeof prompt==='function') ? prompt('Job name') : null;
-  if(!name || !name.trim()) return;
-  var list=_vspLoadJobs();
-  // Default the new job to whoever this huddle is about, so adding a job
-  // mid-review lands on the right person without a second step.
-  var owner = state.meetHuddleReport || '';
-  list.push({ id:'j'+Date.now(), name:name.trim(), owner:owner, archived:false });
-  _vspSaveJobs(list); renderPage();
+  vspPrompt('Job name', '', function(name){
+    if(!name || !name.trim()) return;
+    var list=_vspLoadJobs();
+    // Default the new job to whoever this huddle is about, so adding a job
+    // mid-review lands on the right person without a second step.
+    var owner = state.meetHuddleReport || '';
+    list.push({ id:'j'+Date.now(), name:name.trim(), owner:owner, archived:false });
+    _vspSaveJobs(list); renderPage();
+  }, {title:'Add job', okLabel:'Add job'});
 }
 function vspSetJobOwner(id, ini){
   var list=_vspLoadJobs();
@@ -12228,9 +12573,10 @@ function vspRenameJob(id){
   var list=_vspLoadJobs();
   var j=list.find(function(x){ return x.id===id; });
   if(!j) return;
-  var name = (typeof prompt==='function') ? prompt('Job name', j.name) : null;
-  if(!name || !name.trim()) return;
-  j.name=name.trim(); _vspSaveJobs(list); renderPage();
+  vspPrompt('Job name', j.name, function(name){
+    if(!name || !name.trim()) return;
+    j.name=name.trim(); _vspSaveJobs(list); renderPage();
+  }, {title:'Rename job', okLabel:'Save'});
 }
 function vspArchiveJob(id){
   var list=_vspLoadJobs();
@@ -12241,39 +12587,174 @@ function vspArchiveJob(id){
 function vspToggleJobManage(){
   state.jobManageOpen = !state.jobManageOpen; renderPage();
 }
-function _vspRenderJobReview(){
+function _vspJobRevContext(){
+  /* Everything the Job Review grid needs, resolved once: who the huddle is
+     about, which week, which jobs they run, and which standard lines apply. */
   var repIni = state.meetHuddleReport || '';
   var repP = repIni ? ppl.find(function(x){ return x && x.initials===repIni; }) : null;
   var iso = _vspThisMondayIso();
   var jobs = _vspLoadJobs();
-  // v131: a huddle reviews the jobs that person runs. Unassigned jobs still
-  // appear so nothing goes unreviewed while the list is being set up.
   var live = jobs.filter(function(j){
     if(!j || j.archived) return false;
     if(!repIni) return true;
     return !j.owner || j.owner === repIni;
   });
   var otherCount = jobs.filter(function(j){ return j && !j.archived && j.owner && j.owner !== repIni; }).length;
-  var notes = _vspLoadJobNotes();
-  var fromPM = live.length && live[0]._src === 'PM';
+  var roleLabel = repP ? (repP.roleLabel || repP.role || null) : null;
+  var stds = roleLabel ? (_vspPndReadStandards(roleLabel) || []) : [];
+  var scoped = stds.filter(function(r){ return r && _vspIsJobScoped(roleLabel, r.id); });
+  return { repIni:repIni, repP:repP, iso:iso, jobs:jobs, live:live, otherCount:otherCount,
+           roleLabel:roleLabel, stds:stds, scoped:scoped, fromPM: !!(live.length && live[0]._src==='PM') };
+}
+function _vspClaimFor(personId, iso, rowId){
+  var all=_vspPndReadHuddles();
+  var rec=all[personId+'__'+iso];
+  return (rec && rec.answers) ? (rec.answers[rowId]||null) : null;
+}
+function _vspJobScore(repIni, iso, jobId, rows){
+  /* Verified Yes over verified Yes plus No. N/A is excluded from both sides,
+     per Service-Metric Exclusion Math Rule v1: an excluded line cannot drag
+     the percentage down. */
+  var yes=0, no=0, blank=0;
+  rows.forEach(function(r){
+    var rec=_vspGetJobRev(repIni, iso, jobId, r.id);
+    var a=rec?rec.a:null;
+    if(a==='yes') yes++;
+    else if(a==='no') no++;
+    else if(a==='na'){ /* excluded */ }
+    else blank++;
+  });
+  var denom=yes+no;
+  return { yes:yes, no:no, blank:blank, denom:denom, pct: denom? Math.round((yes/denom)*100) : null };
+}
+function _vspScoreChip(pct){
+  if(pct===null) return '<span class="chip c-gry">No data</span>';
+  var cls = pct>=90 ? 'c-grn' : (pct>=75 ? 'c-amb' : 'c-red');
+  return '<span class="chip '+cls+'">'+pct+'%</span>';
+}
+function _vspRevMark(a){
+  if(a==='yes') return '<span class="chip c-grn">Yes</span>';
+  if(a==='no')  return '<span class="chip c-red">No</span>';
+  if(a==='na')  return '<span class="chip c-gry">N/A</span>';
+  return '<span style="color:var(--txd);font-size:var(--fz-body)">Check</span>';
+}
+function vspJobRevOpenCell(jobId, rowId){
+  state.jobRevCell={ jobId:jobId, rowId:rowId };
+  renderPage();
+}
+function vspJobRevCloseCell(){ state.jobRevCell=null; renderPage(); }
+function vspJobRevSet(jobId, rowId, a){
+  var c=_vspJobRevContext();
+  if(!c.repIni) return;
+  var cur=_vspGetJobRev(c.repIni, c.iso, jobId, rowId);
+  var next = (cur && cur.a===a) ? null : a;
+  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next });
+  renderPage();
+}
+function vspJobRevNote(el, jobId, rowId){
+  var c=_vspJobRevContext();
+  if(!c.repIni) return;
+  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { note: el.value });
+  try{
+    var st=document.getElementById('jobrev-note-status');
+    if(st){ st.textContent='Saved'; st.style.opacity='1'; setTimeout(function(){ st.style.opacity='0'; }, 1200); }
+  }catch(e){}
+}
+function vspJobRevAddTodo(jobId, rowId){
+  /* A to-do raised here is an ordinary to-do. It carries the job, the standard
+     line and the week so next week's To-Do Review shows why it exists, and it
+     counts in the completion banner like everything else. */
+  var c=_vspJobRevContext();
+  if(!c.repIni) return;
+  var job=c.live.find(function(j){ return j.id===jobId; });
+  var row=c.stds.find(function(r){ return r.id===rowId; });
+  var el=document.getElementById('jobrev-todo-input');
+  var txt=el?String(el.value||'').trim():'';
+  if(!txt){ vspAlert('Type what needs to be done first.'); return; }
+  var due=(function(){
+    var p=c.iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setDate(d.getDate()+7);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  })();
+  todos.unshift({
+    id: Date.now(),
+    task: txt,
+    owner: c.repIni,
+    due: due,
+    done: false,
+    private: false,
+    attachments: 0,
+    srcJobId: jobId,
+    srcJobName: job?job.name:'',
+    srcRowId: rowId,
+    srcRowText: row?row.std:'',
+    srcWeek: c.iso,
+    notes: (job?('Job: '+job.name):'')+(row?(' | Line: '+row.std):'')
+  });
+  if(el) el.value='';
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  showToast('To-do added for '+(c.repP?c.repP.first:'this person'));
+  renderPage();
+}
+function vspJobRevCorrect(rowId){
+  /* The claim was Yes, a job says otherwise. Correct that ONE line on the
+     person's scorecard, through the same P&D path the Scorecard Review cells
+     use, and log it. No bulk correction, nothing else moves. */
+  var c=_vspJobRevContext();
+  if(!c.repP) return;
+  var row=c.stds.find(function(r){ return r.id===rowId; });
+  var failing=c.live.filter(function(j){
+    var rec=_vspGetJobRev(c.repIni, c.iso, j.id, rowId);
+    return rec && rec.a==='no';
+  });
+  var names=failing.map(function(j){ return j.name; }).join(', ');
+  var msg='Change this line to No on '+c.repP.first+'\u2019s Weekly Performance scorecard?\n\n'+
+          (row?row.std:'This line')+'\n\nReported Yes, but verified No on: '+(names||'a job')+'.\n\n'+
+          'Only this line changes. The correction is logged.';
+  vspConfirm(msg, function(){
+    var before=_vspClaimFor(c.repP.id, c.iso, rowId);
+    _vspPndWriteHuddle(c.repP.id, c.iso, rowId, 'no');
+    _vspLogJobCorrection({
+      at:new Date().toISOString(),
+      by:(typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'',
+      personId:c.repP.id, personIni:c.repIni, iso:c.iso,
+      rowId:rowId, rowText:row?row.std:'',
+      jobIds:failing.map(function(j){return j.id;}), jobNames:names,
+      from:before||'(blank)', to:'no'
+    });
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    showToast('Scorecard line corrected and logged');
+    renderPage();
+  }, {title:'Correct the scorecard', okLabel:'Correct this line'});
+}
+function vspToggleJobScopePanel(){ state.jobScopeOpen=!state.jobScopeOpen; renderPage(); }
+function vspToggleJobCorrLog(){ state.jobCorrOpen=!state.jobCorrOpen; renderPage(); }
+
+function _vspRenderJobReview(){
+  var c=_vspJobRevContext();
+  var repP=c.repP, repIni=c.repIni, iso=c.iso;
 
   var h = '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;margin-bottom:14px">';
   h += '<div style="padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
   h += '<span style="font-size:var(--fz-xl);font-weight:700">Job Review</span>';
-  h += '<span style="font-size:var(--fz-body);background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:1px 10px;color:var(--txm)">'+live.length+'</span>';
-  if(fromPM) h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Source: Project Management</span>';
-  h += '<button type="button" class="btn btn-sm" style="margin-left:auto" onclick="vspToggleJobManage()">'+(state.jobManageOpen?'Done':'Manage jobs')+'</button>';
-  h += '</div>';
-  h += '<div style="padding:12px 18px 4px;font-size:var(--fz-body);color:var(--txm)">Go job by job. Confirm what the performance scorecard claims is actually done, and record what was verified'+(repP?' with '+_vspHuddleEsc(repP.first):'')+'.'+(otherCount?' <span style="color:var(--txd)">'+otherCount+' job'+(otherCount===1?'':'s')+' assigned to other people are hidden.</span>':'')+'</div>';
+  h += '<span style="font-size:var(--fz-body);background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:1px 10px;color:var(--txm)">'+c.live.length+'</span>';
+  if(c.fromPM) h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Source: Project Management</span>';
+  h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Lines: P&amp;D</span>';
+  h += '<div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">';
+  h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobCorrLog()">'+(state.jobCorrOpen?'Hide corrections':'Corrections')+'</button>';
+  h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobScopePanel()">'+(state.jobScopeOpen?'Done':'Manage lines')+'</button>';
+  h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobManage()">'+(state.jobManageOpen?'Done':'Manage jobs')+'</button>';
+  h += '</div></div>';
+
+  h += '<div style="padding:12px 18px 4px;font-size:var(--fz-body);color:var(--txm)">Walk each line of '+(repP?_vspHuddleEsc(repP.first)+'\u2019s':'the')+' scorecard against each job. They already answered for the week; this confirms it is true on the ground.'+(c.otherCount?' <span style="color:var(--txd)">'+c.otherCount+' job'+(c.otherCount===1?'':'s')+' assigned to other people are hidden.</span>':'')+'</div>';
 
   if(state.jobManageOpen){
     h += '<div style="padding:8px 18px 14px">';
     h += '<div style="border:1px solid var(--brd);border-radius:8px;padding:10px 12px;background:var(--sur2)">';
-    if(fromPM){
+    if(c.fromPM){
       h += '<div style="font-size:var(--fz-body);color:var(--txm)">Jobs are coming from Project Management and are managed there.</div>';
     } else {
-      if(!jobs.length) h += '<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:8px">No jobs yet.</div>';
-      jobs.forEach(function(j){
+      if(!c.jobs.length) h += '<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:8px">No jobs yet.</div>';
+      c.jobs.forEach(function(j){
         h += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--brd)">';
         h += '<span style="flex:1;font-size:var(--fz-body);'+(j.archived?'color:var(--txm);text-decoration:line-through':'')+'">'+_vspHuddleEsc(j.name)+'</span>';
         h += _vspJobOwnerSelect(j);
@@ -12286,37 +12767,370 @@ function _vspRenderJobReview(){
     h += '</div></div>';
   }
 
-  if(!live.length){
-    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">'+(otherCount?'No jobs are assigned to '+(repP?_vspHuddleEsc(repP.first):'this person')+' yet. Use Manage jobs to assign them.':'No active jobs yet. Use Manage jobs to add the jobs this person is running.')+'</div>';
-    h += '</div>';
+  if(state.jobScopeOpen){
+    h += '<div style="padding:8px 18px 14px">';
+    h += '<div style="border:1px solid var(--brd);border-radius:8px;padding:10px 12px;background:var(--sur2)">';
+    h += '<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:8px">Which lines get checked per job. Turn off the ones that are about the person rather than the work, so they are not asked once per job.</div>';
+    if(!c.stds.length){
+      h += '<div style="font-size:var(--fz-body);color:var(--txm)">No standards to configure yet.</div>';
+    } else {
+      c.stds.forEach(function(r){
+        var on=_vspIsJobScoped(c.roleLabel, r.id);
+        h += '<label style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:0.5px solid var(--brd);cursor:pointer">';
+        h += '<input type="checkbox" '+(on?'checked':'')+' onchange="_vspToggleJobScope(\''+_vspHuddleEsc(c.roleLabel)+'\',\''+_vspHuddleEsc(r.id)+'\')" style="width:16px;height:16px;accent-color:var(--blu);cursor:pointer">';
+        h += '<span style="flex:1;font-size:var(--fz-body);'+(on?'':'color:var(--txm)')+'">'+_vspHuddleEsc(r.std)+'</span>';
+        h += '</label>';
+      });
+    }
+    h += '</div></div>';
+  }
+
+  if(state.jobCorrOpen){
+    var log=_vspLoadJobCorrections().filter(function(e){ return e && (!repIni || e.personIni===repIni); });
+    h += '<div style="padding:8px 18px 14px">';
+    h += '<div style="border:1px solid var(--brd);border-radius:8px;padding:10px 12px;background:var(--sur2)">';
+    h += '<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:6px">Scorecard corrections</div>';
+    if(!log.length){
+      h += '<div style="font-size:var(--fz-body);color:var(--txm)">No lines have been corrected'+(repP?' for '+_vspHuddleEsc(repP.first):'')+' yet.</div>';
+    } else {
+      log.slice(0,25).forEach(function(e){
+        h += '<div style="padding:7px 0;border-bottom:0.5px solid var(--brd);font-size:var(--fz-body)">';
+        h += '<div style="font-weight:600">'+_vspHuddleEsc(e.rowText||e.rowId)+'</div>';
+        h += '<div style="color:var(--txm)">'+_vspHuddleEsc(String(e.from))+' \u2192 '+_vspHuddleEsc(String(e.to))+' \u00b7 week of '+_vspHuddleEsc(e.iso)+(e.jobNames?(' \u00b7 '+_vspHuddleEsc(e.jobNames)):'')+(e.by?(' \u00b7 by '+_vspHuddleEsc(e.by)):'')+'</div>';
+        h += '</div>';
+      });
+    }
+    h += '</div></div>';
+  }
+
+  if(!repP){
+    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">Pick whose huddle this is on the Scorecard Review step first, then the job grid can render.</div></div>';
+    return h;
+  }
+  if(!c.stds.length){
+    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">No Weekly Performance standards came back from P&amp;D for '+_vspHuddleEsc(repP.first)+(c.roleLabel?(' (role '+_vspHuddleEsc(c.roleLabel)+')'):'')+'. Seed them in P&amp;D and this grid fills in.</div></div>';
+    return h;
+  }
+  if(!c.live.length){
+    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">'+(c.otherCount?'No jobs are assigned to '+_vspHuddleEsc(repP.first)+' yet. Use Manage jobs to assign them.':'No active jobs yet. Use Manage jobs to add the jobs this person is running.')+'</div></div>';
+    return h;
+  }
+  if(!c.scoped.length){
+    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">Every line is switched off for per-job checking. Use Manage lines to turn some back on.</div></div>';
     return h;
   }
 
+  var NAMEW=300, COLW=132;
   h += '<div style="padding:6px 18px 16px">';
-  live.forEach(function(j){
-    var k=_vspJobNoteKey(repIni, iso, j.id);
-    var val=(notes[k] && notes[k].text) ? notes[k].text : '';
-    // Prior week note, for continuity
-    var prevIso=(function(){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setDate(d.getDate()-7); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
-    var prev=notes[_vspJobNoteKey(repIni, prevIso, j.id)];
-    h += '<div style="border:1px solid var(--brd);border-radius:9px;padding:12px 14px;margin-bottom:10px;background:var(--sur)">';
-    h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
-    h += '<span style="font-size:var(--fz-lg);font-weight:600">'+_vspHuddleEsc(j.name)+'</span>';
-    h += '<span id="jobnote-status-'+j.id+'" style="font-size:var(--fz-xs);color:var(--grn);opacity:0;transition:opacity .2s">Saved</span>';
-    h += '</div>';
-    if(prev && prev.text){
-      h += '<div style="font-size:var(--fz-body);color:var(--txm);background:var(--sur2);border-radius:6px;padding:7px 10px;margin-bottom:8px"><span style="font-weight:600">Last week: </span>'+_vspHuddleEsc(prev.text)+'</div>';
-    }
-    h += '<textarea data-noautogrow oninput="vspJobNoteInput(this,\''+repIni+'\',\''+iso+'\',\''+j.id+'\')" placeholder="What did you verify on this job? What did the scorecard claim, and what did you find?" style="width:100%;min-height:72px;font-family:inherit;font-size:var(--fz-body);padding:9px 11px;border:1px solid var(--brd);border-radius:7px;background:var(--sur2);color:var(--txt);resize:vertical">'+_vspHuddleEsc(val)+'</textarea>';
-    h += '</div>';
+  h += '<div style="border:1px solid var(--brd);border-radius:9px;overflow:hidden">';
+  h += '<div style="overflow-x:auto">';
+  h += '<table style="border-collapse:separate;border-spacing:0;width:100%;min-width:'+(NAMEW+COLW*c.live.length+140)+'px">';
+
+  h += '<thead><tr>';
+  h += '<th scope="col" style="position:sticky;left:0;z-index:2;background:var(--sur2);text-align:left;padding:9px 12px;border-bottom:1px solid var(--brd);border-right:1px solid var(--brd);min-width:'+NAMEW+'px;font-size:var(--fz-body);font-weight:700">Standard</th>';
+  h += '<th scope="col" style="background:var(--sur2);text-align:left;padding:9px 10px;border-bottom:1px solid var(--brd);font-size:var(--fz-body);font-weight:700;white-space:nowrap">Reported</th>';
+  c.live.forEach(function(j){
+    h += '<th scope="col" style="background:var(--sur2);text-align:center;padding:9px 10px;border-bottom:1px solid var(--brd);border-left:1px solid var(--brd);min-width:'+COLW+'px;font-size:var(--fz-body);font-weight:700">'+_vspHuddleEsc(j.name)+'</th>';
   });
+  h += '</tr></thead><tbody>';
+
+  c.scoped.forEach(function(r){
+    var claim=_vspClaimFor(repP.id, iso, r.id);
+    var anyNo=c.live.some(function(j){ var rec=_vspGetJobRev(repIni, iso, j.id, r.id); return rec && rec.a==='no'; });
+    var flagged = (claim==='yes' && anyNo);
+    var reportedNo = (claim==='no');
+    var rowBg = flagged ? 'background:var(--redb)' : '';
+    h += '<tr style="'+rowBg+'">';
+    h += '<th scope="row" style="position:sticky;left:0;z-index:1;'+(flagged?'background:var(--redb)':'background:var(--sur)')+';text-align:left;padding:10px 12px;border-bottom:0.5px solid var(--brd);border-right:1px solid var(--brd);font-weight:400;vertical-align:top">';
+    h += '<div style="font-size:var(--fz-lg);'+(reportedNo?'color:var(--txm)':'')+'">'+_vspHuddleEsc(r.std)+'</div>';
+    if(r.hard) h += '<div style="margin-top:4px"><span class="chip c-red">Hard fail if not Yes</span></div>';
+    if(r.due) h += '<div style="font-size:var(--fz-base);color:var(--txm);margin-top:3px">'+_vspHuddleEsc(r.due)+'</div>';
+    if(flagged){
+      h += '<div style="margin-top:7px"><button type="button" class="btn btn-sm" onclick="vspJobRevCorrect(\''+_vspHuddleEsc(r.id)+'\')">Correct this line to No</button></div>';
+    }
+    h += '</th>';
+
+    h += '<td style="padding:10px;border-bottom:0.5px solid var(--brd);white-space:nowrap;vertical-align:top">';
+    if(claim==='yes') h += '<span class="chip c-grn">Said Yes</span>';
+    else if(claim==='no') h += '<span class="chip c-red">Said No</span>';
+    else h += '<span class="chip c-gry">Not answered</span>';
+    h += '</td>';
+
+    c.live.forEach(function(j){
+      var rec=_vspGetJobRev(repIni, iso, j.id, r.id);
+      var a=rec?rec.a:null;
+      var hasNote=!!(rec && rec.note && rec.note.trim());
+      var open = state.jobRevCell && state.jobRevCell.jobId===j.id && state.jobRevCell.rowId===r.id;
+      h += '<td style="padding:8px;border-bottom:0.5px solid var(--brd);border-left:1px solid var(--brd);text-align:center;vertical-align:top">';
+      if(reportedNo && !a){
+        h += '<div style="font-size:var(--fz-base);color:var(--txd)">reported No</div>';
+      }
+      h += '<button type="button" onclick="vspJobRevOpenCell(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="background:'+(open?'var(--sur2)':'transparent')+';border:1px solid '+(open?'var(--blu)':'transparent')+';border-radius:7px;padding:4px 6px;cursor:pointer;font-family:inherit">';
+      h += _vspRevMark(a);
+      if(hasNote) h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">note</div>';
+      h += '</button>';
+      h += '</td>';
+    });
+    h += '</tr>';
+  });
+
+  h += '<tr>';
+  h += '<th scope="row" style="position:sticky;left:0;z-index:1;background:var(--sur2);text-align:left;padding:10px 12px;border-top:1px solid var(--brd);border-right:1px solid var(--brd);font-size:var(--fz-body);font-weight:700">Job health this week</th>';
+  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
+  c.live.forEach(function(j){
+    var sc=_vspJobScore(repIni, iso, j.id, c.scoped);
+    h += '<td style="background:var(--sur2);border-top:1px solid var(--brd);border-left:1px solid var(--brd);text-align:center;padding:10px">';
+    h += _vspScoreChip(sc.pct);
+    h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:3px">'+sc.yes+' yes / '+sc.no+' no'+(sc.blank?(' \u00b7 '+sc.blank+' left'):'')+'</div>';
+    h += '</td>';
+  });
+  h += '</tr>';
+  h += '</tbody></table></div></div>';
+
+  if(state.jobRevCell){
+    var jc=c.live.find(function(j){ return j.id===state.jobRevCell.jobId; });
+    var rc=c.stds.find(function(r){ return r.id===state.jobRevCell.rowId; });
+    if(jc && rc){
+      var rec2=_vspGetJobRev(repIni, iso, jc.id, rc.id);
+      var a2=rec2?rec2.a:null;
+      h += '<div style="margin-top:12px;border:1px solid var(--blu);border-radius:9px;padding:14px 16px;background:var(--sur)">';
+      h += '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">';
+      h += '<div style="flex:1"><div style="font-size:var(--fz-lg);font-weight:600">'+_vspHuddleEsc(rc.std)+'</div>';
+      h += '<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspHuddleEsc(jc.name)+'</div></div>';
+      h += '<button type="button" class="btn btn-sm" onclick="vspJobRevCloseCell()">Close</button>';
+      h += '</div>';
+      h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+      [['yes','Yes'],['no','No'],['na','N/A']].forEach(function(o){
+        var on=(a2===o[0]);
+        h += '<button type="button" onclick="vspJobRevSet(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\',\''+o[0]+'\')" style="font-size:var(--fz-lg);font-weight:600;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid '+(on?'var(--blu)':'var(--brd)')+';background:'+(on?'var(--sur2)':'var(--sur)')+';color:var(--txt)">'+o[1]+'</button>';
+      });
+      h += '<span id="jobrev-note-status" style="align-self:center;font-size:var(--fz-xs);color:var(--grn);opacity:0;transition:opacity .2s">Saved</span>';
+      h += '</div>';
+      h += '<textarea data-noautogrow oninput="vspJobRevNote(this,\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')" placeholder="What did you find on this job?" style="width:100%;min-height:64px;font-family:inherit;font-size:var(--fz-body);padding:9px 11px;border:1px solid var(--brd);border-radius:7px;background:var(--sur2);color:var(--txt);resize:vertical">'+_vspHuddleEsc(rec2&&rec2.note?rec2.note:'')+'</textarea>';
+      h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+      h += '<input id="jobrev-todo-input" type="text" placeholder="Raise a to-do from this line" style="flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
+      h += '<button type="button" class="btn btn-sm btn-primary" onclick="vspJobRevAddTodo(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')">Add to-do</button>';
+      h += '</div>';
+      var open2=todos.filter(function(t){ return t && !t.done && t.srcJobId===jc.id && t.srcRowId===rc.id; });
+      if(open2.length){
+        h += '<div style="margin-top:10px;font-size:var(--fz-body);color:var(--txm)">Open from this line: '+open2.map(function(t){ return _vspHuddleEsc(t.task); }).join('; ')+'</div>';
+      }
+      h += '</div>';
+    }
+  }
+
   h += '</div></div>';
   return h;
 }
-/* v124: which people's items belong in the current meeting. A Performance
-   Huddle is a one-to-one, so only the direct report's and the facilitator's
-   items belong in its To-Do, Headlines, Issues and Goals sections. Any other
-   meeting type returns null, meaning no filtering. */
+/* ══════════════════════════════════════════════════════════════════════ */
+/* v157: JOB HEALTH. A weekly record of every active job's verified score, */
+/* so a Production Manager can see at a glance which jobs are improving and */
+/* which are sliding, and open the weeks behind the number.                */
+/*                                                                          */
+/* The number is the SAME verified Yes-over-(Yes+No) the Job Review grid    */
+/* computes, read back out of the job-review store across every person and  */
+/* week. It is NOT the person's own scorecard claim - job health is built   */
+/* from what was confirmed on the ground, which is the whole point.         */
+/*                                                                          */
+/* VSP publishes window.SMB_JOB_HEALTH as a read contract so PM and Coach   */
+/* pick it up on cutover without rework, the same way P&D publishes         */
+/* SMB_PND_HUDDLES. VSP is the sole writer.                                 */
+/* ══════════════════════════════════════════════════════════════════════ */
+function _vspJobHealthWeeks(){
+  /* 13 weeks ending with the current week, oldest first, Monday-anchored -
+     the same window the huddle scorecard uses so the two line up. */
+  return _vspHuddleWeeksIsos();
+}
+function _vspJobHealthIndex(){
+  /* Walk the whole job-review store once and bucket verified answers by
+     job + week. Returns { jobId: { weekIso: {yes,no,na} } }. Keys are
+     person__week__job__row; the person washes out because a job's health is
+     the roll-up of whoever was reviewed against it that week. */
+  var all=_vspLoadJobReview();
+  var idx={};
+  Object.keys(all).forEach(function(k){
+    var parts=k.split('__');
+    if(parts.length<4) return;
+    var iso=parts[1], jobId=parts[2], rowId=parts[3];
+    if(rowId===VSP_JOBREV_GENERAL_ROW) return; // free-text carry-over, not a scored line
+    var rec=all[k]; var a=rec?rec.a:null;
+    if(a!=='yes' && a!=='no' && a!=='na') return;
+    if(!idx[jobId]) idx[jobId]={};
+    if(!idx[jobId][iso]) idx[jobId][iso]={yes:0,no:0,na:0};
+    idx[jobId][iso][a]++;
+  });
+  return idx;
+}
+function _vspJobHealthPct(bucket){
+  if(!bucket) return null;
+  var denom=bucket.yes+bucket.no;
+  return denom ? Math.round((bucket.yes/denom)*100) : null;
+}
+function _vspJobHealthRows(){
+  /* One row per active job: its weekly series, latest score, direction, and
+     the person(s) it is assigned to. Archived jobs drop out; a job with no
+     verified data yet still lists, so it is visible as un-reviewed. */
+  var jobs=_vspLoadJobs().filter(function(j){ return j && !j.archived; });
+  var idx=_vspJobHealthIndex();
+  var weeks=_vspJobHealthWeeks();
+  return jobs.map(function(j){
+    var series=weeks.map(function(iso){
+      var pct=_vspJobHealthPct(idx[j.id] && idx[j.id][iso]);
+      return { iso:iso, pct:pct };
+    });
+    var scored=series.filter(function(s){ return s.pct!==null; });
+    var latest=scored.length?scored[scored.length-1]:null;
+    var prev=scored.length>1?scored[scored.length-2]:null;
+    var dir=null;
+    if(latest && prev){
+      if(latest.pct>prev.pct) dir='up';
+      else if(latest.pct<prev.pct) dir='down';
+      else dir='flat';
+    }
+    var ownerP=j.owner?ppl.find(function(x){ return x && x.initials===j.owner; }):null;
+    return {
+      id:j.id, name:j.name, owner:j.owner||'', ownerName:ownerP?(ownerP.first+' '+ownerP.last):'',
+      series:series, latest:latest?latest.pct:null, prev:prev?prev.pct:null,
+      dir:dir, scoredWeeks:scored.length, _src:j._src||null
+    };
+  });
+}
+function _vspPublishJobHealth(){
+  /* window.SMB_JOB_HEALTH: read contract for PM and Coach. asOf for provenance,
+     weeks for the shared window, jobs[] with the weekly series and latest. */
+  try{
+    var weeks=_vspJobHealthWeeks();
+    var rows=_vspJobHealthRows();
+    window.SMB_JOB_HEALTH = {
+      asOf: new Date().toISOString(),
+      tenantId: (window.SMB_TENANT && window.SMB_TENANT.tenantId) || 'lida-001',
+      weeks: weeks,
+      jobs: rows.map(function(r){
+        return {
+          id:r.id, name:r.name, owner:r.owner, ownerName:r.ownerName,
+          latest:r.latest, prev:r.prev, direction:r.dir, scoredWeeks:r.scoredWeeks,
+          series: r.series.map(function(s){ return { week:s.iso, pct:s.pct }; })
+        };
+      }),
+      forJob: function(jobId){
+        var m=(window.SMB_JOB_HEALTH.jobs||[]).find(function(x){ return x.id===jobId; });
+        return m || null;
+      }
+    };
+  }catch(e){}
+}
+function _vspHealthChip(pct){
+  if(pct===null || pct===undefined) return '<span class="chip c-gry">No data</span>';
+  var cls = pct>=90 ? 'c-grn' : (pct>=75 ? 'c-amb' : 'c-red');
+  return '<span class="chip '+cls+'">'+pct+'%</span>';
+}
+function _vspHealthArrow(dir){
+  if(dir==='up')   return '<span title="Improving" style="color:var(--grn);font-weight:700">\u2191</span>';
+  if(dir==='down') return '<span title="Declining" style="color:var(--red);font-weight:700">\u2193</span>';
+  if(dir==='flat') return '<span title="Unchanged" style="color:var(--txm)">\u2192</span>';
+  return '<span style="color:var(--txd)">\u2013</span>';
+}
+function _vspHealthSpark(series){
+  /* A tiny inline SVG trend of the scored weeks. Neutral line, colour only on
+     the last point per its band, so the eye lands on where the job sits now. */
+  var pts=series.filter(function(s){ return s.pct!==null; });
+  if(pts.length<2) return '<span style="color:var(--txd);font-size:var(--fz-xs)">not enough weeks</span>';
+  var W=120,H=28,pad=3;
+  var n=pts.length;
+  var x=function(i){ return pad + (i*(W-2*pad)/(n-1)); };
+  var y=function(v){ return H-pad - (v/100)*(H-2*pad); };
+  var d=pts.map(function(p,i){ return (i?'L':'M')+x(i).toFixed(1)+' '+y(p.pct).toFixed(1); }).join(' ');
+  var last=pts[n-1].pct;
+  var col = last>=90 ? 'var(--grn)' : (last>=75 ? 'var(--amb)' : 'var(--red)');
+  return '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="display:block">'+
+    '<path d="'+d+'" fill="none" stroke="var(--txd)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="'+x(n-1).toFixed(1)+'" cy="'+y(last).toFixed(1)+'" r="3" fill="'+col+'"/></svg>';
+}
+function renderJobHealth(){
+  _vspPublishJobHealth();
+  var rows=_vspJobHealthRows();
+  var weeks=_vspJobHealthWeeks();
+
+  var h='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">';
+  h+='<div><div class="pg-title">Job Health</div>';
+  h+='<div class="pg-sub">Each active job\u2019s verified review score, week by week, so you can see which are improving and which are sliding.</div></div>';
+  h+='<div style="display:flex;gap:7px;margin-top:4px;flex-shrink:0">';
+  h+='<button class="btn btn-sm" onclick="window.print()" style="display:flex;align-items:center;gap:5px">';
+  h+='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg> Print</button>';
+  h+='</div></div>';
+
+  if(!rows.length){
+    h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:20px;font-size:var(--fz-body);color:var(--txm);margin-top:14px">No active jobs yet. Jobs come from Job Review in the Weekly Performance Huddle (or from Project Management once it is connected), and their scores build up here as huddles happen.</div>';
+    return h;
+  }
+
+  // Summary tiles
+  var scored=rows.filter(function(r){ return r.latest!==null; });
+  var atRisk=scored.filter(function(r){ return r.latest<75; }).length;
+  var watch=scored.filter(function(r){ return r.latest>=75 && r.latest<90; }).length;
+  var healthy=scored.filter(function(r){ return r.latest>=90; }).length;
+  var declining=scored.filter(function(r){ return r.dir==='down'; }).length;
+  var avg=scored.length?Math.round(scored.reduce(function(a,r){ return a+r.latest; },0)/scored.length):null;
+
+  h+='<div class="kpi-cards dash-metrics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0">';
+  function tile(val,lbl,cls){
+    return '<div class="kpi-card '+cls+'" style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px">'+
+      '<div class="kpi-val" style="font-size:var(--fz-4xl);font-weight:700">'+val+'</div>'+
+      '<div class="kpi-lbl" style="font-size:var(--fz-xs);color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:2px">'+lbl+'</div></div>';
+  }
+  h+=tile(avg===null?'\u2013':avg+'%','Average health','k-blu');
+  h+=tile(healthy,'Healthy (90%+)','k-grn');
+  h+=tile(watch,'Watch (75-89%)','k-amb');
+  h+=tile(atRisk,'At risk (<75%)','k-red');
+  h+=tile(declining,'Declining','k-gry');
+  h+='</div>';
+
+  // Table
+  h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;overflow:hidden">';
+  h+='<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:0;width:100%;min-width:'+(300+90*Math.min(weeks.length,13)+200)+'px">';
+  h+='<thead><tr>';
+  h+='<th scope="col" style="position:sticky;left:0;z-index:2;background:var(--sur2);text-align:left;padding:10px 14px;border-bottom:1px solid var(--brd);border-right:1px solid var(--brd);min-width:220px;font-size:var(--fz-body);font-weight:700">Job</th>';
+  h+='<th scope="col" style="background:var(--sur2);text-align:center;padding:10px;border-bottom:1px solid var(--brd);font-size:var(--fz-body);font-weight:700;white-space:nowrap">This week</th>';
+  h+='<th scope="col" style="background:var(--sur2);text-align:center;padding:10px;border-bottom:1px solid var(--brd);font-size:var(--fz-body);font-weight:700">Trend</th>';
+  h+='<th scope="col" style="background:var(--sur2);text-align:left;padding:10px 14px;border-bottom:1px solid var(--brd);font-size:var(--fz-body);font-weight:700;min-width:150px">History</th>';
+  h+='</tr></thead><tbody>';
+
+  // History shows the last 8 weeks as compact chips so a row stays readable.
+  var histWeeks=weeks.slice(-8);
+  rows.sort(function(a,b){
+    var av=a.latest===null?999:a.latest, bv=b.latest===null?999:b.latest;
+    if(av!==bv) return av-bv;            // worst first, so attention lands at the top
+    return a.name.localeCompare(b.name);
+  }).forEach(function(r){
+    var flagged = (r.latest!==null && r.latest<75);
+    h+='<tr'+(flagged?' style="background:var(--redb)"':'')+'>';
+    h+='<th scope="row" style="position:sticky;left:0;z-index:1;'+(flagged?'background:var(--redb)':'background:var(--sur)')+';text-align:left;padding:10px 14px;border-bottom:0.5px solid var(--brd);border-right:1px solid var(--brd);font-weight:400;vertical-align:top">';
+    h+='<div style="font-size:var(--fz-lg);font-weight:600">'+_vspHuddleEsc(r.name)+'</div>';
+    var meta=[];
+    if(r.ownerName) meta.push(_vspHuddleEsc(r.ownerName));
+    meta.push(r.scoredWeeks+' week'+(r.scoredWeeks===1?'':'s')+' reviewed');
+    h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:2px">'+meta.join(' \u00b7 ')+'</div>';
+    if(r._src==='PM') h+='<div style="margin-top:4px"><span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Source: Project Management</span></div>';
+    h+='</th>';
+    h+='<td style="text-align:center;padding:10px;border-bottom:0.5px solid var(--brd);white-space:nowrap;vertical-align:top">'+_vspHealthChip(r.latest)+' '+_vspHealthArrow(r.dir)+'</td>';
+    h+='<td style="text-align:center;padding:10px;border-bottom:0.5px solid var(--brd);vertical-align:top">'+_vspHealthSpark(r.series)+'</td>';
+    h+='<td style="padding:10px 14px;border-bottom:0.5px solid var(--brd);vertical-align:top"><div style="display:flex;gap:4px;flex-wrap:wrap">';
+    histWeeks.forEach(function(iso){
+      var s=r.series.find(function(x){ return x.iso===iso; });
+      var pct=s?s.pct:null;
+      var lbl=iso.slice(5);
+      var col = pct===null ? 'var(--sur2)' : (pct>=90?'var(--grnb)':(pct>=75?'var(--ambb)':'var(--redb)'));
+      var tc  = pct===null ? 'var(--txd)' : 'var(--txt)';
+      h+='<span title="Week of '+_vspHuddleEsc(iso)+'" style="display:inline-flex;flex-direction:column;align-items:center;gap:1px">';
+      h+='<span style="min-width:34px;text-align:center;background:'+col+';color:'+tc+';border:1px solid var(--brd);border-radius:5px;padding:2px 5px;font-size:var(--fz-xs)">'+(pct===null?'\u2013':pct)+'</span>';
+      h+='<span style="font-size:var(--fz-xs);color:var(--txd)">'+_vspHuddleEsc(lbl)+'</span></span>';
+    });
+    h+='</div></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div></div>';
+  return h;
+}
 function _vspHuddleScopeInitials(){
   // v125: only scope while actually inside a running huddle, so the Goals
   // page and every other surface that reuses these renderers is unaffected.
@@ -12526,6 +13340,91 @@ function _vspFlagUnlinkedGoals(g){
   if(!g || g.company) return false;
   if(g.status==='complete' || g.status==='cancelled' || g.status==='archived') return false;
   return !g.parentId;
+}
+/* v150: a person's goals can live in any team they belong to. This walks every
+   team's goal list so a huddle shows what the person actually owns, wherever it
+   was set, rather than only what happens to sit in the team currently selected
+   in the topbar. */
+function _vspGoalsForPersonAllTeams(ini){
+  var seen={}, out=[];
+  try{
+    Object.keys(teamsRegistry).forEach(function(tid){
+      var t=teamsRegistry[tid];
+      var list=(t && t.goals) || [];
+      list.forEach(function(g){
+        if(!g || g.owner!==ini) return;
+        if(g.status==='archived') return;
+        if(seen[g.id]) return;
+        seen[g.id]=1;
+        var copy=Object.assign({}, g);
+        copy._team = (t && t.name) || tid;
+        out.push(copy);
+      });
+    });
+  }catch(e){}
+  return out;
+}
+function _vspRenderGoalListFor(ini){
+  /* v151: render through the real Goals renderer so a huddle behaves exactly
+     like the Goals page - status dropdowns, milestones, the row menu, all of
+     it - rather than a read-only lookalike. The goals global is swapped to
+     this person's cross-team set for the duration of one synchronous call and
+     restored in a finally, the same pattern the huddle scorecard uses. */
+  var list=_vspGoalsForPersonAllTeams(ini);
+  if(!list.length){
+    /* v155: the empty state used to be a dead sentence. A supervisor sitting in
+       a huddle with a report who has no goals yet could not set the first one
+       without leaving the meeting, which is the exact moment the goal should be
+       written. Give the empty state the same create control the populated list
+       carries, pre-owned to the person the huddle is about. */
+    var _who=ppl.find(function(x){ return x && x.initials===ini; });
+    var _nm=_who?_vspHuddleEsc(_who.first):'this person';
+    return '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:9px;padding:16px">'+
+      '<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:10px">No quarterly goals set yet for '+_nm+'. Set the first one now so it is agreed while you are both here.</div>'+
+      '<button type="button" class="btn btn-sm btn-primary" onclick="_vspHuddleNewGoal(\''+_vspHuddleEsc(ini)+'\')">Create a goal</button>'+
+      '</div>';
+  }
+  var _g=goals, _ov=state._vspScopeOverride, _of=state.goalsOwnerFilter, _sr=state.goalsSearch, _fl=state.goalsFilter, _vw=state.goalsView;
+  var out='';
+  try{
+    goals=list;
+    state._vspScopeOverride=ini;
+    state.goalsOwnerFilter='';
+    state.goalsSearch='';
+    state.goalsFilter='all';
+    state.goalsView='list';
+    out=renderGoals();
+  }catch(e){
+    out='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:9px;padding:14px 16px;font-size:var(--fz-body);color:var(--red)">Goals could not be rendered: '+_vspHuddleEsc(e.message||'unknown error')+'</div>';
+  }finally{
+    goals=_g; state._vspScopeOverride=_ov; state.goalsOwnerFilter=_of;
+    state.goalsSearch=_sr; state.goalsFilter=_fl; state.goalsView=_vw;
+  }
+  return out;
+}
+function _vspRenderGoalListForLegacy(ini){
+  var list=_vspGoalsForPersonAllTeams(ini);
+  if(!list.length){
+    return '<div style="background:var(--sur);border:1px solid var(--brd);border-radius:9px;padding:14px 16px;font-size:var(--fz-body);color:var(--txm)">No quarterly goals set yet.</div>';
+  }
+  var h='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:9px;overflow:hidden">';
+  list.forEach(function(g,i){
+    var st=g.status||'on-track';
+    var col = st==='complete' ? 'var(--grn)' : (st==='off-track' ? 'var(--red)' : (st==='watch' ? 'var(--amb)' : 'var(--blu)'));
+    var bg  = st==='complete' ? 'var(--grnb)' : (st==='off-track' ? 'var(--redb)' : 'transparent');
+    h+='<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:'+bg+(i?';border-top:1px solid var(--brd)':'')+'">';
+    h+='<span style="font-size:var(--fz-xs);font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:'+col+';border:1px solid '+col+';border-radius:6px;padding:1px 7px;white-space:nowrap;margin-top:2px">'+_vspHuddleEsc(st.replace('-',' '))+'</span>';
+    h+='<div style="flex:1">';
+    h+='<div style="font-size:var(--fz-lg);line-height:1.3">'+_vspHuddleEsc(g.title||'')+'</div>';
+    var meta=[];
+    if(g._team) meta.push('Set in '+_vspHuddleEsc(g._team));
+    if(g.due) meta.push('Due '+_vspHuddleEsc(g.due));
+    if(!g.parentId && !g.company) meta.push('<span style="color:var(--amb)">Supports nothing</span>');
+    if(meta.length) h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">'+meta.join(' \u00b7 ')+'</div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  return h;
 }
 function _vspGoalCascadeBanner(list){
   if(!(state.page==='meetings' && state.meetTab==='running')) return '';
@@ -13499,13 +14398,26 @@ function startMeetingByType(type){
   var _sameHuddle = (_nt.indexOf('performance')===-1) || !state.meetHuddleReport;
   if(state.meetTab==='running' && _vspNoteType()===_nt && _sameHuddle){ state.page='meetings'; renderPage(); return; }
   // A DIFFERENT meeting type is mid-session: confirm before leaving it.
-  if(state.meetTab==='running' && typeof confirm==='function' && !confirm('A '+(state.meetType||'meeting')+' session is in progress. Starting a new meeting will leave it (its notes are kept). Continue?')) return;
+  if(state.meetTab==='running'){
+    vspConfirm('A '+(state.meetType||'meeting')+' session is in progress. Starting a new meeting will leave it (its notes are kept). Continue?',
+      function(){ _startMeetingStage2(type, _nt); }, {title:'Leave the running meeting', okLabel:'Start anyway'});
+    return;
+  }
+  _startMeetingStage2(type, _nt);
+}
+function _startMeetingStage2(type, _nt){
   if(type==='Quarterly'){
     var _c=_vspQtr(); var _nq=_c.q+1,_ny=_c.year; if(_nq>4){_nq=1;_ny=_c.year+1;}
-    if(typeof confirm==='function' && confirm('Start the Quarterly session?\n\nThis saves a reference snapshot of the current V/TO ('+_c.label+') to the archive and advances to Q'+_nq+' '+_ny+'. Your goals and plan stay exactly in place; nothing is cleared.')){
-      advanceQuarter();
-    }
+    vspConfirm('Start the Quarterly session?\n\nThis saves a reference snapshot of the current V/TO ('+_c.label+') to the archive and advances to Q'+_nq+' '+_ny+'. Your goals and plan stay exactly in place; nothing is cleared.',
+      function(){ advanceQuarter(); _startMeetingCommit(_nt); },
+      {title:'Quarterly session', okLabel:'Save snapshot and start', cancelLabel:'Start without snapshot',
+       onCancel:function(){ _startMeetingCommit(_nt); }});
+    return;
   }
+  _startMeetingCommit(_nt);
+}
+function _startMeetingCommit(_nt){
+  state.jobRevCell=null;
   state.meetTab='running';
   state.meetStep=0;
   state.meetType=_nt;
@@ -13718,7 +14630,7 @@ function renderMeetings(){
       });
       h+='</div>';
       h+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
-      h+='<button type="button" onclick="alert(\'Calendar sync (Outlook / Google) turns on once the integration is enabled. It will send and keep invites up to date automatically.\')" title="Calendar sync - coming soon" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>';
+      h+='<button type="button" onclick="vspAlert(\'Calendar sync (Outlook / Google) turns on once the integration is enabled. It will send and keep invites up to date automatically.\')" title="Calendar sync - coming soon" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>';
       h+='<button onclick="deleteScheduledMeeting('+m.id+')" title="Delete" style="width:28px;height:28px;border-radius:6px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0">\u00d7</button>';
       h+='</div>';
     });
@@ -13984,6 +14896,10 @@ function renderMeetings(){
         h+='<div style="font-size:var(--fz-body);color:var(--txm)">The company plan above is the context. Set or review goals here that support the company, the supervisor, and '+_vspHuddleEsc((_hrep&&_hrep.first)||'their')+'\u2019s own growth this quarter.</div>';
         h+='</div>';
       }
+      // v150: goals live per team. A goal Keith sets in Construction Operations
+      // sits in that team's list, so a huddle reading only the current team's
+      // goals would show nothing. Gather this person's goals from every team,
+      // de-duplicated by id, and render from that.
       var _hs=_vspHuddleScopeInitials();
       if(_hs){
         var _rep = ppl.find(function(x){ return x && x.initials===state.meetHuddleReport; });
@@ -13995,18 +14911,15 @@ function renderMeetings(){
           h+='<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:3px">'+_vspHuddleEsc(_sup.first+' '+_sup.last)+'\u2019s goals</div>';
           h+='<div style="font-size:var(--fz-body);color:var(--txm)">Context only. '+_vspHuddleEsc((_rep&&_rep.first)||'This person')+'\u2019s goals should ladder up to these or to a company goal.</div>';
           h+='</div>';
-          var _prev=state._vspScopeOverride;
-          state._vspScopeOverride=_sup.initials;
-          try{ h+='<div style="margin-bottom:16px;opacity:.85">'+renderGoals()+'</div>'; }
-          catch(e){}
-          finally{ state._vspScopeOverride=_prev; }
+          h+='<div style="margin-bottom:16px;opacity:.85">'+_vspRenderGoalListFor(_sup.initials)+'</div>';
         }
         // Then the report's own goals - the editable section.
-        h+=_vspGoalCascadeBanner(goals.filter(function(g){ return g && g.status!=='archived' && _vspInHuddleScope(g.owner); }));
+        h+=_vspGoalCascadeBanner(_vspGoalsForPersonAllTeams(state.meetHuddleReport));
       } else {
         h+=_vspGoalCascadeBanner(goals.filter(function(g){ return g && g.status!=='archived' && _vspInHuddleScope(g.owner); }));
       }
-      h+='<div style="margin-bottom:14px">'+renderGoals()+'</div>';
+      if(_hs){ h+='<div style="margin-bottom:14px">'+_vspRenderGoalListFor(state.meetHuddleReport)+'</div>'; }
+      else { h+='<div style="margin-bottom:14px">'+renderGoals()+'</div>'; }
       // ── Goal Completion Ratings matrix at the END of Goal Review (v47):
       //    goals are walked done/not-done above first, then rated here. ──
       if(_qIsGrade){ h+=_mgrMatrixHtml(); }
@@ -14773,7 +15686,7 @@ var orgSeats=[
 
   {id:"sr_pm", seat:"Sr. PM of Production", person:"Will Liddell", initials:"WL", open:false,
     responsibilities:["Project Delivery & Safety","Budget & Resource Management","Team Leadership & Oversight","Client Experience & Communication","Planning, Reporting & Estimating"],
-    teams:["Construction Operations"], reportsTo:"vpops", directReports:["foreman_daniel","pm_keith","foreman_adrian","foreman_open"]},
+    teams:["Construction Operations"], reportsTo:"vpops", directReports:["foreman_daniel","pm_keith","foreman_adrian","foreman_open","lead_nicolas","lead_blanco"]},
 
   {id:"pre_const", seat:"Pre-Construction Estimator", person:"Terry Pearson", initials:"TP", open:false,
     responsibilities:["Leadership & Management","FSA & Proposal Management","Estimating & Bidding","Project Turnover","PM Support & Collaboration"],
@@ -14802,7 +15715,7 @@ var orgSeats=[
 
   {id:"foreman_adrian", seat:"Foreman", person:"Adrian Surdu", initials:"AS", open:false,
     responsibilities:["Leadership & Management","Site Operations & Safety","Hands-On Supervision (Working Foreman)","Quality Control","Reporting & Performance Data"],
-    teams:["Construction Operations"], reportsTo:"sr_pm", directReports:["lead_nicolas","lead_blanco"]},
+    teams:["Construction Operations"], reportsTo:"sr_pm", directReports:[]},
 
   {id:"foreman_open", seat:"Foreman", person:"", initials:"", open:true,
     responsibilities:["Leadership & Management","Site Operations & Safety","Hands-On Supervision (Working Foreman)","Quality Control","Reporting & Performance Data"],
@@ -14815,11 +15728,11 @@ var orgSeats=[
 
   {id:"lead_nicolas", seat:"Lead Hand", person:"Nicolas Hatfield", initials:"NH", open:false,
     responsibilities:["Leadership & Management","Carpentry & Demo Work","Quality Control","Site Safety","Job Site Organization"],
-    teams:["Construction Operations"], reportsTo:"foreman_adrian", directReports:["ap_finlay"]},
+    teams:["Construction Operations"], reportsTo:"sr_pm", directReports:["ap_finlay"]},
 
   {id:"lead_blanco", seat:"Lead Hand", person:"Daniel Blanco Guillen", initials:"DB", open:false,
     responsibilities:["Leadership & Management","Carpentry & Demo Work","Quality Control","Site Safety","Job Site Organization"],
-    teams:["Construction Operations"], reportsTo:"foreman_adrian", directReports:["ap_julian"]},
+    teams:["Construction Operations"], reportsTo:"sr_pm", directReports:["ap_julian"]},
 
   // ── LEVEL 7 ──
   {id:"ap_finlay", seat:"AP - 1st Year", person:"Finlay Gifford", initials:"FG", open:false,
@@ -14856,12 +15769,13 @@ function positionGoalMenu(id,ctx){
 function goalSetProgress(id){
   var g=goals.find(function(x){return x.id===id;});
   if(!g)return;
-  var val=prompt('Set progress % for "'+g.title+'" (0-100):',g.progress);
-  if(val===null)return;
-  var n=Math.max(0,Math.min(100,parseInt(val)||0));
-  updateGoalProgress(id,n);
-  state.goalCtx=null;
-  showToast('✅ Progress set to '+n+'%');
+  vspPrompt('Set progress % for "'+g.title+'" (0-100):', g.progress, function(val){
+    if(val===null)return;
+    var n=Math.max(0,Math.min(100,parseInt(val)||0));
+    updateGoalProgress(id,n);
+    state.goalCtx=null;
+    showToast('✅ Progress set to '+n+'%');
+  }, {title:'Set progress', okLabel:'Set progress'});
 }
 function goalCtxOpen(id,sec){var k=(sec?sec+'_':'')+id;state.goalCtx=(state.goalCtx===k?null:k);state.goalSendMenu=false;renderPage();}
 function goalCtxClose(){state.goalCtx=null;state.goalSendMenu=false;renderPage();}
@@ -14923,18 +15837,19 @@ function _navigateToEntity(type,id){
   else if(type==='headline'){ state.page='headlines'; renderPage(); setTimeout(function(){openEditItem('headline',id);},10); }
 }
 function _unlinkEntities(srcType,srcId,dstType,dstId){
-  if(typeof confirm==='function' && !confirm('Remove this link?')) return;
-  var src=_getEntityById(srcType,srcId), dst=_getEntityById(dstType,dstId);
-  if(src){
-    if(src.linkedItems) src.linkedItems=src.linkedItems.filter(function(x){return !(x.type===dstType && x.id===dstId);});
-    if(src.linkedFrom && src.linkedFrom.type===dstType && src.linkedFrom.id===dstId) src.linkedFrom=null;
-  }
-  if(dst){
-    if(dst.linkedItems) dst.linkedItems=dst.linkedItems.filter(function(x){return !(x.type===srcType && x.id===srcId);});
-    if(dst.linkedFrom && dst.linkedFrom.type===srcType && dst.linkedFrom.id===srcId) dst.linkedFrom=null;
-  }
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  renderPage();
+  vspConfirm('Remove this link?', function(){
+    var src=_getEntityById(srcType,srcId), dst=_getEntityById(dstType,dstId);
+    if(src){
+      if(src.linkedItems) src.linkedItems=src.linkedItems.filter(function(x){return !(x.type===dstType && x.id===dstId);});
+      if(src.linkedFrom && src.linkedFrom.type===dstType && src.linkedFrom.id===dstId) src.linkedFrom=null;
+    }
+    if(dst){
+      if(dst.linkedItems) dst.linkedItems=dst.linkedItems.filter(function(x){return !(x.type===srcType && x.id===srcId);});
+      if(dst.linkedFrom && dst.linkedFrom.type===srcType && dst.linkedFrom.id===srcId) dst.linkedFrom=null;
+    }
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    renderPage();
+  }, {title:'Remove link', okLabel:'Remove'});
 }
 function _linkCount(obj){
   if(!obj) return 0;
@@ -15052,7 +15967,7 @@ function changeGoalStatus(id, status){
 function addHeadlineFromPanel(){
   var text=document.getElementById('hl-text');
   var owner=document.getElementById('hl-owner');
-  if(!text||!text.value.trim()){alert('Please enter a headline.');return;}
+  if(!text||!text.value.trim()){vspAlert('Please enter a headline.');return;}
   var textVal=text.value.trim();
   var ownerVal=owner?owner.value:'DS';
   // Single headline type - text identifies team vs client win
@@ -15146,7 +16061,7 @@ function headlineCascade(id,teamId){
 }
 function sendCascadePreview(){
   var el=document.getElementById('cascade-preview-text');
-  if(!el||!el.value.trim()){alert('Message cannot be empty.');return;}
+  if(!el||!el.value.trim()){vspAlert('Message cannot be empty.');return;}
   var p=state.cascadePreview;
   if(!p)return;
   var msgText=el.value.trim();
@@ -15181,7 +16096,7 @@ function sendCascadePreview(){
 function addHeadline(type){
   var text=document.getElementById('hl-text');
   var owner=document.getElementById('hl-owner');
-  if(!text||!text.value.trim()){alert('Please enter a headline.');return;}
+  if(!text||!text.value.trim()){vspAlert('Please enter a headline.');return;}
   headlines.push({id:Date.now(),type:type,text:text.value.trim(),owner:owner?owner.value:'DS',date:vspToday()});
   state.headlinePanel=null;
   renderPage();
@@ -15277,7 +16192,7 @@ function _attachSection(kind,item){
 function addAttachment(kind,id){
   var item=_attachFind(kind,id); if(!item) return;
   var nEl=document.getElementById('att-name'), uEl=document.getElementById('att-url');
-  var url=((uEl&&uEl.value)||'').trim(); if(!url){ alert('Paste a link to attach. File upload is coming with the file-storage backend.'); return; }
+  var url=((uEl&&uEl.value)||'').trim(); if(!url){ vspAlert('Paste a link to attach. File upload is coming with the file-storage backend.'); return; }
   if(!/^https?:\/\//i.test(url)) url='https://'+url;
   var name=((nEl&&nEl.value)||'').trim()||url;
   _attachList(item).push({name:name,url:url});
@@ -15755,7 +16670,7 @@ function addIssueComment(id){
 
 function startIssueRecording(id){
   var SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SpeechRec){alert('Speech recognition requires Chrome or Edge.');return;}
+  if(!SpeechRec){vspAlert('Speech recognition requires Chrome or Edge.');return;}
   if(_issueRec){try{_issueRec.abort();}catch(e){}}
   _issueRecState='recording';
   if(!state.issueDetailTranscript)state.issueDetailTranscript={};
@@ -15774,7 +16689,7 @@ function startIssueRecording(id){
     }
   };
   _issueRec.onend=function(){if(_issueRecState==='recording'){try{_issueRec.start();}catch(e){}}};
-  _issueRec.onerror=function(e){if(e.error==='not-allowed'){alert('Microphone access denied.');_issueRecState='off';}};
+  _issueRec.onerror=function(e){if(e.error==='not-allowed'){vspAlert('Microphone access denied.');_issueRecState='off';}};
   try{_issueRec.start();var m=document.getElementById('issue-detail-modal');if(m)m.remove();renderIssueDetailPanel();}
   catch(e){_issueRecState='off';}
 }
@@ -16150,13 +17065,39 @@ function generateMeetingRecap(meetingId){
       resolved:state.meetSolvedIds.length,
       resolvedIssues:state.meetSolvedIds.map(function(id){return resolvedIssues.find(function(i){return i.id===id;})||{title:'Issue',owner:'DS'};}),
       todos:todos.filter(function(t){return !t.done;}).length,
+      totalIssues:(function(){
+        try{
+          if(typeof _vspItemInThisMeeting==='function' && _vspCurrentMeetingRoute()){
+            return issues.filter(_vspItemInThisMeeting).length + resolvedIssues.filter(_vspItemInThisMeeting).length;
+          }
+        }catch(e){}
+        return issues.length+resolvedIssues.length;
+      })(),
+      type:runType,
       createdTodos:(state.meetCreatedTodoIds||[]).map(function(id){ return todos.find(function(x){ return x.id===id; }); }).filter(function(t){ return t; }).map(function(t){return {task:t.task,owner:t.owner,due:t.due};}),
       // v142: a huddle is one meeting type but a different meeting per direct
       // report. Without the report on the record, four of Will's huddles are
       // indistinguishable in history and there is no per-person trail to open
       // before a quarterly review.
       huddleReport: ((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport) ? state.meetHuddleReport : null,
-      attended:(((state.meetType||'').indexOf('performance')>-1 && _vspHuddleScopeInitials()) || team2.members || ['DS']),
+      // v152: same fix as the endMeeting record. Attendance is who was in the
+      // room and must not derive from the item-scoping rule, which v145
+      // narrowed to the report alone. This builder feeds Preview Recap during
+      // a live meeting, so the broken value reached printed PDFs.
+      attended:(function(){
+        try{
+          if((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport){
+            var out=[state.meetHuddleReport];
+            var rp=ppl.find(function(x){ return x && x.initials===state.meetHuddleReport; });
+            if(rp && rp.reportsTo){
+              var sup=ppl.find(function(x){ return x && x.id===rp.reportsTo; });
+              if(sup && sup.initials && out.indexOf(sup.initials)===-1) out.push(sup.initials);
+            }
+            return out;
+          }
+        }catch(e){}
+        return team2.members || ['DS'];
+      })(),
       headlines:headlines.slice(0,10).map(function(h){return {text:h.text,type:h.type,owner:h.owner};}),
       cascades:cascadesRegistry.slice(0,5).map(function(cs){return {subject:cs.subject,fromTeam:cs.fromTeam,toTeams:cs.toTeams,sentAt:cs.sentAt};}),
       sectionDurations:[],
@@ -16206,7 +17147,15 @@ function generateMeetingRecap(meetingId){
 
   // Header
   html+='<div class="logo">LIDA GROUP OF COMPANIES</div>';
-  html+='<div class="meeting-title">'+m.date+' - '+team3.name+' Meeting Recap</div>';
+  // v152: the title took the TEAM name, so a Will-and-Keith huddle printed as
+  // "Leadership Meeting Recap". Name the meeting that actually happened, and
+  // for a huddle name the person it was about.
+  var _rt = m.type || (team3 && team3.name) || 'Meeting';
+  if(m.huddleReport){
+    var _rp = ppl.find(function(x){ return x && x.initials===m.huddleReport; });
+    _rt = _rt + ' with ' + (_rp ? (_rp.first+' '+_rp.last) : m.huddleReport);
+  }
+  html+='<div class="meeting-title">'+m.date+' - '+_rt+' Recap</div>';
   html+='<div class="meta">From: Self-Managing Builder &lt;meetings@lida.ca&gt; &nbsp;·&nbsp; Date: '+m.date+(m.time?' at '+m.time:'')+'<br>';
   html+='To: '+(m.attended||[]).join(', ')+'</div>';
 
@@ -16248,7 +17197,7 @@ function generateMeetingRecap(meetingId){
   }
 
   // Short-Term Issues stats
-  var totalIss=(m.totalIssues||issues.length);
+  var totalIss=(typeof m.totalIssues==='number' ? m.totalIssues : issues.length);
   html+='<h2>Short-Term Issues</h2>';
   html+='<div class="stat-grid">';
   html+='<div class="stat-card"><div class="stat-n">'+totalIss+'</div><div class="stat-l">Total Tracked Issues</div></div>';
@@ -16372,7 +17321,7 @@ function addScheduledMeeting(){
   var time=document.getElementById('sm-time');
   var loc=document.getElementById('sm-location');
   var rec=document.getElementById('sm-recurring');
-  if(!date||!date.value.trim()){alert('Date is required.');return;}
+  if(!date||!date.value.trim()){vspAlert('Date is required.');return;}
   scheduledMeetings.push({
     id:Date.now(),
     type:type?type.value:'Weekly',
@@ -16533,7 +17482,7 @@ function vspDispatchRecapEvent(record, recap, recipients){
 
 function vspOpenRecapMailto(recordId){
   var record = pastMeetings.find(function(r){ return r.id === recordId; });
-  if(!record){ alert('Meeting record not found.'); return; }
+  if(!record){ vspAlert('Meeting record not found.'); return; }
   var recap = vspBuildMeetingRecap(record);
   var recipients = vspRecapRecipients(record);
   var to = recipients.map(function(r){ return r.email; }).join(',');
@@ -16541,7 +17490,7 @@ function vspOpenRecapMailto(recordId){
   if(url.length > 1900){
     // Some mail clients refuse long mailto URLs. Copy body to clipboard, open with subject only.
     try{ navigator.clipboard.writeText(recap.body); } catch(e){}
-    alert('Recap body copied to clipboard - mail client will open with recipients and subject; paste the body in.');
+    vspAlert('Recap body copied to clipboard - mail client will open with recipients and subject; paste the body in.');
     url = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(recap.subject);
   }
   try{ window.location.href = url; } catch(e){ window.open(url); }
@@ -16663,7 +17612,23 @@ function endMeeting(){
     // actually in the room. This is the record endMeeting writes; the other
     // builder above serves a different path.
     huddleReport: ((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport) ? state.meetHuddleReport : null,
-    attended: (((state.meetType||'').indexOf('performance')>-1 && _vspHuddleScopeInitials()) || team.members || ['DS']),
+    // v152: who was in the room. This must not follow the item-scoping rule -
+    // v145 narrowed scoping to the report alone, which silently dropped the
+    // supervisor from the attendance record and from the recap recipients.
+    attended: (function(){
+      try{
+        if((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport){
+          var out=[state.meetHuddleReport];
+          var rp=ppl.find(function(x){ return x && x.initials===state.meetHuddleReport; });
+          if(rp && rp.reportsTo){
+            var sup=ppl.find(function(x){ return x && x.id===rp.reportsTo; });
+            if(sup && sup.initials && out.indexOf(sup.initials)===-1) out.push(sup.initials);
+          }
+          return out;
+        }
+      }catch(e){}
+      return team.members || ['DS'];
+    })(),
     headlines:meetHeadlines,
     cascades:meetCascades,
     sectionDurations:sectionDurations,
@@ -16672,7 +17637,18 @@ function endMeeting(){
     highlights:'Meeting completed on '+dateStr+'. Rating: '+avgRating+'/10. '+solvedThisMeeting.length+' issues solved.'
   };
   // Stats for short-term issues
-  record.totalIssues=issues.length+resolvedIssues.length;
+  // v152: a huddle recap reported the company-wide issue count - 127 tracked
+  // issues on a two-person meeting. Count what this meeting actually carries.
+  record.totalIssues=(function(){
+    try{
+      if(typeof _vspItemInThisMeeting==='function' && _vspCurrentMeetingRoute()){
+        var a=issues.filter(_vspItemInThisMeeting).length;
+        var b=resolvedIssues.filter(_vspItemInThisMeeting).length;
+        return a+b;
+      }
+    }catch(e){}
+    return issues.length+resolvedIssues.length;
+  })();
   record.solveRate=record.totalIssues?Math.round((solvedThisMeeting.length/record.totalIssues)*100):0;
   // Attendance (present/absent) captured at the conclude step
   var _absent=state.meetAbsent||{};
@@ -16844,8 +17820,8 @@ function saveSeat(){
   var reportsTo=document.getElementById('os-reports');
   var open=document.getElementById('os-open');
   var resp=document.getElementById('os-resp');
-  if(!seat||!seat.value.trim()){alert('Seat name is required.');return;}
-  if(!id||!id.value.trim()){alert('ID is required.');return;}
+  if(!seat||!seat.value.trim()){vspAlert('Seat name is required.');return;}
+  if(!id||!id.value.trim()){vspAlert('ID is required.');return;}
   var newId=id.value.trim().toLowerCase().replace(/\s+/g,'_');
   var respArr=(resp&&resp.value)?resp.value.split('\n').map(function(r){return r.trim();}).filter(Boolean):[];
   var isEdit=state.orgPanel==='edit'&&state.orgEditId;
@@ -16873,7 +17849,7 @@ function saveSeat(){
     }
   } else {
     // Check ID uniqueness
-    if(orgSeats.find(function(s){return s.id===newId;})){alert('A seat with this ID already exists. Choose a different ID.');return;}
+    if(orgSeats.find(function(s){return s.id===newId;})){vspAlert('A seat with this ID already exists. Choose a different ID.');return;}
     var reportsToId=reportsTo?reportsTo.value:'';
     var newSeat={
       id:newId,
@@ -16904,18 +17880,20 @@ function deleteSeat(id){
   var seat=orgSeats.find(function(s){return s.id===id;});
   if(!seat) return;
   if(seat.directReports&&seat.directReports.length){
-    alert('Cannot delete a seat that has direct reports. Reassign or delete those seats first.');return;
+    vspAlert('Cannot delete a seat that has direct reports. Reassign or delete those seats first.');return;
   }
-  if(!confirm('Delete the "'+seat.seat+'" seat? This cannot be undone.')) return;
-  // Remove from parent's directReports
-  if(seat.reportsTo){
-    var parent=orgSeats.find(function(s){return s.id===seat.reportsTo;});
-    if(parent) parent.directReports=parent.directReports.filter(function(x){return x!==id;});
-  }
-  orgSeats=orgSeats.filter(function(s){return s.id!==id;});
-  state.orgPanel=null;
-  state.orgEditId=null;
-  renderPage();
+  vspConfirm('Delete the "'+seat.seat+'" seat? This cannot be undone.', function(){
+    // Remove from parent's directReports
+    if(seat.reportsTo){
+      var parent=orgSeats.find(function(s){return s.id===seat.reportsTo;});
+      if(parent) parent.directReports=parent.directReports.filter(function(x){return x!==id;});
+    }
+    orgSeats=orgSeats.filter(function(s){return s.id!==id;});
+    state.orgPanel=null;
+    state.orgEditId=null;
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    renderPage();
+  }, {title:'Delete seat', okLabel:'Delete seat'});
 }
 
 /* ============================================================
@@ -17228,7 +18206,7 @@ function _vspFutureSeatOverlay(){
 function _vspSaveFutureSeat(){
   _vspEnsure();
   var g=function(id){ var e=document.getElementById(id); return e?e.value.trim():''; };
-  var title=g('vsp-fs-title'); if(!title){ alert('Seat title is required.'); return; }
+  var title=g('vsp-fs-title'); if(!title){ vspAlert('Seat title is required.'); return; }
   var rec={
     title:title, department:g('vsp-fs-dept'), reportsToRoleId:g('vsp-fs-reports')||null,
     targetQuarter:g('vsp-fs-target'), reason:g('vsp-fs-reason'), status:g('vsp-fs-status')||'planned'
@@ -17381,19 +18359,20 @@ function _vspReviewComplete(pid){
 function addCoreValue(){
   if(typeof planData==='undefined') return;
   if(!Array.isArray(planData.cv)) planData.cv=[];
-  if(planData.cv.length>=5){ alert('Maximum of 5 core values.'); return; }
+  if(planData.cv.length>=5){ vspAlert('Maximum of 5 core values.'); return; }
   planData.cv.push({ id:'cv_'+Date.now(), title:'', desc:'' });
   try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
   renderPage();
 }
 function removeCoreValue(i){
   if(typeof planData==='undefined' || !Array.isArray(planData.cv)) return;
-  if(planData.cv.length<=1){ alert('Keep at least one core value.'); return; }
+  if(planData.cv.length<=1){ vspAlert('Keep at least one core value.'); return; }
   var v=planData.cv[i]; var nm=(v&&v.title)?('"'+v.title+'"'):'this core value';
-  if(!confirm('Remove '+nm+'? Any ratings recorded against it will no longer count.')) return;
-  planData.cv.splice(i,1);
-  try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
-  renderPage();
+  vspConfirm('Remove '+nm+'? Any ratings recorded against it will no longer count.', function(){
+    planData.cv.splice(i,1);
+    try { if(typeof vspSaveNow==='function') vspSaveNow(); } catch(e){}
+    renderPage();
+  }, {title:'Remove core value', okLabel:'Remove'});
 }
 
 /* ---------- rating writers ---------- */
@@ -18284,6 +19263,7 @@ function renderPage(){
   else if(p==="strategic") h=renderStrategic();
   else if(p==="scorecard") h=renderScorecard();
   else if(p==="goals") h=renderGoals();
+  else if(p==="jobhealth") h=renderJobHealth();
   else if(p==="headlines") h=renderHeadlines();
   else if(p==="todos") h=renderTodos();
   else if(p==="issues") h=renderIssues();
@@ -18746,7 +19726,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v149';
+window.VSP_BUILD = 'v157';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -18896,9 +19876,10 @@ function getCurrentLayoutFromDOM(){
 }
 
 function resetDashLayout(){
-  if(!confirm('Reset the dashboard layout to default? Your customizations will be lost.'))return;
-  clearDashLayout();
-  renderPage();
+  vspConfirm('Reset the dashboard layout to default? Your customizations will be lost.', function(){
+    clearDashLayout();
+    renderPage();
+  }, {title:'Reset layout', okLabel:'Reset'});
 }
 
 // ─── Drag and resize pointer-event handlers (always on, desktop only) ─
@@ -19642,7 +20623,10 @@ function vspApplySnapshot(s){
   // v139: a snapshot can carry a pre-migration agenda from another device or
   // from the cloud, so every migration that repairs stored shapes has to run
   // again after the snapshot lands, not only once at boot.
-  try{ setTimeout(function(){ try{ _vspMigrateHuddleAgenda(); }catch(e){} }, 0); }catch(e){}
+  try{ setTimeout(function(){ try{ _vspMigrateTeams(); }catch(e){}
+try{ _vspMigrateHuddleAgenda(); }catch(e){}
+try{ _vspMigrateReportingLines(); }catch(e){}
+try{ _vspMigrateJobNotes(); }catch(e){} }, 0); }catch(e){}
   if(Array.isArray(s.meetingAgendas)){
     s.meetingAgendas.forEach(function(savedA){
       if(!savedA || !savedA.type) return;
@@ -19743,7 +20727,7 @@ function _vspGuardedWrite(json){
           if(prev.teams) Object.keys(prev.teams).forEach(function(k){ fT(prev.teams[k]&&prev.teams[k].scorecard); });
         }catch(e){}
         try{ console.warn('[VSP GUARD] Blocked a save changing settings (goal/cadence/unit/rollup) on '+sChanged.length+' measurables:', st.join(' | '), '\nStack:', new Error().stack); }catch(e){}
-        try{ alert('Data Guard: this save would have changed goals or cadence on '+sChanged.length+' measurables at once ('+st.slice(0,3).join(', ')+(st.length>3?', ...':'')+').\n\nNothing was saved or synced. The page will reload from the last good copy.'); }catch(e){}
+        try{ vspAlert('Data Guard: this save would have changed goals or cadence on '+sChanged.length+' measurables at once ('+st.slice(0,3).join(', ')+(st.length>3?', ...':'')+').\n\nNothing was saved or synced. The page will reload from the last good copy.'); }catch(e){}
         try{ location.reload(); }catch(e){}
         return false;
       }
@@ -19757,7 +20741,7 @@ function _vspGuardedWrite(json){
           if(Array.isArray(prev.scorecard)) findT(prev.scorecard);
         }catch(e){}
         try{ console.warn('[VSP GUARD] Blocked a save that would erase readings from '+losers.length+' measurables:', titles.join(' | '), '\nAttempted-write stack:', new Error().stack); }catch(e){}
-        try{ alert('Data Guard: this save would have erased readings from '+losers.length+' measurables ('+titles.slice(0,3).join(', ')+(titles.length>3?', ...':'')+').\n\nNothing was saved or synced. Your data is safe. The page will now reload from the last good copy.'); }catch(e){}
+        try{ vspAlert('Data Guard: this save would have erased readings from '+losers.length+' measurables ('+titles.slice(0,3).join(', ')+(titles.length>3?', ...':'')+').\n\nNothing was saved or synced. Your data is safe. The page will now reload from the last good copy.'); }catch(e){}
         try{ location.reload(); }catch(e){}
         return false;
       }
@@ -19781,13 +20765,16 @@ function _vspGuardList(){
 }
 function vspRestoreBackup(sfx){
   try{
-    var raw=localStorage.getItem(vspStorageKey()+sfx); if(!raw){ alert('Backup not found.'); return; }
+    var raw=localStorage.getItem(vspStorageKey()+sfx); if(!raw){ vspAlert('Backup not found.'); return; }
     var o=JSON.parse(raw);
-    if(!confirm('Restore the backup from '+(o.at||'unknown time')+'? Current unsaved state on this page is replaced by the backup, and the backup will sync to the team on your next change.')) return;
-    localStorage.setItem(vspStorageKey(), o.data);
-    try{ localStorage.setItem('vsp.restore.pending','1'); }catch(e){}
-    location.reload();
-  }catch(e){ alert('Restore failed: '+e.message); }
+    vspConfirm('Restore the backup from '+(o.at||'unknown time')+'? Current unsaved state on this page is replaced by the backup, and the backup will sync to the team on your next change.', function(){
+      try{
+        localStorage.setItem(vspStorageKey(), o.data);
+        try{ localStorage.setItem('vsp.restore.pending','1'); }catch(e){}
+        location.reload();
+      }catch(e){ vspAlert('Restore failed: '+e.message); }
+    }, {title:'Restore backup', okLabel:'Restore'});
+  }catch(e){ vspAlert('Restore failed: '+e.message); }
 }
 var _vspSaveTimer = null;
 function vspSaveAll(){
@@ -20114,7 +21101,7 @@ function _positionTooltip(target,position,tooltip){
   tt.setAttribute('data-pos',pos);
 }
 // === COACH BUTTON (Shell Standard v1.4 rule 6) ===
-function openCoach(){ alert('Coach module coming soon.'); }
+function openCoach(){ vspAlert('Coach module coming soon.'); }
 // === HELP MENU ===
 function openTourMenu(e){
   if(e)e.stopPropagation();
@@ -20395,10 +21382,120 @@ function _vspToggleMeetHelp(){
     +'<div style="margin-top:8px;text-align:right"><button type="button" onclick="document.getElementById(\'vsp-meet-help\').remove()" style="font:inherit;font-size:var(--fz-xs);color:#94a3b8;background:transparent;border:none;cursor:pointer">close (esc)</button></div>';
   document.body.appendChild(d);
 }
+/* ══ v155: IN-SURFACE DIALOGS (No-Native-Dialogs Rule v1, Standards v2.46) ══
+   iPad configurations silently suppress native confirm/alert/prompt, which
+   turns a button into an invisible dead click: the user taps, nothing happens,
+   no dialog, no error. Reported from the field against the huddle. These three
+   helpers replace every native dialog in a critical path with in-DOM surfaces.
+
+   vspAlert(msg)                     - notice. Short single-line copy goes to a
+                                       toast; long or multi-line copy opens a
+                                       dismissible panel so it is readable.
+   vspConfirm(msg, onYes, opts)      - two-button gate. Callback style, because
+                                       a native confirm is synchronous and an
+                                       in-DOM one cannot be.
+   vspPrompt(msg, def, onOk, opts)   - single-input gate.
+
+   All three follow Modal Keydown StopPropagation Rule v1: the panel stops
+   keydown and click propagation, and every button is type="button". The panel
+   id is registered in _vspAnyModalOpen so page hotkeys stay quiet while it is
+   open. Colours come from canon tokens, never raw literals. */
+var _VSP_DLG_ID='vsp-dialog-modal';
+function _vspDlgClose(){
+  var n=document.getElementById(_VSP_DLG_ID);
+  if(n&&n.parentNode) n.parentNode.removeChild(n);
+  try{ document.removeEventListener('keydown', _vspDlgKey, true); }catch(e){}
+}
+function _vspDlgKey(e){
+  if(!document.getElementById(_VSP_DLG_ID)) return;
+  if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); _vspDlgCancel(); }
+}
+var _vspDlgOnCancel=null;
+function _vspDlgCancel(){
+  var f=_vspDlgOnCancel; _vspDlgOnCancel=null; _vspDlgClose();
+  if(typeof f==='function'){ try{ f(); }catch(e){} }
+}
+function _vspDlgEsc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _vspDlgOpen(opts){
+  _vspDlgClose();
+  var o=opts||{};
+  var wrap=document.createElement('div');
+  wrap.id=_VSP_DLG_ID;
+  wrap.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.45);padding:20px';
+  wrap.onclick=function(){ _vspDlgCancel(); };
+  var bodyHtml=String(o.message==null?'':o.message).split('\n').map(function(line){
+    return '<div style="min-height:6px">'+_vspDlgEsc(line)+'</div>';
+  }).join('');
+  var inputHtml = o.input
+    ? '<input id="vsp-dlg-input" type="text" value="'+_vspDlgEsc(o.value||'')+'" style="width:100%;margin-top:12px;padding:8px 10px;border:1px solid var(--brd);border-radius:6px;font-size:var(--fz-body);font-family:inherit;color:var(--txt);background:var(--sur)">'
+    : '';
+  var cancelHtml = o.noCancel ? '' :
+    '<button type="button" class="btn btn-sm" onclick="_vspDlgCancel()">'+_vspDlgEsc(o.cancelLabel||'Cancel')+'</button>';
+  wrap.innerHTML =
+    '<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="'+_vspDlgEsc(o.title||'Notice')+'" '+
+      'style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;max-width:520px;width:100%;padding:20px;box-shadow:0 18px 48px rgba(15,23,42,.28)">'+
+      '<div class="smb-modal-title" style="margin-bottom:10px">'+_vspDlgEsc(o.title||'Notice')+'</div>'+
+      '<div style="font-size:var(--fz-body);color:var(--txb);line-height:1.5">'+bodyHtml+'</div>'+
+      inputHtml+
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px">'+
+        cancelHtml+
+        '<button type="button" id="vsp-dlg-ok" class="btn btn-sm btn-primary" onclick="_vspDlgAccept()">'+_vspDlgEsc(o.okLabel||'OK')+'</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(wrap);
+  _vspDlgOnCancel=o.onCancel||null;
+  _vspDlgAcceptFn=o.onOk||null;
+  _vspDlgIsInput=!!o.input;
+  try{ document.addEventListener('keydown', _vspDlgKey, true); }catch(e){}
+  try{
+    var f=document.getElementById(o.input?'vsp-dlg-input':'vsp-dlg-ok');
+    if(f){ f.focus(); if(o.input&&f.select) f.select(); }
+  }catch(e){}
+}
+var _vspDlgAcceptFn=null, _vspDlgIsInput=false;
+function _vspDlgAccept(){
+  var f=_vspDlgAcceptFn, isIn=_vspDlgIsInput, val=null;
+  if(isIn){ var el=document.getElementById('vsp-dlg-input'); val=el?el.value:''; }
+  _vspDlgAcceptFn=null; _vspDlgOnCancel=null; _vspDlgClose();
+  if(typeof f==='function'){ try{ isIn ? f(val) : f(); }catch(e){} }
+}
+function vspAlert(msg, title){
+  var text=String(msg==null?'':msg);
+  // Short one-liners read better as a toast; anything long or multi-line needs
+  // a panel the user can actually read before it disappears.
+  if(text.indexOf('\n')===-1 && text.length<=90 && !title){
+    if(typeof showToast==='function'){ showToast(text, '#b45309'); return; }
+  }
+  _vspDlgOpen({ title: title||'Notice', message: text, noCancel:true, okLabel:'OK' });
+}
+function vspConfirm(msg, onYes, opts){
+  var o=opts||{};
+  _vspDlgOpen({
+    title: o.title||'Confirm',
+    message: msg,
+    okLabel: o.okLabel||'Confirm',
+    cancelLabel: o.cancelLabel||'Cancel',
+    onOk: onYes,
+    onCancel: o.onCancel||null
+  });
+}
+function vspPrompt(msg, def, onOk, opts){
+  var o=opts||{};
+  _vspDlgOpen({
+    title: o.title||'Enter a value',
+    message: msg,
+    input:true,
+    value: def==null?'':def,
+    okLabel: o.okLabel||'Save',
+    onOk: function(v){ if(typeof onOk==='function') onOk(v); },
+    onCancel: o.onCancel||null
+  });
+}
 function _vspAnyModalOpen(){
   try{
     var s=(typeof state==='object'&&state)?state:{};
     if(s.createPanel||s.editPanel||s.headlinePanel||s.schedulePanel||s.orgPanel||s.roleStubPanel||s.seatAnnPanel||s.futureSeatPanel||s.showCascadePanel||s.newMeasurablePanel||s.editGroupPanel||s.editMetricPanel||s.todoDetail||s.issueDetail) return true;
+    if(document.getElementById(_VSP_DLG_ID)) return true;
     if(document.getElementById('todo-detail-modal')||document.getElementById('issue-detail-modal')||document.getElementById('ppl-person-modal')||document.getElementById('ppl-team-modal')||document.getElementById('switch-user-modal')) return true;
   }catch(e){}
   return false;
@@ -20459,6 +21556,34 @@ try{
 // v118 shape. Tenants who saved agendas before v118 kept the old six-section
 // list; the seed change alone does not reach them. Custom sections the tenant
 // added are preserved, and visibility toggles carry across renames.
+function _vspMigrateTeams(){
+  // v150: Field Operations is a new team; Construction Operations gains the
+  // people whose goals are set there. Runs at boot and after any snapshot, so
+  // a shared copy from another device cannot revert it.
+  try{
+    if(typeof teamsRegistry!=='object' || !teamsRegistry) return;
+    if(!teamsRegistry.fieldops){
+      teamsRegistry.fieldops = {
+        id:'fieldops', name:'Field Operations', color:'#0891b2',
+        quarter:(teamsRegistry.lt && teamsRegistry.lt.quarter) || 'Q2 2026',
+        members:['WL','DT','AS','DB'],
+        goals:[], archivedGoals:[], todos:[], privateTodos:[],
+        issues:[], longTermIssues:[], resolvedIssues:[],
+        scorecard:[
+          {ownerId:'WL',seat:'Sr. PM of Production',metrics:[]},
+          {ownerId:'DT',seat:'Foreman',metrics:[]},
+          {ownerId:'AS',seat:'Foreman',metrics:[]},
+          {ownerId:'DB',seat:'Lead Hand',metrics:[]}
+        ],
+        headlines:[], scheduledMeetings:[], pastMeetings:[]
+      };
+    }
+    var co=teamsRegistry.conops;
+    if(co && Array.isArray(co.members)){
+      ['KT','VC'].forEach(function(i){ if(co.members.indexOf(i)===-1) co.members.push(i); });
+    }
+  }catch(e){}
+}
 function _vspMigrateHuddleAgenda(){
   try{
     if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
@@ -20508,7 +21633,52 @@ function _vspMigrateHuddleAgenda(){
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   }catch(e){}
 }
+/* v154: reporting-line correction for Nicolas Hatfield and Daniel Blanco
+   Guillen. Both were seeded under Adrian Surdu; they report to Will Liddell.
+   The seed edit alone does not reach anyone who already has data, because the
+   ppl restore and the orgSeats restore are both wholesale replaces (Seed
+   Migration Rule v1). This repoints a saved copy, and only when it still holds
+   the exact stale value, so a later deliberate change by the tenant is never
+   overwritten. Runs at boot AND after a snapshot lands, per the v139 rule that
+   a heal must run on every apply carrying the signature, not once. */
+function _vspMigrateReportingLines(){
+  var changed=false;
+  try{
+    if(typeof ppl!=='undefined' && Array.isArray(ppl)){
+      [['p11','p9','p3'],['p12','p9','p3']].forEach(function(m){
+        var p=ppl.find(function(x){ return x && x.id===m[0]; });
+        if(p && p.reportsTo===m[1]){ p.reportsTo=m[2]; changed=true; }
+      });
+    }
+  }catch(e){}
+  try{
+    if(typeof orgSeats!=='undefined' && Array.isArray(orgSeats)){
+      var moved=[];
+      [['lead_nicolas','foreman_adrian','sr_pm'],['lead_blanco','foreman_adrian','sr_pm']].forEach(function(m){
+        var s=orgSeats.find(function(x){ return x && x.id===m[0]; });
+        if(s && s.reportsTo===m[1]){ s.reportsTo=m[2]; moved.push(m[0]); changed=true; }
+      });
+      if(moved.length){
+        var oldParent=orgSeats.find(function(x){ return x && x.id==='foreman_adrian'; });
+        if(oldParent && Array.isArray(oldParent.directReports)){
+          oldParent.directReports=oldParent.directReports.filter(function(id){ return moved.indexOf(id)===-1; });
+        }
+        var newParent=orgSeats.find(function(x){ return x && x.id==='sr_pm'; });
+        if(newParent){
+          if(!Array.isArray(newParent.directReports)) newParent.directReports=[];
+          moved.forEach(function(id){
+            if(newParent.directReports.indexOf(id)===-1) newParent.directReports.push(id);
+          });
+        }
+      }
+    }
+  }catch(e){}
+  if(changed){ try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} }
+}
+try{ _vspMigrateTeams(); }catch(e){}
 try{ _vspMigrateHuddleAgenda(); }catch(e){}
+try{ _vspMigrateReportingLines(); }catch(e){}
+try{ _vspMigrateJobNotes(); }catch(e){}
 </script>
 <script>
 /* SMB VSP STAGING ADAPTER v2.5 - shared cloud persistence over Firebase RTDB.
@@ -20866,6 +22036,5 @@ try{ _vspMigrateHuddleAgenda(); }catch(e){}
     start();
   }
 })();
-</script>
-</body>
+</script></body>
 </html>
