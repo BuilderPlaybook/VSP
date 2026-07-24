@@ -1296,6 +1296,30 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v160 - 2026-07-24 - Job Review: added a week stepper (Previous / Next /
+           Back to current, clamped so it never goes to a future week) so a
+           reported prior week can be verified; the review week now flows from
+           state.jobRevWeekOffset through _vspJobRevContext. Fixed the cell
+           quick-add: the detail panel now scrolls into view and flashes when
+           opened (it mounts below the long meeting page), and the quick button
+           is larger and raised. No canon/chrome/catalog/components/strip change.
+    v159 - 2026-07-24 - Job Review grid rebuilt to the scorecard row anatomy:
+           Role Deliverables column (row.sec), Standard title with the green/red
+           tally bar under it (X of N met, goal 90%), Reported, Deadline (row.due)
+           and Goal (=Yes) columns, then Standard % and the per-job columns. Same
+           behaviour as v158 (click-cycle cells, two-way 90% score, Fail-triggered
+           chip, Note/To-do/Issue quick-add). Reported column kept for the
+           correction flow. No canon/chrome/catalog/components/strip change.
+    v158 - 2026-07-24 - Job Review reshaped to read like the weekly scorecard.
+           Cells click-cycle Yes/No/empty (N/A moves to the cell panel). Added a
+           per-standard (row) score beside the per-job (column) score, both
+           judged at a single 90% goal (green/red, amber band retired on this
+           surface). Hard-fail rows show a Fail-triggered chip when any job is
+           No. Cell quick-add gains an Issue action alongside Note and To-do,
+           both routed to this huddle (reviewIn/raisedIn) with an owner picker,
+           same objects the meeting toolbar creates. Answers now carry a src
+           field ('manual' today) so a later system feed swaps the source with
+           no UI change. No canon/chrome/catalog/components/strip change.
     v157 - 2026-07-24 - Job Health page added, and SMB_JOB_HEALTH published.
            Second half of Will's request: a running record of each job's health
            so a Production Manager can see which projects are improving and
@@ -3376,7 +3400,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v157</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v160</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -12587,12 +12611,22 @@ function vspArchiveJob(id){
 function vspToggleJobManage(){
   state.jobManageOpen = !state.jobManageOpen; renderPage();
 }
+/* v160: the Job Review can step back to a prior week so a supervisor can
+   verify a week Keith has already reported, or catch up a missed review.
+   Offset 0 is this week; negative steps back. Never forward (no future weeks
+   to verify). */
+function _vspShiftMondayIso(iso, weeks){
+  var p=String(iso).split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]);
+  d.setDate(d.getDate()+(weeks*7));
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 function _vspJobRevContext(){
   /* Everything the Job Review grid needs, resolved once: who the huddle is
      about, which week, which jobs they run, and which standard lines apply. */
   var repIni = state.meetHuddleReport || '';
   var repP = repIni ? ppl.find(function(x){ return x && x.initials===repIni; }) : null;
-  var iso = _vspThisMondayIso();
+  var weekOffset = Math.min(0, state.jobRevWeekOffset || 0);
+  var iso = _vspShiftMondayIso(_vspThisMondayIso(), weekOffset);
   var jobs = _vspLoadJobs();
   var live = jobs.filter(function(j){
     if(!j || j.archived) return false;
@@ -12603,8 +12637,14 @@ function _vspJobRevContext(){
   var roleLabel = repP ? (repP.roleLabel || repP.role || null) : null;
   var stds = roleLabel ? (_vspPndReadStandards(roleLabel) || []) : [];
   var scoped = stds.filter(function(r){ return r && _vspIsJobScoped(roleLabel, r.id); });
-  return { repIni:repIni, repP:repP, iso:iso, jobs:jobs, live:live, otherCount:otherCount,
+  return { repIni:repIni, repP:repP, iso:iso, weekOffset:weekOffset, weekLabel:_vspHuddleWeekLabel(iso),
+           jobs:jobs, live:live, otherCount:otherCount,
            roleLabel:roleLabel, stds:stds, scoped:scoped, fromPM: !!(live.length && live[0]._src==='PM') };
+}
+function vspJobRevWeekStep(delta){
+  state.jobRevWeekOffset = Math.min(0, (state.jobRevWeekOffset||0) + delta);
+  state.jobRevCell = null;
+  renderPage();
 }
 function _vspClaimFor(personId, iso, rowId){
   var all=_vspPndReadHuddles();
@@ -12627,9 +12667,25 @@ function _vspJobScore(repIni, iso, jobId, rows){
   var denom=yes+no;
   return { yes:yes, no:no, blank:blank, denom:denom, pct: denom? Math.round((yes/denom)*100) : null };
 }
+/* v158: the same score read the other way - one standard across every job.
+   Down the columns tells you which JOB is weak; across the row tells you
+   which STANDARD is weak everywhere. Same Yes/(Yes+No), N/A excluded. */
+function _vspStandardScore(repIni, iso, jobIds, rowId){
+  var yes=0, no=0, blank=0;
+  jobIds.forEach(function(jid){
+    var rec=_vspGetJobRev(repIni, iso, jid, rowId);
+    var a=rec?rec.a:null;
+    if(a==='yes') yes++;
+    else if(a==='no') no++;
+    else if(a==='na'){ /* excluded */ }
+    else blank++;
+  });
+  var denom=yes+no;
+  return { yes:yes, no:no, blank:blank, denom:denom, pct: denom? Math.round((yes/denom)*100) : null };
+}
 function _vspScoreChip(pct){
   if(pct===null) return '<span class="chip c-gry">No data</span>';
-  var cls = pct>=90 ? 'c-grn' : (pct>=75 ? 'c-amb' : 'c-red');
+  var cls = pct>=90 ? 'c-grn' : 'c-red';   // v158: single 90% goal, green/red only, on both the job and standard rollups
   return '<span class="chip '+cls+'">'+pct+'%</span>';
 }
 function _vspRevMark(a){
@@ -12641,6 +12697,18 @@ function _vspRevMark(a){
 function vspJobRevOpenCell(jobId, rowId){
   state.jobRevCell={ jobId:jobId, rowId:rowId };
   renderPage();
+  // The meeting page is long and the panel mounts below the grid, so bring it
+  // into view and flash it - otherwise opening it reads as nothing happening.
+  try{
+    setTimeout(function(){
+      var el=document.getElementById('jobrev-detail-panel');
+      if(el){
+        if(el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.style.transition='box-shadow .2s'; el.style.boxShadow='0 0 0 3px var(--blu)';
+        setTimeout(function(){ try{ el.style.boxShadow='none'; }catch(e){} }, 700);
+      }
+    }, 60);
+  }catch(e){}
 }
 function vspJobRevCloseCell(){ state.jobRevCell=null; renderPage(); }
 function vspJobRevSet(jobId, rowId, a){
@@ -12648,7 +12716,22 @@ function vspJobRevSet(jobId, rowId, a){
   if(!c.repIni) return;
   var cur=_vspGetJobRev(c.repIni, c.iso, jobId, rowId);
   var next = (cur && cur.a===a) ? null : a;
-  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next });
+  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next, src: next? 'manual' : undefined });
+  renderPage();
+}
+/* v158: the cell now behaves like the weekly scorecard cell - click once for
+   Yes, again for No, once more to clear. N/A stays available in the cell's
+   detail panel (it is rare and does not belong on the fast sweep). Source is
+   stamped 'manual' now; when a system feed (Buildertrend, schedule,
+   accounting) lands it fills the same field and nothing else on this screen
+   changes. */
+function vspJobRevCycle(jobId, rowId){
+  var c=_vspJobRevContext();
+  if(!c.repIni) return;
+  var cur=_vspGetJobRev(c.repIni, c.iso, jobId, rowId);
+  var a=cur?cur.a:null;
+  var next = a==='yes' ? 'no' : (a==='no' ? null : 'yes');   // empty/na -> yes -> no -> empty
+  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next, src: next? 'manual' : undefined });
   renderPage();
 }
 function vspJobRevNote(el, jobId, rowId){
@@ -12661,9 +12744,11 @@ function vspJobRevNote(el, jobId, rowId){
   }catch(e){}
 }
 function vspJobRevAddTodo(jobId, rowId){
-  /* A to-do raised here is an ordinary to-do. It carries the job, the standard
-     line and the week so next week's To-Do Review shows why it exists, and it
-     counts in the completion banner like everything else. */
+  /* A to-do raised here is an ordinary meeting to-do. It carries the job, the
+     standard line and the week so next week's To-Do Review shows why it
+     exists, and it counts in the completion banner like everything else. It is
+     routed to this huddle (reviewIn) exactly as a to-do raised from the
+     meeting toolbar is, so it lands on the same To-Do Review list. */
   var c=_vspJobRevContext();
   if(!c.repIni) return;
   var job=c.live.find(function(j){ return j.id===jobId; });
@@ -12671,14 +12756,17 @@ function vspJobRevAddTodo(jobId, rowId){
   var el=document.getElementById('jobrev-todo-input');
   var txt=el?String(el.value||'').trim():'';
   if(!txt){ vspAlert('Type what needs to be done first.'); return; }
+  var osel=document.getElementById('jobrev-todo-owner');
+  var owner=(osel&&osel.value)?osel.value:c.repIni;
   var due=(function(){
     var p=c.iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setDate(d.getDate()+7);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   })();
+  var _id=Date.now();
   todos.unshift({
-    id: Date.now(),
+    id: _id,
     task: txt,
-    owner: c.repIni,
+    owner: owner,
     due: due,
     done: false,
     private: false,
@@ -12690,10 +12778,44 @@ function vspJobRevAddTodo(jobId, rowId){
     srcWeek: c.iso,
     notes: (job?('Job: '+job.name):'')+(row?(' | Line: '+row.std):'')
   });
+  try{ var _r=_vspCurrentMeetingRoute(); if(_r && _r.indexOf('huddle:')===0){ var _t=todos.find(function(x){return x.id===_id;}); if(_t) _t.reviewIn=_r; } }catch(e){}
   if(el) el.value='';
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  showToast('To-do added for '+(c.repP?c.repP.first:'this person'));
+  showToast('To-do added for '+_vspIniName(owner));
   renderPage();
+}
+/* v158: raise an Issue from a Job Review cell, the same object and the same
+   route the LT meeting uses (openCreateForm 'issue'): Title, Owner, Priority,
+   Interval, Notes, pushed to issues[] (or longTermIssues for Long-Term) and
+   tagged reviewIn/raisedIn so it lands on this huddle's Issues list. */
+function vspJobRevAddIssue(jobId, rowId){
+  var c=_vspJobRevContext();
+  if(!c.repIni) return;
+  var job=c.live.find(function(j){ return j.id===jobId; });
+  var row=c.stds.find(function(r){ return r.id===rowId; });
+  var el=document.getElementById('jobrev-issue-input');
+  var txt=el?String(el.value||'').trim():'';
+  if(!txt){ vspAlert('Name the issue first.'); return; }
+  var osel=document.getElementById('jobrev-issue-owner');
+  var owner=(osel&&osel.value)?osel.value:c.repIni;
+  var psel=document.getElementById('jobrev-issue-priority');
+  var priority=(psel&&psel.value)?psel.value:'low';
+  var isel=document.getElementById('jobrev-issue-interval');
+  var longTerm=(isel&&isel.value==='long');
+  var _id=Date.now();
+  var _obj={ id:_id, title:txt, owner:owner, priority:priority, votes:0, status:'open', created:vspToday(),
+    attachments:0, notes:(job?('Job: '+job.name):'')+(row?(' | Line: '+row.std):''),
+    srcJobId:jobId, srcRowId:rowId, srcWeek:c.iso };
+  (longTerm?longTermIssues:issues).push(_obj);
+  try{ var _r=_vspCurrentMeetingRoute(); if(_r && _r.indexOf('huddle:')===0){ _obj.reviewIn=_r; _obj.raisedIn=_r; } }catch(e){}
+  if(el) el.value='';
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  showToast('Issue added to '+(c.repP?c.repP.first:'this')+"\u2019s huddle");
+  renderPage();
+}
+function _vspIniName(ini){
+  var p=ppl.find(function(x){ return x && x.initials===ini; });
+  return p ? p.first : (ini||'owner');
 }
 function vspJobRevCorrect(rowId){
   /* The claim was Yes, a job says otherwise. Correct that ONE line on the
@@ -12745,7 +12867,16 @@ function _vspRenderJobReview(){
   h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobManage()">'+(state.jobManageOpen?'Done':'Manage jobs')+'</button>';
   h += '</div></div>';
 
-  h += '<div style="padding:12px 18px 4px;font-size:var(--fz-body);color:var(--txm)">Walk each line of '+(repP?_vspHuddleEsc(repP.first)+'\u2019s':'the')+' scorecard against each job. They already answered for the week; this confirms it is true on the ground.'+(c.otherCount?' <span style="color:var(--txd)">'+c.otherCount+' job'+(c.otherCount===1?'':'s')+' assigned to other people are hidden.</span>':'')+'</div>';
+  h += '<div style="padding:12px 18px 4px;font-size:var(--fz-body);color:var(--txm)">Walk each line of '+(repP?_vspHuddleEsc(repP.first)+'\u2019s':'the')+' scorecard against each job. Click a cell once for Yes, again for No, once more to clear; use the '+'\u22ee'+' button for a note, to-do, or issue. Standard % (across a row) shows which standard is weak everywhere; Job score (bottom) shows which job is weak. Goal is 90% on both.'+(c.otherCount?' <span style="color:var(--txd)">'+c.otherCount+' job'+(c.otherCount===1?'':'s')+' assigned to other people are hidden.</span>':'')+'</div>';
+
+  // v160: week stepper - move back to a week already reported, or catch up a
+  // missed review. Cannot step into the future.
+  h += '<div style="padding:6px 18px 2px;display:flex;align-items:center;gap:10px">';
+  h += '<button type="button" class="btn btn-sm" onclick="vspJobRevWeekStep(-1)">\u25c0 Previous week</button>';
+  h += '<span style="font-size:var(--fz-body);font-weight:600">Week of '+_vspHuddleEsc(c.weekLabel)+(c.weekOffset===0?' <span style="color:var(--txd);font-weight:400">(current)</span>':'')+'</span>';
+  h += '<button type="button" class="btn btn-sm"'+(c.weekOffset>=0?' disabled style="opacity:.5;cursor:not-allowed"':' onclick="vspJobRevWeekStep(1)"')+'>Next week \u25b6</button>';
+  if(c.weekOffset<0) h += '<button type="button" class="btn btn-sm" onclick="vspJobRevWeekStep(999)">Back to current</button>';
+  h += '</div>';
 
   if(state.jobManageOpen){
     h += '<div style="padding:8px 18px 14px">';
@@ -12820,68 +12951,103 @@ function _vspRenderJobReview(){
     return h;
   }
 
-  var NAMEW=300, COLW=132;
+  var NAMEW=300, COLW=132, RDW=150, DLW=150;
   h += '<div style="padding:6px 18px 16px">';
   h += '<div style="border:1px solid var(--brd);border-radius:9px;overflow:hidden">';
   h += '<div style="overflow-x:auto">';
-  h += '<table style="border-collapse:separate;border-spacing:0;width:100%;min-width:'+(NAMEW+COLW*c.live.length+140)+'px">';
+  h += '<table style="border-collapse:separate;border-spacing:0;width:100%;min-width:'+(NAMEW+RDW+DLW+COLW*c.live.length+320)+'px">';
 
+  var thBase='background:var(--sur2);border-bottom:1px solid var(--brd);padding:9px 10px;font-size:var(--fz-body);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.03em';
   h += '<thead><tr>';
-  h += '<th scope="col" style="position:sticky;left:0;z-index:2;background:var(--sur2);text-align:left;padding:9px 12px;border-bottom:1px solid var(--brd);border-right:1px solid var(--brd);min-width:'+NAMEW+'px;font-size:var(--fz-body);font-weight:700">Standard</th>';
-  h += '<th scope="col" style="background:var(--sur2);text-align:left;padding:9px 10px;border-bottom:1px solid var(--brd);font-size:var(--fz-body);font-weight:700;white-space:nowrap">Reported</th>';
+  h += '<th scope="col" style="'+thBase+';text-align:left;width:'+RDW+'px">Role Deliverables</th>';
+  h += '<th scope="col" style="position:sticky;left:0;z-index:2;'+thBase+';text-align:left;border-right:1px solid var(--brd);min-width:'+NAMEW+'px">Standard</th>';
+  h += '<th scope="col" style="'+thBase+';text-align:left;white-space:nowrap">Reported</th>';
+  h += '<th scope="col" style="'+thBase+';text-align:left;width:'+DLW+'px">Deadline</th>';
+  h += '<th scope="col" style="'+thBase+';text-align:center;white-space:nowrap">Goal</th>';
+  h += '<th scope="col" style="'+thBase+';text-align:center;border-left:1px solid var(--brd);white-space:nowrap" title="This standard across every job. Goal 90%.">Standard %</th>';
   c.live.forEach(function(j){
-    h += '<th scope="col" style="background:var(--sur2);text-align:center;padding:9px 10px;border-bottom:1px solid var(--brd);border-left:1px solid var(--brd);min-width:'+COLW+'px;font-size:var(--fz-body);font-weight:700">'+_vspHuddleEsc(j.name)+'</th>';
+    h += '<th scope="col" style="'+thBase+';text-align:center;border-left:1px solid var(--brd);min-width:'+COLW+'px">'+_vspHuddleEsc(j.name)+'</th>';
   });
   h += '</tr></thead><tbody>';
+
+  var liveIds=c.live.map(function(j){ return j.id; });
 
   c.scoped.forEach(function(r){
     var claim=_vspClaimFor(repP.id, iso, r.id);
     var anyNo=c.live.some(function(j){ var rec=_vspGetJobRev(repIni, iso, j.id, r.id); return rec && rec.a==='no'; });
     var flagged = (claim==='yes' && anyNo);
-    var reportedNo = (claim==='no');
+    var hardFail = (r.hard && anyNo);
+    var ss=_vspStandardScore(repIni, iso, liveIds, r.id);
     var rowBg = flagged ? 'background:var(--redb)' : '';
+    var tdBase='border-bottom:0.5px solid var(--brd);padding:10px 12px;vertical-align:top';
+
     h += '<tr style="'+rowBg+'">';
-    h += '<th scope="row" style="position:sticky;left:0;z-index:1;'+(flagged?'background:var(--redb)':'background:var(--sur)')+';text-align:left;padding:10px 12px;border-bottom:0.5px solid var(--brd);border-right:1px solid var(--brd);font-weight:400;vertical-align:top">';
-    h += '<div style="font-size:var(--fz-lg);'+(reportedNo?'color:var(--txm)':'')+'">'+_vspHuddleEsc(r.std)+'</div>';
-    if(r.hard) h += '<div style="margin-top:4px"><span class="chip c-red">Hard fail if not Yes</span></div>';
-    if(r.due) h += '<div style="font-size:var(--fz-base);color:var(--txm);margin-top:3px">'+_vspHuddleEsc(r.due)+'</div>';
+    // Role Deliverables (from row.sec, exactly as the scorecard reads it)
+    h += '<td style="'+tdBase+';font-size:var(--fz-body);color:var(--txm);line-height:1.3">'+_vspHuddleEsc(r.sec||'')+'</td>';
+    // Standard: hard-fail badge, title, tally bar, correction affordance
+    h += '<th scope="row" style="position:sticky;left:0;z-index:1;'+(flagged?'background:var(--redb)':'background:var(--sur)')+';'+tdBase+';border-right:1px solid var(--brd);font-weight:400;text-align:left">';
+    if(r.hard) h += '<div style="margin-bottom:5px"><span class="chip c-red">Hard fail if not Yes</span>'+(hardFail?' <span class="chip c-red">Fail triggered</span>':'')+'</div>';
+    h += '<div style="font-size:var(--fz-lg);color:var(--txt)">'+_vspHuddleEsc(r.std)+'</div>';
+    // tally bar, scorecard style: X of N met, goal 90%
+    var barPct = ss.denom ? ss.pct : 0;
+    var barCls = ss.denom===0 ? 'n' : (ss.pct>=90 ? 'g' : 'r');
+    h += '<div style="display:flex;align-items:center;gap:8px;margin-top:8px">';
+    h += '<span style="font-size:var(--fz-xs);color:var(--txd);white-space:nowrap">'+ss.yes+' of '+(ss.denom||0)+' met</span>';
+    h += '<span style="position:relative;flex:1;height:7px;border-radius:4px;background:#eceff3;overflow:hidden;min-width:60px"><i style="display:block;height:100%;border-radius:4px;width:'+barPct+'%;background:'+(barCls==='g'?'var(--grn)':barCls==='r'?'var(--red)':'#cfd6de')+'"></i></span>';
+    h += '<span style="font-size:var(--fz-xs);color:var(--txd);white-space:nowrap">goal 90%</span>';
+    h += '</div>';
     if(flagged){
       h += '<div style="margin-top:7px"><button type="button" class="btn btn-sm" onclick="vspJobRevCorrect(\''+_vspHuddleEsc(r.id)+'\')">Correct this line to No</button></div>';
     }
     h += '</th>';
-
-    h += '<td style="padding:10px;border-bottom:0.5px solid var(--brd);white-space:nowrap;vertical-align:top">';
+    // Reported (Keith's own claim)
+    h += '<td style="'+tdBase+';white-space:nowrap">';
     if(claim==='yes') h += '<span class="chip c-grn">Said Yes</span>';
     else if(claim==='no') h += '<span class="chip c-red">Said No</span>';
     else h += '<span class="chip c-gry">Not answered</span>';
     h += '</td>';
+    // Deadline (row.due)
+    h += '<td style="'+tdBase+';font-size:var(--fz-base);color:var(--txm);line-height:1.35">'+_vspHuddleEsc(r.due||'')+'</td>';
+    // Goal
+    h += '<td style="'+tdBase+';text-align:center;color:var(--blu);font-weight:600;white-space:nowrap">=Yes</td>';
+    // Standard % (row rollup, 90% green/red)
+    h += '<td style="'+tdBase+';border-left:1px solid var(--brd);text-align:center">'+_vspScoreChip(ss.pct)+'</td>';
 
     c.live.forEach(function(j){
       var rec=_vspGetJobRev(repIni, iso, j.id, r.id);
       var a=rec?rec.a:null;
       var hasNote=!!(rec && rec.note && rec.note.trim());
-      var open = state.jobRevCell && state.jobRevCell.jobId===j.id && state.jobRevCell.rowId===r.id;
-      h += '<td style="padding:8px;border-bottom:0.5px solid var(--brd);border-left:1px solid var(--brd);text-align:center;vertical-align:top">';
-      if(reportedNo && !a){
-        h += '<div style="font-size:var(--fz-base);color:var(--txd)">reported No</div>';
-      }
-      h += '<button type="button" onclick="vspJobRevOpenCell(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="background:'+(open?'var(--sur2)':'transparent')+';border:1px solid '+(open?'var(--blu)':'transparent')+';border-radius:7px;padding:4px 6px;cursor:pointer;font-family:inherit">';
-      h += _vspRevMark(a);
-      if(hasNote) h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">note</div>';
-      h += '</button>';
+      var openTodos=todos.filter(function(t){ return t && !t.done && t.srcJobId===j.id && t.srcRowId===r.id; }).length;
+      var openIssues=(issues.concat(typeof longTermIssues!=='undefined'?longTermIssues:[])).filter(function(it){ return it && it.status!=='resolved' && it.srcJobId===j.id && it.srcRowId===r.id; }).length;
+      var tone = a==='yes' ? 'background:var(--grnb);color:var(--grnt)' : (a==='no' ? 'background:var(--redb);color:var(--redt)' : 'color:var(--txd)');
+      var glyph = a==='yes' ? '&#10003; Yes' : (a==='no' ? '&#10007; No' : (a==='na' ? 'N/A' : '&ndash;'));
+      var srcTip = a ? ('Marked '+(a==='yes'?'Yes':a==='no'?'No':'N/A')+' - source: '+((rec&&rec.src)||'manual')) : 'Not checked';
+      h += '<td style="position:relative;padding:0;border-bottom:0.5px solid var(--brd);border-left:1px solid var(--brd);text-align:center;vertical-align:middle">';
+      h += '<button type="button" title="'+srcTip+'" onclick="vspJobRevCycle(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="width:100%;min-height:46px;'+tone+';border:0;cursor:pointer;font-family:inherit;font-size:var(--fz-body);font-weight:'+(a?'700':'400')+'">'+glyph+'</button>';
+      h += '<button type="button" title="Note, to-do or issue" onclick="vspJobRevOpenCell(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="position:absolute;top:3px;right:3px;z-index:2;width:26px;height:24px;border:1px solid var(--brd);background:var(--sur);border-radius:6px;color:var(--txb);cursor:pointer;font-size:15px;line-height:20px;padding:0;font-weight:700">&#8942;</button>';
+      var mk='';
+      if(hasNote) mk+='<span style="font-size:var(--fz-xs);color:var(--blu)" title="Note">&#9998;</span>';
+      if(openTodos) mk+='<span style="font-size:var(--fz-xs);color:var(--gp)" title="'+openTodos+' to-do(s)">&#9745;</span>';
+      if(openIssues) mk+='<span style="font-size:var(--fz-xs);color:var(--red)" title="'+openIssues+' issue(s)">&#9873;</span>';
+      if(mk) h += '<span style="position:absolute;left:4px;bottom:2px;display:flex;gap:3px">'+mk+'</span>';
       h += '</td>';
     });
     h += '</tr>';
   });
 
+  // bottom Job score row (column rollup), spanning the identity columns
   h += '<tr>';
-  h += '<th scope="row" style="position:sticky;left:0;z-index:1;background:var(--sur2);text-align:left;padding:10px 12px;border-top:1px solid var(--brd);border-right:1px solid var(--brd);font-size:var(--fz-body);font-weight:700">Job health this week</th>';
   h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
+  h += '<th scope="row" style="position:sticky;left:0;z-index:1;background:var(--sur2);text-align:left;padding:10px 12px;border-top:1px solid var(--brd);border-right:1px solid var(--brd);font-size:var(--fz-body);font-weight:700">Job score</th>';
+  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
+  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
+  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
+  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd);border-left:1px solid var(--brd)"></td>';
   c.live.forEach(function(j){
     var sc=_vspJobScore(repIni, iso, j.id, c.scoped);
     h += '<td style="background:var(--sur2);border-top:1px solid var(--brd);border-left:1px solid var(--brd);text-align:center;padding:10px">';
     h += _vspScoreChip(sc.pct);
-    h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:3px">'+sc.yes+' yes / '+sc.no+' no'+(sc.blank?(' \u00b7 '+sc.blank+' left'):'')+'</div>';
+    h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:3px">'+sc.yes+' of '+(sc.denom||0)+' met'+(sc.blank?(' \u00b7 '+sc.blank+' left'):'')+'</div>';
     h += '</td>';
   });
   h += '</tr>';
@@ -12893,28 +13059,60 @@ function _vspRenderJobReview(){
     if(jc && rc){
       var rec2=_vspGetJobRev(repIni, iso, jc.id, rc.id);
       var a2=rec2?rec2.a:null;
-      h += '<div style="margin-top:12px;border:1px solid var(--blu);border-radius:9px;padding:14px 16px;background:var(--sur)">';
+      // owner options: everyone active, initials as value (matches meeting owners)
+      var ownerOpts=ppl.filter(function(p){ return p && p.status!=='archived'; })
+        .map(function(p){ return '<option value="'+_vspHuddleEsc(p.initials)+'"'+(p.initials===repIni?' selected':'')+'>'+_vspHuddleEsc(p.first+' '+p.last)+'</option>'; }).join('');
+      var selStyle='padding:8px 9px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)';
+      h += '<div id="jobrev-detail-panel" style="margin-top:12px;border:1px solid var(--blu);border-radius:9px;padding:14px 16px;background:var(--sur)">';
       h += '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">';
       h += '<div style="flex:1"><div style="font-size:var(--fz-lg);font-weight:600">'+_vspHuddleEsc(rc.std)+'</div>';
       h += '<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspHuddleEsc(jc.name)+'</div></div>';
       h += '<button type="button" class="btn btn-sm" onclick="vspJobRevCloseCell()">Close</button>';
       h += '</div>';
-      h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
-      [['yes','Yes'],['no','No'],['na','N/A']].forEach(function(o){
-        var on=(a2===o[0]);
-        h += '<button type="button" onclick="vspJobRevSet(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\',\''+o[0]+'\')" style="font-size:var(--fz-lg);font-weight:600;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid '+(on?'var(--blu)':'var(--brd)')+';background:'+(on?'var(--sur2)':'var(--sur)')+';color:var(--txt)">'+o[1]+'</button>';
-      });
+
+      // N/A stays here (off the fast sweep). Yes/No are set by clicking the cell.
+      h += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">';
+      h += '<span style="font-size:var(--fz-body);color:var(--txm)">This cell:</span> '+_vspRevMark(a2);
+      h += '<button type="button" onclick="vspJobRevSet(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\',\'na\')" style="font-size:var(--fz-body);font-weight:600;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid '+(a2==='na'?'var(--blu)':'var(--brd)')+';background:'+(a2==='na'?'var(--sur2)':'var(--sur)')+';color:var(--txt)">'+(a2==='na'?'Clear N/A':'Mark N/A')+'</button>';
       h += '<span id="jobrev-note-status" style="align-self:center;font-size:var(--fz-xs);color:var(--grn);opacity:0;transition:opacity .2s">Saved</span>';
       h += '</div>';
-      h += '<textarea data-noautogrow oninput="vspJobRevNote(this,\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')" placeholder="What did you find on this job?" style="width:100%;min-height:64px;font-family:inherit;font-size:var(--fz-body);padding:9px 11px;border:1px solid var(--brd);border-radius:7px;background:var(--sur2);color:var(--txt);resize:vertical">'+_vspHuddleEsc(rec2&&rec2.note?rec2.note:'')+'</textarea>';
-      h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
-      h += '<input id="jobrev-todo-input" type="text" placeholder="Raise a to-do from this line" style="flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
+
+      // NOTE
+      h += '<label style="display:block;font-size:var(--fz-sm);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Note</label>';
+      h += '<textarea data-noautogrow oninput="vspJobRevNote(this,\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')" placeholder="What did you find on this job?" style="width:100%;min-height:60px;font-family:inherit;font-size:var(--fz-body);padding:9px 11px;border:1px solid var(--brd);border-radius:7px;background:var(--sur2);color:var(--txt);resize:vertical">'+_vspHuddleEsc(rec2&&rec2.note?rec2.note:'')+'</textarea>';
+
+      // TO-DO (same object + route as the meeting To-do)
+      h += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--brd)">';
+      h += '<label style="display:block;font-size:var(--fz-sm);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Create a to-do</label>';
+      h += '<input id="jobrev-todo-input" type="text" placeholder="What needs to happen?" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
+      h += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
+      h += '<span style="font-size:var(--fz-body);color:var(--txm)">Owner</span>';
+      h += '<select id="jobrev-todo-owner" style="'+selStyle+'">'+ownerOpts+'</select>';
       h += '<button type="button" class="btn btn-sm btn-primary" onclick="vspJobRevAddTodo(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')">Add to-do</button>';
       h += '</div>';
       var open2=todos.filter(function(t){ return t && !t.done && t.srcJobId===jc.id && t.srcRowId===rc.id; });
       if(open2.length){
-        h += '<div style="margin-top:10px;font-size:var(--fz-body);color:var(--txm)">Open from this line: '+open2.map(function(t){ return _vspHuddleEsc(t.task); }).join('; ')+'</div>';
+        h += '<div style="margin-top:8px;font-size:var(--fz-body);color:var(--txm)">Open: '+open2.map(function(t){ return _vspHuddleEsc(t.task)+' ('+_vspIniName(t.owner)+')'; }).join('; ')+'</div>';
       }
+      h += '</div>';
+
+      // ISSUE (same object + route as the meeting Issue)
+      h += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--brd)">';
+      h += '<label style="display:block;font-size:var(--fz-sm);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Raise an issue</label>';
+      h += '<input id="jobrev-issue-input" type="text" placeholder="Name the issue (for something that keeps breaking, not a one-off)" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
+      h += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
+      h += '<span style="font-size:var(--fz-body);color:var(--txm)">Owner</span>';
+      h += '<select id="jobrev-issue-owner" style="'+selStyle+'">'+ownerOpts+'</select>';
+      h += '<select id="jobrev-issue-priority" style="'+selStyle+'"><option value="high">High Priority</option><option value="low" selected>Low Priority</option></select>';
+      h += '<select id="jobrev-issue-interval" style="'+selStyle+'"><option value="short" selected>Short-Term</option><option value="long">Long-Term</option></select>';
+      h += '<button type="button" class="btn btn-sm btn-primary" onclick="vspJobRevAddIssue(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')">Add issue</button>';
+      h += '</div>';
+      var openI=(issues.concat(typeof longTermIssues!=='undefined'?longTermIssues:[])).filter(function(it){ return it && it.status!=='resolved' && it.srcJobId===jc.id && it.srcRowId===rc.id; });
+      if(openI.length){
+        h += '<div style="margin-top:8px;font-size:var(--fz-body);color:var(--txm)">Open: '+openI.map(function(it){ return _vspHuddleEsc(it.title)+' ('+_vspIniName(it.owner)+')'; }).join('; ')+'</div>';
+      }
+      h += '</div>';
+
       h += '</div>';
     }
   }
@@ -19726,7 +19924,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v157';
+window.VSP_BUILD = 'v160';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
