@@ -1296,6 +1296,13 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v163 - 2026-07-25 - Fix: the Weekly heal only checked whether Scorecard
+           Review / Goals Review EXISTED and bailed if so, but the running
+           meeting filters visible:false sections - so a HIDDEN scorecard stayed
+           hidden. Heal now forces both present AND visible (un-hide if hidden,
+           insert if absent), verified against the exact running-agenda shape
+           both hidden and absent. Quarterly facil clear retained. No canon/
+           chrome/catalog/components/strip change.
     v162 - 2026-07-25 - The scorecard facilitation script (13-week trend,
            right-numbers quarterly hygiene) is quarterly-only. It was stamping
            onto the Weekly Scorecard Review too because both bind to scorecard;
@@ -3416,7 +3423,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v162</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v163</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -19940,7 +19947,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v162';
+window.VSP_BUILD = 'v163';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -21819,32 +21826,35 @@ function _vspMigrateWeeklyAgenda(){
     if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
     var a = meetingAgendas.find(function(x){ return x && x.type==='Weekly'; });
     if(!a || !Array.isArray(a.sections)) return;
-    function hasLabel(lbl){ return a.sections.some(function(s){ return s && s.label===lbl; }); }
-    function hasBind(b){ return a.sections.some(function(s){ return s && s.bind===b; }); }
-    var hasScore = hasLabel('Scorecard Review') || hasBind('scorecard');
-    var hasGoals = hasLabel('Goals Review');
-    if(hasScore && hasGoals) return;  // already whole - nothing to do
+    function findByLabel(lbl){ for(var i=0;i<a.sections.length;i++){ if(a.sections[i]&&a.sections[i].label===lbl) return a.sections[i]; } return null; }
+    function findByBind(b){ for(var i=0;i<a.sections.length;i++){ if(a.sections[i]&&a.sections[i].bind===b) return a.sections[i]; } return null; }
     function idxOf(lbl){ return a.sections.findIndex(function(s){ return s && s.label===lbl; }); }
-    // Insert Scorecard Review right after Check-In (or at the front if no Check-In).
-    if(!hasScore){
-      var sc = { label:'Scorecard Review', min:5, detail:'Each owner reports their numbers. Any metric off-track is automatically moved to Issues.', visible:true, locked:true, bind:'scorecard' };
+    // v163: the running meeting filters visible:false, so a section that exists
+    // but is hidden still does not show. The prior heal checked PRESENCE only
+    // and bailed, leaving a hidden Scorecard Review hidden. Force these two
+    // sections present AND visible: un-hide if hidden, insert if absent.
+    // Scorecard Review (after Check-In).
+    var sc = findByLabel('Scorecard Review') || findByBind('scorecard');
+    if(sc){
+      if(sc.visible===false) sc.visible=true;
+    } else {
       var ci = idxOf('Check-In');
-      a.sections.splice(ci>-1 ? ci+1 : 0, 0, sc);
+      a.sections.splice(ci>-1 ? ci+1 : 0, 0, { label:'Scorecard Review', min:5, detail:'Each owner reports their numbers. Any metric off-track is automatically moved to Issues.', visible:true, locked:true, bind:'scorecard' });
     }
-    // Insert Goals Review right after Scorecard Review (or after Check-In).
-    if(!hasGoals){
-      var gr = { label:'Goals Review', min:5, detail:'Each owner says On Track or Off Track. Off-track items move to Issues.', visible:true, locked:false };
+    // Goals Review (after Scorecard Review, else after Check-In).
+    var gr = findByLabel('Goals Review');
+    if(gr){
+      if(gr.visible===false) gr.visible=true;
+    } else {
       var after = idxOf('Scorecard Review');
       if(after<0) after = idxOf('Check-In');
-      a.sections.splice(after>-1 ? after+1 : 0, 0, gr);
+      a.sections.splice(after>-1 ? after+1 : 0, 0, { label:'Goals Review', min:5, detail:'Each owner says On Track or Off Track. Off-track items move to Issues.', visible:true, locked:false });
     }
-    // v162: if a prior build stamped the quarterly scorecard facilitation
-    // script onto the Weekly scorecard section, clear it so Weekly shows its
-    // own short detail. The stamper only runs when facil is undefined, so a
-    // persisted facil must be removed here.
-    a.sections.forEach(function(sec){
-      if(sec && sec.bind==='scorecard' && sec.facil!==undefined){ delete sec.facil; }
-    });
+    // Clear any persisted quarterly facilitation script off the Weekly scorecard
+    // section (the stamper only runs when facil is undefined, so a stored facil
+    // has to be removed here). Quarterly keeps its own.
+    var scFinal = findByLabel('Scorecard Review') || findByBind('scorecard');
+    if(scFinal && scFinal.facil!==undefined){ delete scFinal.facil; }
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   }catch(e){}
 }
