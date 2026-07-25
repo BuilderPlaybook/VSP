@@ -1296,6 +1296,22 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v162 - 2026-07-25 - The scorecard facilitation script (13-week trend,
+           right-numbers quarterly hygiene) is quarterly-only. It was stamping
+           onto the Weekly Scorecard Review too because both bind to scorecard;
+           the Weekly is a fast on-track/off-track pass and never wanted it.
+           Added a guard so the stamper skips scorecard on Weekly, and the
+           Weekly heal clears any already-persisted facil off the Weekly
+           scorecard section. Quarterly keeps the script. No canon/chrome/
+           catalog/components/strip change.
+    v161 - 2026-07-24 - Restored Scorecard Review and Goals Review to the
+           Weekly (Leadership) meeting. The seed was already correct; a stored
+           agenda had dropped both sections, so the running meeting showed
+           neither. New heal _vspMigrateWeeklyAgenda re-inserts each missing
+           section in its correct place (Scorecard after Check-In, Goals after
+           Scorecard) without removing or reordering any other section. Runs at
+           boot and after a snapshot lands, idempotent. No canon/chrome/catalog/
+           components/strip change.
     v160 - 2026-07-24 - Job Review: added a week stepper (Previous / Next /
            Back to current, clamped so it never goes to a future week) so a
            reported prior week can be verified; the review week now flows from
@@ -3400,7 +3416,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v160</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v162</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -19924,7 +19940,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v160';
+window.VSP_BUILD = 'v162';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -20575,6 +20591,12 @@ function _vspRunMigrations(){
         // to a one-to-one reviewing one person's Yes/No standards, so huddle
         // agendas are left with their own section guidance instead.
         if(String(ag && ag.type || '').indexOf('Performance Huddle')>-1) return;
+        // v162: the scorecard facilitation script is quarterly hygiene (13-week
+        // trend, right-numbers review, adjust goals from the 1-year plan). It
+        // was never meant for the Weekly meeting, whose Scorecard Review is a
+        // fast on-track / off-track pass. Skip the scorecard stamp on Weekly so
+        // the Weekly section keeps its own short detail; Quarterly keeps it.
+        if(sec.bind==='scorecard' && String(ag && ag.type || '')==='Weekly') return;
         if(sec.bind==='goals' && (sec.label||'').toLowerCase().indexOf('establish')<0 && (sec.label||'').toLowerCase().indexOf('swot')<0) return;
         if(sec.bind==='priorGoals' && (sec.label||'').toLowerCase().indexOf('prior')<0) return;
         var _f=_facilByBind[sec.bind];
@@ -20823,6 +20845,7 @@ function vspApplySnapshot(s){
   // again after the snapshot lands, not only once at boot.
   try{ setTimeout(function(){ try{ _vspMigrateTeams(); }catch(e){}
 try{ _vspMigrateHuddleAgenda(); }catch(e){}
+try{ _vspMigrateWeeklyAgenda(); }catch(e){}
 try{ _vspMigrateReportingLines(); }catch(e){}
 try{ _vspMigrateJobNotes(); }catch(e){} }, 0); }catch(e){}
   if(Array.isArray(s.meetingAgendas)){
@@ -21782,6 +21805,49 @@ function _vspMigrateTeams(){
     }
   }catch(e){}
 }
+/* v161: restore Scorecard Review and Goals Review to the Weekly (Leadership)
+   agenda if a stored copy dropped them. The seed is correct; a stored agenda
+   from the editor or a cloud sync had lost these two sections, so the running
+   meeting showed neither. This heal is conservative: it only INSERTS a missing
+   section in its correct place and never removes, reorders, or rewrites the
+   tenant's other sections (Job Update, Issue Solving, Conclude, etc.). Runs on
+   every load that carries the signature, and again after a snapshot lands, so
+   a repeated cloud re-pull cannot re-strip it. Idempotent - bails when both
+   sections are already present. */
+function _vspMigrateWeeklyAgenda(){
+  try{
+    if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
+    var a = meetingAgendas.find(function(x){ return x && x.type==='Weekly'; });
+    if(!a || !Array.isArray(a.sections)) return;
+    function hasLabel(lbl){ return a.sections.some(function(s){ return s && s.label===lbl; }); }
+    function hasBind(b){ return a.sections.some(function(s){ return s && s.bind===b; }); }
+    var hasScore = hasLabel('Scorecard Review') || hasBind('scorecard');
+    var hasGoals = hasLabel('Goals Review');
+    if(hasScore && hasGoals) return;  // already whole - nothing to do
+    function idxOf(lbl){ return a.sections.findIndex(function(s){ return s && s.label===lbl; }); }
+    // Insert Scorecard Review right after Check-In (or at the front if no Check-In).
+    if(!hasScore){
+      var sc = { label:'Scorecard Review', min:5, detail:'Each owner reports their numbers. Any metric off-track is automatically moved to Issues.', visible:true, locked:true, bind:'scorecard' };
+      var ci = idxOf('Check-In');
+      a.sections.splice(ci>-1 ? ci+1 : 0, 0, sc);
+    }
+    // Insert Goals Review right after Scorecard Review (or after Check-In).
+    if(!hasGoals){
+      var gr = { label:'Goals Review', min:5, detail:'Each owner says On Track or Off Track. Off-track items move to Issues.', visible:true, locked:false };
+      var after = idxOf('Scorecard Review');
+      if(after<0) after = idxOf('Check-In');
+      a.sections.splice(after>-1 ? after+1 : 0, 0, gr);
+    }
+    // v162: if a prior build stamped the quarterly scorecard facilitation
+    // script onto the Weekly scorecard section, clear it so Weekly shows its
+    // own short detail. The stamper only runs when facil is undefined, so a
+    // persisted facil must be removed here.
+    a.sections.forEach(function(sec){
+      if(sec && sec.bind==='scorecard' && sec.facil!==undefined){ delete sec.facil; }
+    });
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  }catch(e){}
+}
 function _vspMigrateHuddleAgenda(){
   try{
     if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
@@ -21875,6 +21941,7 @@ function _vspMigrateReportingLines(){
 }
 try{ _vspMigrateTeams(); }catch(e){}
 try{ _vspMigrateHuddleAgenda(); }catch(e){}
+try{ _vspMigrateWeeklyAgenda(); }catch(e){}
 try{ _vspMigrateReportingLines(); }catch(e){}
 try{ _vspMigrateJobNotes(); }catch(e){}
 </script>
