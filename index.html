@@ -1296,6 +1296,14 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
+    v163b - 2026-07-25 - Root-cause fix for why the heal never took on live
+           data: it was only wired into the parse-time boot block (no-ops on the
+           seed) and a post-snapshot setTimeout that a staging re-adopt could
+           beat. Now also called synchronously inside _vspRunMigrations, the
+           path that runs right after a snapshot restores meetingAgendas, so the
+           Weekly agenda is repaired before render every time. Heal also forces
+           Scorecard Review / Goals Review VISIBLE (un-hide if hidden). Quarterly
+           script stays off Weekly.
     v163 - 2026-07-25 - Fix: the Weekly heal only checked whether Scorecard
            Review / Goals Review EXISTED and bailed if so, but the running
            meeting filters visible:false sections - so a HIDDEN scorecard stayed
@@ -20470,6 +20478,13 @@ function _vspRunMigrations(){
       _qa._scInserted=true;
     }
   }catch(e){}
+
+  // v163: run the Weekly Scorecard/Goals heal here too, synchronously on every
+  // restore, not only in the boot block (which no-ops on the seed) and the
+  // post-snapshot setTimeout (which can be beaten by a staging re-adopt). This
+  // is the path that runs right after a snapshot restores meetingAgendas, so
+  // the Weekly agenda is repaired before anything renders.
+  try{ if(typeof _vspMigrateWeeklyAgenda==='function') _vspMigrateWeeklyAgenda(); }catch(e){}
 
   // v73: any completed goal must read 100% (status is the source of truth).
   try{ _normalizeGoalProgress(); }catch(e){}
