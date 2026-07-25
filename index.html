@@ -10495,6 +10495,21 @@ function renderScorecardInline(opts){ _recalcAll();
       var allVals=_winR.filter(function(v){return v!==null&&v!==undefined&&typeof v==='number';});
       var sum=allVals.length?allVals.reduce(function(a,b){return a+b;},0):null;
       var avg=allVals.length?(sum/allVals.length):null;
+      // v168: Yes/No metrics mirror P&D. AVG is the Yes-rate (via _scRollupVal),
+      // not the numeric mean (which discards Yes/No strings and shows a dash).
+      // TOTAL is a green Yes-count / red No-count pair over the visible weeks.
+      var _ynAvg=null, _ynTotalDisplay=null;
+      if(m && m.unit==='YN'){
+        _ynAvg=_scRollupVal(m);
+        var _ynYes=0, _ynNo=0;
+        _winR.forEach(function(v){
+          if(v==null||v==='') return;
+          var s=String(v).trim().toLowerCase();
+          if(s==='yes'||s==='y'||s==='true'||s==='1') _ynYes++; else _ynNo++;
+        });
+        var _noColor = _ynNo===0 ? '#16a34a' : '#dc2626';
+        _ynTotalDisplay = '<span style="color:#16a34a;font-weight:700">'+_ynYes+'</span><span style="color:var(--txm);margin:0 2px">/</span><span style="color:'+_noColor+';font-weight:700">'+_ynNo+'</span>';
+      }
       var rowBg=mi%2===0?'var(--sur)':'#fafbfc';
 
       h+='<tr>';
@@ -10506,8 +10521,8 @@ function renderScorecardInline(opts){ _recalcAll();
       var _cnpVals = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
       var _cnpAvgTipHtml = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals, avg);
       var _cnpTotTipHtml = _cnpTotalTip(m, _cnpVals);
-      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml+'</td>';
-      h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+_cnpTotTipHtml+'</td>';
+      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==="Total"?"var(--txm)":_tierColor(_scTier(m,(m.unit==="YN"?_ynAvg:avg)))))+'">'+(m.showAverage===false?'-':(m.unit==="YN"?(_ynAvg==null?'-':fmtVal(_ynAvg,m.unit)):fmtVal(avg,m.unit)))+_cnpAvgTipHtml+'</td>';
+      h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||"var(--txm)"):"var(--txm)")+';border-right:2px solid var(--brd)')+'">'+(m.unit==="YN"?_ynTotalDisplay:((m.showTotal===false||m.rollupAs==="Average"||m.unit==="%")?'-':fmtVal(sum,m.unit)))+_cnpTotTipHtml+'</td>';
 
       var _isWk = true;
       colIdxs.forEach(function(_wi){
