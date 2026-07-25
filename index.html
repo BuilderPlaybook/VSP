@@ -1296,61 +1296,40 @@
            Strategic Plan step unchanged (VTO Review checklist + full embedded
            editable plan both remain). No change to canon, chrome, catalog,
            components, engine, contracts, or VSP_STORAGE_VERSION.
-    v163b - 2026-07-25 - Root-cause fix for why the heal never took on live
-           data: it was only wired into the parse-time boot block (no-ops on the
-           seed) and a post-snapshot setTimeout that a staging re-adopt could
-           beat. Now also called synchronously inside _vspRunMigrations, the
-           path that runs right after a snapshot restores meetingAgendas, so the
-           Weekly agenda is repaired before render every time. Heal also forces
-           Scorecard Review / Goals Review VISIBLE (un-hide if hidden). Quarterly
-           script stays off Weekly.
-    v163 - 2026-07-25 - Fix: the Weekly heal only checked whether Scorecard
-           Review / Goals Review EXISTED and bailed if so, but the running
-           meeting filters visible:false sections - so a HIDDEN scorecard stayed
-           hidden. Heal now forces both present AND visible (un-hide if hidden,
-           insert if absent), verified against the exact running-agenda shape
-           both hidden and absent. Quarterly facil clear retained. No canon/
-           chrome/catalog/components/strip change.
-    v162 - 2026-07-25 - The scorecard facilitation script (13-week trend,
-           right-numbers quarterly hygiene) is quarterly-only. It was stamping
-           onto the Weekly Scorecard Review too because both bind to scorecard;
-           the Weekly is a fast on-track/off-track pass and never wanted it.
-           Added a guard so the stamper skips scorecard on Weekly, and the
-           Weekly heal clears any already-persisted facil off the Weekly
-           scorecard section. Quarterly keeps the script. No canon/chrome/
-           catalog/components/strip change.
-    v161 - 2026-07-24 - Restored Scorecard Review and Goals Review to the
-           Weekly (Leadership) meeting. The seed was already correct; a stored
-           agenda had dropped both sections, so the running meeting showed
-           neither. New heal _vspMigrateWeeklyAgenda re-inserts each missing
-           section in its correct place (Scorecard after Check-In, Goals after
-           Scorecard) without removing or reordering any other section. Runs at
-           boot and after a snapshot lands, idempotent. No canon/chrome/catalog/
-           components/strip change.
-    v160 - 2026-07-24 - Job Review: added a week stepper (Previous / Next /
-           Back to current, clamped so it never goes to a future week) so a
-           reported prior week can be verified; the review week now flows from
-           state.jobRevWeekOffset through _vspJobRevContext. Fixed the cell
-           quick-add: the detail panel now scrolls into view and flashes when
-           opened (it mounts below the long meeting page), and the quick button
-           is larger and raised. No canon/chrome/catalog/components/strip change.
-    v159 - 2026-07-24 - Job Review grid rebuilt to the scorecard row anatomy:
-           Role Deliverables column (row.sec), Standard title with the green/red
-           tally bar under it (X of N met, goal 90%), Reported, Deadline (row.due)
-           and Goal (=Yes) columns, then Standard % and the per-job columns. Same
-           behaviour as v158 (click-cycle cells, two-way 90% score, Fail-triggered
-           chip, Note/To-do/Issue quick-add). Reported column kept for the
-           correction flow. No canon/chrome/catalog/components/strip change.
-    v158 - 2026-07-24 - Job Review reshaped to read like the weekly scorecard.
-           Cells click-cycle Yes/No/empty (N/A moves to the cell panel). Added a
-           per-standard (row) score beside the per-job (column) score, both
-           judged at a single 90% goal (green/red, amber band retired on this
-           surface). Hard-fail rows show a Fail-triggered chip when any job is
-           No. Cell quick-add gains an Issue action alongside Note and To-do,
-           both routed to this huddle (reviewIn/raisedIn) with an owner picker,
-           same objects the meeting toolbar creates. Answers now carry a src
-           field ('manual' today) so a later system feed swaps the source with
-           no UI change. No canon/chrome/catalog/components/strip change.
+    v158 - 2026-07-25 - Per-team meeting agendas. Before this build
+           meetingAgendas was keyed by type alone, so every surface resolved
+           with meetingAgendas.find(a=>a.type===T) and got the first record of
+           that type regardless of which team was active: Leadership editing
+           its Weekly changed the Weekly every other team ran. The three team
+           meetings (Weekly, Quarterly, Annual) are now keyed by teamId + type;
+           the seven specialty types (the three performance huddles, Leadership
+           Sync, Monthly Client, Property, Development) stay shared, since they
+           are supervisor-to-person or single-context meetings rather than team
+           meetings. One resolver, agendaFor(teamId, type), replaces all
+           fifteen type-only .find call sites: nine in the agenda editor, the
+           Agendas tab render, printMeeting, and the four in the run path
+           (_facilCurSec, recording start, the running-meeting render, and the
+           recap). Second defect fixed in the same pass: the Upcoming
+           meeting-type cards never read meetingAgendas at all, they rendered a
+           hardcoded steps array, so the preview showed a different meeting
+           than the one the Agendas tab held (the Weekly card listed seven
+           steps ending "Wrap-Up" against an eight-section agenda ending
+           "Conclude"). Those cards now read the active team's live agenda
+           through agendaFor, with the duration computed from the visible
+           sections instead of a frozen string, a "+N more" line past nine
+           sections, and an Edit agenda control that opens that agenda. Starting
+           a meeting reads the record at run time, so an edit shows up the next
+           time the meeting runs. Migration _vspMigrateTeamAgendas (Seed
+           Migration Rule v1) gives every existing team its own copy cloned
+           from the record the tenant already had, so no team loses the agenda
+           it has been running, then drops the untagged originals once at least
+           one tagged copy exists; idempotent, and runs at boot AND after a
+           snapshot lands per the v139 rule. Restore merges agendas on
+           teamId + type rather than type. A new team seeds from the default
+           template per type via seedTeamAgendas, so no team ever starts empty.
+           No change to canon, chrome, catalog, components, strip, engine,
+           contracts, or VSP_STORAGE_VERSION (the change is additive with a
+           boot migration; no user data is wiped).
     v157 - 2026-07-24 - Job Health page added, and SMB_JOB_HEALTH published.
            Second half of Will's request: a running record of each job's health
            so a Production Manager can see which projects are improving and
@@ -3431,7 +3410,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v163</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v164</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4282,6 +4261,100 @@ function markCascadeRead(id,teamId){
   renderPage();
 }
 
+/* ── PER-TEAM AGENDAS (v158) ───────────────────────────────────────────────
+   Before v158 `meetingAgendas` was keyed by `type` alone, so every surface
+   resolved with `meetingAgendas.find(a=>a.type===T)` and got the FIRST record
+   of that type no matter which team was active. Leadership editing its Weekly
+   changed the Weekly every other team ran. The three team meetings are now
+   keyed by teamId + type; the seven specialty types (performance huddles,
+   Leadership Sync, Monthly Client, Property, Development) stay shared because
+   they are supervisor-to-person or single-context meetings, not team meetings.
+   Every surface resolves through agendaFor() so the editor, the Upcoming
+   preview, and the running meeting cannot diverge.                          */
+var TEAM_SCOPED_AGENDA_TYPES=['Weekly','Quarterly','Annual'];
+function isTeamScopedAgenda(type){ return TEAM_SCOPED_AGENDA_TYPES.indexOf(type)>-1; }
+function agendaFor(teamId,type){
+  if(typeof meetingAgendas==='undefined'||!Array.isArray(meetingAgendas)) return null;
+  var t=type||'Weekly';
+  if(!isTeamScopedAgenda(t)){
+    return meetingAgendas.find(function(a){return a&&a.type===t;})||null;
+  }
+  var tid=teamId||state.currentTeam||'lt';
+  return meetingAgendas.find(function(a){return a&&a.type===t&&a.teamId===tid;})
+      || meetingAgendas.find(function(a){return a&&a.type===t&&!a.teamId;})
+      || meetingAgendas.find(function(a){return a&&a.type===t;})
+      || null;
+}
+// The active team's agenda list, in seed order, for the editor's type tabs.
+function agendasForTeam(teamId){
+  if(typeof meetingAgendas==='undefined'||!Array.isArray(meetingAgendas)) return [];
+  var seen={},out=[];
+  meetingAgendas.forEach(function(a){
+    if(!a||!a.type||seen[a.type]) return;
+    var r=agendaFor(teamId,a.type);
+    if(r){ seen[a.type]=true; out.push(r); }
+  });
+  return out;
+}
+// Template source for a team-scoped type.
+//   'seed'    - the standard template a BRAND-NEW team starts from. Reads the
+//               pristine build seed, never another team's tailored copy.
+//   'tenant'  - what an EXISTING team should inherit at migration: the record
+//               this tenant has actually been running (the untagged pre-v158
+//               record), so no team loses its current agenda.
+function defaultAgendaTemplate(type,mode){
+  if(mode==='seed'){
+    var seeded=(SEED_AGENDA_TEMPLATES||[]).find(function(a){return a&&a.type===type;});
+    if(seeded) return seeded;
+  }
+  return meetingAgendas.find(function(a){return a&&a.type===type&&!a.teamId;})
+      || (SEED_AGENDA_TEMPLATES||[]).find(function(a){return a&&a.type===type;})
+      || meetingAgendas.find(function(a){return a&&a.type===type&&a.teamId==='lt';})
+      || meetingAgendas.find(function(a){return a&&a.type===type;})
+      || null;
+}
+// Visible sections across every day, for the Upcoming card preview and any
+// other surface that summarises a whole agenda rather than running one day.
+function agendaPreviewSections(ag){
+  if(!ag) return [];
+  function vis(list){ return (list||[]).filter(function(s){return s&&s.visible!==false;}); }
+  if(ag.days) return ag.days.reduce(function(acc,d){ return acc.concat(vis(d.sections)); },[]);
+  return vis(ag.sections);
+}
+// Live total of an agenda's visible sections, so a card's duration matches the
+// agenda instead of a frozen string on the record.
+function agendaDurLabel(ag){
+  if(!ag) return '';
+  var total=agendaPreviewSections(ag).reduce(function(a,s){return a+(parseInt(s.min,10)||0);},0);
+  if(!total) return ag.dur||'';
+  if(total<60) return total+' min';
+  var hh=Math.floor(total/60), mm=total%60;
+  if(hh>=8) return (Math.round(total/60*10)/10)+' hours';
+  return mm?hh+'h '+mm+'m':hh+(hh===1?' hour':' hours');
+}
+function _cloneAgendaFor(src,teamId){
+  var c=null;
+  try{ c=JSON.parse(JSON.stringify(src)); }catch(e){ return null; }
+  if(!c) return null;
+  c.teamId=teamId;
+  return c;
+}
+// Give a team its own copy of every team-scoped type it is missing. Called by
+// the migration for existing teams and by addTeam for a brand-new one.
+function seedTeamAgendas(teamId,mode){
+  if(!teamId||typeof meetingAgendas==='undefined'||!Array.isArray(meetingAgendas)) return 0;
+  var made=0;
+  TEAM_SCOPED_AGENDA_TYPES.forEach(function(t){
+    var have=meetingAgendas.find(function(a){return a&&a.type===t&&a.teamId===teamId;});
+    if(have) return;
+    var src=defaultAgendaTemplate(t,mode);
+    if(!src) return;
+    var c=_cloneAgendaFor(src,teamId);
+    if(c){ meetingAgendas.push(c); made++; }
+  });
+  return made;
+}
+
 // ── AGENDA EDITING ─────────────────────────────────────────────────────────────
 function getAgendaSections(agendaData,dayIdx){
   // v109: hide sections toggled off in the agenda editor from the running
@@ -4306,7 +4379,7 @@ function getAgendaSectionsRaw(agendaData,dayIdx){
   return agendaData.sections||[];
 }
 function saveAgendaStep(){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   if(!agendaData) return;
   var sections=getAgendaSections(agendaData);
   var idx=state.editingAgendaStep;
@@ -4326,13 +4399,13 @@ function saveAgendaStep(){
   renderPage();
 }
 function saveAgendaLabel(idx,val){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   var sections=getAgendaSections(agendaData);
   if(sections[idx]) sections[idx].label=val.trim()||sections[idx].label;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
 }
 function saveAgendaDur(idx,val){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   var sections=getAgendaSections(agendaData);
   if(sections[idx]) sections[idx].min=Math.max(1,parseInt(val)||1);
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
@@ -4341,7 +4414,7 @@ function saveAgendaDur(idx,val){
 function toggleSectionVisible(idx){
   // v110: index into the RAW section list so successive toggles do not shift
   // (getAgendaSections filters out invisible entries for the running meeting).
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   if(!agendaData) return;
   var sections;
   if(agendaData.days){
@@ -4359,7 +4432,7 @@ function openAgendaStepDesc(idx){
   renderPage();
 }
 function saveAgendaDesc(idx){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   var sections=getAgendaSections(agendaData);
   var detail=document.getElementById('ag-detail');
   if(sections[idx]&&detail) sections[idx].detail=detail.value;
@@ -4368,14 +4441,14 @@ function saveAgendaDesc(idx){
   renderPage();
 }
 function addAgendaSection(){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   var sections=getAgendaSections(agendaData);
   sections.splice(sections.length-1,0,{label:'New Section',min:10,detail:'',visible:true,locked:false});
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
 }
 function addAgendaDay(){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   if(!agendaData||!agendaData.days) return;
   var dayNum=agendaData.days.length+1;
   agendaData.days.push({label:'Day '+dayNum,sections:[
@@ -4387,7 +4460,7 @@ function addAgendaDay(){
   renderPage();
 }
 function deleteAgendaStep(idx){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   var sections=getAgendaSections(agendaData);
   if(!sections||sections.length<=1) return;
   if(!sections[idx]) return;
@@ -4400,7 +4473,7 @@ function deleteAgendaStep(idx){
   }, {okLabel:'Delete'});
 }
 function moveAgendaStep(idx,dir){
-  var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;});
+  var agendaData=agendaFor(state.currentTeam,state.meetAgendaType);
   var sections=getAgendaSections(agendaData);
   // dir can be +1/-1 (button) or a larger value from drag-drop (absolute delta)
   var newIdx=idx+dir;
@@ -4413,7 +4486,7 @@ function moveAgendaStep(idx,dir){
   renderPage();
 }
 function updateAgendaDuration(type){
-  var agendaData=meetingAgendas.find(function(a){return a.type===type;});
+  var agendaData=agendaFor(state.currentTeam,type);
   if(!agendaData) return;
   var total=agendaData.days
     ?agendaData.days.reduce(function(a,d){return a+d.sections.reduce(function(b,s){return b+s.min;},0);},0)
@@ -4627,7 +4700,7 @@ function printArchiveVersion(idx){
 }
 function printMeeting(type){
   var teamObj=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
-  var agendaData=meetingAgendas.find(function(a){return a.type===(type||"Weekly")})||meetingAgendas[0];
+  var agendaData=agendaFor(state.currentTeam,type||"Weekly")||meetingAgendas[0];
   var today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   function stIcon(s){return s==="complete"?'✓':s==="off-track"?'\u2193':'\u2191';}
   function stColor(s){return s==="complete"?"#16a34a":s==="off-track"?"#dc2626":"#2563eb";}
@@ -5597,6 +5670,13 @@ var meetingAgendas=[
 // before rendering - no render function needs to change.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/* v158: pristine copy of the seeded agendas, taken at script-eval time before
+   any restore or migration runs. The migration deletes the untagged seed
+   records once every team holds its own copy, so without this snapshot a team
+   created later would have no standard template to start from and would clone
+   whatever Leadership had tailored. New teams start from here. */
+var SEED_AGENDA_TEMPLATES=(function(){ try{ return JSON.parse(JSON.stringify(meetingAgendas)); }catch(e){ return []; } })();
+
 var teamsRegistry={
   "lt":{
     id:"lt",
@@ -5818,6 +5898,9 @@ function createTeam(){
     longTermIssues:[],resolvedIssues:[],scorecard:[],headlines:[],
     scheduledMeetings:[],pastMeetings:[]
   };
+  // v158: a new team starts from the default template for each team-scoped
+  // type, which it can then tailor. No team ever starts with an empty agenda.
+  try{ seedTeamAgendas(id,'seed'); }catch(e){}
   state.showTeamMenu=false;
   state.newTeamPanel=false;
   switchTeam(id);
@@ -12642,22 +12725,12 @@ function vspArchiveJob(id){
 function vspToggleJobManage(){
   state.jobManageOpen = !state.jobManageOpen; renderPage();
 }
-/* v160: the Job Review can step back to a prior week so a supervisor can
-   verify a week Keith has already reported, or catch up a missed review.
-   Offset 0 is this week; negative steps back. Never forward (no future weeks
-   to verify). */
-function _vspShiftMondayIso(iso, weeks){
-  var p=String(iso).split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]);
-  d.setDate(d.getDate()+(weeks*7));
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
 function _vspJobRevContext(){
   /* Everything the Job Review grid needs, resolved once: who the huddle is
      about, which week, which jobs they run, and which standard lines apply. */
   var repIni = state.meetHuddleReport || '';
   var repP = repIni ? ppl.find(function(x){ return x && x.initials===repIni; }) : null;
-  var weekOffset = Math.min(0, state.jobRevWeekOffset || 0);
-  var iso = _vspShiftMondayIso(_vspThisMondayIso(), weekOffset);
+  var iso = _vspThisMondayIso();
   var jobs = _vspLoadJobs();
   var live = jobs.filter(function(j){
     if(!j || j.archived) return false;
@@ -12668,14 +12741,8 @@ function _vspJobRevContext(){
   var roleLabel = repP ? (repP.roleLabel || repP.role || null) : null;
   var stds = roleLabel ? (_vspPndReadStandards(roleLabel) || []) : [];
   var scoped = stds.filter(function(r){ return r && _vspIsJobScoped(roleLabel, r.id); });
-  return { repIni:repIni, repP:repP, iso:iso, weekOffset:weekOffset, weekLabel:_vspHuddleWeekLabel(iso),
-           jobs:jobs, live:live, otherCount:otherCount,
+  return { repIni:repIni, repP:repP, iso:iso, jobs:jobs, live:live, otherCount:otherCount,
            roleLabel:roleLabel, stds:stds, scoped:scoped, fromPM: !!(live.length && live[0]._src==='PM') };
-}
-function vspJobRevWeekStep(delta){
-  state.jobRevWeekOffset = Math.min(0, (state.jobRevWeekOffset||0) + delta);
-  state.jobRevCell = null;
-  renderPage();
 }
 function _vspClaimFor(personId, iso, rowId){
   var all=_vspPndReadHuddles();
@@ -12698,25 +12765,9 @@ function _vspJobScore(repIni, iso, jobId, rows){
   var denom=yes+no;
   return { yes:yes, no:no, blank:blank, denom:denom, pct: denom? Math.round((yes/denom)*100) : null };
 }
-/* v158: the same score read the other way - one standard across every job.
-   Down the columns tells you which JOB is weak; across the row tells you
-   which STANDARD is weak everywhere. Same Yes/(Yes+No), N/A excluded. */
-function _vspStandardScore(repIni, iso, jobIds, rowId){
-  var yes=0, no=0, blank=0;
-  jobIds.forEach(function(jid){
-    var rec=_vspGetJobRev(repIni, iso, jid, rowId);
-    var a=rec?rec.a:null;
-    if(a==='yes') yes++;
-    else if(a==='no') no++;
-    else if(a==='na'){ /* excluded */ }
-    else blank++;
-  });
-  var denom=yes+no;
-  return { yes:yes, no:no, blank:blank, denom:denom, pct: denom? Math.round((yes/denom)*100) : null };
-}
 function _vspScoreChip(pct){
   if(pct===null) return '<span class="chip c-gry">No data</span>';
-  var cls = pct>=90 ? 'c-grn' : 'c-red';   // v158: single 90% goal, green/red only, on both the job and standard rollups
+  var cls = pct>=90 ? 'c-grn' : (pct>=75 ? 'c-amb' : 'c-red');
   return '<span class="chip '+cls+'">'+pct+'%</span>';
 }
 function _vspRevMark(a){
@@ -12728,18 +12779,6 @@ function _vspRevMark(a){
 function vspJobRevOpenCell(jobId, rowId){
   state.jobRevCell={ jobId:jobId, rowId:rowId };
   renderPage();
-  // The meeting page is long and the panel mounts below the grid, so bring it
-  // into view and flash it - otherwise opening it reads as nothing happening.
-  try{
-    setTimeout(function(){
-      var el=document.getElementById('jobrev-detail-panel');
-      if(el){
-        if(el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'center'});
-        el.style.transition='box-shadow .2s'; el.style.boxShadow='0 0 0 3px var(--blu)';
-        setTimeout(function(){ try{ el.style.boxShadow='none'; }catch(e){} }, 700);
-      }
-    }, 60);
-  }catch(e){}
 }
 function vspJobRevCloseCell(){ state.jobRevCell=null; renderPage(); }
 function vspJobRevSet(jobId, rowId, a){
@@ -12747,22 +12786,7 @@ function vspJobRevSet(jobId, rowId, a){
   if(!c.repIni) return;
   var cur=_vspGetJobRev(c.repIni, c.iso, jobId, rowId);
   var next = (cur && cur.a===a) ? null : a;
-  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next, src: next? 'manual' : undefined });
-  renderPage();
-}
-/* v158: the cell now behaves like the weekly scorecard cell - click once for
-   Yes, again for No, once more to clear. N/A stays available in the cell's
-   detail panel (it is rare and does not belong on the fast sweep). Source is
-   stamped 'manual' now; when a system feed (Buildertrend, schedule,
-   accounting) lands it fills the same field and nothing else on this screen
-   changes. */
-function vspJobRevCycle(jobId, rowId){
-  var c=_vspJobRevContext();
-  if(!c.repIni) return;
-  var cur=_vspGetJobRev(c.repIni, c.iso, jobId, rowId);
-  var a=cur?cur.a:null;
-  var next = a==='yes' ? 'no' : (a==='no' ? null : 'yes');   // empty/na -> yes -> no -> empty
-  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next, src: next? 'manual' : undefined });
+  _vspSetJobRev(c.repIni, c.iso, jobId, rowId, { a: next });
   renderPage();
 }
 function vspJobRevNote(el, jobId, rowId){
@@ -12775,11 +12799,9 @@ function vspJobRevNote(el, jobId, rowId){
   }catch(e){}
 }
 function vspJobRevAddTodo(jobId, rowId){
-  /* A to-do raised here is an ordinary meeting to-do. It carries the job, the
-     standard line and the week so next week's To-Do Review shows why it
-     exists, and it counts in the completion banner like everything else. It is
-     routed to this huddle (reviewIn) exactly as a to-do raised from the
-     meeting toolbar is, so it lands on the same To-Do Review list. */
+  /* A to-do raised here is an ordinary to-do. It carries the job, the standard
+     line and the week so next week's To-Do Review shows why it exists, and it
+     counts in the completion banner like everything else. */
   var c=_vspJobRevContext();
   if(!c.repIni) return;
   var job=c.live.find(function(j){ return j.id===jobId; });
@@ -12787,17 +12809,14 @@ function vspJobRevAddTodo(jobId, rowId){
   var el=document.getElementById('jobrev-todo-input');
   var txt=el?String(el.value||'').trim():'';
   if(!txt){ vspAlert('Type what needs to be done first.'); return; }
-  var osel=document.getElementById('jobrev-todo-owner');
-  var owner=(osel&&osel.value)?osel.value:c.repIni;
   var due=(function(){
     var p=c.iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setDate(d.getDate()+7);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   })();
-  var _id=Date.now();
   todos.unshift({
-    id: _id,
+    id: Date.now(),
     task: txt,
-    owner: owner,
+    owner: c.repIni,
     due: due,
     done: false,
     private: false,
@@ -12809,44 +12828,10 @@ function vspJobRevAddTodo(jobId, rowId){
     srcWeek: c.iso,
     notes: (job?('Job: '+job.name):'')+(row?(' | Line: '+row.std):'')
   });
-  try{ var _r=_vspCurrentMeetingRoute(); if(_r && _r.indexOf('huddle:')===0){ var _t=todos.find(function(x){return x.id===_id;}); if(_t) _t.reviewIn=_r; } }catch(e){}
   if(el) el.value='';
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  showToast('To-do added for '+_vspIniName(owner));
+  showToast('To-do added for '+(c.repP?c.repP.first:'this person'));
   renderPage();
-}
-/* v158: raise an Issue from a Job Review cell, the same object and the same
-   route the LT meeting uses (openCreateForm 'issue'): Title, Owner, Priority,
-   Interval, Notes, pushed to issues[] (or longTermIssues for Long-Term) and
-   tagged reviewIn/raisedIn so it lands on this huddle's Issues list. */
-function vspJobRevAddIssue(jobId, rowId){
-  var c=_vspJobRevContext();
-  if(!c.repIni) return;
-  var job=c.live.find(function(j){ return j.id===jobId; });
-  var row=c.stds.find(function(r){ return r.id===rowId; });
-  var el=document.getElementById('jobrev-issue-input');
-  var txt=el?String(el.value||'').trim():'';
-  if(!txt){ vspAlert('Name the issue first.'); return; }
-  var osel=document.getElementById('jobrev-issue-owner');
-  var owner=(osel&&osel.value)?osel.value:c.repIni;
-  var psel=document.getElementById('jobrev-issue-priority');
-  var priority=(psel&&psel.value)?psel.value:'low';
-  var isel=document.getElementById('jobrev-issue-interval');
-  var longTerm=(isel&&isel.value==='long');
-  var _id=Date.now();
-  var _obj={ id:_id, title:txt, owner:owner, priority:priority, votes:0, status:'open', created:vspToday(),
-    attachments:0, notes:(job?('Job: '+job.name):'')+(row?(' | Line: '+row.std):''),
-    srcJobId:jobId, srcRowId:rowId, srcWeek:c.iso };
-  (longTerm?longTermIssues:issues).push(_obj);
-  try{ var _r=_vspCurrentMeetingRoute(); if(_r && _r.indexOf('huddle:')===0){ _obj.reviewIn=_r; _obj.raisedIn=_r; } }catch(e){}
-  if(el) el.value='';
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-  showToast('Issue added to '+(c.repP?c.repP.first:'this')+"\u2019s huddle");
-  renderPage();
-}
-function _vspIniName(ini){
-  var p=ppl.find(function(x){ return x && x.initials===ini; });
-  return p ? p.first : (ini||'owner');
 }
 function vspJobRevCorrect(rowId){
   /* The claim was Yes, a job says otherwise. Correct that ONE line on the
@@ -12898,16 +12883,7 @@ function _vspRenderJobReview(){
   h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobManage()">'+(state.jobManageOpen?'Done':'Manage jobs')+'</button>';
   h += '</div></div>';
 
-  h += '<div style="padding:12px 18px 4px;font-size:var(--fz-body);color:var(--txm)">Walk each line of '+(repP?_vspHuddleEsc(repP.first)+'\u2019s':'the')+' scorecard against each job. Click a cell once for Yes, again for No, once more to clear; use the '+'\u22ee'+' button for a note, to-do, or issue. Standard % (across a row) shows which standard is weak everywhere; Job score (bottom) shows which job is weak. Goal is 90% on both.'+(c.otherCount?' <span style="color:var(--txd)">'+c.otherCount+' job'+(c.otherCount===1?'':'s')+' assigned to other people are hidden.</span>':'')+'</div>';
-
-  // v160: week stepper - move back to a week already reported, or catch up a
-  // missed review. Cannot step into the future.
-  h += '<div style="padding:6px 18px 2px;display:flex;align-items:center;gap:10px">';
-  h += '<button type="button" class="btn btn-sm" onclick="vspJobRevWeekStep(-1)">\u25c0 Previous week</button>';
-  h += '<span style="font-size:var(--fz-body);font-weight:600">Week of '+_vspHuddleEsc(c.weekLabel)+(c.weekOffset===0?' <span style="color:var(--txd);font-weight:400">(current)</span>':'')+'</span>';
-  h += '<button type="button" class="btn btn-sm"'+(c.weekOffset>=0?' disabled style="opacity:.5;cursor:not-allowed"':' onclick="vspJobRevWeekStep(1)"')+'>Next week \u25b6</button>';
-  if(c.weekOffset<0) h += '<button type="button" class="btn btn-sm" onclick="vspJobRevWeekStep(999)">Back to current</button>';
-  h += '</div>';
+  h += '<div style="padding:12px 18px 4px;font-size:var(--fz-body);color:var(--txm)">Walk each line of '+(repP?_vspHuddleEsc(repP.first)+'\u2019s':'the')+' scorecard against each job. They already answered for the week; this confirms it is true on the ground.'+(c.otherCount?' <span style="color:var(--txd)">'+c.otherCount+' job'+(c.otherCount===1?'':'s')+' assigned to other people are hidden.</span>':'')+'</div>';
 
   if(state.jobManageOpen){
     h += '<div style="padding:8px 18px 14px">';
@@ -12982,103 +12958,68 @@ function _vspRenderJobReview(){
     return h;
   }
 
-  var NAMEW=300, COLW=132, RDW=150, DLW=150;
+  var NAMEW=300, COLW=132;
   h += '<div style="padding:6px 18px 16px">';
   h += '<div style="border:1px solid var(--brd);border-radius:9px;overflow:hidden">';
   h += '<div style="overflow-x:auto">';
-  h += '<table style="border-collapse:separate;border-spacing:0;width:100%;min-width:'+(NAMEW+RDW+DLW+COLW*c.live.length+320)+'px">';
+  h += '<table style="border-collapse:separate;border-spacing:0;width:100%;min-width:'+(NAMEW+COLW*c.live.length+140)+'px">';
 
-  var thBase='background:var(--sur2);border-bottom:1px solid var(--brd);padding:9px 10px;font-size:var(--fz-body);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.03em';
   h += '<thead><tr>';
-  h += '<th scope="col" style="'+thBase+';text-align:left;width:'+RDW+'px">Role Deliverables</th>';
-  h += '<th scope="col" style="position:sticky;left:0;z-index:2;'+thBase+';text-align:left;border-right:1px solid var(--brd);min-width:'+NAMEW+'px">Standard</th>';
-  h += '<th scope="col" style="'+thBase+';text-align:left;white-space:nowrap">Reported</th>';
-  h += '<th scope="col" style="'+thBase+';text-align:left;width:'+DLW+'px">Deadline</th>';
-  h += '<th scope="col" style="'+thBase+';text-align:center;white-space:nowrap">Goal</th>';
-  h += '<th scope="col" style="'+thBase+';text-align:center;border-left:1px solid var(--brd);white-space:nowrap" title="This standard across every job. Goal 90%.">Standard %</th>';
+  h += '<th scope="col" style="position:sticky;left:0;z-index:2;background:var(--sur2);text-align:left;padding:9px 12px;border-bottom:1px solid var(--brd);border-right:1px solid var(--brd);min-width:'+NAMEW+'px;font-size:var(--fz-body);font-weight:700">Standard</th>';
+  h += '<th scope="col" style="background:var(--sur2);text-align:left;padding:9px 10px;border-bottom:1px solid var(--brd);font-size:var(--fz-body);font-weight:700;white-space:nowrap">Reported</th>';
   c.live.forEach(function(j){
-    h += '<th scope="col" style="'+thBase+';text-align:center;border-left:1px solid var(--brd);min-width:'+COLW+'px">'+_vspHuddleEsc(j.name)+'</th>';
+    h += '<th scope="col" style="background:var(--sur2);text-align:center;padding:9px 10px;border-bottom:1px solid var(--brd);border-left:1px solid var(--brd);min-width:'+COLW+'px;font-size:var(--fz-body);font-weight:700">'+_vspHuddleEsc(j.name)+'</th>';
   });
   h += '</tr></thead><tbody>';
-
-  var liveIds=c.live.map(function(j){ return j.id; });
 
   c.scoped.forEach(function(r){
     var claim=_vspClaimFor(repP.id, iso, r.id);
     var anyNo=c.live.some(function(j){ var rec=_vspGetJobRev(repIni, iso, j.id, r.id); return rec && rec.a==='no'; });
     var flagged = (claim==='yes' && anyNo);
-    var hardFail = (r.hard && anyNo);
-    var ss=_vspStandardScore(repIni, iso, liveIds, r.id);
+    var reportedNo = (claim==='no');
     var rowBg = flagged ? 'background:var(--redb)' : '';
-    var tdBase='border-bottom:0.5px solid var(--brd);padding:10px 12px;vertical-align:top';
-
     h += '<tr style="'+rowBg+'">';
-    // Role Deliverables (from row.sec, exactly as the scorecard reads it)
-    h += '<td style="'+tdBase+';font-size:var(--fz-body);color:var(--txm);line-height:1.3">'+_vspHuddleEsc(r.sec||'')+'</td>';
-    // Standard: hard-fail badge, title, tally bar, correction affordance
-    h += '<th scope="row" style="position:sticky;left:0;z-index:1;'+(flagged?'background:var(--redb)':'background:var(--sur)')+';'+tdBase+';border-right:1px solid var(--brd);font-weight:400;text-align:left">';
-    if(r.hard) h += '<div style="margin-bottom:5px"><span class="chip c-red">Hard fail if not Yes</span>'+(hardFail?' <span class="chip c-red">Fail triggered</span>':'')+'</div>';
-    h += '<div style="font-size:var(--fz-lg);color:var(--txt)">'+_vspHuddleEsc(r.std)+'</div>';
-    // tally bar, scorecard style: X of N met, goal 90%
-    var barPct = ss.denom ? ss.pct : 0;
-    var barCls = ss.denom===0 ? 'n' : (ss.pct>=90 ? 'g' : 'r');
-    h += '<div style="display:flex;align-items:center;gap:8px;margin-top:8px">';
-    h += '<span style="font-size:var(--fz-xs);color:var(--txd);white-space:nowrap">'+ss.yes+' of '+(ss.denom||0)+' met</span>';
-    h += '<span style="position:relative;flex:1;height:7px;border-radius:4px;background:#eceff3;overflow:hidden;min-width:60px"><i style="display:block;height:100%;border-radius:4px;width:'+barPct+'%;background:'+(barCls==='g'?'var(--grn)':barCls==='r'?'var(--red)':'#cfd6de')+'"></i></span>';
-    h += '<span style="font-size:var(--fz-xs);color:var(--txd);white-space:nowrap">goal 90%</span>';
-    h += '</div>';
+    h += '<th scope="row" style="position:sticky;left:0;z-index:1;'+(flagged?'background:var(--redb)':'background:var(--sur)')+';text-align:left;padding:10px 12px;border-bottom:0.5px solid var(--brd);border-right:1px solid var(--brd);font-weight:400;vertical-align:top">';
+    h += '<div style="font-size:var(--fz-lg);'+(reportedNo?'color:var(--txm)':'')+'">'+_vspHuddleEsc(r.std)+'</div>';
+    if(r.hard) h += '<div style="margin-top:4px"><span class="chip c-red">Hard fail if not Yes</span></div>';
+    if(r.due) h += '<div style="font-size:var(--fz-base);color:var(--txm);margin-top:3px">'+_vspHuddleEsc(r.due)+'</div>';
     if(flagged){
       h += '<div style="margin-top:7px"><button type="button" class="btn btn-sm" onclick="vspJobRevCorrect(\''+_vspHuddleEsc(r.id)+'\')">Correct this line to No</button></div>';
     }
     h += '</th>';
-    // Reported (Keith's own claim)
-    h += '<td style="'+tdBase+';white-space:nowrap">';
+
+    h += '<td style="padding:10px;border-bottom:0.5px solid var(--brd);white-space:nowrap;vertical-align:top">';
     if(claim==='yes') h += '<span class="chip c-grn">Said Yes</span>';
     else if(claim==='no') h += '<span class="chip c-red">Said No</span>';
     else h += '<span class="chip c-gry">Not answered</span>';
     h += '</td>';
-    // Deadline (row.due)
-    h += '<td style="'+tdBase+';font-size:var(--fz-base);color:var(--txm);line-height:1.35">'+_vspHuddleEsc(r.due||'')+'</td>';
-    // Goal
-    h += '<td style="'+tdBase+';text-align:center;color:var(--blu);font-weight:600;white-space:nowrap">=Yes</td>';
-    // Standard % (row rollup, 90% green/red)
-    h += '<td style="'+tdBase+';border-left:1px solid var(--brd);text-align:center">'+_vspScoreChip(ss.pct)+'</td>';
 
     c.live.forEach(function(j){
       var rec=_vspGetJobRev(repIni, iso, j.id, r.id);
       var a=rec?rec.a:null;
       var hasNote=!!(rec && rec.note && rec.note.trim());
-      var openTodos=todos.filter(function(t){ return t && !t.done && t.srcJobId===j.id && t.srcRowId===r.id; }).length;
-      var openIssues=(issues.concat(typeof longTermIssues!=='undefined'?longTermIssues:[])).filter(function(it){ return it && it.status!=='resolved' && it.srcJobId===j.id && it.srcRowId===r.id; }).length;
-      var tone = a==='yes' ? 'background:var(--grnb);color:var(--grnt)' : (a==='no' ? 'background:var(--redb);color:var(--redt)' : 'color:var(--txd)');
-      var glyph = a==='yes' ? '&#10003; Yes' : (a==='no' ? '&#10007; No' : (a==='na' ? 'N/A' : '&ndash;'));
-      var srcTip = a ? ('Marked '+(a==='yes'?'Yes':a==='no'?'No':'N/A')+' - source: '+((rec&&rec.src)||'manual')) : 'Not checked';
-      h += '<td style="position:relative;padding:0;border-bottom:0.5px solid var(--brd);border-left:1px solid var(--brd);text-align:center;vertical-align:middle">';
-      h += '<button type="button" title="'+srcTip+'" onclick="vspJobRevCycle(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="width:100%;min-height:46px;'+tone+';border:0;cursor:pointer;font-family:inherit;font-size:var(--fz-body);font-weight:'+(a?'700':'400')+'">'+glyph+'</button>';
-      h += '<button type="button" title="Note, to-do or issue" onclick="vspJobRevOpenCell(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="position:absolute;top:3px;right:3px;z-index:2;width:26px;height:24px;border:1px solid var(--brd);background:var(--sur);border-radius:6px;color:var(--txb);cursor:pointer;font-size:15px;line-height:20px;padding:0;font-weight:700">&#8942;</button>';
-      var mk='';
-      if(hasNote) mk+='<span style="font-size:var(--fz-xs);color:var(--blu)" title="Note">&#9998;</span>';
-      if(openTodos) mk+='<span style="font-size:var(--fz-xs);color:var(--gp)" title="'+openTodos+' to-do(s)">&#9745;</span>';
-      if(openIssues) mk+='<span style="font-size:var(--fz-xs);color:var(--red)" title="'+openIssues+' issue(s)">&#9873;</span>';
-      if(mk) h += '<span style="position:absolute;left:4px;bottom:2px;display:flex;gap:3px">'+mk+'</span>';
+      var open = state.jobRevCell && state.jobRevCell.jobId===j.id && state.jobRevCell.rowId===r.id;
+      h += '<td style="padding:8px;border-bottom:0.5px solid var(--brd);border-left:1px solid var(--brd);text-align:center;vertical-align:top">';
+      if(reportedNo && !a){
+        h += '<div style="font-size:var(--fz-base);color:var(--txd)">reported No</div>';
+      }
+      h += '<button type="button" onclick="vspJobRevOpenCell(\''+j.id+'\',\''+_vspHuddleEsc(r.id)+'\')" style="background:'+(open?'var(--sur2)':'transparent')+';border:1px solid '+(open?'var(--blu)':'transparent')+';border-radius:7px;padding:4px 6px;cursor:pointer;font-family:inherit">';
+      h += _vspRevMark(a);
+      if(hasNote) h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">note</div>';
+      h += '</button>';
       h += '</td>';
     });
     h += '</tr>';
   });
 
-  // bottom Job score row (column rollup), spanning the identity columns
   h += '<tr>';
+  h += '<th scope="row" style="position:sticky;left:0;z-index:1;background:var(--sur2);text-align:left;padding:10px 12px;border-top:1px solid var(--brd);border-right:1px solid var(--brd);font-size:var(--fz-body);font-weight:700">Job health this week</th>';
   h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
-  h += '<th scope="row" style="position:sticky;left:0;z-index:1;background:var(--sur2);text-align:left;padding:10px 12px;border-top:1px solid var(--brd);border-right:1px solid var(--brd);font-size:var(--fz-body);font-weight:700">Job score</th>';
-  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
-  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
-  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd)"></td>';
-  h += '<td style="background:var(--sur2);border-top:1px solid var(--brd);border-left:1px solid var(--brd)"></td>';
   c.live.forEach(function(j){
     var sc=_vspJobScore(repIni, iso, j.id, c.scoped);
     h += '<td style="background:var(--sur2);border-top:1px solid var(--brd);border-left:1px solid var(--brd);text-align:center;padding:10px">';
     h += _vspScoreChip(sc.pct);
-    h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:3px">'+sc.yes+' of '+(sc.denom||0)+' met'+(sc.blank?(' \u00b7 '+sc.blank+' left'):'')+'</div>';
+    h += '<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:3px">'+sc.yes+' yes / '+sc.no+' no'+(sc.blank?(' \u00b7 '+sc.blank+' left'):'')+'</div>';
     h += '</td>';
   });
   h += '</tr>';
@@ -13090,60 +13031,28 @@ function _vspRenderJobReview(){
     if(jc && rc){
       var rec2=_vspGetJobRev(repIni, iso, jc.id, rc.id);
       var a2=rec2?rec2.a:null;
-      // owner options: everyone active, initials as value (matches meeting owners)
-      var ownerOpts=ppl.filter(function(p){ return p && p.status!=='archived'; })
-        .map(function(p){ return '<option value="'+_vspHuddleEsc(p.initials)+'"'+(p.initials===repIni?' selected':'')+'>'+_vspHuddleEsc(p.first+' '+p.last)+'</option>'; }).join('');
-      var selStyle='padding:8px 9px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)';
-      h += '<div id="jobrev-detail-panel" style="margin-top:12px;border:1px solid var(--blu);border-radius:9px;padding:14px 16px;background:var(--sur)">';
+      h += '<div style="margin-top:12px;border:1px solid var(--blu);border-radius:9px;padding:14px 16px;background:var(--sur)">';
       h += '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">';
       h += '<div style="flex:1"><div style="font-size:var(--fz-lg);font-weight:600">'+_vspHuddleEsc(rc.std)+'</div>';
       h += '<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspHuddleEsc(jc.name)+'</div></div>';
       h += '<button type="button" class="btn btn-sm" onclick="vspJobRevCloseCell()">Close</button>';
       h += '</div>';
-
-      // N/A stays here (off the fast sweep). Yes/No are set by clicking the cell.
-      h += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">';
-      h += '<span style="font-size:var(--fz-body);color:var(--txm)">This cell:</span> '+_vspRevMark(a2);
-      h += '<button type="button" onclick="vspJobRevSet(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\',\'na\')" style="font-size:var(--fz-body);font-weight:600;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid '+(a2==='na'?'var(--blu)':'var(--brd)')+';background:'+(a2==='na'?'var(--sur2)':'var(--sur)')+';color:var(--txt)">'+(a2==='na'?'Clear N/A':'Mark N/A')+'</button>';
+      h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+      [['yes','Yes'],['no','No'],['na','N/A']].forEach(function(o){
+        var on=(a2===o[0]);
+        h += '<button type="button" onclick="vspJobRevSet(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\',\''+o[0]+'\')" style="font-size:var(--fz-lg);font-weight:600;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid '+(on?'var(--blu)':'var(--brd)')+';background:'+(on?'var(--sur2)':'var(--sur)')+';color:var(--txt)">'+o[1]+'</button>';
+      });
       h += '<span id="jobrev-note-status" style="align-self:center;font-size:var(--fz-xs);color:var(--grn);opacity:0;transition:opacity .2s">Saved</span>';
       h += '</div>';
-
-      // NOTE
-      h += '<label style="display:block;font-size:var(--fz-sm);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Note</label>';
-      h += '<textarea data-noautogrow oninput="vspJobRevNote(this,\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')" placeholder="What did you find on this job?" style="width:100%;min-height:60px;font-family:inherit;font-size:var(--fz-body);padding:9px 11px;border:1px solid var(--brd);border-radius:7px;background:var(--sur2);color:var(--txt);resize:vertical">'+_vspHuddleEsc(rec2&&rec2.note?rec2.note:'')+'</textarea>';
-
-      // TO-DO (same object + route as the meeting To-do)
-      h += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--brd)">';
-      h += '<label style="display:block;font-size:var(--fz-sm);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Create a to-do</label>';
-      h += '<input id="jobrev-todo-input" type="text" placeholder="What needs to happen?" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
-      h += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
-      h += '<span style="font-size:var(--fz-body);color:var(--txm)">Owner</span>';
-      h += '<select id="jobrev-todo-owner" style="'+selStyle+'">'+ownerOpts+'</select>';
+      h += '<textarea data-noautogrow oninput="vspJobRevNote(this,\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')" placeholder="What did you find on this job?" style="width:100%;min-height:64px;font-family:inherit;font-size:var(--fz-body);padding:9px 11px;border:1px solid var(--brd);border-radius:7px;background:var(--sur2);color:var(--txt);resize:vertical">'+_vspHuddleEsc(rec2&&rec2.note?rec2.note:'')+'</textarea>';
+      h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+      h += '<input id="jobrev-todo-input" type="text" placeholder="Raise a to-do from this line" style="flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
       h += '<button type="button" class="btn btn-sm btn-primary" onclick="vspJobRevAddTodo(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')">Add to-do</button>';
       h += '</div>';
       var open2=todos.filter(function(t){ return t && !t.done && t.srcJobId===jc.id && t.srcRowId===rc.id; });
       if(open2.length){
-        h += '<div style="margin-top:8px;font-size:var(--fz-body);color:var(--txm)">Open: '+open2.map(function(t){ return _vspHuddleEsc(t.task)+' ('+_vspIniName(t.owner)+')'; }).join('; ')+'</div>';
+        h += '<div style="margin-top:10px;font-size:var(--fz-body);color:var(--txm)">Open from this line: '+open2.map(function(t){ return _vspHuddleEsc(t.task); }).join('; ')+'</div>';
       }
-      h += '</div>';
-
-      // ISSUE (same object + route as the meeting Issue)
-      h += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--brd)">';
-      h += '<label style="display:block;font-size:var(--fz-sm);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Raise an issue</label>';
-      h += '<input id="jobrev-issue-input" type="text" placeholder="Name the issue (for something that keeps breaking, not a one-off)" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:7px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)">';
-      h += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
-      h += '<span style="font-size:var(--fz-body);color:var(--txm)">Owner</span>';
-      h += '<select id="jobrev-issue-owner" style="'+selStyle+'">'+ownerOpts+'</select>';
-      h += '<select id="jobrev-issue-priority" style="'+selStyle+'"><option value="high">High Priority</option><option value="low" selected>Low Priority</option></select>';
-      h += '<select id="jobrev-issue-interval" style="'+selStyle+'"><option value="short" selected>Short-Term</option><option value="long">Long-Term</option></select>';
-      h += '<button type="button" class="btn btn-sm btn-primary" onclick="vspJobRevAddIssue(\''+jc.id+'\',\''+_vspHuddleEsc(rc.id)+'\')">Add issue</button>';
-      h += '</div>';
-      var openI=(issues.concat(typeof longTermIssues!=='undefined'?longTermIssues:[])).filter(function(it){ return it && it.status!=='resolved' && it.srcJobId===jc.id && it.srcRowId===rc.id; });
-      if(openI.length){
-        h += '<div style="margin-top:8px;font-size:var(--fz-body);color:var(--txm)">Open: '+openI.map(function(it){ return _vspHuddleEsc(it.title)+' ('+_vspIniName(it.owner)+')'; }).join('; ')+'</div>';
-      }
-      h += '</div>';
-
       h += '</div>';
     }
   }
@@ -14312,7 +14221,7 @@ function _facilCurSec(){
     var rt=state.meetType||''; var runType='Weekly';
     var _m={'quarterly':'Quarterly','annual':'Annual','weekly':'Weekly','weekly-performance-huddle':'Weekly Performance Huddle','quarterly-performance-huddle':'Quarterly Performance Huddle','annual-performance-huddle':'Annual Performance Huddle'};
     Object.keys(_m).forEach(function(k){ if(rt.indexOf(k)>-1) runType=_m[k]; });
-    var ag=meetingAgendas.find(function(a){return a.type===runType;})||meetingAgendas[0];
+    var ag=agendaFor(state.currentTeam,runType)||meetingAgendas[0];
     var secs=getAgendaSections(ag,state.meetAgendaDay||0);
     return secs[Math.min(state.meetStep||0,secs.length-1)]||null;
   }catch(e){ return null; }
@@ -14687,7 +14596,7 @@ function aiAutoStartStep(stepIdx){
   else if(rawType.includes('monthly-client')) runType='Monthly Client Meeting';
   else if(rawType.includes('property')) runType='Property Meeting';
   else if(rawType.includes('development')) runType='Development Meeting';
-  var agendaData=meetingAgendas.find(function(a){return a.type===runType;})||meetingAgendas[0];
+  var agendaData=agendaFor(state.currentTeam,runType)||meetingAgendas[0];
   var sections=getAgendaSections(agendaData,state.meetAgendaDay||0);
   var cur=sections[Math.min(stepIdx,sections.length-1)];
   if(cur) startRecording(stepIdx, cur.label);
@@ -14764,36 +14673,53 @@ function renderMeetings(){
     }
     h+='</div>';
 
-    // All meeting type cards
+    // Meeting type cards. v158: the step list and duration are read from the
+    // ACTIVE TEAM's agenda through agendaFor, not hardcoded here. Before v158
+    // this array carried its own frozen `steps` and `dur`, so the card showed
+    // a different meeting than the one the Agendas tab held and the running
+    // meeting ran. Only type / category / colour / blurb live here now.
     var allMeetingCards=[
-      {type:"Weekly",cat:"team",dur:"90 min",desc:"Scorecard, goals, headlines, to-dos, and issues.",steps:["Check-In","Scorecard Review","Goals Review","Headlines","To-Do Review","Issues","Wrap-Up"],c:"#2563eb"},
-      (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",dur:"8 hours",desc:"Grade last quarter, review strategic plan, set new goals.",steps:["Check-In","Previous Quarter Review","Strategic Plan Review","Goals Review & Grade","Set New Goals","Issues","Wrap-Up"],c:"#7c3aed"},
-      mtIsLT&&{type:"Annual",cat:"team",dur:"1\u20132 days",desc:"Full strategic planning. Update vision, set annual goals.",steps:["Check-In","Year in Review","Strategic Plan Update","Annual Goals","Q1 Goals","Issues","Wrap-Up"],c:"#7c3aed"},
-      {type:"Weekly Performance Huddle",cat:"supervisor",dur:"52 min",desc:"Individual KPI review, goals, headlines, to-dos, and issues. Supervisor to direct report.",steps:["Check-In","Scorecard Review","Goals Review","Headlines","To-Do Review","Job Review","Issues","Conclude"],c:"#0891b2"},
-      {type:"Quarterly Performance Huddle",cat:"supervisor",dur:"2 hours",desc:"Quarter review, performance feedback, strengths, and next quarter goals.",steps:["Check-In","Quarter Review","Performance Feedback","Strengths & Development","Set Goals","Conclude"],c:"#0891b2"},
-      {type:"Annual Performance Huddle",cat:"supervisor",dur:"3\u20134 hours",desc:"Full year review, career conversation, development plan, and annual goals.",steps:["Check-In","Year in Review","Career Conversation","Values Alignment","Development Plan","Annual Goals","Conclude"],c:"#0891b2"},
-      {type:"Monthly Client Meeting",cat:"client",dur:"60 min",desc:"Project progress, schedule, budget, change orders, selections, and upcoming milestones.",steps:["Welcome","Progress Update","Schedule Review","Budget & Change Orders","Selections Due","Upcoming Milestones","Client Questions","Conclude"],c:"#0891b2"},
+      {type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
+      (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
+      mtIsLT&&{type:"Annual",cat:"team",desc:"Full strategic planning. Update vision, set annual goals.",c:"#7c3aed"},
+      {type:"Weekly Performance Huddle",cat:"supervisor",desc:"Individual KPI review, goals, headlines, to-dos, and issues. Supervisor to direct report.",c:"#0891b2"},
+      {type:"Quarterly Performance Huddle",cat:"supervisor",desc:"Quarter review, performance feedback, strengths, and next quarter goals.",c:"#0891b2"},
+      {type:"Annual Performance Huddle",cat:"supervisor",desc:"Full year review, career conversation, development plan, and annual goals.",c:"#0891b2"},
+      {type:"Monthly Client Meeting",cat:"client",desc:"Project progress, schedule, budget, change orders, selections, and upcoming milestones.",c:"#0891b2"},
     ].filter(Boolean);
 
     var filteredCards=allMeetingCards.filter(function(mt){return mt.cat===cat;});
 
     h+='<div class="g3" style="margin-bottom:18px">';
     filteredCards.forEach(function(mt){
+      // v158: resolve this team's live agenda. The card is a preview of the
+      // record the Agendas tab edits and the running meeting runs, so the
+      // three surfaces cannot show three different meetings.
+      var _ag=agendaFor(state.currentTeam,mt.type);
+      var _secs=agendaPreviewSections(_ag);
+      var _dur=agendaDurLabel(_ag);
+      var _shown=_secs.slice(0,9);
+      var _more=_secs.length-_shown.length;
       h+='<div class="card" style="border-top:3px solid '+mt.c+'">';
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
       h+='<div style="font-size:var(--fz-body);font-weight:600">'+mt.type+'</div>';
       if(mt.cat==='supervisor') h+='<span style="background:#f3e8ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:10px;padding:1px 7px">\ud83d\udd12 Private</span>';
       if(mt.cat==='client') h+='<span style="background:#cffafe;color:#0891b2;border:1px solid #67e8f9;border-radius:10px;padding:1px 7px">Client</span>';
       h+='</div>';
-      h+='<span style="font-size:var(--fz-base);font-weight:600;color:'+mt.c+';background:'+mt.c+'12;border:1px solid '+mt.c+'30;padding:2px 8px;border-radius:12px;display:inline-block;margin-bottom:8px">'+mt.dur+'</span>';
+      if(_dur) h+='<span style="font-size:var(--fz-base);font-weight:600;color:'+mt.c+';background:'+mt.c+'12;border:1px solid '+mt.c+'30;padding:2px 8px;border-radius:12px;display:inline-block;margin-bottom:8px">'+_dur+'</span>';
       h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:12px;line-height:1.5">'+mt.desc+'</div>';
       h+='<div style="margin-bottom:14px">';
-      mt.steps.forEach(function(s,i){
+      if(!_shown.length){
+        h+='<div style="font-size:var(--fz-base);color:var(--txm)">No sections yet. Build this agenda on the Agendas tab.</div>';
+      }
+      _shown.forEach(function(s,i){
         h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
         h+='<div style="width:14px;height:14px;border-radius:50%;background:'+mt.c+'15;border:1px solid '+mt.c+'40;display:flex;align-items:center;justify-content:center;font-size:var(--fz-xs);color:'+mt.c+';font-weight:600;flex-shrink:0">'+(i+1)+'</div>';
-        h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+s+'</span></div>';
+        h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+(s.label||'')+'</span></div>';
       });
+      if(_more>0) h+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:4px;padding-left:20px">+'+_more+' more</div>';
       h+='</div>';
+      h+='<button class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px" onclick="state.meetAgendaType=\''+mt.type+'\';state.meetAgendaDay=0;state.editingAgendaStep=null;state.meetTab=\'agendas\';renderPage()">Edit agenda</button>';
       h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="startMeetingByType(\''+mt.type+'\')">';
       h+='\u25b6 Start Meeting</button>';
       h+='</div>';
@@ -14881,7 +14807,7 @@ function renderMeetings(){
     else if(rawType.includes('monthly-client')) runType='Monthly Client Meeting';
     else if(rawType.includes('property')) runType='Property Meeting';
     else if(rawType.includes('development')) runType='Development Meeting';
-    var runAgendaData=meetingAgendas.find(function(a){return a.type===runType;})||meetingAgendas[0];
+    var runAgendaData=agendaFor(state.currentTeam,runType)||meetingAgendas[0];
     var runSections=getAgendaSections(runAgendaData,state.meetAgendaDay||0);
     var step=Math.min(state.meetStep||0,runSections.length-1);
     var cur=runSections[step];
@@ -15713,7 +15639,7 @@ function renderMeetings(){
 
   // ── AGENDAS ───────────────────────────────────────────────
   if(tab==="agendas"){
-    var agendaData=meetingAgendas.find(function(a){return a.type===state.meetAgendaType;})||meetingAgendas[0];
+    var agendaData=agendaFor(state.currentTeam,state.meetAgendaType)||meetingAgendas[0];
     var isMultiDay=!!agendaData.days;
     var activeDayIdx=isMultiDay?Math.min(state.meetAgendaDay||0,agendaData.days.length-1):0;
     // v111: editor uses raw list so hidden sections stay toggle-able
@@ -15736,7 +15662,9 @@ function renderMeetings(){
 
     // ── Meeting type tabs ──────────────────────────────────
     h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:'+(isMultiDay?'0':'16px')+';flex-wrap:wrap">';
-    meetingAgendas.forEach(function(a){
+    // v158: one tab per type the ACTIVE team runs, resolved through agendaFor
+    // so the tab opens that team's own copy of a team-scoped agenda.
+    agendasForTeam(state.currentTeam).forEach(function(a){
       h+='<button class="btn'+(state.meetAgendaType===a.type?' btn-blu':'')+'" onclick="state.meetAgendaType=\''+a.type+'\';state.meetAgendaDay=0;state.editingAgendaStep=null;renderPage()">'+a.type+'</button>';
     });
     h+='</div>';
@@ -17771,7 +17699,7 @@ function endMeeting(){
     else if(runType.includes("performance")&&runType.includes("annual")) runType="Annual Performance Huddle";
     else if(runType.includes("property")) runType="Property Meeting";
     else if(runType.includes("development")) runType="Development Meeting";
-  var agData=meetingAgendas.find(function(a){return a.type===runType;})||meetingAgendas[0];
+  var agData=agendaFor(state.currentTeam,runType)||meetingAgendas[0];
   var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   var sections=agData.days?agData.days.reduce(function(a,d){return a.concat(d.sections);},[]):agData.sections;
   // Section durations with labels
@@ -19955,7 +19883,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v163';
+window.VSP_BUILD = 'v164';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -20479,11 +20407,11 @@ function _vspRunMigrations(){
     }
   }catch(e){}
 
-  // v163: run the Weekly Scorecard/Goals heal here too, synchronously on every
-  // restore, not only in the boot block (which no-ops on the seed) and the
-  // post-snapshot setTimeout (which can be beaten by a staging re-adopt). This
-  // is the path that runs right after a snapshot restores meetingAgendas, so
-  // the Weekly agenda is repaired before anything renders.
+  // v164: every team's Weekly agenda must show Scorecard Review and Goals
+  // Review. Ensure the per-team fan-out has run so each team has its own Weekly
+  // record, then heal each one (un-hide/insert scorecard + goals). Runs
+  // synchronously on every restore, before render.
+  try{ if(typeof _vspMigrateTeamAgendas==='function') _vspMigrateTeamAgendas(); }catch(e){}
   try{ if(typeof _vspMigrateWeeklyAgenda==='function') _vspMigrateWeeklyAgenda(); }catch(e){}
 
   // v73: any completed goal must read 100% (status is the source of truth).
@@ -20613,11 +20541,6 @@ function _vspRunMigrations(){
         // to a one-to-one reviewing one person's Yes/No standards, so huddle
         // agendas are left with their own section guidance instead.
         if(String(ag && ag.type || '').indexOf('Performance Huddle')>-1) return;
-        // v162: the scorecard facilitation script is quarterly hygiene (13-week
-        // trend, right-numbers review, adjust goals from the 1-year plan). It
-        // was never meant for the Weekly meeting, whose Scorecard Review is a
-        // fast on-track / off-track pass. Skip the scorecard stamp on Weekly so
-        // the Weekly section keeps its own short detail; Quarterly keeps it.
         if(sec.bind==='scorecard' && String(ag && ag.type || '')==='Weekly') return;
         if(sec.bind==='goals' && (sec.label||'').toLowerCase().indexOf('establish')<0 && (sec.label||'').toLowerCase().indexOf('swot')<0) return;
         if(sec.bind==='priorGoals' && (sec.label||'').toLowerCase().indexOf('prior')<0) return;
@@ -20867,13 +20790,21 @@ function vspApplySnapshot(s){
   // again after the snapshot lands, not only once at boot.
   try{ setTimeout(function(){ try{ _vspMigrateTeams(); }catch(e){}
 try{ _vspMigrateHuddleAgenda(); }catch(e){}
+try{ _vspMigrateTeamAgendas(); }catch(e){}
 try{ _vspMigrateWeeklyAgenda(); }catch(e){}
 try{ _vspMigrateReportingLines(); }catch(e){}
 try{ _vspMigrateJobNotes(); }catch(e){} }, 0); }catch(e){}
+  // v158: agendas merge on teamId + type, not type alone. A record saved
+  // before v158 carries no teamId; it lands as the untagged record and
+  // _vspMigrateTeamAgendas below fans it out to any team still missing a copy,
+  // so a snapshot from an older device cannot flatten every team back onto one
+  // shared agenda. A saved team-tagged record only ever replaces that team's.
   if(Array.isArray(s.meetingAgendas)){
     s.meetingAgendas.forEach(function(savedA){
       if(!savedA || !savedA.type) return;
-      var i=meetingAgendas.findIndex(function(dd){return dd.type===savedA.type;});
+      var i=meetingAgendas.findIndex(function(dd){
+        return dd && dd.type===savedA.type && (dd.teamId||null)===(savedA.teamId||null);
+      });
       if(i>-1) meetingAgendas[i]=savedA; else meetingAgendas.push(savedA);
     });
   }
@@ -21827,49 +21758,71 @@ function _vspMigrateTeams(){
     }
   }catch(e){}
 }
-/* v161: restore Scorecard Review and Goals Review to the Weekly (Leadership)
-   agenda if a stored copy dropped them. The seed is correct; a stored agenda
-   from the editor or a cloud sync had lost these two sections, so the running
-   meeting showed neither. This heal is conservative: it only INSERTS a missing
-   section in its correct place and never removes, reorders, or rewrites the
-   tenant's other sections (Job Update, Issue Solving, Conclude, etc.). Runs on
-   every load that carries the signature, and again after a snapshot lands, so
-   a repeated cloud re-pull cannot re-strip it. Idempotent - bails when both
-   sections are already present. */
+/* v158: per-team agendas (Seed Migration Rule v1). Before v158 the three team
+   meetings were one shared record per type, so a tenant with saved data holds
+   untagged Weekly / Quarterly / Annual records. Give every team its own copy of
+   each, cloned from the record the tenant already had, so no team loses the
+   agenda it has been running (LIDA Leadership's tailored Weekly included), then
+   drop the untagged originals now that every team is covered. Idempotent: a
+   team that already has its own copy is never touched, so a later deliberate
+   edit is never overwritten. Runs at boot AND after a snapshot lands, per the
+   v139 rule that a heal has to run on every apply carrying the signature. */
+function _vspMigrateTeamAgendas(){
+  try{
+    if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
+    if(typeof teamsRegistry!=='object' || !teamsRegistry) return;
+    var teamIds=Object.keys(teamsRegistry);
+    if(!teamIds.length) return;
+    var changed=false;
+    teamIds.forEach(function(tid){ if(seedTeamAgendas(tid,'tenant')>0) changed=true; });
+    // Every team now holds its own copy, so the untagged originals are dead
+    // weight. Only remove one when at least one tagged copy of that type
+    // exists, so a partial state can never strip the last record of a type.
+    TEAM_SCOPED_AGENDA_TYPES.forEach(function(t){
+      var tagged=meetingAgendas.some(function(a){return a&&a.type===t&&a.teamId;});
+      if(!tagged) return;
+      for(var i=meetingAgendas.length-1;i>=0;i--){
+        var a=meetingAgendas[i];
+        if(a&&a.type===t&&!a.teamId){ meetingAgendas.splice(i,1); changed=true; }
+      }
+    });
+    if(changed){ try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} }
+  }catch(e){}
+}
+/* v164: ensure every team's Weekly agenda shows Scorecard Review and Goals
+   Review. In the per-team agenda model each team holds its own teamId-tagged
+   Weekly record (fanned out by _vspMigrateTeamAgendas). A stored copy may have
+   these two sections hidden (visible:false) or missing; the running meeting
+   filters visible:false, so a hidden section stays hidden. This heal forces
+   both present AND visible on EVERY Weekly record, un-hiding if hidden and
+   inserting if absent, without touching any other section. It also clears any
+   quarterly facilitation script that leaked onto a Weekly scorecard section.
+   Runs after the team fan-out, on every restore, per the heal-on-every-apply
+   discipline. Idempotent. */
 function _vspMigrateWeeklyAgenda(){
   try{
     if(typeof meetingAgendas==='undefined' || !Array.isArray(meetingAgendas)) return;
-    var a = meetingAgendas.find(function(x){ return x && x.type==='Weekly'; });
-    if(!a || !Array.isArray(a.sections)) return;
-    function findByLabel(lbl){ for(var i=0;i<a.sections.length;i++){ if(a.sections[i]&&a.sections[i].label===lbl) return a.sections[i]; } return null; }
-    function findByBind(b){ for(var i=0;i<a.sections.length;i++){ if(a.sections[i]&&a.sections[i].bind===b) return a.sections[i]; } return null; }
-    function idxOf(lbl){ return a.sections.findIndex(function(s){ return s && s.label===lbl; }); }
-    // v163: the running meeting filters visible:false, so a section that exists
-    // but is hidden still does not show. The prior heal checked PRESENCE only
-    // and bailed, leaving a hidden Scorecard Review hidden. Force these two
-    // sections present AND visible: un-hide if hidden, insert if absent.
-    // Scorecard Review (after Check-In).
-    var sc = findByLabel('Scorecard Review') || findByBind('scorecard');
-    if(sc){
-      if(sc.visible===false) sc.visible=true;
-    } else {
-      var ci = idxOf('Check-In');
-      a.sections.splice(ci>-1 ? ci+1 : 0, 0, { label:'Scorecard Review', min:5, detail:'Each owner reports their numbers. Any metric off-track is automatically moved to Issues.', visible:true, locked:true, bind:'scorecard' });
-    }
-    // Goals Review (after Scorecard Review, else after Check-In).
-    var gr = findByLabel('Goals Review');
-    if(gr){
-      if(gr.visible===false) gr.visible=true;
-    } else {
-      var after = idxOf('Scorecard Review');
-      if(after<0) after = idxOf('Check-In');
-      a.sections.splice(after>-1 ? after+1 : 0, 0, { label:'Goals Review', min:5, detail:'Each owner says On Track or Off Track. Off-track items move to Issues.', visible:true, locked:false });
-    }
-    // Clear any persisted quarterly facilitation script off the Weekly scorecard
-    // section (the stamper only runs when facil is undefined, so a stored facil
-    // has to be removed here). Quarterly keeps its own.
-    var scFinal = findByLabel('Scorecard Review') || findByBind('scorecard');
-    if(scFinal && scFinal.facil!==undefined){ delete scFinal.facil; }
+    meetingAgendas.forEach(function(a){
+      if(!a || a.type!=='Weekly' || !Array.isArray(a.sections)) return;
+      function findByLabel(lbl){ for(var i=0;i<a.sections.length;i++){ if(a.sections[i]&&a.sections[i].label===lbl) return a.sections[i]; } return null; }
+      function findByBind(b){ for(var i=0;i<a.sections.length;i++){ if(a.sections[i]&&a.sections[i].bind===b) return a.sections[i]; } return null; }
+      function idxOf(lbl){ return a.sections.findIndex(function(s){ return s && s.label===lbl; }); }
+      var sc = findByLabel('Scorecard Review') || findByBind('scorecard');
+      if(sc){ if(sc.visible===false) sc.visible=true; }
+      else {
+        var ci = idxOf('Check-In');
+        a.sections.splice(ci>-1 ? ci+1 : 0, 0, { label:'Scorecard Review', min:5, detail:'Each owner reports their numbers. Any metric off-track is automatically moved to Issues.', visible:true, locked:true, bind:'scorecard' });
+      }
+      var gr = findByLabel('Goals Review');
+      if(gr){ if(gr.visible===false) gr.visible=true; }
+      else {
+        var after = idxOf('Scorecard Review');
+        if(after<0) after = idxOf('Check-In');
+        a.sections.splice(after>-1 ? after+1 : 0, 0, { label:'Goals Review', min:5, detail:'Each owner says On Track or Off Track. Off-track items move to Issues.', visible:true, locked:false });
+      }
+      var scFinal = findByLabel('Scorecard Review') || findByBind('scorecard');
+      if(scFinal && scFinal.facil!==undefined){ delete scFinal.facil; }
+    });
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   }catch(e){}
 }
@@ -21966,6 +21919,7 @@ function _vspMigrateReportingLines(){
 }
 try{ _vspMigrateTeams(); }catch(e){}
 try{ _vspMigrateHuddleAgenda(); }catch(e){}
+try{ _vspMigrateTeamAgendas(); }catch(e){}
 try{ _vspMigrateWeeklyAgenda(); }catch(e){}
 try{ _vspMigrateReportingLines(); }catch(e){}
 try{ _vspMigrateJobNotes(); }catch(e){}
