@@ -5990,7 +5990,7 @@ function _scTier(m,val){
   if(val===null||val===undefined||val==='')return null;
   if(m && m.unit==='YN'){
     if(typeof val==='string'){ var s=val.trim().toLowerCase(); if(s==='')return null; return (s==='yes'||s==='y'||s==='true'||s==='1')?'green':'red'; }
-    var p=Number(val); if(!isFinite(p))return null; return p>=95?'green':p>=85?'amber':'red';
+    var p=Number(val); if(!isFinite(p))return null; return p>=90?'green':'red';
   }
   if(m && (m.goalType==='inside'||m.goalType==='outside')){
     var _lo=Number(m.goalMin),_hi=Number(m.goalMax),_x=Number(val);
