@@ -12519,6 +12519,23 @@ function _vspHuddleWeeksIsos(){
   }
   return out;
 }
+function _vspHuddleWeeksIsos52(){
+  // 52 weeks ending with the current week, oldest first. Matches P&D's
+  // _pndScBuildWeeks (for i=51..0), so the huddle scorecard's readings array is
+  // the same length and span as P&D's. The per-row AVG (Yes-rate over the full
+  // readings) then equals P&D's exactly, while renderScorecardInline's last13
+  // window keeps the visible columns to the recent 13.
+  var d=new Date();
+  var day=d.getDay(); var diff=(day===0?-6:1)-day;
+  var mon=new Date(d.getFullYear(), d.getMonth(), d.getDate()+diff);
+  var iso=function(x){ return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
+  var out=[];
+  for(var i=51;i>=0;i--){
+    var w=new Date(mon.getTime() - i*7*86400000);
+    out.push(iso(w));
+  }
+  return out;
+}
 function _vspHuddleWeekLabel(iso){
   var p=iso.split('-'); var start=new Date(+p[0],+p[1]-1,+p[2]);
   var end=new Date(start.getTime()+6*86400000);
@@ -13789,7 +13806,12 @@ function _vspRenderHuddleScorecard(){
   }
 
   // Build the same shape P&D builds, then hand it to VSP's own renderer.
-  var weeks = _vspHuddleWeeksIsos();
+  // v168: readings span the SAME 52 weeks P&D's scorecard uses, so the per-row
+  // AVG (Yes-rate via _scRollupVal over full readings) is identical to P&D. The
+  // visible columns stay windowed to the last 13 (renderScorecardInline's
+  // last13 = lastN(13) selects the last 13 of the 52). P&D: _pndScBuildWeeks
+  // pushes 52 weeks (i=51..0); VSP now matches.
+  var weeks = _vspHuddleWeeksIsos52();
   var all = _vspPndReadHuddles();
   var personId = repP.id;
   function readingsFor(rowId){
@@ -13918,12 +13940,16 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     if(_braw){ var _b=JSON.parse(_braw); if(_b && _b.people && st.personId) bridgePerson=_b.people[st.personId]||null; }
   }catch(e){}
   var pnd=(typeof window!=='undefined' && window.SMB_PND_HUDDLES)?window.SMB_PND_HUDDLES:null;
-  var totalCell = '';
+  // Total value + P&D's exact tier colour: null => gray, >=90 => green, else red
+  // (matches P&D _pndAggColor and RAG_GREEN=90). Rendered at --fz-lg like P&D.
+  var totalPct=null;
   if(bridgePerson && bridgePerson.summary && bridgePerson.summary.pct!=null){
-    totalCell = bridgePerson.summary.pct+'%';
+    totalPct = bridgePerson.summary.pct;
   } else if(pnd && st.personId){
-    try{ var _sum=pnd.weeklyScoreSummary(st.personId); if(_sum && _sum.pct!=null){ totalCell = _sum.pct+'%'; } }catch(e){}
+    try{ var _sum=pnd.weeklyScoreSummary(st.personId); if(_sum && _sum.pct!=null){ totalPct = _sum.pct; } }catch(e){}
   }
+  var totalCell = (totalPct==null) ? '' : totalPct+'%';
+  var totalColor = (totalPct==null) ? 'var(--txm)' : (totalPct>=90 ? '#16a34a' : '#dc2626');
   var valLine='height:20px;line-height:20px;font-weight:700;font-size:var(--fz-body)';
   var actLine='height:20px;margin-top:2px;display:flex;align-items:center;justify-content:center';
   var btn='padding:1px 6px;border:1px solid transparent;background:transparent;color:var(--txm);font-size:var(--fz-xs);border-radius:3px;cursor:pointer;font-family:inherit;opacity:.6';
@@ -13933,7 +13959,11 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
   leadCols.forEach(function(c,ci){
     if(!c[1]) return;
     var lbl = (c[0]==='title') ? 'Weekly score' : (c[0]==='total' ? totalCell : '');
-    h+='<td style="'+scStkB(SC_OFF[c[0]],c[1],'var(--sur2)','border-top:2px solid var(--brd);text-align:'+(c[0]==='title'?'left':'center')+';padding:10px 10px;font-weight:700;font-size:var(--fz-body)')+'">'+lbl+'</td>';
+    if(c[0]==='total'){
+      h+='<td style="'+scStkB(SC_OFF[c[0]],c[1],'var(--sur2)','border-top:2px solid var(--brd);text-align:center;padding:10px 10px;font-weight:700;font-size:var(--fz-lg);color:'+totalColor)+'">'+lbl+'</td>';
+    } else {
+      h+='<td style="'+scStkB(SC_OFF[c[0]],c[1],'var(--sur2)','border-top:2px solid var(--brd);text-align:'+(c[0]==='title'?'left':'center')+';padding:10px 10px;font-weight:700;font-size:var(--fz-body)')+'">'+lbl+'</td>';
+    }
   });
   colIdxs.forEach(function(wi){
     var iso=st.weeks[wi];
