@@ -3410,7 +3410,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v164</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v165</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -13804,6 +13804,16 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
   var st=window._vspHuddleSc; if(!st) return '';
   var all=_vspPndReadHuddles();
   var mets=section.metrics||[];
+  // v165: mirror P&D exactly. Per-week values come from
+  // SMB_PND_HUDDLES.statusFor (pct:null => open week => dash, away => Away),
+  // and the overall total from SMB_PND_HUDDLES.weeklyScoreSummary. VSP does not
+  // recompute either; P&D owns the performance record. Falls back to the local
+  // recompute only when P&D is not mounted, so the row never breaks.
+  var pnd=(typeof window!=='undefined' && window.SMB_PND_HUDDLES)?window.SMB_PND_HUDDLES:null;
+  var totalCell = '';
+  if(pnd && st.personId){
+    try{ var _sum=pnd.weeklyScoreSummary(st.personId); if(_sum && _sum.pct!=null){ totalCell = _sum.pct+'%'; } }catch(e){}
+  }
   var valLine='height:20px;line-height:20px;font-weight:700;font-size:var(--fz-body)';
   var actLine='height:20px;margin-top:2px;display:flex;align-items:center;justify-content:center';
   var btn='padding:1px 6px;border:1px solid transparent;background:transparent;color:var(--txm);font-size:var(--fz-xs);border-radius:3px;cursor:pointer;font-family:inherit;opacity:.6';
@@ -13812,27 +13822,36 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
   h+='<td style="'+scStkB(SC_OFF.trend,SC_W.trend,'var(--sur2)','border-top:2px solid var(--brd)')+'"></td>';
   leadCols.forEach(function(c,ci){
     if(!c[1]) return;
-    var lbl = (c[0]==='title') ? 'Weekly score' : '';
-    h+='<td style="'+scStkB(SC_OFF[c[0]],c[1],'var(--sur2)','border-top:2px solid var(--brd);text-align:'+(lbl?'left':'center')+';padding:10px 10px;font-weight:700;font-size:var(--fz-body)')+'">'+lbl+'</td>';
+    var lbl = (c[0]==='title') ? 'Weekly score' : (c[0]==='total' ? totalCell : '');
+    h+='<td style="'+scStkB(SC_OFF[c[0]],c[1],'var(--sur2)','border-top:2px solid var(--brd);text-align:'+(c[0]==='title'?'left':'center')+';padding:10px 10px;font-weight:700;font-size:var(--fz-body)')+'">'+lbl+'</td>';
   });
   colIdxs.forEach(function(wi){
     var iso=st.weeks[wi];
     var rec=all[st.personId+'__'+iso];
     var away = !!(rec && rec.away);
-    var yes=0, total=mets.length, hardFail=false;
-    mets.forEach(function(m){
-      var v=m.readings[wi];
-      if(_vspHuddleIsYes(v)) yes++;
-      else if(m._hard) hardFail=true;
-    });
-    var raw = total ? Math.round(yes/total*100) : 0;
-    var pct = hardFail ? 0 : raw;
+    // Prefer P&D's published per-week status; dash when pct is null (open week).
+    var pndPct=null, pndAway=false, pndHard=false, havePnd=false;
+    if(pnd && st.personId){
+      try{ var _s=pnd.statusFor(st.personId, iso); if(_s){ havePnd=true; pndPct=_s.pct; pndHard=!!_s.hardFail; pndAway=(_s.status==='away'); } }catch(e){}
+    }
     var c, bg, txt;
-    if(away){ c='var(--txm)'; bg='var(--sur2)'; txt='Away'; }
-    else { c = hardFail ? '#dc2626' : (pct>=90?'#16a34a':(pct>=75?'#d97706':'#dc2626'));
-           bg = hardFail ? '#fee2e2' : (pct>=90?'#d1fae5':(pct>=75?'#fef3c7':'#fee2e2'));
-           txt = pct+'%'; }
-    h+='<td title="Yes '+yes+' / '+total+(hardFail?' - hard fail':'')+'" style="text-align:center;padding:10px 6px;background:'+bg+';border-top:2px solid var(--brd);border-right:0.5px solid var(--brd);vertical-align:top">';
+    if(away || pndAway){ c='var(--txm)'; bg='var(--sur2)'; txt='Away'; }
+    else if(havePnd){
+      if(pndPct==null){ c='var(--txm)'; bg='var(--sur2)'; txt='\u2013'; }        // open week => dash, mirrors P&D
+      else { c = pndHard ? '#dc2626' : (pndPct>=90?'#16a34a':(pndPct>=75?'#d97706':'#dc2626'));
+             bg = pndHard ? '#fee2e2' : (pndPct>=90?'#d1fae5':(pndPct>=75?'#fef3c7':'#fee2e2'));
+             txt = pndPct+'%'; }
+    } else {
+      // Fallback only when P&D is not mounted: local recompute.
+      var yes=0, total=mets.length, hardFail=false;
+      mets.forEach(function(m){ var v=m.readings[wi]; if(_vspHuddleIsYes(v)) yes++; else if(m._hard) hardFail=true; });
+      var raw = total ? Math.round(yes/total*100) : 0;
+      var pct = hardFail ? 0 : raw;
+      c = hardFail ? '#dc2626' : (pct>=90?'#16a34a':(pct>=75?'#d97706':'#dc2626'));
+      bg = hardFail ? '#fee2e2' : (pct>=90?'#d1fae5':(pct>=75?'#fef3c7':'#fee2e2'));
+      txt = pct+'%';
+    }
+    h+='<td style="text-align:center;padding:10px 6px;background:'+bg+';border-top:2px solid var(--brd);border-right:0.5px solid var(--brd);vertical-align:top">';
     h+='<div style="'+valLine+';color:'+c+'">'+txt+'</div>';
     h+='<div style="'+actLine+'">';
     h+='<button type="button" onclick="event.stopPropagation();vspHuddleToggleAway(\''+iso+'\')" title="Holiday, sick, etc - excludes this week" style="'+btn+'">'+(away?'Undo away':'Mark Away')+'</button>';
@@ -19883,7 +19902,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v164';
+window.VSP_BUILD = 'v165';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
