@@ -3410,7 +3410,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v169</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v171</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9834,8 +9834,8 @@ var LOCAL_SLOT_BG=['#fef3c7','#dbeafe','#dcfce7','#fce7f3','#e0e7ff','#ccfbf1','
 
 var LIDA_VSP_PPL_SEED=[
   {id:'p1', first:'Dave',    last:'Stephens',       initials:'DS', role:'President & CFO, LIDA Group of Companies',         department:'Executive',     email:'dave@lidahomes.ca',    phone:'', startDate:'', colorSlot:0, teams:['t1'],      reportsTo:'',   supervisor:true,  hr:false, notes:'Founder. Leads strategy and operations.', status:'active'},
-  {id:'p2', first:'Terry',   last:'Pearson',        initials:'TP', role:'VP Construction Operations',                       department:'Construction',  email:'terry@lidahomes.ca',   phone:'', startDate:'', colorSlot:1, teams:['t1','t2'], reportsTo:'p1', supervisor:true,  hr:false, notes:'Also holds Sales + Pre-Construction Estimator seats.', status:'active'},
-  {id:'p3', first:'Will',    last:'Liddell',        initials:'WL', role:'Sr. PM of Production',                              department:'Construction',  email:'will@lidahomes.ca',    phone:'', startDate:'', colorSlot:2, teams:['t2'],      reportsTo:'p2', supervisor:true,  hr:false, notes:'', status:'active'},
+  {id:'p2', first:'Terry',   last:'Pearson',        initials:'TP', role:'VP Construction',                       department:'Construction',  email:'terry@lidahomes.ca',   phone:'', startDate:'', colorSlot:1, teams:['t1','t2'], reportsTo:'p1', supervisor:true,  hr:false, notes:'Also holds Sales + Pre-Construction Estimator seats.', status:'active'},
+  {id:'p3', first:'Will',    last:'Liddell',        initials:'WL', role:'Sr. PM',                              department:'Construction',  email:'will@lidahomes.ca',    phone:'', startDate:'', colorSlot:2, teams:['t2'],      reportsTo:'p2', supervisor:true,  hr:false, notes:'', status:'active'},
   {id:'p4', first:'Mika',    last:'Nishimura',      initials:'MN', role:'Client Experience & Interior Design Manager',      department:'Design',        email:'mika@lidahomes.ca',    phone:'', startDate:'', colorSlot:3, teams:['t1','t5'], reportsTo:'p2', supervisor:false, hr:false, notes:'Also holds Marketing & Comms Coordinator seat.', status:'active'},
   {id:'p5', first:'Lisa',    last:'Stephens',       initials:'LS', role:'Financial Controller & Office Manager',            department:'Finance',       email:'lisa@lidahomes.ca',    phone:'', startDate:'', colorSlot:4, teams:['t1','t3'], reportsTo:'p1', supervisor:true,  hr:true,  notes:'', status:'active'},
   {id:'p6', first:'Vanessa', last:'Chang',          initials:'VC', role:'Accounting Administrator',                          department:'Finance',       email:'vanessa@lidahomes.ca', phone:'', startDate:'', colorSlot:5, teams:['t3'],      reportsTo:'p5', supervisor:false, hr:false, notes:'', status:'active'},
@@ -12492,6 +12492,26 @@ function _vspPndReadHuddles(){
   try{ var v=localStorage.getItem('smb_perf_huddles_v1'); return v?JSON.parse(v):{}; }
   catch(e){ return {}; }
 }
+/* PRE-BOSHR SHIM (retires at BOSHR People Registry cutover, D-98).
+   VSP and P&D seed person IDs independently, so the same person has a different
+   id in each app (Will is p3 in VSP, p7 in P&D). All P&D performance data
+   (smb_perf_huddles_v1, the huddle-scores bridge, the live SMB_PND_HUDDLES
+   object) is keyed by P&D's id. P&D publishes an initials->id map at
+   smb_pnd_people_map_v1; translate a VSP person's initials to the P&D id so the
+   huddle reads/writes hit the right record. Falls back to the VSP id when the
+   map is absent (ids happen to match for some people, e.g. Dave/Keith). When
+   BOSHR lands, both apps key by the canonical id and this function plus P&D's
+   map are deleted. */
+function _vspPndPersonId(vspPerson){
+  try{
+    var ini = (typeof vspPerson==='string') ? vspPerson : (vspPerson && vspPerson.initials);
+    var vid = (typeof vspPerson==='string') ? null : (vspPerson && vspPerson.id);
+    if(!ini) return vid || null;
+    var raw = localStorage.getItem('smb_pnd_people_map_v1');
+    if(raw){ var m=JSON.parse(raw); if(m && m.idByIni && m.idByIni[ini]) return m.idByIni[ini]; }
+    return vid || null;
+  }catch(e){ return (typeof vspPerson==='string') ? null : (vspPerson && vspPerson.id) || null; }
+}
 function _vspPndWriteHuddle(personId, iso, rowId, answer){
   // answer: 'yes' | 'no' | null (clear). Preserves neighbouring answers.
   try{
@@ -12925,8 +12945,9 @@ function vspJobRevCorrect(rowId){
           (row?row.std:'This line')+'\n\nReported Yes, but verified No on: '+(names||'a job')+'.\n\n'+
           'Only this line changes. The correction is logged.';
   vspConfirm(msg, function(){
-    var before=_vspClaimFor(c.repP.id, c.iso, rowId);
-    _vspPndWriteHuddle(c.repP.id, c.iso, rowId, 'no');
+    var _pid=_vspPndPersonId(c.repP);   // pre-BOSHR: write to P&D's record (D-98)
+    var before=_vspClaimFor(_pid, c.iso, rowId);
+    _vspPndWriteHuddle(_pid, c.iso, rowId, 'no');
     _vspLogJobCorrection({
       at:new Date().toISOString(),
       by:(typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'',
@@ -13813,7 +13834,7 @@ function _vspRenderHuddleScorecard(){
   // pushes 52 weeks (i=51..0); VSP now matches.
   var weeks = _vspHuddleWeeksIsos52();
   var all = _vspPndReadHuddles();
-  var personId = repP.id;
+  var personId = _vspPndPersonId(repP);   // pre-BOSHR: translate VSP id -> P&D id (D-98)
   function readingsFor(rowId){
     return weeks.map(function(iso){
       var rec = all[personId+'__'+iso];
@@ -14055,13 +14076,14 @@ function _vspHuddleTrend(){
   var roleLabel = repP.roleLabel || repP.role || null;
   var stds = roleLabel ? _vspPndReadStandards(roleLabel) : null;
   var all = _vspPndReadHuddles();
+  var _pndPid = _vspPndPersonId(repP);   // pre-BOSHR: VSP id -> P&D id (D-98)
   var weeks = _vspHuddleWeeksIsos();          // 13, oldest first, current last
 
   // Weekly score for each CLOSED week (exclude the running week and Away weeks).
   var pts = [];
   if(stds && stds.length){
     for(var i=0;i<weeks.length-1;i++){
-      var iso=weeks[i], rec=all[repP.id+'__'+iso];
+      var iso=weeks[i], rec=all[_pndPid+'__'+iso];
       if(rec && rec.away) continue;
       if(!rec || !rec.answers || !Object.keys(rec.answers).length) continue;
       var yes=0, hardFail=false;
@@ -14099,7 +14121,7 @@ function _vspHuddleTrend(){
   // Cadence: how many of the last 8 weeks actually have a huddle record.
   var held=0;
   for(var k=Math.max(0,weeks.length-9);k<weeks.length-1;k++){
-    var r2=all[repP.id+'__'+weeks[k]];
+    var r2=all[_pndPid+'__'+weeks[k]];
     if(r2 && (r2.away || (r2.answers && Object.keys(r2.answers).length))) held++;
   }
 
@@ -14257,9 +14279,14 @@ function _vspStepNoteRead(step){
   if(!state.stepNotes) state.stepNotes={};
   var v=state.stepNotes[_vspStepNoteKey(step)];
   // Fall back to the pre-v129 type-only key so notes written before this
-  // build still surface once, then migrate forward on the next save.
-  if(v===undefined) v=state.stepNotes['stepNote_'+_vspNoteType()+'_'+step];
-  if(v===undefined) v=state.stepNotes['stepNote_'+step]; // legacy un-typed key (pre-v41)
+  // build still surface once, then migrate forward on the next save. But a
+  // performance huddle is one meeting TYPE across many people, and the
+  // type-only / un-typed keys are NOT person-scoped, so falling back to them
+  // in a huddle surfaces a DIFFERENT report's notes (e.g. Keith's Scorecard
+  // Review notes appearing in Will's huddle). Skip the fallbacks for huddles.
+  var _isHuddle = (state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport;
+  if(v===undefined && !_isHuddle) v=state.stepNotes['stepNote_'+_vspNoteType()+'_'+step];
+  if(v===undefined && !_isHuddle) v=state.stepNotes['stepNote_'+step]; // legacy un-typed key (pre-v41)
   return v||'';
 }
 function _vspClearStepNotes(type){
@@ -20047,7 +20074,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v169';
+window.VSP_BUILD = 'v171';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
