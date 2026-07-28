@@ -3410,7 +3410,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v175</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v177</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14912,6 +14912,11 @@ function _startMeetingCommit(_nt){
   state.meetTab='running';
   state.meetStep=0;
   state.meetType=_nt;
+  // A performance huddle is about one person; do not inherit the previous
+  // huddle's report (that made a Terry/Mika huddle open on Will's scorecard).
+  // Cleared here so the person-picker starts fresh; non-huddle meetings are
+  // unaffected.
+  if(_nt.indexOf('performance')>-1){ state.meetHuddleReport=''; state.meetScheduledId=null; }
   state.meetStartTime=Date.now();
   state.page='meetings';
   state.aiEnabled=false;  // reset - consent required each meeting
@@ -15501,7 +15506,7 @@ function renderMeetings(){
         var _hn = _hrep ? (_hrep.first+' '+_hrep.last) : 'this person';
         h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--blu);border-radius:10px;padding:12px 16px;margin-bottom:10px">';
         h+='<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:3px">'+_vspHuddleEsc(_hn)+'\u2019s quarterly goals</div>';
-        h+='<div style="font-size:var(--fz-body);color:var(--txm)">The company plan above is the context. Set or review goals here that support the company, the supervisor, and '+_vspHuddleEsc((_hrep&&_hrep.first)||'their')+'\u2019s own growth this quarter.</div>';
+        h+='<div style="font-size:var(--fz-body);color:var(--txm)">The company plan above is the context. Set or review '+_vspHuddleEsc((_hrep&&_hrep.first)||'their')+'\u2019s own goals for this quarter here.</div>';
         h+='</div>';
       }
       // v150: goals live per team. A goal Keith sets in Construction Operations
@@ -15510,18 +15515,10 @@ function renderMeetings(){
       // de-duplicated by id, and render from that.
       var _hs=_vspHuddleScopeInitials();
       if(_hs){
-        var _rep = ppl.find(function(x){ return x && x.initials===state.meetHuddleReport; });
-        var _sup = (_rep && _rep.reportsTo) ? ppl.find(function(x){ return x && x.id===_rep.reportsTo; }) : null;
-        // Supervisor's goals first, read-only context: this is what the
-        // report's goals are meant to support.
-        if(_sup){
-          h+='<div style="background:var(--sur);border:1px solid var(--brd);border-left:4px solid var(--txm);border-radius:10px;padding:12px 16px;margin-bottom:10px">';
-          h+='<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:3px">'+_vspHuddleEsc(_sup.first+' '+_sup.last)+'\u2019s goals</div>';
-          h+='<div style="font-size:var(--fz-body);color:var(--txm)">Context only. '+_vspHuddleEsc((_rep&&_rep.first)||'This person')+'\u2019s goals should ladder up to these or to a company goal.</div>';
-          h+='</div>';
-          h+='<div style="margin-bottom:16px;opacity:.85">'+_vspRenderGoalListFor(_sup.initials)+'</div>';
-        }
-        // Then the report's own goals - the editable section.
+        // The huddle is about the direct report only. Show their own goals -
+        // not the supervisor's. (Prior builds rendered the supervisor's goals
+        // as read-only context above; removed per Dave: only the employee's
+        // goals belong in their huddle.)
         h+=_vspGoalCascadeBanner(_vspGoalsForPersonAllTeams(state.meetHuddleReport));
       } else {
         h+=_vspGoalCascadeBanner(goals.filter(function(g){ return g && g.status!=='archived' && _vspInHuddleScope(g.owner); }));
@@ -18289,6 +18286,7 @@ function endMeeting(){
   // Reset tracking state FIRST so the immediate save below persists
   // runningMeeting:null (an ended session must not be resumable after reload).
   state.meetTab='past';
+  state.meetHuddleReport='';   // clear so the next huddle does not inherit this report
   state.meetRating=0;
   state.timerSeconds=0;
   state.timerRunning=false;
@@ -20336,7 +20334,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v175';
+window.VSP_BUILD = 'v177';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
