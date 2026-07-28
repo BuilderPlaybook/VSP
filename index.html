@@ -3410,7 +3410,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v172</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v174</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4182,7 +4182,7 @@ async function autoSummarizeSection(stepIdx, sectionLabel){
 }
 
 
-var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",huddleDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{},scArchivePanel:false,scArchiveSearch:"",jobManageOpen:false,todoRouteMenu:null,issueRouteMenu:null};
+var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetRange:"month",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",huddleDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{},scArchivePanel:false,scArchiveSearch:"",jobManageOpen:false,todoRouteMenu:null,issueRouteMenu:null};
 var timerInterval=null;
 
 // Archived plan snapshots - one per quarter
@@ -9840,7 +9840,7 @@ var LIDA_VSP_PPL_SEED=[
   {id:'p5', first:'Lisa',    last:'Stephens',       initials:'LS', role:'Financial Controller & Office Manager',            department:'Finance',       email:'lisa@lidahomes.ca',    phone:'', startDate:'', colorSlot:4, teams:['t1','t3'], reportsTo:'p1', supervisor:true,  hr:true,  notes:'', status:'active'},
   {id:'p6', first:'Vanessa', last:'Chang',          initials:'VC', role:'Accounting Administrator',                          department:'Finance',       email:'vanessa@lidahomes.ca', phone:'', startDate:'', colorSlot:5, teams:['t3'],      reportsTo:'p5', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p7', first:'Daniel',  last:'Turgeon',        initials:'DT', role:'Foreman',                                           department:'Construction',  email:'daniel@lidahomes.ca',  phone:'', startDate:'', colorSlot:6, teams:['t2'],      reportsTo:'p3', supervisor:true,  hr:false, notes:'Working foreman.', status:'active'},
-  {id:'p8', first:'Keith',   last:'Tennert',        initials:'KT', role:'Project Manager',                                   department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:0, teams:['t2'],      reportsTo:'p3', supervisor:false, hr:false, notes:'', status:'active'},
+  {id:'p8', first:'Keith',   last:'Tennert',        initials:'KT', role:'Project Manager',                                   department:'Construction',  email:'keith@lidahomes.ca',   phone:'', startDate:'', colorSlot:0, teams:['t2'],      reportsTo:'p3', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p9', first:'Adrian',  last:'Surdu',          initials:'AS', role:'Foreman',                                           department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:1, teams:['t2'],      reportsTo:'p3', supervisor:true,  hr:false, notes:'Working foreman.', status:'active'},
   {id:'p10',first:'Cody',    last:'Johnstone',      initials:'CJ', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:2, teams:['t2'],      reportsTo:'p7', supervisor:false, hr:false, notes:'', status:'active'},
   {id:'p11',first:'Nicolas', last:'Hatfield',       initials:'NH', role:'Lead Hand',                                         department:'Construction',  email:'',                     phone:'', startDate:'', colorSlot:3, teams:['t2'],      reportsTo:'p3', supervisor:false, hr:false, notes:'', status:'active'},
@@ -12412,6 +12412,158 @@ function _visibleScheduled(){
 function _meetHasArchivedAttendee(m){
   return (m.attendees||[]).some(function(a){ var pa=ppl.find(function(x){return x.initials===a;}); return pa && (pa.status||'active')!=='active'; });
 }
+// ── Meeting calendar / email (no backend; open-in-Outlook, same as BD/P&D) ────
+// A downloadable .ics is the universal calendar file Outlook, Google, and Apple
+// all import. Because meetings recur (weekly / every-2 / every-4), the .ics
+// carries an RRULE so one download books the whole series for the year. The
+// real one-click auto-invite (silent send to every attendee) still needs the
+// Calendar Integration Backend; the "Add to Outlook - Soon" button remains that
+// seam. Email invite opens Outlook via mailto, drafted and ready to send.
+function _vspMeetIcs(m){
+  function pad(n){ return String(n).padStart(2,'0'); }
+  var date = _vspNextOccur(m.date, m.recurEvery);   // next occurrence as the series start
+  var t = _vspParseTime(m.time);                    // {h, min}
+  var d = date.replace(/-/g,'');
+  var startH = pad(t.h), startM = pad(t.min);
+  var endH = pad(Math.min(23, t.h + 1));
+  var dtStart = d+'T'+startH+startM+'00';
+  var dtEnd   = d+'T'+endH+startM+'00';
+  var uid = 'vspmeet-'+m.id+'@selfmanagingbuilder.com';
+  var stamp = new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  var rep = { 7:'WEEKLY;INTERVAL=1', 14:'WEEKLY;INTERVAL=2', 28:'WEEKLY;INTERVAL=4' }[m.recurEvery];
+  var lines = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Self-Managing Builder//VSP//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+stamp,'DTSTART:'+dtStart,'DTEND:'+dtEnd
+  ];
+  if(rep) lines.push('RRULE:FREQ='+rep);
+  lines.push('SUMMARY:'+(m.type||'Meeting'));
+  if(m.location) lines.push('LOCATION:'+String(m.location).replace(/[,;]/g,' '));
+  lines.push('DESCRIPTION:'+(m.type||'Meeting')+' scheduled in Self-Managing Builder.');
+  lines.push('STATUS:CONFIRMED','END:VEVENT','END:VCALENDAR');
+  return lines.join('\r\n');
+}
+function _vspParseTime(str){
+  var s = String(str||'9:00 AM').trim();
+  var mm = s.match(/(\d{1,2}):?(\d{2})?\s*([AaPp][Mm])?/);
+  var h = mm?parseInt(mm[1],10):9;
+  var min = mm&&mm[2]?parseInt(mm[2],10):0;
+  var ap = mm&&mm[3]?mm[3].toUpperCase():'';
+  if(ap==='PM' && h<12) h+=12;
+  if(ap==='AM' && h===12) h=0;
+  return { h:h, min:min };
+}
+function vspMeetDownloadIcs(id){
+  var f=_findScheduledById(id); if(!f||!f.m){ vspAlert('Meeting not found'); return; }
+  var m=f.m;
+  try{
+    var ics=_vspMeetIcs(m);
+    var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url; a.download=(m.type||'meeting').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.ics';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }catch(e){ vspAlert('Could not generate the calendar file'); }
+}
+function _vspMeetMailto(to, subject, body){
+  var href='mailto:'+encodeURIComponent(to||'')+
+           '?subject='+encodeURIComponent(subject||'')+
+           '&body='+encodeURIComponent(body||'');
+  var a=document.createElement('a'); a.href=href; a.style.display='none';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function vspMeetEmailInvite(id){
+  var f=_findScheduledById(id); if(!f||!f.m){ vspAlert('Meeting not found'); return; }
+  var m=f.m;
+  var emails=(m.attendees||[]).map(function(a){ var p=ppl.find(function(x){return x.initials===a;}); return p&&p.email?p.email:''; }).filter(Boolean);
+  var when=_vspFmtDate(_vspNextOccur(m.date,m.recurEvery))+' at '+(m.time||'9:00 AM');
+  var subject=(m.type||'Meeting')+' - '+when;
+  var body='Hi,\n\n'+
+           (m.type||'Meeting')+' is scheduled for '+when+
+           (m.location?(' at '+m.location):'')+
+           (m.recurEvery>0?(' ('+m.recurring+')'):'')+'.\n\n'+
+           '(Calendar file: use the Download .ics button in the Meetings tab and open it to add this to your Outlook calendar.)\n\n'+
+           'Thanks';
+  _vspMeetMailto(emails.join(','), subject, body);
+}
+// ── Meeting occurrence + compliance (Schedule tracker) ────────────────────────
+// Occurrences are computed on the fly from a meeting's start date + recurEvery,
+// never stored, so a year of weekly meetings costs no storage. A held occurrence
+// is one whose date has a matching stamp in m.heldLog (written on conclude). A
+// missed occurrence is a past due date with no held stamp within half a period.
+// Status per meeting reuses the same four states the chip shows.
+function _meetOccurrences(m, fromIso, toIso){
+  // Return array of occurrence date ISOs for m within [fromIso, toIso] inclusive.
+  var out=[];
+  if(!m || !m.date) return out;
+  var start=new Date(m.date+'T00:00:00'); if(isNaN(start.getTime())) return out;
+  var every=(m.recurEvery&&m.recurEvery>0)?m.recurEvery:0;
+  var from=fromIso?new Date(fromIso+'T00:00:00'):null;
+  var to=toIso?new Date(toIso+'T00:00:00'):null;
+  if(!every){
+    var iso0=m.date;
+    if((!from||start>=from)&&(!to||start<=to)) out.push(iso0);
+    return out;
+  }
+  var d=new Date(start), guard=0;
+  // fast-forward to window start
+  while(from && d<from && guard<1000){ d.setDate(d.getDate()+every); guard++; }
+  guard=0;
+  while(guard<1000){
+    if(to && d>to) break;
+    out.push(d.toISOString().slice(0,10));
+    d.setDate(d.getDate()+every);
+    guard++;
+  }
+  return out;
+}
+function _meetHeldOn(m, iso){
+  // A meeting counts as held for an occurrence if a held stamp falls within
+  // half a period on or after the occurrence date (so a meeting held a day or
+  // two late still counts for that occurrence, not the next).
+  var log=Array.isArray(m.heldLog)?m.heldLog:[];
+  if(!log.length) return false;
+  var every=(m.recurEvery&&m.recurEvery>0)?m.recurEvery:7;
+  var occ=new Date(iso+'T00:00:00'); if(isNaN(occ.getTime())) return false;
+  var win=Math.max(1,Math.floor(every/2));
+  for(var i=0;i<log.length;i++){
+    var h=new Date(log[i]+'T00:00:00'); if(isNaN(h.getTime())) continue;
+    var diff=Math.round((h-occ)/86400000);
+    if(diff>=(-1) && diff<=win) return true;
+  }
+  return false;
+}
+function _meetComplianceFor(m, fromIso, toIso){
+  // Held / missed / upcoming counts for m over the window. Missed = a past due
+  // occurrence with no held stamp. Upcoming = occurrence in the future.
+  var todayIso=new Date().toISOString().slice(0,10);
+  var occs=_meetOccurrences(m, fromIso, toIso);
+  var held=0, missed=0, upcoming=0;
+  occs.forEach(function(iso){
+    if(iso>todayIso){ upcoming++; return; }
+    if(_meetHeldOn(m,iso)) held++; else missed++;
+  });
+  return { held:held, missed:missed, upcoming:upcoming, due:held+missed, total:occs.length };
+}
+function _meetSupervisorOf(m){
+  // The supervisor who owns this meeting. For a performance huddle the owner is
+  // the report's supervisor (the non-report attendee); for team meetings it is
+  // the team lead / first supervisor attendee.
+  var att=(m.attendees||[]).slice();
+  if(String(m.type||'').indexOf('Performance Huddle')>-1){
+    for(var i=0;i<att.length;i++){ var p=ppl.find(function(x){return x.initials===att[i];}); if(p&&p.supervisor) return att[i]; }
+    return att.length?att[0]:'';
+  }
+  for(var j=0;j<att.length;j++){ var q=ppl.find(function(x){return x.initials===att[j];}); if(q&&q.supervisor) return att[j]; }
+  return att.length?att[0]:'';
+}
+function _meetReportOf(m){
+  // The direct report a performance huddle is about (the non-supervisor side).
+  if(String(m.type||'').indexOf('Performance Huddle')===-1) return '';
+  var sup=_meetSupervisorOf(m);
+  var att=(m.attendees||[]).filter(function(a){return a!==sup;});
+  return att.length?att[0]:'';
+}
 function _meetCadenceHealth(m){
   if(!m.recurEvery || m.recurEvery<=0) return null;
   if(_meetHasArchivedAttendee(m)) return null;
@@ -14847,7 +14999,7 @@ function renderMeetings(){
 
   // Tabs
   h+='<div class="tab-bar">';
-  [{v:"upcoming",l:"Upcoming"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
+  [{v:"upcoming",l:"Schedule"},{v:"compliance",l:"Compliance"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
     h+='<button class="tab'+(tab===t.v?" active":"")+'" onclick="state.meetTab=\''+t.v+'\';renderPage()">'+t.l+'</button>';
   });
   // Print Agenda button removed (post-meeting feedback May 21) - the Recap on past meetings serves the actual-meeting-print need.
@@ -14951,43 +15103,143 @@ function renderMeetings(){
       h+=_smAttendeeSection();
       h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;margin-bottom:10px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2)">';
       h+='<svg width="15" height="15" fill="none" stroke="var(--txm)" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
-      h+='<span style="font-size:var(--fz-base);color:var(--txm)">Calendar sync (Outlook / Google) <span style="color:var(--txd)">- turns on when the integration is enabled; invites will send and update automatically.</span></span></div>';
+      h+='<span style="font-size:var(--fz-base);color:var(--txm)">After saving, use <span style="font-weight:600">Download .ics</span> to add this to Outlook (recurring meetings book the whole series) or <span style="font-weight:600">Email</span> to send an invite. <span style="color:var(--txd)">One-click auto-invite to all attendees arrives with the Calendar Integration Backend.</span></span></div>';
       h+='<div style="display:flex;gap:8px">';
       h+='<button onclick="addScheduledMeeting()" class="btn btn-sm btn-blu">Save Meeting</button>';
       h+='<button onclick="state.schedulePanel=false;renderPage()" class="btn btn-sm">Cancel</button>';
       h+='</div></div>';
     }
-    h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px">';
-    var _visEmpty=_visibleScheduled();
-    if(!_visEmpty.length){
-      h+='<div style="padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.</div>';
-    }
-    var _visMeetings=_visibleScheduled();
-    _visMeetings.forEach(function(m,i){
-      var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
-      var tc=typeColors[m.type]||"#64748b";
-      h+='<div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:'+(i<_visMeetings.length-1?'1px solid var(--brd)':'none')+'">';
-      h+='<div style="width:42px;height:42px;border-radius:8px;background:'+tc+'12;border:1.5px solid '+tc+'40;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
-      h+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
-      h+='<div style="flex:1">';
-      h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
-      h+='<span style="font-size:var(--fz-body);font-weight:500">'+m.type+' Meeting</span>';
-      h+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span></div>';
-      h+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
-      var _ch=_meetCadenceHealth(m); if(_ch){ h+='<div style="margin-top:4px"><span class="chip '+_ch.cls+'">'+_ch.txt+'</span></div>'; }
-      h+='</div>';
-      h+='<div style="display:flex;align-items:center;gap:-4px;flex-shrink:0">';
-      m.attendees.forEach(function(a){
-        var ac=pplColor(a);
-        h+=avatar(a,ac,22);
-      });
-      h+='</div>';
-      h+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
-      h+='<button type="button" onclick="vspAlert(\'Calendar sync (Outlook / Google) turns on once the integration is enabled. It will send and keep invites up to date automatically.\')" title="Calendar sync - coming soon" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>';
-      h+='<button onclick="deleteScheduledMeeting('+m.id+')" title="Delete" style="width:28px;height:28px;border-radius:6px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0">\u00d7</button>';
-      h+='</div>';
+    // Range filter for the tracker: how far ahead to list occurrences. Overdue
+    // (Not Done) always shows regardless of range. Default: this month.
+    var _mr=state.meetRange||'month';
+    var _rangeDays={week:7,month:31,quarter:92,year:366}[_mr]||31;
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
+    h+='<span style="font-size:var(--fz-base);color:var(--txm)">Show:</span>';
+    [['week','This Week'],['month','This Month'],['quarter','This Quarter'],['year','This Year']].forEach(function(r){
+      var on=_mr===r[0];
+      h+='<button onclick="state.meetRange=\''+r[0]+'\';renderPage()" style="padding:4px 12px;border-radius:14px;font-size:var(--fz-base);font-weight:'+(on?'600':'400')+';border:1.5px solid '+(on?'var(--blu)':'var(--brd2)')+';background:'+(on?'var(--blub)':'var(--sur)')+';color:'+(on?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'+r[1]+'</button>';
     });
     h+='</div>';
+
+    // Status per meeting, mapped to plain-language states. The chip helper
+    // already computes the four states; relabel to Upcoming / Due soon / Done /
+    // Not Done and split into Needs attention (Not Done + Due soon) and On track
+    // (Upcoming + Done). Meetings whose next occurrence is past the range window
+    // and not overdue are hidden until closer.
+    var _todayIso=new Date().toISOString().slice(0,10);
+    var _horizon=new Date(); _horizon.setDate(_horizon.getDate()+_rangeDays);
+    var _horizonIso=_horizon.toISOString().slice(0,10);
+    function _meetStatus(m){
+      var ch=_meetCadenceHealth(m);
+      if(!ch) return null;
+      if(ch.txt==='Overdue')  return {key:'notdone', cls:'c-red', txt:'Not Done'};
+      if(ch.txt==='Due')      return {key:'duesoon', cls:'c-amb', txt:'Due Soon'};
+      if(ch.txt==='Held this period') return {key:'done', cls:'c-grn', txt:'Done'};
+      return {key:'upcoming', cls:'c-blu', txt:'Upcoming'};
+    }
+    function _rowFor(m, last){
+      var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
+      var tc=typeColors[m.type]||"#64748b";
+      var st=_meetStatus(m);
+      var comp=_meetComplianceFor(m, m.date, _todayIso);
+      var r='<div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:'+(last?'none':'1px solid var(--brd)')+'">';
+      r+='<div style="width:42px;height:42px;border-radius:8px;background:'+tc+'12;border:1.5px solid '+tc+'40;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
+      r+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
+      r+='<div style="flex:1">';
+      r+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
+      r+='<span style="font-size:var(--fz-body);font-weight:500">'+m.type+' Meeting</span>';
+      r+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span>';
+      if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
+      r+='</div>';
+      r+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
+      if(comp.due>0){ r+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:3px">Held '+comp.held+' of '+comp.due+(comp.missed>0?' \u00b7 '+comp.missed+' missed':'')+'</div>'; }
+      r+='</div>';
+      r+='<div style="display:flex;align-items:center;gap:-4px;flex-shrink:0">';
+      (m.attendees||[]).forEach(function(a){ r+=avatar(a,pplColor(a),22); });
+      r+='</div>';
+      r+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
+      r+='<button type="button" class="btn btn-sm" onclick="vspMeetDownloadIcs('+m.id+')" title="Download a calendar file (Outlook, Google, Apple). Recurring meetings book the whole series.">\u2b07 .ics</button>';
+      r+='<button type="button" class="btn btn-sm" onclick="vspMeetEmailInvite('+m.id+')" title="Open Outlook with an invite drafted to the attendees">\u2709 Email</button>';
+      r+='<button type="button" onclick="vspAlert(\'One-click Outlook invites that send to every attendee automatically arrive with the Calendar Integration Backend. For now, use Download .ics or Email.\')" title="One-click auto-invite - coming soon" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to Outlook <span style="font-size:var(--fz-xs);background:var(--brd);color:var(--txd);border-radius:8px;padding:0 5px;margin-left:2px">Soon</span></button>';
+      r+='<button onclick="deleteScheduledMeeting('+m.id+')" title="Delete" style="width:28px;height:28px;border-radius:6px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0">\u00d7</button>';
+      r+='</div>';
+      return r;
+    }
+    var _allSched=_visibleScheduled();
+    if(!_allSched.length){
+      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.</div>';
+    } else {
+      // Partition. Needs attention = Not Done + Due Soon. On track = Done +
+      // Upcoming within the range horizon. Upcoming past the horizon is hidden.
+      var _attn=[], _ontrack=[];
+      _allSched.forEach(function(m){
+        var st=_meetStatus(m);
+        if(!st){ return; }
+        if(st.key==='notdone' || st.key==='duesoon'){ _attn.push(m); return; }
+        // Done or Upcoming: include only if the next occurrence is within horizon.
+        var nx=_vspNextOccur(m.date,m.recurEvery);
+        if(st.key==='done' || (nx<=_horizonIso)) _ontrack.push(m);
+      });
+      if(_attn.length){
+        h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">Needs attention</div>';
+        h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;margin-bottom:16px">';
+        _attn.forEach(function(m,i){ h+=_rowFor(m, i===_attn.length-1); });
+        h+='</div>';
+      }
+      h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">On track</div>';
+      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px">';
+      if(!_ontrack.length){
+        h+='<div style="padding:24px;text-align:center;color:var(--txm);font-size:var(--fz-body)">Nothing else in this range. Widen the range above to see more.</div>';
+      }
+      _ontrack.forEach(function(m,i){ h+=_rowFor(m, i===_ontrack.length-1); });
+      h+='</div>';
+    }
+  }
+
+  // ── COMPLIANCE ────────────────────────────────────────────
+  if(tab==="compliance"){
+    var _cToday=new Date().toISOString().slice(0,10);
+    var _cAll=_visibleScheduled().filter(function(m){ return !_meetHasArchivedAttendee(m); });
+    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:14px">Who held the meetings they committed to. History fills in as meetings are held or missed from here forward.</div>';
+    if(!_cAll.length){
+      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">No scheduled meetings yet. Schedule meetings to start tracking compliance.</div>';
+    } else {
+      // Roll up by supervisor and by meeting type.
+      var _bySup={}, _byType={};
+      _cAll.forEach(function(m){
+        var comp=_meetComplianceFor(m, m.date, _cToday);
+        var sup=_meetSupervisorOf(m)||'?';
+        if(!_bySup[sup]) _bySup[sup]={held:0,due:0,missed:0};
+        _bySup[sup].held+=comp.held; _bySup[sup].due+=comp.due; _bySup[sup].missed+=comp.missed;
+        var ty=m.type||'?';
+        if(!_byType[ty]) _byType[ty]={held:0,due:0,missed:0};
+        _byType[ty].held+=comp.held; _byType[ty].due+=comp.due; _byType[ty].missed+=comp.missed;
+      });
+      function _compChip(held,due){
+        if(!due) return '<span class="chip c-gry">No data yet</span>';
+        var pct=Math.round(held/due*100);
+        var cls=pct>=90?'c-grn':(pct>=75?'c-amb':'c-red');
+        return '<span class="chip '+cls+'">'+pct+'%</span>';
+      }
+      function _compTable(title, map, nameFn){
+        var g='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">'+title+'</div>';
+        g+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;margin-bottom:18px">';
+        var keys=Object.keys(map);
+        if(!keys.length){ g+='<div style="padding:20px;text-align:center;color:var(--txm)">No data.</div>'; }
+        keys.forEach(function(k,i){
+          var row=map[k];
+          g+='<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:'+(i<keys.length-1?'1px solid var(--brd)':'none')+'">';
+          g+='<div style="flex:1;font-size:var(--fz-body);font-weight:500">'+nameFn(k)+'</div>';
+          g+='<div style="font-size:var(--fz-base);color:var(--txd)">Held '+row.held+' of '+row.due+(row.missed>0?' \u00b7 '+row.missed+' missed':'')+'</div>';
+          g+=_compChip(row.held,row.due);
+          g+='</div>';
+        });
+        g+='</div>';
+        return g;
+      }
+      h+=_compTable('By supervisor', _bySup, function(ini){ var p=ppl.find(function(x){return x.initials===ini;}); return p?(p.first+' '+p.last):ini; });
+      h+=_compTable('By meeting type', _byType, function(t){ return t; });
+    }
   }
 
   // ── IN MEETING ────────────────────────────────────────────
@@ -18015,7 +18267,7 @@ function endMeeting(){
     try{ if(typeof headlines!=='undefined') headlines.forEach(function(hl){ if(hl.status!=='archived') hl.status='archived'; }); }catch(e){}
   }
   pastMeetings.unshift(record);
-  try{ if(state.meetScheduledId){ var _sf=_findScheduledById(state.meetScheduledId); if(_sf&&_sf.m){ _sf.m.lastHeld=new Date().toISOString().slice(0,10); } state.meetScheduledId=null; } }catch(e){}
+  try{ if(state.meetScheduledId){ var _sf=_findScheduledById(state.meetScheduledId); if(_sf&&_sf.m){ var _td=new Date().toISOString().slice(0,10); _sf.m.lastHeld=_td; if(!Array.isArray(_sf.m.heldLog)) _sf.m.heldLog=[]; if(_sf.m.heldLog.indexOf(_td)===-1) _sf.m.heldLog.push(_td); } state.meetScheduledId=null; } }catch(e){}
   // Compose recap + dispatch event for the future Email module (Postmark backend).
   try{
     var _recap = vspBuildMeetingRecap(record);
@@ -20081,7 +20333,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v172';
+window.VSP_BUILD = 'v174';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -20938,6 +21190,23 @@ function vspApplySnapshot(s){
   // the quarterly namespace on EVERY apply (signature-based, per the v39 heal
   // lesson: a stale cloud copy re-pulled later must not resurrect the old keys).
   try{ if(state.stepNotes){ Object.keys(state.stepNotes).forEach(function(_k){ var _m=_k.match(/^stepNote_(\d+)$/); if(_m){ var _nk='stepNote_quarterly_'+_m[1]; if(state.stepNotes[_nk]===undefined && (state.stepNotes[_k]||'').trim()) state.stepNotes[_nk]=state.stepNotes[_k]; delete state.stepNotes[_k]; } }); } }catch(e){}
+  // A performance huddle is one meeting TYPE across many reports, so its notes
+  // MUST be person-scoped (stepNote_<cadence>-performance-huddle-<initials>_<step>).
+  // Type-only performance keys (stepNote_weekly-performance-huddle_<step>, no
+  // initials) predate v129 scoping and leak one report's Scorecard Review notes
+  // onto every other report's huddle. Runs on EVERY apply (v39 heal lesson: a
+  // stale cloud copy re-pulled later must not resurrect the leak). Real type is
+  // e.g. 'weekly-performance-huddle'; the person-scoped key has an extra
+  // '-<initials>' segment before '_<step>'.
+  try{
+    if(state.stepNotes){
+      Object.keys(state.stepNotes).forEach(function(_k){
+        // type-only performance-huddle key: ...-performance-huddle_<digits> with
+        // nothing (no -initials) between 'huddle' and the '_<step>'.
+        if(/performance-huddle_\d+$/.test(_k)) delete state.stepNotes[_k];
+      });
+    }
+  }catch(e){}
   if(s.meetGoalRatings && typeof s.meetGoalRatings === 'object'){
     state.meetGoalRatings = s.meetGoalRatings;
     // v44 stored grades as a tap-array without rater attribution; v47 needs a
