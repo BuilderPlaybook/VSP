@@ -3410,7 +3410,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v174</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v175</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9232,8 +9232,11 @@ function renderDashboard(){
     }
   } else {
     h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:12px">No meetings scheduled.</div>';
-    h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="state.meetTab=\'upcoming\';nav(\'meetings\')">Schedule a Meeting</button>';
   }
+  // Persistent entry point: schedule the recurring performance huddles (Weekly /
+  // Quarterly / Annual) from where the supervisor already is. Opens the existing
+  // Meetings scheduler (one engine, not a second scheduler).
+  h+='<button class="btn btn-blu" style="width:100%;justify-content:center;margin-top:4px" onclick="state.meetTab=\'upcoming\';state.smType=\'Weekly Performance Huddle\';state.schedulePanel=true;nav(\'meetings\')">\ud83d\uddd3 Schedule huddles</button>';
   h+='</div></div>';
 
   // CARD 4: Before Next Meeting  (default span 8)
@@ -12430,7 +12433,7 @@ function _vspMeetIcs(m){
   var dtEnd   = d+'T'+endH+startM+'00';
   var uid = 'vspmeet-'+m.id+'@selfmanagingbuilder.com';
   var stamp = new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
-  var rep = { 7:'WEEKLY;INTERVAL=1', 14:'WEEKLY;INTERVAL=2', 28:'WEEKLY;INTERVAL=4' }[m.recurEvery];
+  var rep = { 7:'WEEKLY;INTERVAL=1', 14:'WEEKLY;INTERVAL=2', 28:'WEEKLY;INTERVAL=4', 30:'MONTHLY;INTERVAL=1', 91:'MONTHLY;INTERVAL=3', 365:'YEARLY;INTERVAL=1' }[m.recurEvery];
   var lines = [
     'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Self-Managing Builder//VSP//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
     'BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+stamp,'DTSTART:'+dtStart,'DTEND:'+dtEnd
@@ -15092,7 +15095,7 @@ function renderMeetings(){
       ['Weekly','Quarterly','Annual','Weekly Performance Huddle','Quarterly Performance Huddle','Annual Performance Huddle','Monthly Client Meeting'].forEach(function(_t){ h+='<option'+(((state.smType||'Weekly')===_t)?' selected':'')+'>'+_t+'</option>'; });
       h+='</select></div>';
       h+='<div><div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Repeats</div>';
-      h+='<select id="sm-recurring" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)"><option value="0">One-time</option><option value="7">Weekly</option><option value="14">Every 2 weeks</option><option value="28">Every 4 weeks</option></select></div>';
+      h+='<select id="sm-recurring" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)"><option value="0">One-time</option><option value="7">Weekly</option><option value="14">Every 2 weeks</option><option value="28">Every 4 weeks</option><option value="30">Monthly</option><option value="91">Quarterly</option><option value="365">Annually</option></select></div>';
       h+='<div><div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Date</div>';
       h+='<input id="sm-date" type="date" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;box-sizing:border-box"></div>';
       h+='<div><div style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Time</div>';
@@ -17935,7 +17938,7 @@ function addScheduledMeeting(){
     date:date.value.trim(),
     time:time?time.value.trim():'9:00 AM',
     location:loc?loc.value.trim():'Office - Boardroom',
-    recurring:({0:'One-time',7:'Weekly',14:'Every 2 weeks',28:'Every 4 weeks'}[rec?parseInt(rec.value,10)||0:0])||'One-time',
+    recurring:({0:'One-time',7:'Weekly',14:'Every 2 weeks',28:'Every 4 weeks',30:'Monthly',91:'Quarterly',365:'Annually'}[rec?parseInt(rec.value,10)||0:0])||'One-time',
     recurEvery:rec?parseInt(rec.value,10)||0:0,
     attendees:_smSelectedAttendees()
   });
@@ -20333,7 +20336,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v174';
+window.VSP_BUILD = 'v175';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
