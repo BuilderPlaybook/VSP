@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-19b</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-28</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7252,11 +7252,36 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var ariaLbl = hasVal ? (' aria-label="'+display+(ok?' on goal':' off goal')+'"') : '';
   var hasNote = m.notes && m.notes[weekIdx];
   var noteDot = hasNote ? '<span style="position:absolute;top:0;right:0;width:0;height:0;border-top:12px solid var(--blu);border-left:12px solid transparent;pointer-events:none"></span>' : '';
-  var isAuto = !!m.auto;
+  var isAuto = !!(m.auto || m._autoKey || m.pndGroup);
   var clickHandler = (isWeekly && !isAuto)
     ? "openCellEdit('"+ownerId+"',"+m.id+","+weekIdx+")"
     : "openEditMeasurable('"+ownerId+"',"+m.id+")";
-  var autoBadge = isAuto ? '<span title="Auto-fed, read-only" style="position:absolute;top:2px;left:3px;font-size:var(--fz-xs);font-weight:700;color:var(--txm);line-height:1">A</span>' : '';
+  // Automated cells carry a lock (Dave, 2026-07-30): the value is computed,
+  // not typed, so the cell shows a padlock and refuses hand edits on every path.
+  // The padlock GLYPH shows only once the week has actually locked for the
+  // group (Dave, 2026-07-30). Automated cells refuse hand edits regardless;
+  // an open week just carries no lock symbol yet.
+  var autoBadge='';
+  if(isAuto && isWeekly){
+    try{
+      var _abShow=false;
+      // Compliance metrics: the P&D bridge publishes a week only once it has
+      // closed for the whole group, so a published breakdown IS the lock
+      // signal - works for every group (pm, id, financial) without needing
+      // local membership. Fallback for rowcount and companywide: lock math.
+      if(m.pndBreakdown && m.pndBreakdown[weekIdx] && m.pndBreakdown[weekIdx].length){
+        _abShow=true;
+      } else {
+        var _abG=_vspAutoMetricGroup(m);
+        var _abD=scWeekDate(weekIdx);
+        var _abIso=_abD.getFullYear()+'-'+String(_abD.getMonth()+1).padStart(2,'0')+'-'+String(_abD.getDate()).padStart(2,'0');
+        _abShow=!!(_abG && _vspAutoWeekClosedForGroup(_abG,_abIso));
+      }
+      if(_abShow){
+        autoBadge='<span title="Automated by formula - week locked" style="position:absolute;top:2px;left:3px;font-size:var(--fz-xs);line-height:1">\uD83D\uDD12</span>';
+      }
+    }catch(e){}
+  }
   var _pndTipHtml = '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(String(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
   /* v113: Performance Points Compliance cells carry their own arithmetic.
@@ -7284,6 +7309,37 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       + 'A Priority Rule answered No scores that person 0% for the whole week.</span>'
       + '</span>';
     cellTitle = '';
+  } else if(String(m.auto||'').indexOf('pnd.rowcount.') === 0){
+    // Count-of-No cells show their working on hover, matching the compliance
+    // tooltip: every group member, their misses that week, and the sum.
+    var _rcA=_vspAutoParse(m.auto);
+    var _rcWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+    var _rcRows='', _rcSum=0, _rcCov=0;
+    try{
+      var _rcIsoD=scWeekDate(weekIdx);
+      var _rcIso=_rcIsoD.getFullYear()+'-'+String(_rcIsoD.getMonth()+1).padStart(2,'0')+'-'+String(_rcIsoD.getDate()).padStart(2,'0');
+      var _rcHuds=_vspPndReadHuddles();
+      _vspAutoGroupMembers(_rcA.group).forEach(function(pid){
+        var nm=pid;
+        try{ var pp=(typeof personById==='function')?personById(pid):null; if(pp) nm=(typeof fullName==='function')?fullName(pp):(pp.first+' '+pp.last); }catch(e){}
+        var rec=_rcHuds[pid+'__'+_rcIso];
+        var away=!rec||rec.away||!rec.answers;
+        var cnt=0;
+        if(!away){ _rcCov++; _rcA.rows.forEach(function(rid){ if(rec.answers[rid]==='no') cnt++; }); _rcSum+=cnt; }
+        _rcRows+='<span class="pnd-tip-r'+(away?' pnd-out':'')+'"><span>'+_scEsc(String(nm))+'</span><span>'+(away?'no data':cnt)+'</span></span>';
+      });
+    }catch(e){}
+    var _rcHas=(val!==null&&val!==undefined&&val!=='');
+    _pndTipHtml='<span class="pnd-tip">'
+      +'<span class="pnd-tip-hd">From Scorecards &middot; '+_scEsc(String(_rcWk))+'</span>'
+      +(_rcCov>0
+        ? _rcRows+'<span class="pnd-tip-sum"><span>Missed standards across '+_rcCov+' '+(_rcCov===1?'person':'people')+'</span><span>'+_rcSum+'</span></span>'
+          +'<span class="pnd-tip-ft">Counts every selected standard answered No that week. Each person answers only their own role, so nothing is double-counted.</span>'
+        : (_rcHas
+            ? '<span class="pnd-tip-r"><span>Entered by hand</span><span>'+_scEsc(String(val))+'</span></span><span class="pnd-tip-ft">This week predates the scorecard feed, so there is no per-person working to show.</span>'
+            : '<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span><span class="pnd-tip-ft">The count fills once the week has closed for everyone in the group.</span>'))
+      +'</span>';
+    cellTitle='';
   } else if(m.pndGroup || String(m.auto||m._autoKey||'').indexOf('pnd.compliance') === 0){
     /* A Compliance cell with no breakdown still has to account for itself.
        Two cases: a number that predates the P&D feed and was entered by hand,
@@ -7307,7 +7363,7 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl
     + (_pndTipHtml ? ' class="pnd-cell" tabindex="0"' : '')+' '
     + (cellTitle ? 'title="'+cellTitle+'" ' : '')
-    + 'style="position:relative;text-align:center;background:'+bg+';color:'+color+';font-size:var(--fz-body);padding:8px 4px;cursor:pointer;border-right:0.5px solid var(--brd);font-variant-numeric:tabular-nums'+cellWeight+'">'
+    + 'style="position:relative;text-align:center;background:'+bg+';color:'+color+';font-size:var(--fz-body);padding:8px 6px;cursor:pointer;border-right:0.5px solid var(--brd);font-variant-numeric:tabular-nums;min-width:92px;white-space:nowrap'+cellWeight+'">'
     + offGlyph + display + noteDot + autoBadge + _pndTipHtml
     + '</td>';
 }
@@ -8692,6 +8748,263 @@ function _togVis(el){
   var knob=el.querySelector('span');
   if(knob) knob.style.left = on ? '19px' : '3px';
 }
+/* ============================================================
+   AUTO-FEED FORMULA v1 (2026-07-30). User-configurable per measurable:
+   Source: Manual | P&D Compliance % (group) | Count of No answers (group + standard rows).
+   Stored on the metric as m.auto:
+     'pnd.compliance.<groupId>'            (existing feed, unchanged)
+     'pnd.rowcount.<groupId>.<id1|id2..>'  (new: No-count on chosen rows)
+   A week fills only once it has closed (lock passed) for every member of
+   the group - a partly finished count is never reported. Automated cells
+   are read-only with a lock glyph; notes stay allowed (right-click).
+   ============================================================ */
+/* One-shot text migration (Dave, 2026-07-30): retire the legacy system name
+   from the client-update standards in the LIVE role-standards store. Row ids
+   are untouched, so huddle answers, formulas, and history are unaffected. */
+(function(){
+  try{
+    var raw=localStorage.getItem('smb_perf_role_standards_v1');
+    if(!raw) return;
+    if(raw.indexOf('Builder Playbook Weekly Client Update sent')===-1) return;
+    var fixed=raw.split('Builder Playbook Weekly Client Update sent').join('Weekly Client Update sent');
+    localStorage.setItem('smb_perf_role_standards_v1', fixed);
+    console.log('[VSP] standards text migration: retired "Builder Playbook" from client-update rows.');
+  }catch(e){}
+})();
+/* Automation admin (Dave, 2026-07-30): only the President/Owner can edit,
+   wire, unwire, or override automated measurables. Everyone else gets a
+   read-only view of the formula and locked cells stay locked. */
+function _vspAutoIsAdmin(){
+  try{
+    var me=(typeof currentUser!=='undefined'&&currentUser)?currentUser:null;
+    if(!me) return false;
+    var rl=String(me.roleLabel||me.role||'');
+    return rl==='Owner' || rl.indexOf('President')===0;
+  }catch(e){ return false; }
+}
+function _vspAutoMetricGroup(m){
+  if(m.pndGroup) return m.pndGroup;
+  var a=_vspAutoParse(m.auto||m._autoKey);
+  return (a.kind==='compliance'||a.kind==='rowcount') ? a.group : null;
+}
+function _vspAutoGroups(){
+  var out=[{id:'companywide',label:'Companywide'}];
+  try{
+    var g=JSON.parse(localStorage.getItem('smb_pnd_compliance_groups_v1')||'{}');
+    Object.keys(g).forEach(function(k){ if(k!=='companywide') out.push({id:k,label:k.charAt(0).toUpperCase()+k.slice(1)}); });
+  }catch(e){}
+  ['pm','id','financial'].forEach(function(k){ if(!out.some(function(o){return o.id===k;})) out.push({id:k,label:k.toUpperCase()}); });
+  return out;
+}
+function _vspAutoGroupMembers(groupId){
+  try{
+    var g=JSON.parse(localStorage.getItem('smb_pnd_compliance_groups_v1')||'{}');
+    if(Array.isArray(g[groupId]) && g[groupId].length) return g[groupId].slice();
+  }catch(e){}
+  var roleFilters={
+    pm: function(rl){ return rl.indexOf('PM')>-1 || rl.indexOf('Project Manager')>-1; },
+    id: function(rl){ return rl.indexOf('Interior Design')>-1 || rl.indexOf('Client Experience')>-1; },
+    financial: function(rl){ return rl.indexOf('Controller')>-1 || rl.indexOf('Accounting')>-1 || rl.indexOf('Financial')>-1; }
+  };
+  var out=[];
+  ppl.forEach(function(p){
+    if(p.status!=='active') return;
+    var pid=_vspPndPersonId(p);
+    if(!pid || !_vspAutoStandardsFor(p).length) return;
+    var rl=String(p.roleLabel||p.role||'');
+    if(groupId==='companywide'){ out.push(pid); return; }
+    if(roleFilters[groupId] && roleFilters[groupId](rl)) out.push(pid);
+  });
+  return out;
+}
+function _vspAutoStandardsFor(p){
+  try{
+    var std=JSON.parse(localStorage.getItem('smb_perf_role_standards_v1')||'{}');
+    var rows=std[p.roleLabel||p.role||'']||[];
+    return rows.filter(function(r){ return (r.cadence||'weekly')==='weekly'; });
+  }catch(e){ return []; }
+}
+function _vspAutoAllStandardRows(groupId){
+  var seen={}, out=[];
+  _vspAutoGroupMembers(groupId).forEach(function(pid){
+    var pp=ppl.find(function(x){ return _vspPndPersonId(x)===pid; });
+    if(!pp) return;
+    _vspAutoStandardsFor(pp).forEach(function(r){
+      if(seen[r.id]) return; seen[r.id]=1;
+      out.push({id:r.id, role:(pp.roleLabel||pp.role||''), std:r.std||''});
+    });
+  });
+  return out;
+}
+function _vspAutoParse(auto){
+  var m1=String(auto||'').match(/^pnd\.compliance\.(.+)$/);
+  if(m1) return {kind:'compliance', group:m1[1]};
+  var m2=String(auto||'').match(/^pnd\.rowcount\.([^.]+)\.(.+)$/);
+  if(m2) return {kind:'rowcount', group:m2[1], rows:m2[2].split('|')};
+  return {kind:'manual'};
+}
+function _vspAutoFormulaText(auto){
+  var a=_vspAutoParse(auto);
+  if(a.kind==='compliance') return '= COMPLIANCE%( '+a.group+' )';
+  if(a.kind==='rowcount')  return '= COUNT_NO( '+a.group+', '+a.rows.length+' standard row'+(a.rows.length===1?'':'s')+' )';
+  return 'Manual entry';
+}
+function _vspAutoFeedEditorBlock(m){
+  var a=_vspAutoParse(m&&m.auto);
+  if(!_vspAutoIsAdmin()){
+    var locked=(m && (m.auto || m._autoKey || m.pndGroup));
+    return '<div style="margin:16px 0 12px;padding:12px;border:1.5px solid var(--brd2);border-radius:8px;background:var(--sur2)">'
+      +'<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Auto-Feed Formula</label>'
+      +'<div style="font-family:ui-monospace,monospace;font-size:var(--fz-base);color:var(--blu)">'+(locked?_vspAutoFormulaText(m.auto||(m.pndGroup?('pnd.compliance.'+m.pndGroup):'')):'Manual entry')+'</div>'
+      +'<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:6px">Only an admin can change the formula or unlock automated cells.</div>'
+      +'</div>';
+  }
+  var h='<div style="margin:16px 0 12px;padding:12px;border:1.5px solid var(--brd2);border-radius:8px;background:var(--sur2)">';
+  h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Auto-Feed Formula</label>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:8px">Wire this measurable to fill itself each week from the performance scorecards. Automated cells lock and cannot be edited by hand.</div>';
+  h+='<select id="em-auto-kind" onchange="_vspAutoEditorRefresh()" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:8px">';
+  h+='<option value="manual"'+(a.kind==='manual'?' selected':'')+'>Manual entry (no formula)</option>';
+  h+='<option value="compliance"'+(a.kind==='compliance'?' selected':'')+'>Performance Points Compliance % of a group</option>';
+  h+='<option value="rowcount"'+(a.kind==='rowcount'?' selected':'')+'>Count of No answers on chosen standards</option>';
+  h+='</select>';
+  h+='<div id="em-auto-detail">'+_vspAutoDetailHtml(a)+'</div>';
+  h+='<div id="em-auto-preview" style="margin-top:8px;font-family:ui-monospace,monospace;font-size:var(--fz-base);color:var(--blu)">'+_vspAutoFormulaText(m&&m.auto)+'</div>';
+  h+='</div>';
+  return h;
+}
+function _vspAutoDetailHtml(a){
+  if(a.kind==='manual') return '';
+  var h='<select id="em-auto-group" onchange="_vspAutoEditorRefresh()" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:8px">';
+  _vspAutoGroups().forEach(function(g){ h+='<option value="'+g.id+'"'+(a.group===g.id?' selected':'')+'>'+g.label+'</option>'; });
+  h+='</select>';
+  if(a.kind==='rowcount'){
+    var rows=_vspAutoAllStandardRows(a.group||'companywide');
+    var sel=(a.rows||[]).map(String);
+    var q=String(window._vspAutoRowSearch||'').toLowerCase();
+    // Search box + role-grouped list with a select-all per role: no more
+    // hunting one long flat list in a small window (Dave, 2026-07-30).
+    h+='<input id="em-auto-search" placeholder="Search standards... (e.g. client update, budget)" value="'+_scEsc(String(window._vspAutoRowSearch||''))+'" oninput="_vspAutoSearchInput(this)" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur);margin-bottom:6px">';
+    h+='<div style="max-height:300px;overflow:auto;border:1px solid var(--brd);border-radius:6px;background:var(--sur);padding:6px">';
+    if(!rows.length){ h+='<div style="color:var(--txm);font-size:var(--fz-base);padding:6px">No weekly standards found for this group.</div>'; }
+    var byRole={};
+    rows.forEach(function(r){
+      if(q && (String(r.std).toLowerCase().indexOf(q)===-1 && String(r.role).toLowerCase().indexOf(q)===-1)) return;
+      (byRole[r.role]=byRole[r.role]||[]).push(r);
+    });
+    var roleNames=Object.keys(byRole);
+    if(!roleNames.length && rows.length){ h+='<div style="color:var(--txm);font-size:var(--fz-base);padding:6px">Nothing matches the search.</div>'; }
+    roleNames.forEach(function(role, ri){
+      var rr=byRole[role];
+      var allOn=rr.every(function(r){ return sel.indexOf(String(r.id))>-1; });
+      h+='<div style="position:sticky;top:0;background:var(--sur2);border-radius:5px;padding:5px 6px;margin:2px 0;display:flex;align-items:center;gap:8px;z-index:2">';
+      h+='<input type="checkbox" class="em-auto-role" data-roleidx="'+ri+'"'+(allOn?' checked':'')+' onchange="_vspAutoToggleRole(this)" title="Select every shown standard for this role">';
+      h+='<b style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(role)+'</b><span style="font-size:var(--fz-xs);color:var(--txm)">'+rr.length+'</span></div>';
+      rr.forEach(function(r){
+        h+='<label style="display:flex;gap:8px;align-items:flex-start;padding:5px 4px 5px 24px;font-size:var(--fz-base);cursor:pointer">';
+        h+='<input type="checkbox" class="em-auto-row" data-roleidx="'+ri+'" value="'+_scEsc(String(r.id))+'"'+(sel.indexOf(String(r.id))>-1?' checked':'')+' onchange="_vspAutoEditorRefresh()" style="margin-top:2px;flex-shrink:0">';
+        h+='<span>'+_scEsc(String(r.std).slice(0,140))+(String(r.std).length>140?'...':'')+'</span></label>';
+      });
+    });
+    h+='</div>';
+    h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px">'+sel.length+' standard'+(sel.length===1?'':'s')+' selected. The weekly count adds up every selected row across the whole group.</div>';
+  }
+  return h;
+}
+function _vspAutoSearchInput(el){
+  window._vspAutoRowSearch=el.value;
+  _vspAutoEditorRefresh();
+  var _s=document.getElementById('em-auto-search');
+  if(_s){ _s.focus(); _s.setSelectionRange(_s.value.length,_s.value.length); }
+}
+function _vspAutoToggleRole(cb){
+  var ri=cb.getAttribute('data-roleidx');
+  [].slice.call(document.querySelectorAll('.em-auto-row[data-roleidx="'+ri+'"]')).forEach(function(r){ r.checked=cb.checked; });
+  _vspAutoEditorRefresh();
+}
+function _vspAutoEditorRead(){
+  var kindEl=document.getElementById('em-auto-kind');
+  if(!kindEl) return undefined;
+  var kind=kindEl.value;
+  if(kind==='manual') return null;
+  var gEl=document.getElementById('em-auto-group');
+  var g=gEl?gEl.value:'companywide';
+  if(kind==='compliance') return 'pnd.compliance.'+g;
+  var ids=[].slice.call(document.querySelectorAll('.em-auto-row:checked')).map(function(c){ return c.value; });
+  if(!ids.length) return null;
+  return 'pnd.rowcount.'+g+'.'+ids.join('|');
+}
+function _vspAutoEditorRefresh(){
+  // Build the detail UI from the CONTROLS (kind + group + current checks),
+  // not from the parsed formula - a rowcount with nothing ticked yet must
+  // still show the row list, not collapse back to manual.
+  var kindEl=document.getElementById('em-auto-kind');
+  var kind=kindEl?kindEl.value:'manual';
+  var gEl=document.getElementById('em-auto-group');
+  var g=gEl?gEl.value:'companywide';
+  var checked=[].slice.call(document.querySelectorAll('.em-auto-row:checked')).map(function(c){ return c.value; });
+  var a = (kind==='manual') ? {kind:'manual'} : (kind==='compliance' ? {kind:'compliance',group:g} : {kind:'rowcount',group:g,rows:checked});
+  var det=document.getElementById('em-auto-detail');
+  if(det) det.innerHTML=_vspAutoDetailHtml(a);
+  var pv=document.getElementById('em-auto-preview');
+  if(pv) pv.textContent=_vspAutoFormulaText(_vspAutoEditorRead()||undefined);
+}
+function _vspAutoWeekClosedForGroup(groupId, weekIso){
+  var mem=_vspAutoGroupMembers(groupId);
+  if(!mem.length) return false;
+  for(var i=0;i<mem.length;i++){
+    if(!_vspPerfIsWeekLocked(mem[i], weekIso)) return false;
+  }
+  return true;
+}
+/* Boot heal (2026-07-30): re-arm rowcount wirings the old strip migration
+   demoted to _autoKey on a previous load. One-way, idempotent. */
+function _vspAutoHealStripped(){
+  try{
+    scorecard.forEach(function(sec){
+      (sec.metrics||[]).forEach(function(m){
+        if(!m.auto && typeof m._autoKey==='string' && m._autoKey.indexOf('pnd.rowcount.')===0){
+          m.auto=m._autoKey; m.autoSrc=m._autoSrc||'Scorecards';
+          delete m._autoKey; delete m._autoSrc;
+        }
+      });
+    });
+  }catch(e){}
+}
+function _vspAutoFillRowcounts(){
+  _vspAutoHealStripped();
+  try{
+    var weeks=_vspHuddleWeeksIsos52();
+    var huds=null;
+    scorecard.forEach(function(sec){
+      (sec.metrics||[]).forEach(function(m){
+        var a=_vspAutoParse(m.auto);
+        if(a.kind!=='rowcount') return;
+        m.autoSrc=m.autoSrc||'Scorecards';
+        huds=huds||_vspPndReadHuddles();
+        var mem=_vspAutoGroupMembers(a.group);
+        m.readings=m.readings||[];
+        for(var idx=0; idx<Math.max(m.readings.length, 22); idx++){
+          var wd; try{ wd=scWeekDate(idx); }catch(e){ continue; }
+          var iso=wd.getFullYear()+'-'+String(wd.getMonth()+1).padStart(2,'0')+'-'+String(wd.getDate()).padStart(2,'0');
+          if(weeks.indexOf(iso)===-1) continue;
+          if(!_vspAutoWeekClosedForGroup(a.group, iso)) continue;
+          var n=0, covered=0;
+          mem.forEach(function(pid){
+            var rec=huds[pid+'__'+iso];
+            if(!rec || rec.away || !rec.answers) return;
+            covered++;
+            a.rows.forEach(function(rid){ if(rec.answers[rid]==='no') n++; });
+          });
+          // No huddle coverage at all = the week predates the scorecard feed.
+          // Leave whatever was entered by hand; never recompute history to 0.
+          if(covered===0) continue;
+          m.readings[idx]=n;
+        }
+      });
+    });
+  }catch(e){}
+}
+
 function openEditMeasurable(ownerId, metricId){
   state.editMeasurablePanel={open:true,ownerId:ownerId,metricId:metricId};
   renderPage();
@@ -8751,17 +9064,8 @@ function renderEditMeasurableOverlay(){
       h+='<textarea id="em-desc" data-autogrow="1" oninput="_vspAutogrow(this)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:none;overflow:hidden;min-height:64px;box-sizing:border-box">'+(epMetric.description||'')+'</textarea>';
       h+='</div>';
 
-      // Data entry - automatic vs manual. Standard on every measurable: the
-      // intent is to pull in as many numbers automatically as possible.
-      h+='<div style="margin-bottom:16px;background:var(--sur2);border:1px solid var(--brd);border-radius:8px;padding:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em">Data entry</label>';
-      h+='<label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:var(--fz-body);color:var(--txt)">';
-      var _emHasSrc = !!(epMetric.auto || epMetric._autoKey);
-      var _emSrcLbl = epMetric.autoSrc || epMetric._autoSrc || '';
-      h+='<input type="checkbox" id="em-auto" '+(epMetric.auto?'checked':'')+(_emHasSrc?'':' disabled')+' style="width:16px;height:16px;cursor:'+(_emHasSrc?'pointer':'not-allowed')+'" />';
-      h+='<span>Pull this number in automatically'+(_emSrcLbl?(' from <b>'+_scEsc(String(_emSrcLbl))+'</b>'):'')+' (cells become read-only)</span></label>';
-      h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:7px;line-height:1.45">'+(_emHasSrc?'On: the value is fed from a connected module and cannot be typed in. Off: enter it manually each period. Turn it off to override and key the number in yourself.':'No connected source for this measurable yet, so it is manual entry only. When a module source is wired up, this switch enables auto-feed.')+'</div>';
-      h+='</div>';
+      // Data entry is governed by the Auto-Feed Formula block below (single
+      // control since 2026-07-30; the old on/off toggle collided with it).
 
       // Owner + Seat (resolves to a group; auto-creates one if none matches)
       var _emSec=scorecard[epIdx]||{}; var emOwner=_emSec.ownerId||''; var emSeat=_emSec.seat||'';
@@ -8888,6 +9192,12 @@ function renderEditMeasurableOverlay(){
       h+='</select></div>';
 
       h+='</div>'; // goal section
+
+      // ---- Auto-Feed Formula (Dave, 2026-07-30): any measurable can be wired
+      // to fill itself from the weekly performance scorecards. Automated
+      // metrics lock their cells.
+      h+=_vspAutoFeedEditorBlock(epMetric);
+
       h+='</div>'; // scrollable body
     }
 
@@ -9029,6 +9339,13 @@ function saveEditMeasurable(){
 
   if(!title||!title.value.trim()){vspAlert('Title is required.');return;}
 
+  // Auto-Feed Formula: undefined = block absent; null = manual.
+  var _autoVal=_vspAutoEditorRead();
+  if(_autoVal!==undefined){
+    if(_autoVal){ metric.auto=_autoVal; metric.autoSrc=(_autoVal.indexOf('pnd.compliance.')===0)?'P&D':'Scorecards'; }
+    else { delete metric.auto; delete metric.autoSrc; }
+  }
+
   var orientMap={
     'Greater than or equal to goal':'\u2265','Greater than goal':'>','Equal to goal':'=',
     'Less than goal':'<','Less than or equal to goal':'\u2264',
@@ -9059,15 +9376,7 @@ function saveEditMeasurable(){
   metric.unit=unitMap[unitType]||'#';
   metric.unitType=unitType;
   metric.orientationRule=orientRule;
-  var _emAuto=document.getElementById('em-auto');
-  if(_emAuto){
-    if(_emAuto.checked){
-      if(!metric.auto && metric._autoKey){ metric.auto=metric._autoKey; metric.autoSrc=metric._autoSrc; delete metric._autoKey; delete metric._autoSrc; }
-    } else {
-      if(metric.auto){ metric._autoKey=metric.auto; metric._autoSrc=metric.autoSrc; }
-      delete metric.auto; delete metric.autoSrc;
-    }
-  }
+  // (legacy em-auto toggle removed; the Auto-Feed Formula block owns m.auto)
   var _emInd=document.getElementById('em-indicator'); if(_emInd) metric.indicator=_emInd.value;
   metric.rollupAs=rollup?rollup.value:'Total';
   var _emST=document.getElementById('em-showTotal'); if(_emST) metric.showTotal=_emST.checked;
@@ -9192,7 +9501,17 @@ function vspRestoreData(){
 function openCellEdit(ownerId, metricId, weekIdx){
   var _ynSec=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===metricId;});});
   var _ynM=_ynSec&&_ynSec.metrics.find(function(m){return m.id===metricId;});
-  if(_ynM && _ynM.auto){ openEditMeasurable(ownerId, metricId); return; }
+  if(_ynM && (_ynM.auto || _ynM._autoKey || _ynM.pndGroup)){
+    // Locked: automated by formula. Only the automation admin may open the
+    // measurable from a locked cell; everyone else gets the explanation.
+    if(_vspAutoIsAdmin()){
+      try{ showToast('Automated by formula - the cell is locked. You can change the formula here.'); }catch(e){}
+      openEditMeasurable(ownerId, metricId);
+    } else {
+      try{ showToast('This measurable is automated by a formula and locked. Only an admin can change it.'); }catch(e){}
+    }
+    return;
+  }
   if(_ynM&&_ynM.unit==='YN'){
     var _cv=_ynM.readings[weekIdx];
     _ynM.readings[weekIdx]=(_cv==null||_cv==='')?'Yes':(_cv==='Yes'?'No':null);
@@ -10943,6 +11262,7 @@ function scStartResize(e){
   document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up);
 }
 function renderScorecard(){
+  _vspAutoFillRowcounts();
   _recalcAll();
   // Step 2 of D-123 merge: Scorecard gains Company | Team | My scopes over
   // the P&D-native huddle data. Existing team-metrics render is preserved
@@ -11326,7 +11646,7 @@ function renderScorecard(){
     h+='<th style="text-align:center;padding:8px 8px;font-size:var(--fz-body);color:var(--txm)">Avg</th>';
     h+='<th style="text-align:center;padding:8px 8px;font-size:var(--fz-body);color:var(--txm);border-right:2px solid var(--brd)">Total</th>';
     activeIdxs.forEach(function(_wi,_ci){
-      h+='<th style="text-align:center;padding:8px 6px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;border-right:0.5px solid var(--brd)">'+(colLabels[_ci]||'')+'</th>';
+      h+='<th style="text-align:center;padding:8px 6px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;border-right:0.5px solid var(--brd);min-width:92px">'+(colLabels[_ci]||'')+'</th>';
     });
     h+='</tr></thead><tbody>';
     _mg.forEach(function(r){
@@ -21345,7 +21665,7 @@ function canSeeSupervisorPages(){                                               
 var ROLE_STANDARDS = {
   'Project Manager': [
     {id:'pm1',  sec:'Financial Control',                    hard:true,  std:'No project budget line item over $500 without an approved change order.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
-    {id:'pm2',  sec:'Client & Stakeholder Experience',      hard:true,  std:'Builder Playbook Weekly Client Update sent and monthly in-person client meeting completed and update sent.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
+    {id:'pm2',  sec:'Client & Stakeholder Experience',      hard:true,  std:'Weekly Client Update sent and monthly in-person client meeting completed and update sent.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
     {id:'pm3',  sec:'Systems & Administrative Discipline',  hard:false, std:'Time clock and payroll approved (own + direct reports) with notes.', due:'Every day by 9:00am (next day).'},
     {id:'pm4',  sec:'Systems & Administrative Discipline',  hard:false, std:'Buildertrend compliance met on all projects (daily logs, minimum 2 photos, all To-Do\'s complete, schedules current).', due:'Friday by 6:00pm.'},
     {id:'pm5',  sec:'Quality & Work Standards',             hard:false, std:'All active sites safe, clean, organized, all signage posted, and presenting a professional appearance.', due:'At all times. Verified Friday by 6:00pm (Thursday if a Stat).'},
@@ -21358,7 +21678,7 @@ var ROLE_STANDARDS = {
 };
 ROLE_STANDARDS['Sr. PM'] = [
   {id:'srpm1',  sec:'Financial Control',                    hard:true,  std:'No project budget line item over $500 without an approved change order (own + PM projects).', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
-  {id:'srpm2',  sec:'Client & Stakeholder Experience',      hard:true,  std:'Builder Playbook Weekly Client Update sent (own + PM projects) and monthly in-person client meeting completed and update sent.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
+  {id:'srpm2',  sec:'Client & Stakeholder Experience',      hard:true,  std:'Weekly Client Update sent (own + PM projects) and monthly in-person client meeting completed and update sent.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
   {id:'srpm3',  sec:'Systems & Administrative Discipline',  hard:false, std:'Time clock and payroll approved (own + team) with notes.', due:'Own TC: Monday by 6:00pm. Team TC: Wednesday by 6:00pm. Tuesday if a Stat.'},
   {id:'srpm4',  sec:'Systems & Administrative Discipline',  hard:false, std:'Buildertrend compliance met on all projects (own + PM projects): daily logs, minimum 2 photos, all To-Do\'s complete, schedules current, documentation current.', due:'Monday by 6:00pm. Tuesday if a Stat.'},
   {id:'srpm5',  sec:'Quality & Work Standards',             hard:false, std:'All active sites (own + PM jobs) inspected, safe, clean, organized, all site signage posted, and presenting a professional appearance.', due:'At all times. Verified Friday by 6:00pm. Thursday if a Stat.'},
@@ -21388,7 +21708,7 @@ ROLE_STANDARDS['Foreman'] = [
    month has a 5th Monday, Week 4 (Pre-Close & Reset) continues to apply. */
 ROLE_STANDARDS['VP Construction'] = [
   {id:'vp1',  sec:'Financial Control',                              hard:true,  std:'No project budget line item over $500 without an approved change order (company-wide).', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
-  {id:'vp2',  sec:'Client & Stakeholder Experience',                hard:true,  std:'Builder Playbook Weekly Client Update sent (company-wide) and monthly in-person client meeting completed and update sent to LIDA standards.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
+  {id:'vp2',  sec:'Client & Stakeholder Experience',                hard:true,  std:'Weekly Client Update sent (company-wide) and monthly in-person client meeting completed and update sent to LIDA standards.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
   {id:'vp3',  sec:'Systems & Administrative Discipline',            hard:false, std:'All PM, Sales PM, and Sr. PM projects meeting Buildertrend compliance standards (daily logs, minimum 2 photos, all To-Do\'s complete, schedules current, documents current).', due:'Monday by 6:00pm. Tuesday if a Stat.'},
   {id:'vp4',  sec:'Quality & Work Standards',                       hard:false, std:'All Sr. PM site inspection reports and QA deficiency lists reviewed.', due:'Monday by 6:00pm. Tuesday if a Stat.'},
   {id:'vp5',  sec:'Planning & Schedule Control',                    hard:false, std:'Production schedule reviewed and any upcoming work or staffing gaps identified.', due:'Monday by 6:00pm. Tuesday if a Stat.'},
@@ -21400,7 +21720,7 @@ ROLE_STANDARDS['VP Construction'] = [
 ];
 ROLE_STANDARDS['Client Experience & Interior Design Manager'] = [
   {id:'cx1',  sec:'Financial Control',                              hard:true,  std:'No project budget line item over $500 without an approved change order.', due:'Monday by 6:00pm. Hard fail if not done. Tuesday if a Stat.'},
-  {id:'cx2',  sec:'Client & Stakeholder Experience',                hard:true,  std:'Builder Playbook Weekly Client Update sent (FSA + Active) and monthly client in-person meeting completed and update sent.', due:'Monday by 6:00pm.'},
+  {id:'cx2',  sec:'Client & Stakeholder Experience',                hard:true,  std:'Weekly Client Update sent (FSA + Active) and monthly client in-person meeting completed and update sent.', due:'Monday by 6:00pm.'},
   {id:'cx3',  sec:'Systems & Administrative Discipline',            hard:false, std:'Time clock and payroll approved with notes.', due:'Every day, by 10:00am next day.'},
   {id:'cx4',  sec:'Systems & Administrative Discipline',            hard:false, std:'Scorecard completed and submitted.', due:'Monday by 6:00pm.'},
   {id:'cx5',  sec:'Systems & Administrative Discipline',            hard:false, std:'Buildertrend compliance met on all active projects (comms and docs current, TODOs current, selections current).', due:'Friday by 6:00pm.'},
@@ -25150,7 +25470,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-19b';
+window.VSP_BUILD = 'v186-merge-28';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -25643,6 +25963,10 @@ function _vspStripAutoMetric(m){
   // Every other auto key continues to strip.
   if(!(m && m.auto)) return false;
   if(typeof m.auto==='string' && m.auto.indexOf('pnd.compliance.')===0) return false;
+  // 2026-07-30: user-wired Auto-Feed Formulas (pnd.rowcount.*) are live
+  // transports too - never strip them, or the wiring silently dies on the
+  // next reload (took the Client Updates tooltip and locks with it).
+  if(typeof m.auto==='string' && m.auto.indexOf('pnd.rowcount.')===0) return false;
   m._autoKey=m.auto; m._autoSrc=m.autoSrc; delete m.auto; delete m.autoSrc; return true;
 }
 function _vspRunMigrations(){
@@ -27532,8 +27856,94 @@ try{ _vspMigrateJobNotes(); }catch(e){}
   }
 
   // Send the local VSP value up.
+  // ============================================================
+  // READINGS GUARD (2026-07-30, after the Lisa June incident).
+  // The VSP root syncs as one blob, newest-save-wins, so a stale tab's
+  // save can silently erase readings another person just entered. This
+  // guard compares scorecard readings cell-by-cell whenever a copy would
+  // replace another, and if the replacement would REMOVE 3 or more
+  // numeric readings, it merges instead of blindly adopting: every
+  // filled cell survives from both sides (both filled: the replacing
+  // copy wins, so intentional corrections still propagate). Removals of
+  // 1-2 cells pass through untouched so deliberate single-cell clears
+  // keep working. Applied on BOTH directions: adopting the cloud copy
+  // and pushing the local copy up.
+  var V_GUARD_THRESHOLD = 3;
+  function V_readingsIndex(objRaw){
+    // -> { teamId|metricId|idx : value } for every numeric reading
+    var out = {};
+    try{
+      var d = (typeof objRaw === 'string') ? JSON.parse(objRaw) : objRaw;
+      var teams = (d && d.teams) || {};
+      Object.keys(teams).forEach(function(tid){
+        var sc = (teams[tid] && teams[tid].scorecard) || [];
+        sc.forEach(function(sec){
+          (sec.metrics || []).forEach(function(m){
+            var r = m.readings || [];
+            for(var i = 0; i < r.length; i++){
+              if(typeof r[i] === 'number' && !isNaN(r[i])){
+                out[tid + '|' + m.id + '|' + i] = r[i];
+              }
+            }
+          });
+        });
+      });
+    }catch(e){}
+    return out;
+  }
+  function V_countRemovals(fromRaw, toRaw){
+    // readings present in FROM but absent in TO
+    var a = V_readingsIndex(fromRaw), b = V_readingsIndex(toRaw), n = 0;
+    Object.keys(a).forEach(function(k){ if(!(k in b)) n++; });
+    return n;
+  }
+  function V_mergeReadings(keepFromRaw, intoRaw){
+    // Returns intoRaw with every numeric reading from keepFromRaw that
+    // intoRaw is missing re-inserted. intoRaw wins where both are filled.
+    try{
+      var src = JSON.parse(keepFromRaw), dst = JSON.parse(intoRaw);
+      var idx = V_readingsIndex(src);
+      var restored = 0;
+      var teams = (dst && dst.teams) || {};
+      Object.keys(idx).forEach(function(k){
+        var parts = k.split('|');
+        var tid = parts[0], mid = parts[1], i = +parts[2];
+        var team = teams[tid]; if(!team) return;
+        var sc = team.scorecard || [];
+        for(var si = 0; si < sc.length; si++){
+          var ms = sc[si].metrics || [];
+          for(var mi = 0; mi < ms.length; mi++){
+            if(String(ms[mi].id) !== String(mid)) continue;
+            ms[mi].readings = ms[mi].readings || [];
+            if(typeof ms[mi].readings[i] !== 'number'){
+              ms[mi].readings[i] = idx[k];
+              restored++;
+            }
+            return;
+          }
+        }
+      });
+      if(restored){
+        try{ console.log('[VSP guard] restored ' + restored + ' reading(s) a replacing copy was missing.'); }catch(e){}
+        flash('ok', 'Protected ' + restored + ' scorecard entries', 2500);
+      }
+      return JSON.stringify(dst);
+    }catch(e){ return intoRaw; }
+  }
+  function V_guardOutgoing(raw){
+    // Local copy about to be pushed. If it would erase readings the last
+    // known cloud image has, merge those readings into it first.
+    var base = V_lastSyncedRaw;
+    if(!base) return raw;
+    if(V_countRemovals(base, raw) >= V_GUARD_THRESHOLD){
+      return V_mergeReadings(base, raw);
+    }
+    return raw;
+  }
+
   function V_pushUp(raw){
     if(typeof fetch !== 'function') return;
+    raw = V_guardOutgoing(raw);
     setBadge('sync', 'Saving...');
     fetch(V_ENDPOINT, {
       method: 'PUT',
@@ -27616,7 +28026,21 @@ try{ _vspMigrateJobNotes(); }catch(e){}
         flash('ok', 'Restored data pushed to team', 2000);
         return;
       }
-      // Adopt cloud copy.
+      // Adopt cloud copy - guarded.
+      // Rescue snapshot first: the pre-adopt local copy is always kept in
+      // one slot so an adopt can never destroy the only copy of anything.
+      try{ if(local) localStorage.setItem(V_keyName() + '.guard.preAdopt', JSON.stringify({ at: new Date().toISOString(), data: local })); }catch(e){}
+      if(local && V_countRemovals(local, remote) >= V_GUARD_THRESHOLD){
+        // The cloud copy is missing readings this browser has (stale-tab
+        // clobber upstream). Merge ours in, apply, and repair the cloud.
+        var mergedIn = V_mergeReadings(local, remote);
+        V_lastSyncedRaw = mergedIn;
+        V_applyRaw(mergedIn);
+        V_ready = true;
+        healOnApply();
+        V_pushUp(mergedIn);
+        return;
+      }
       V_lastSyncedRaw = remote;
       V_applyRaw(remote);
       V_ready = true;
