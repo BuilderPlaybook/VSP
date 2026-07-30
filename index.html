@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-28</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-29</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9006,7 +9006,135 @@ function _vspAutoFillRowcounts(){
 }
 
 function openEditMeasurable(ownerId, metricId){
+  // Performance-scorecard rows are role standards, not measurables. When the
+  // click comes from a perf grid (My/Team Performance or a huddle embed),
+  // route to the Weekly Standard editor instead of dead-ending with
+  // "Measurable not found" (Dave, 2026-07-30).
+  try{
+    var map=window._vspPerfScMap;
+    var st=(map&&map[ownerId])?map[ownerId]:null;
+    if(st && st.scorecard && (st.scorecard.metrics||[]).some(function(m){ return m.id===metricId; })){
+      var mm=st.scorecard.metrics.find(function(m){ return m.id===metricId; });
+      var pp=ppl.find(function(x){ return x.initials===ownerId; });
+      var role=pp?(pp.roleLabel||pp.role||''):'';
+      if(role && mm && mm._rowId){ openEditStandard(role, mm._rowId); return; }
+    }
+  }catch(e){}
   state.editMeasurablePanel={open:true,ownerId:ownerId,metricId:metricId};
+  renderPage();
+}
+/* ============================================================
+   WEEKLY STANDARD EDITOR (2026-07-30, Dave). The performance-scorecard
+   rows are role standards, not measurables; clicking one used to dead-end
+   in "Measurable not found." This panel mirrors the Edit Measurable
+   chrome exactly and writes smb_perf_role_standards_v1. Admin-gated:
+   only the President/Owner edits; everyone else sees read-only fields.
+   Tenant rule: every role (and so every person) can carry a completely
+   different set of standards - add, reword, re-deadline, hard-fail,
+   weekly or monthly cadence, delete.
+   ============================================================ */
+function openEditStandard(role, rowId){
+  state.editStandardPanel={open:true, role:role, rowId:rowId};
+  renderPage();
+}
+function openNewStandard(role){
+  state.editStandardPanel={open:true, role:role, rowId:null};
+  renderPage();
+}
+function closeEditStandard(){
+  state.editStandardPanel={open:false};
+  renderPage();
+}
+function _vspStdStore(){
+  try{ return JSON.parse(localStorage.getItem('smb_perf_role_standards_v1')||'{}'); }catch(e){ return {}; }
+}
+function _vspStdSave(store){
+  try{ localStorage.setItem('smb_perf_role_standards_v1', JSON.stringify(store)); }catch(e){}
+}
+function renderEditStandardOverlay(){
+  var h='';
+  var pn=state.editStandardPanel;
+  if(!(pn&&pn.open)) return h;
+  var store=_vspStdStore();
+  var rows=store[pn.role]||[];
+  var row=pn.rowId?rows.find(function(r){ return String(r.id)===String(pn.rowId); }):null;
+  var isNew=!row;
+  var admin=_vspAutoIsAdmin();
+  var dis=admin?'':' disabled';
+  h+='<div onclick="closeEditStandard()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;backdrop-filter:blur(2px)"></div>';
+  h+='<div style="position:fixed;top:0;right:0;width:380px;height:100vh;background:var(--sur);border-left:1px solid var(--brd);z-index:201;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.12)">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--brd);flex-shrink:0">';
+  h+='<div><div style="font-size:var(--fz-body);font-weight:600">'+(isNew?'New Weekly Standard':'Edit Weekly Standard')+'</div>';
+  h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-top:2px">'+_scEsc(pn.role)+'</div></div>';
+  h+='<button onclick="closeEditStandard()" style="background:none;border:none;font-size:var(--fz-lg);cursor:pointer;color:var(--txm);padding:4px 8px">\u2715</button>';
+  h+='</div>';
+  h+='<div style="flex:1;overflow-y:auto;padding:18px 20px">';
+  if(!admin){
+    h+='<div style="margin-bottom:14px;padding:10px 12px;background:var(--sur2);border:1px solid var(--brd);border-radius:8px;font-size:var(--fz-base);color:var(--txm)">Only Dave can change weekly standards. Shown read-only.</div>';
+  }
+  var lbl='font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em';
+  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)';
+  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Role Deliverable (section)</label>';
+  h+='<input id="es-sec" value="'+_scEsc(row?String(row.sec||''):'')+'"'+dis+' style="'+inp+'" placeholder="e.g. Financial Control"></div>';
+  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Standard</label>';
+  h+='<textarea id="es-std" rows="4"'+dis+' style="'+inp+';resize:vertical">'+_scEsc(row?String(row.std||''):'')+'</textarea></div>';
+  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Deadline</label>';
+  h+='<input id="es-due" value="'+_scEsc(row?String(row.due||''):'')+'"'+dis+' style="'+inp+'" placeholder="e.g. Monday by 6:00pm"></div>';
+  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Cadence</label>';
+  h+='<select id="es-cad"'+dis+' style="'+inp+'">';
+  h+='<option value="weekly"'+((row&&row.cadence)==='monthly'?'':' selected')+'>Weekly</option>';
+  h+='<option value="monthly"'+((row&&row.cadence)==='monthly'?' selected':'')+'>Monthly</option>';
+  h+='</select></div>';
+  h+='<div style="margin-bottom:12px"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:var(--fz-body)">';
+  h+='<input type="checkbox" id="es-hard"'+((row&&row.hard)?' checked':'')+dis+' style="width:16px;height:16px">';
+  h+='<span>Priority Rule (hard fail): answered No forces the week to 0%</span></label></div>';
+  h+='</div>';
+  h+='<div style="padding:14px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--sur)">';
+  if(admin){
+    h+='<button onclick="saveEditStandard()" class="btn btn-blu" style="flex:1;justify-content:center;padding:9px">Save Changes</button>';
+    if(!isNew){
+      h+='<button onclick="deleteEditStandard()" title="Delete this standard" style="padding:9px 12px;border:1.5px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:6px;cursor:pointer;font-family:inherit">\uD83D\uDDD1</button>';
+    }
+  }
+  h+='<button onclick="closeEditStandard()" class="btn" style="padding:9px 14px">Cancel</button>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+function saveEditStandard(){
+  if(!_vspAutoIsAdmin()) return;
+  var pn=state.editStandardPanel; if(!(pn&&pn.open)) return;
+  var stdEl=document.getElementById('es-std');
+  if(!stdEl||!stdEl.value.trim()){ vspAlert('The standard text is required.'); return; }
+  var store=_vspStdStore();
+  var rows=store[pn.role]=store[pn.role]||[];
+  var row=pn.rowId?rows.find(function(r){ return String(r.id)===String(pn.rowId); }):null;
+  if(!row){
+    row={ id:'std_'+Date.now() };
+    rows.push(row);
+  }
+  row.sec=(document.getElementById('es-sec')||{}).value||'';
+  row.std=stdEl.value.trim();
+  row.due=(document.getElementById('es-due')||{}).value||'';
+  row.cadence=(document.getElementById('es-cad')||{}).value==='monthly'?'monthly':'weekly';
+  row.hard=!!(document.getElementById('es-hard')||{}).checked;
+  _vspStdSave(store);
+  state.editStandardPanel={open:false};
+  try{ showToast('Standard saved.'); }catch(e){}
+  renderPage();
+}
+function deleteEditStandard(){
+  if(!_vspAutoIsAdmin()) return;
+  var pn=state.editStandardPanel; if(!(pn&&pn.open&&pn.rowId)) return;
+  var store=_vspStdStore();
+  var rows=store[pn.role]||[];
+  var idx=rows.findIndex(function(r){ return String(r.id)===String(pn.rowId); });
+  if(idx>-1){
+    rows.splice(idx,1);
+    _vspStdSave(store);
+  }
+  state.editStandardPanel={open:false};
+  try{ showToast('Standard deleted. Past huddle answers for it are kept in storage.'); }catch(e){}
   renderPage();
 }
 function renderEditMeasurableOverlay(){
@@ -25027,6 +25155,7 @@ function renderPage(){
   // Back navigation link (Shell pattern - lightweight back affordance on every non-dashboard page)
   h = vspBackLink() + h;
   h += renderEditMeasurableOverlay();
+  h += renderEditStandardOverlay();
   // Schedule dashboard drag-reorder enhancement post-paint (Bucket D)
   if(state.page === 'dashboard'){
     setTimeout(function(){ try{ dashLayoutEnhance(); }catch(e){} }, 30);
@@ -25470,7 +25599,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-28';
+window.VSP_BUILD = 'v186-merge-29';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
