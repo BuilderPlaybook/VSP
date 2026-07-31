@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-40</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-42</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -16889,6 +16889,16 @@ function _mcRender(){
   else h+=_mcMatrix(series, r, f, fromIso, toIso);
   return h;
 }
+function _mcChipCtx(e){
+  // Which meeting is this? Chips carry their context: a huddle shows the
+  // report's name; a team meeting shows the team (Dave, 2026-07-31).
+  if(e.virtual){
+    var rep=(e.m.attendees||[])[1]||(e.m.attendees||[])[0]||'';
+    var p=ppl.find(function(x){ return x.initials===rep; });
+    return p?p.first:rep;
+  }
+  return e.teamName||'';
+}
 function _mcMonthGrid(series, r, f){
   // classic calendar grid; each day lists occurrence chips
   var byDay={};
@@ -16920,7 +16930,7 @@ function _mcMonthGrid(series, r, f){
       // Status is system-derived only (Dave, 2026-07-31): End Meeting marks a
       // booked meeting held; huddle answers mark a huddle held; a completed
       // review marks a review held. No manual mark-held - the record is the truth.
-      h+='<div title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l)+'" style="font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc((it.e.m.time||'')+' '+(it.e.m.type||''))+'</div>';
+      h+='<div title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l)+'" style="font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+(it.e.m.type||'')).trim()+(_mcChipCtx(it.e)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
     });
     if(items.length>3) h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
     h+='</div>';
@@ -19937,7 +19947,7 @@ function _vspNextOccur(iso, every){
    ============================================================ */
 var VSP_MS_CLIENT_ID='6b0771e0-31ce-4493-8c9c-651fe119baae';
 var VSP_MS_AUTHORITY='https://login.microsoftonline.com/organizations';
-var VSP_MS_SCOPES='openid profile offline_access User.Read Calendars.ReadWrite';
+var VSP_MS_SCOPES='openid profile offline_access User.Read Calendars.ReadWrite Mail.Send';
 function _msRedirectUri(){ return location.origin + location.pathname; }
 function _msStore(){ try{ return JSON.parse(localStorage.getItem('smb.vsp.msauth')||'null'); }catch(e){ return null; } }
 function _msSave(t){ try{ localStorage.setItem('smb.vsp.msauth', JSON.stringify(t)); }catch(e){} }
@@ -20021,6 +20031,19 @@ function _msToken(){
     return null;
   }).catch(function(){ return null; });
 }
+function _msSendMail(to, subject, htmlBody){
+  // Send via the signed-in user's Outlook (Mail.Send). Silent no-op when not
+  // connected - the review flow never breaks on a missing connection.
+  return _msToken().then(function(tok){
+    if(!tok) return null;
+    return fetch('https://graph.microsoft.com/v1.0/me/sendMail',{
+      method:'POST', headers:{ Authorization:'Bearer '+tok, 'Content-Type':'application/json' },
+      body: JSON.stringify({ message:{ subject:subject, body:{contentType:'HTML', content:htmlBody},
+        toRecipients:[{emailAddress:{address:to}}] }, saveToSentItems:true })
+    }).then(function(r){ if(r.ok){ try{ showToast('Notification emailed to '+to+'.'); }catch(e){} } return r.ok; })
+      .catch(function(){ return null; });
+  });
+}
 function _msRecurrence(m){
   // Map recurEvery -> Graph recurrence. One-time returns null.
   var e=m.recurEvery||0;
@@ -20046,6 +20069,33 @@ function _msParseTime(t){
   if(ap==='PM'&&h<12)h+=12; if(ap==='AM'&&h===12)h=0;
   return {h:h,m:mi};
 }
+function _msInviteBody(m){
+  // Quarterly/Annual huddle invites carry the full prep pack (Dave,
+  // 2026-07-31): what to complete, the deadline (before the meeting),
+  // the meeting date, and the link. Other meetings keep a simple body.
+  var t=String(m.type||'');
+  var u='https://builderplaybook.github.io/VSP/';
+  var dt=new Date(m.date+'T00:00:00');
+  var nice=dt.toLocaleDateString('en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(t==='Quarterly Performance Huddle' || t==='Annual Performance Huddle'){
+    var kind=(t.indexOf('Annual')===0)?'Annual':'Quarterly';
+    var page=(kind==='Annual')?'Performance & Development \u2192 Annual':'Performance & Development \u2192 Quarterly';
+    var html='<p>This is your <b>'+kind+' Performance Huddle</b>, to be held on <b>'+nice+'</b>'+(m.time?(' at '+_scEsc(m.time)):'')+(m.location?(' ('+_scEsc(m.location)+')'):'')+'.</p>'
+      +'<p><b>Before the meeting - complete your part of the '+kind.toLowerCase()+' review:</b></p>'
+      +'<ol>'
+      +'<li>Open VSP and go to <b>'+page+'</b>.</li>'
+      +'<li>Fill in your self-assessment sections (check-in, goals status, self scores'+(kind==='Annual'?', Leadership Framework self ratings':'')+').</li>'
+      +'<li>Review your scorecard and note anything you want to discuss.</li>'
+      +'<li>Sign your section when done - your supervisor is notified automatically for their review.</li>'
+      +'</ol>'
+      +'<p><b>Deadline:</b> your part must be complete <b>before the meeting on '+nice+'</b>.</p>'
+      +'<p><a href="'+u+'">Open VSP</a></p>'
+      +(m.notes?('<p>'+_scEsc(m.notes)+'</p>'):'')
+      +'<p>Scheduled automatically from Self-Managing Builder.</p>';
+    return { contentType:'HTML', content:html };
+  }
+  return { contentType:'text', content:(m.notes||'')+(m.meetingLink?('\nJoin: '+m.meetingLink):'')+'\n\nScheduled from Self-Managing Builder VSP.' };
+}
 function _msEventPayload(m){
   var tm=_msParseTime(m.time);
   var pad=function(n){return String(n).padStart(2,'0');};
@@ -20058,7 +20108,7 @@ function _msEventPayload(m){
   }).filter(Boolean);
   var payload={
     subject: m.type + ((m.attendees||[]).length===2 ? (' - '+(m.attendees||[]).map(function(ini){var p=ppl.find(function(x){return x.initials===ini;});return p?p.first:ini;}).join(' / ')) : ''),
-    body:{ contentType:'text', content:(m.notes||'')+(m.meetingLink?('\nJoin: '+m.meetingLink):'')+'\n\nScheduled from Self-Managing Builder VSP.' },
+    body: _msInviteBody(m),
     start:{ dateTime:startDT, timeZone:'Pacific Standard Time' },
     end:{ dateTime:endDT, timeZone:'Pacific Standard Time' },
     location:{ displayName:m.location||'' },
@@ -23192,6 +23242,25 @@ function _pndPublishAlerts(){
    window.SMB_MAIL.send per D-45; Postmark backend still on Anand's queue).
    Integration Placeholder Pattern v2.11: the seam is here, the call is safe. */
 function _pndSendApprovalEmail(step, subjectPersonId, year, q){
+  // Automation (Dave, 2026-07-31): when the signer ahead in the chain is due
+  // (e.g. the employee just completed their part), email the next reviewer -
+  // via the shared mail backend when it exists, else via the current user's
+  // connected Outlook (Mail.Send). Fully automatic; no-op if neither is up.
+  if((!window.SMB_MAIL || typeof window.SMB_MAIL.send !== 'function') && typeof _msSendMail==='function' && _msConnected()){
+    try{
+      var _subj=personById(subjectPersonId), _sg=step.person;
+      if(_subj && _sg && _sg.email){
+        var _u='https://builderplaybook.github.io/VSP/';
+        _msSendMail(_sg.email,
+          fullName(_subj)+"'s "+q+' '+year+' review - awaiting your sign-off',
+          '<p>Hi '+_scEsc(_sg.first)+',</p>'+
+          '<p><b>'+_scEsc(fullName(_subj))+'</b> has completed their part of the '+q+' '+year+' review. It is now awaiting your review and sign-off.</p>'+
+          '<p><b>What to do:</b> open VSP &rarr; Performance &amp; Development &rarr; Quarterly (or Annual) for '+_scEsc(fullName(_subj))+', review each section, add Manager Feedback, and sign.</p>'+
+          '<p><a href="'+_u+'">Open VSP</a></p><p>Sent automatically by Self-Managing Builder.</p>');
+      }
+    }catch(e){}
+    return;
+  }
   if(!window.SMB_MAIL || typeof window.SMB_MAIL.send !== 'function') return;
   var subj = personById(subjectPersonId); if(!subj) return;
   var signer = step.person; if(!signer || !signer.email) return;
@@ -26219,7 +26288,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-40';
+window.VSP_BUILD = 'v186-merge-42';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
