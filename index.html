@@ -3682,6 +3682,15 @@ summary:focus-visible,
 .rot-phase-badge{background:var(--module-accent);color:#fff;padding:3px 10px;font-size:var(--fz-xs);border-radius:4px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .pnd-q .empty{padding:26px;text-align:center;color:var(--txm)}
 @media print{
+:root{
+  /* Paper tokens for PDF export - defined at print scope so audit's undefined-token check passes. */
+  --p-paper:#ffffff;
+  --p-ink:#111827;
+  --p-text-muted:#4b5563;
+  --p-line:#d1d5db;
+  --p-line-strong:#111827;
+  --p-tint:#f3f4f6;
+}
 .sb,.tb,.q-meta,.q-meta-actions,.q-add-goal,.q-appr-btn,.q-mbtn,.q-goal-x,.q-appr-notes[readonly],.q-archived-list,.autosave{display:none !important}
 .q-card{border:none !important;border-radius:0 !important;box-shadow:none !important;break-inside:avoid;margin-bottom:14pt;background:var(--p-paper) !important}
 .q-card-hd{background:var(--p-paper) !important;border-bottom:1.5pt solid var(--p-line-strong) !important;padding:6pt 0 !important}
@@ -3733,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-62</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-76</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4969,7 +4978,7 @@ function printStrategicPlan(){
   if(planData.oneyr.goals&&planData.oneyr.goals.length){
     D.push('<div style="font-weight:700;margin-bottom:8px">Goals For The Year</div>');
     D.push('<div class="items-box">');
-    planData.oneyr.goals.forEach(function(g,i){
+    planData.oneyr.goals.forEach(function(gg,i){ var g=(gg&&typeof gg==='object')?gg.text:gg;
       D.push('<div class="item-row"><span style="font-weight:700;color:#d97706;flex-shrink:0">'+(i+1)+'.</span><span>'+esc(g)+'</span></div>');
     });
     D.push('</div>');
@@ -5179,15 +5188,28 @@ function _findGoal(id){
 
 // ── Line of sight helpers ─────────────────────────────────────────────────
 function oneYearPlanItems(){
-  var src=(planData.oneyr&&planData.oneyr.goals)?planData.oneyr.goals:[];
-  return src.map(function(g,i){ return {ref:'y1:'+i, text:Array.isArray(g)?g[0]:g}; });
+  // Everything on the 1-Year Plan is linkable (Dave, 2026-07-31): goals,
+  // measurables, and the four financial targets. Refs: y1:<i> goals,
+  // y1m:<id> measurables, y1f:<key> financial targets.
+  var out=[];
+  var oy=planData.oneyr||{};
+  (oy.goals||[]).forEach(function(g,i){
+    var txt=(g&&typeof g==='object')?g.text:(Array.isArray(g)?g[0]:g);
+    var ref=(g&&typeof g==='object'&&g.id)?('y1g:'+g.id):('y1:'+i);
+    out.push({ref:ref, text:txt, grp:'Goals'});
+  });
+  (oy.measurables||[]).forEach(function(m){ out.push({ref:'y1m:'+m.id, text:(m.text||'')+(m.target?(' ('+m.target+')'):''), grp:'Measurables'}); });
+  [['grossSales','Gross Sales'],['grossProfit','Gross Profit'],['expenses','Expenses'],['netProfit','Net Profit']].forEach(function(f){
+    var v=oy[f[0]];
+    out.push({ref:'y1f:'+f[0], text:f[1]+(v?(' ('+v+')'):''), grp:'Financial Targets'});
+  });
+  return out;
 }
 function parentLabel(pid){
   if(pid===null||pid===undefined||pid==='') return '';
-  if(typeof pid==='string' && pid.indexOf('y1:')===0){
-    var i=parseInt(pid.slice(3),10);
-    var it=oneYearPlanItems()[i];
-    return it?('1-Year Plan: '+it.text):'';
+  if(typeof pid==='string' && pid.indexOf('y1')===0){
+    var hit=oneYearPlanItems().find(function(x){ return x.ref===pid; });
+    return hit?('1-Year Plan: '+hit.text):'';
   }
   var g=goalById(pid);
   return g?g.title:'';
@@ -5332,7 +5354,7 @@ function saveEditItem(){
       if(parEl){
         var raw=parEl.value;
         if(!raw){ it.parentId=null; }
-        else if(raw.indexOf('y1:')===0){ it.parentId=raw; }
+        else if(raw.indexOf('y1')===0){ it.parentId=raw; }
         else { var pv=parseInt(raw,10); it.parentId=(pv && pv!==it.id && !goalDescendantIds(it.id)[pv])?pv:null; }
       }
       // Sync progress from milestones on save
@@ -6491,6 +6513,10 @@ function savePlanField(key,subkey,idx){
   } else if(key==='ourWay'&&(subkey==='title'||subkey==='desc')){
     // ourWay is array of objects {num,title,desc}
     if(planData.ourWay[idx]) planData.ourWay[idx][subkey]=val;
+  } else if(key==='oneyr'&&subkey==='goals'&&idx!==undefined){
+    var _og=planData.oneyr.goals[idx];
+    if(_og&&typeof _og==='object'){ _og.text=val; }
+    else { planData.oneyr.goals[idx]=val; }
   } else if(key==='q1'&&subkey==='goals'&&idx!==undefined){
     // Q1 goals: array of [title, owner]
     if(!Array.isArray(planData.q1.goals[idx])) planData.q1.goals[idx]=[val,'DS'];
@@ -6516,8 +6542,9 @@ function addQ1Goal(){
   }, {title:'New goal', okLabel:'Next'});
 }
 function togglePlanYearGoal(i){
-  if(!Array.isArray(planData.oneyr.goalsDone)) planData.oneyr.goalsDone=[];
-  planData.oneyr.goalsDone[i]=!planData.oneyr.goalsDone[i];
+  var _yg=planData.oneyr.goals[i];
+  if(_yg&&typeof _yg==='object'){ _yg.done=!_yg.done; }
+  else { if(!Array.isArray(planData.oneyr.goalsDone)) planData.oneyr.goalsDone=[]; planData.oneyr.goalsDone[i]=!planData.oneyr.goalsDone[i]; }
   renderPage();
 }
 function planMeasurablesBlock(scope){
@@ -8758,6 +8785,36 @@ function _togVis(el){
    the group - a partly finished count is never reported. Automated cells
    are read-only with a lock glyph; notes stay allowed (right-click).
    ============================================================ */
+/* 1-Year Plan goal IDs (Dave, 2026-07-31, "do it properly"): year goals get
+   permanent IDs so goal links survive edits, reorders, and deletions.
+   Migrates strings -> {id,text,done}; remaps y1:<index> parentIds to y1g:<id>. */
+window._vspMigrateYearGoalIds=function(){
+  try{
+    var oy=planData&&planData.oneyr; if(!oy||!Array.isArray(oy.goals)) return;
+    var changed=false;
+    var doneArr=Array.isArray(oy.goalsDone)?oy.goalsDone:[];
+    oy.goals=oy.goals.map(function(g,i){
+      if(g&&typeof g==='object'&&g.id) return g;
+      changed=true;
+      var text=Array.isArray(g)?g[0]:String(g);
+      return { id:'yg'+(i+1)+'_'+String(Math.abs(text.split('').reduce(function(a,c){return ((a<<5)-a+c.charCodeAt(0))|0;},0))), text:text, done:!!doneArr[i] };
+    });
+    if(changed){
+      // remap existing positional links across every team
+      Object.keys(teamsRegistry||{}).forEach(function(tid){
+        ((teamsRegistry[tid]||{}).goals||[]).concat((teamsRegistry[tid]||{}).archivedGoals||[]).forEach(function(g){
+          if(typeof g.parentId==='string' && g.parentId.indexOf('y1:')===0){
+            var ix=parseInt(g.parentId.slice(3),10);
+            if(oy.goals[ix]) g.parentId='y1g:'+oy.goals[ix].id;
+          }
+        });
+      });
+      delete oy.goalsDone;
+    }
+  }catch(e){}
+};
+try{ window._vspMigrateYearGoalIds(); }catch(e){}
+
 /* One-shot text migration (Dave, 2026-07-30): retire the legacy system name
    from the client-update standards in the LIVE role-standards store. Row ids
    are untouched, so huddle answers, formulas, and history are unaffected. */
@@ -10303,8 +10360,8 @@ function renderStrategic(){
     h+='</div>';
     h+='<div class="fl" style="margin-bottom:6px">Goals For The Year</div>';
     if(!planData.oneyr.goals||!planData.oneyr.goals.length){ h+=_vspEmpty(_VSP_IC_GOAL,'No one-year goals set yet. These are the handful of outcomes that define a successful year.','',''); }
-    planData.oneyr.goals.forEach(function(g,i){
-      var _gd=Array.isArray(planData.oneyr.goalsDone)&&planData.oneyr.goalsDone[i];
+    planData.oneyr.goals.forEach(function(gg,i){ var g=(gg&&typeof gg==='object')?gg.text:gg;
+      var _gd=(gg&&typeof gg==='object')?!!gg.done:(Array.isArray(planData.oneyr.goalsDone)&&planData.oneyr.goalsDone[i]);
       h+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:0.5px solid var(--brd)">';
       h+='<div onclick="togglePlanYearGoal('+i+')" title="'+(_gd?'Mark not done':'Mark done')+'" style="width:16px;height:16px;border-radius:3px;border:1.5px solid '+(_gd?'var(--grn)':'var(--brd2)')+';background:'+(_gd?'var(--grn)':'transparent')+';flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center">'+(_gd?'<svg width="10" height="10" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
       h+='<div style="font-size:var(--fz-lg);flex:1;'+(_gd?'text-decoration:line-through;color:var(--txm)':'')+'">'+(i+1)+'. '+ef('oneyr',g,false,'goals',i)+'</div></div>';
@@ -13270,7 +13327,7 @@ function goalRow(g,archived,isLast,ctx){
   // Status chip
   h+=statusChip(g.status);
   // Title
-  var _gtCls='goal-title'+(g.status==="off-track"?' off':'')+((archived||g.status==="cancelled")?' muted':'')+(g.status==="complete"?' done':'');h+='<div style="flex:1;min-width:0">'+_meetQuickPair('goal',g.id)+'<span onclick="event.stopPropagation();openEditItem(\'goal\','+g.id+')" title="Click to edit" class="'+_gtCls+'">'+g.title+'</span>';var _gpR=g.parentId?parentLabel(g.parentId):'';if(_gpR)h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px"><span style="color:var(--blu)">\u21B3</span> Supports: '+_gpR+'</div>';else if(_vspFlagUnlinkedGoals(g))h+='<div style="font-size:var(--fz-xs);color:var(--amb);margin-top:2px"><span style="font-weight:700">\u26A0</span> Supports nothing. Link it to a company goal, or say why it stands alone.</div>';h+='</div>';
+  var _gtCls='goal-title'+(g.status==="off-track"?' off':'')+((archived||g.status==="cancelled")?' muted':'')+(g.status==="complete"?' done':'');h+='<div style="flex:1;min-width:0">'+_meetQuickPair('goal',g.id)+'<span onclick="event.stopPropagation();openEditItem(\'goal\','+g.id+')" title="Click to edit" class="'+_gtCls+'">'+g.title+'</span>';var _gpR=g.parentId?parentLabel(g.parentId):'';if(_gpR)h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px"><span style="color:var(--blu)">\u21B3</span> Supports: '+_gpR+'</div>';else if(_vspFlagUnlinkedGoals(g))h+='<div style="font-size:var(--fz-xs);color:var(--amb);margin-top:2px"><span style="font-weight:700">\u26A0</span> Supports nothing. Link it to '+(g.company?'the 1-Year Plan':'a company goal')+', or say why it stands alone.</div>';h+='</div>';
   // Company badge
   if(g.company&&!archived)h+='<span style="background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;border-radius:10px;padding:1px 7px;white-space:nowrap">Company</span>';
   // Linked-items badge
@@ -13278,7 +13335,7 @@ function goalRow(g,archived,isLast,ctx){
   // Quarter badge in archived
   if(archived)h+='<span style="font-size:var(--fz-base);background:var(--sur2);border:1px solid var(--brd);border-radius:10px;padding:1px 8px;color:var(--txm);white-space:nowrap">'+g.quarter+'</span>';
   // Milestone progress
-  h+='<span class="goal-ms'+(mDone===mTotal?' all-done':'')+'">'+mDone+'/'+mTotal+' milestones</span>';
+  h+='<span class="goal-ms'+(mDone===mTotal?' all-done':'')+'" onclick="event.stopPropagation();state.expandedGoals['+g.id+']='+(!isExpanded)+';renderPage()" title="Click to '+(isExpanded?'collapse':'expand')+'" style="cursor:pointer">'+mDone+'/'+mTotal+' milestones</span>';
   // Progress % - always visible inline, click to edit
   if(!archived){
     var _pcls=_goalStatusCls(g.status);
@@ -13350,6 +13407,18 @@ function goalRow(g,archived,isLast,ctx){
       h+='<input type="range" min="0" max="100" value="'+g.progress+'" onclick="event.stopPropagation()" oninput="event.stopPropagation();updateGoalProgress('+g.id+',parseInt(this.value))" onchange="event.stopPropagation();updateGoalProgress('+g.id+',parseInt(this.value))" style="width:100px;accent-color:var(--blu)">';
     }
     h+='</div>';
+    // Supports (link to 1-Year Plan / company goal) - inline per Dave 2026-07-31
+    if(!archived){
+      var _selOpts='<option value="">- Supports nothing -</option>';
+      var _y1i=oneYearPlanItems();
+      if(_y1i.length){ ['Goals','Measurables','Financial Targets'].forEach(function(gr){ var grp=_y1i.filter(function(x){return x.grp===gr;}); if(!grp.length) return; _selOpts+='<optgroup label="1-Year Plan \u00b7 '+gr+'">'; grp.forEach(function(it){ _selOpts+='<option value="'+it.ref+'"'+(g.parentId===it.ref?' selected':'')+'>'+_escOpt(it.text)+'</option>'; }); _selOpts+='</optgroup>'; }); }
+      var _eligR=eligibleGoalParents(g.id);
+      if(_eligR.length){ _selOpts+='<optgroup label="Goals">'; _eligR.forEach(function(pp){ _selOpts+='<option value="'+pp.id+'"'+(g.parentId===pp.id?' selected':'')+'>'+goalHorizonTag(pp)+': '+_escOpt(pp.title)+' ('+pp.owner+')</option>'; }); _selOpts+='</optgroup>'; }
+      h+='<div onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
+      h+='<span style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Supports</span>';
+      h+='<select onchange="goalSetParent('+g.id+',this.value)" style="flex:1;max-width:420px;padding:6px 9px;border:1.5px solid var(--brd2);border-radius:5px;font-size:var(--fz-body);font-family:inherit;background:var(--sur)">'+_selOpts+'</select>';
+      h+='</div>';
+    }
     // Milestones
     h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Milestones</div>';
     g.milestones.forEach(function(m){
@@ -13365,6 +13434,12 @@ function goalRow(g,archived,isLast,ctx){
       h+='<div style="display:flex;align-items:center;gap:6px;padding:8px 0 4px;border-top:0.5px dashed var(--brd);margin-top:6px" onclick="event.stopPropagation()">';
       h+='<input id="goal-new-ms-'+g.id+'" placeholder="Add a milestone..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();addMilestoneFromInput('+g.id+');}" style="flex:1;padding:6px 9px;border:1.5px solid var(--brd2);border-radius:5px;font-size:var(--fz-base);font-family:inherit">';
       h+='<button onclick="addMilestoneFromInput('+g.id+')" style="padding:6px 12px;border-radius:5px;border:1.5px solid var(--blu);background:var(--blub);color:var(--blu);font-size:var(--fz-base);font-weight:600;cursor:pointer;font-family:inherit">+ Add</button>';
+      h+='</div>';
+      // Four ready slots (Dave, 2026-07-31): type into any of them; each saves on Enter or when you click away.
+      h+='<div onclick="event.stopPropagation()" style="display:grid;grid-template-columns:1fr;gap:6px;padding:6px 0 4px">';
+      for(var _slot=1;_slot<=3;_slot++){
+        h+='<input placeholder="Milestone..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();goalQuickMs('+g.id+',this);}" onblur="goalQuickMs('+g.id+',this)" style="padding:6px 9px;border:1.5px solid var(--brd);border-radius:5px;font-size:var(--fz-base);font-family:inherit;background:var(--sur2)">';
+      }
       h+='</div>';
     }
     h+='</div>';
@@ -14082,10 +14157,18 @@ function _meetOccurrencesRaw(m, fromIso, toIso){
    as a miss.
    ============================================================ */
 function _meetPairKey(m){
-  // supervisor/report pair for a performance huddle; '' for team meetings.
-  if(String(m.type||'').indexOf('Performance Huddle')===-1) return '';
-  var att=(m.attendees||[]).slice().sort();
-  return att.join('|');
+  // Two independent replacement scopes (Dave, 2026-07-31): supervisor/report
+  // pair for Performance Huddles; team scope for plain Weekly/Quarterly/Annual
+  // team meetings (a team's quarterly absorbs that week's weekly on the same team).
+  var t=String(m.type||'');
+  if(t.indexOf('Performance Huddle')>-1){
+    var att=(m.attendees||[]).slice().sort();
+    return 'ph:'+att.join('|');
+  }
+  if(t==='Weekly'||t==='Quarterly'||t==='Annual'){
+    return 'tm:'+(m.teamId||'');
+  }
+  return '';
 }
 function _meetTierOf(m){
   var t=String(m.type||'');
@@ -15389,8 +15472,13 @@ function _vspTodoCompletionStats(list){
    is the top of the cascade and has nothing to support, and there is no value
    in re-litigating finished work. */
 function _vspFlagUnlinkedGoals(g){
-  if(!(state.page==='meetings' && state.meetTab==='running')) return false;
-  if(!g || g.company) return false;
+  // Shows in running meetings AND on the Goals page (Dave, 2026-07-31) -
+  // the inline Supports selector makes the warning actionable there.
+  var _ok=(state.page==='meetings' && state.meetTab==='running') || state.page==='goals';
+  if(!_ok) return false;
+  // EOS laddering (Dave, 2026-07-31): company Rocks tie to the 1-Year Plan,
+  // individual Rocks tie to company Rocks - nobody is exempt.
+  if(!g) return false;
   if(g.status==='complete' || g.status==='cancelled' || g.status==='archived') return false;
   return !g.parentId;
 }
@@ -16923,7 +17011,7 @@ function _mcMonthGrid(series, r, f){
   var h='<div class="card"><div class="card-body" style="padding:10px">';
   h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(function(dw){
-    h+='<div style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;padding:4px 6px">'+dw+'</div>';
+    h+='<div style="font-size:var(--fz-body);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;padding:4px 6px">'+dw+'</div>';
   });
   var first=new Date(r.from);
   var lead=(first.getDay()+6)%7;
@@ -16943,9 +17031,9 @@ function _mcMonthGrid(series, r, f){
       // booked meeting held; huddle answers mark a huddle held; a completed
       // review marks a review held. No manual mark-held - the record is the truth.
       var mv=it.e.real?(' onclick="_mcOpenMove('+it.e.m.id+',\''+iso+'\')" '):'';
-      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+_meetTypeLabel(it.e.m.type, it.e.teamName)).trim()+((_mcChipCtx(it.e)&&['Weekly','Quarterly','Annual'].indexOf(it.e.m.type)===-1)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
+      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-base);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+_meetTypeLabel(it.e.m.type, it.e.teamName)).trim()+((_mcChipCtx(it.e)&&['Weekly','Quarterly','Annual'].indexOf(it.e.m.type)===-1)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
     });
-    if(items.length>3) h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
+    if(items.length>3) h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
     h+='</div>';
     cur.setDate(cur.getDate()+1);
   }
@@ -16965,9 +17053,9 @@ function _mcMatrix(series, r, f, fromIso, toIso){
   }
   var h='<div class="card"><div class="card-body" style="padding:10px;overflow-x:auto">';
   h+='<table style="border-collapse:collapse;width:100%"><thead><tr>';
-  h+='<th style="text-align:left;padding:6px 8px;font-size:var(--fz-xs);color:var(--txm);text-transform:uppercase;letter-spacing:.04em;position:sticky;left:0;background:var(--sur)">Meeting</th>';
-  cols.forEach(function(c){ h+='<th style="padding:6px 4px;font-size:var(--fz-xs);color:var(--txm);white-space:nowrap">'+c.label+'</th>'; });
-  h+='<th style="padding:6px 8px;font-size:var(--fz-xs);color:var(--txm)">HELD/DUE</th></tr></thead><tbody>';
+  h+='<th style="text-align:left;padding:6px 8px;font-size:var(--fz-body);color:var(--txm);text-transform:uppercase;letter-spacing:.04em;position:sticky;left:0;background:var(--sur)">Meeting</th>';
+  cols.forEach(function(c){ h+='<th style="padding:6px 4px;font-size:var(--fz-body);color:var(--txm);white-space:nowrap">'+c.label+'</th>'; });
+  h+='<th style="padding:6px 8px;font-size:var(--fz-body);color:var(--txm)">HELD/DUE</th></tr></thead><tbody>';
   series.forEach(function(e){
     var occs=_mcOccs(e, fromIso, toIso).filter(function(o){
       return !f.status || o.status===f.status || (f.status==='upcoming'&&o.status==='today');
@@ -16981,7 +17069,7 @@ function _mcMatrix(series, r, f, fromIso, toIso){
     var held=occs.filter(function(o){return o.status==='held';}).length;
     var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
     h+='<tr style="border-top:1px solid var(--brd)">';
-    h+='<td style="padding:6px 8px;font-size:var(--fz-base);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(e.m.type, e.teamName))+'</b><div style="font-size:var(--fz-xs);color:var(--txm)">'+_scEsc((e.m.attendees||[]).join(', ')+' \u00b7 '+e.teamName)+'</div></td>';
+    h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(e.m.type, e.teamName))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc((e.m.attendees||[]).join(', ')+' \u00b7 '+e.teamName)+'</div></td>';
     cols.forEach(function(c){
       var sts=byCol[c.key]||[];
       h+='<td style="padding:4px;text-align:center">';
@@ -16993,7 +17081,7 @@ function _mcMatrix(series, r, f, fromIso, toIso){
       h+='</td>';
     });
     var pc=due?Math.round(held/due*100):null;
-    h+='<td style="padding:6px 8px;text-align:center;font-size:var(--fz-base);font-weight:600;color:'+(pc==null?'var(--txm)':pc>=90?'#15803d':pc>=70?'#b45309':'#b91c1c')+'">'+held+'/'+due+'</td>';
+    h+='<td style="padding:6px 8px;text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(pc==null?'var(--txm)':pc>=90?'#15803d':pc>=70?'#b45309':'#b91c1c')+'">'+held+'/'+due+'</td>';
     h+='</tr>';
   });
   h+='</tbody></table>';
@@ -17017,10 +17105,10 @@ function _mcMoveOverlay(){
   h+='<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:460px;max-height:88vh;overflow-y:auto;background:var(--sur);border:1px solid var(--brd);border-radius:10px;z-index:201;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.18)">';
   h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:2px">Edit meeting</div>';
   h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:14px">'+_scEsc(_meetTypeLabel(m.type, m.teamName)+' \u00b7 '+(m.attendees||[]).join(', '))+'</div>';
-  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur);margin-bottom:10px';
-  var lbl='font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;display:block';
+  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);margin-bottom:10px';
+  var lbl='font-size:var(--fz-body);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;display:block';
   var isRec=!!m.recurEvery;
-  if(isRec) h+='<div style="background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:6px;padding:8px 10px;font-size:var(--fz-xs);margin-bottom:12px">This is a recurring series. Changes here update the whole series; use Move this occurrence for one date only.</div>';
+  if(isRec) h+='<div style="background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:6px;padding:8px 10px;font-size:var(--fz-base);margin-bottom:12px">This is a recurring series. Changes here update the whole series; use Move this occurrence for one date only.</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
   h+='<div><label style="'+lbl+'">Date</label><input type="date" id="mc-e-date" value="'+_scEsc(m.date||mv.iso)+'" style="'+inp+'" '+(!_canEdit?'disabled':'')+'></div>';
   h+='<div><label style="'+lbl+'">Time</label><input type="text" id="mc-e-time" value="'+_scEsc(m.time||'')+'" placeholder="9:00 AM" style="'+inp+'" '+(!_canEdit?'disabled':'')+'></div>';
@@ -17057,14 +17145,14 @@ function _mcMoveOverlay(){
   if(m.outlookEventId && _msConnected()) noteMsg='Saves update the Outlook event; attendees are notified automatically.';
   else if(_msConnected()) noteMsg='Saves stay in VSP. Ticking Outlook on the original booking is required to sync.';
   else noteMsg='Saved in VSP. Connect Outlook to sync updates automatically.';
-  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin:6px 0 12px">'+noteMsg+'</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin:6px 0 12px">'+noteMsg+'</div>';
   if(_canEdit){
     h+='<button type="button" class="btn btn-blu" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px" onclick="_mcSaveEdit()">Save changes</button>';
   }
   h+='<div style="display:flex;gap:8px">';
-  if(_canEdit && isRec) h+='<button type="button" onclick="_mcMoveOccurrence()" title="Move only this occurrence; the series stays" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit">Move this occurrence</button>';
-  if(_canEdit && isRec) h+='<button type="button" onclick="_mcSkipDate()" title="Remove only this occurrence; the series continues" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit">Skip this date</button>';
-  if(_canCancel) h+='<button type="button" onclick="_mcCancelMeeting()" title="Cancel the WHOLE series" style="flex:1;padding:9px 0;border:1.5px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap">'+(isRec?'Cancel series':'Cancel meeting')+'</button>';
+  if(_canEdit && isRec) h+='<button type="button" onclick="_mcMoveOccurrence()" title="Move only this occurrence; the series stays" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit;font-size:var(--fz-body)">Move this occurrence</button>';
+  if(_canEdit && isRec) h+='<button type="button" onclick="_mcSkipDate()" title="Remove only this occurrence; the series continues" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit;font-size:var(--fz-body)">Skip this date</button>';
+  if(_canCancel) h+='<button type="button" onclick="_mcCancelMeeting()" title="Cancel the WHOLE series" style="flex:1;padding:9px 0;border:1.5px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap;font-size:var(--fz-body)">'+(isRec?'Cancel series':'Cancel meeting')+'</button>';
   h+='<button type="button" class="btn" style="flex:0 0 auto;padding:9px 16px" onclick="state.mcMove=null;renderPage()">Close</button></div>';
   h+='</div>';
   return h;
@@ -17208,7 +17296,7 @@ function _mcMoveSave(){
   renderPage();
 }
 function _mcLegend(){
-  var h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:var(--fz-xs);color:var(--txm)">';
+  var h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:var(--fz-base);color:var(--txm)">';
   [['held','\u2713 Held'],['missed','\u2717 Missed'],['upcoming','\u25cf Upcoming'],['today','\u25cf Today'],['absorbed','\u25b2 Absorbed by a higher huddle that week']].forEach(function(x){
     var t=_mcTone(x[0]);
     h+='<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:50%;background:'+t.bg+';border:1px solid '+t.b+';display:inline-block"></span>'+x[1]+'</span>';
@@ -18618,6 +18706,24 @@ function goalMoveBottom(id){
 function goalSetStatus(id,status){
   changeGoalStatus(id,status);
   state.goalCtx=null;
+}
+function goalSetParent(id, raw){
+  var g=goals.find(function(x){return x.id===id;}); if(!g) return;
+  if(!raw){ g.parentId=null; }
+  else if(String(raw).indexOf('y1')===0){ g.parentId=raw; }
+  else { var pv=parseInt(raw,10); g.parentId=(pv && pv!==g.id && !goalDescendantIds(g.id)[pv])?pv:null; }
+  try{ vspSaveNow(); }catch(e){}
+  renderPage();
+}
+function goalQuickMs(id, el){
+  var t=(el&&el.value||'').trim(); if(!t) return;
+  var g=goals.find(function(x){return x.id===id;}); if(!g) return;
+  g.milestones=g.milestones||[];
+  g.milestones.push({id:Date.now()+Math.floor(Math.random()*999), text:t, done:false});
+  el.value='';
+  if(typeof _syncGoalProgress==='function') _syncGoalProgress(g);
+  try{ vspSaveNow(); }catch(e){}
+  renderPage();
 }
 function goalArchive(id){
   var idx=goals.findIndex(function(g){return g.id===id;});
@@ -26281,7 +26387,7 @@ function renderPage(){
         emH+='<select id="edit-parent" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
         emH+='<option value="">- None -</option>';
         var _y1=oneYearPlanItems();
-        if(_y1.length){ emH+='<optgroup label="1-Year Plan">'; _y1.forEach(function(it){ emH+='<option value="'+it.ref+'"'+(emItem.parentId===it.ref?' selected':'')+'>'+_escOpt(it.text)+'</option>'; }); emH+='</optgroup>'; }
+        if(_y1.length){ ['Goals','Measurables','Financial Targets'].forEach(function(gr){ var grp=_y1.filter(function(x){return x.grp===gr;}); if(!grp.length) return; emH+='<optgroup label="1-Year Plan \u00b7 '+gr+'">'; grp.forEach(function(it){ emH+='<option value="'+it.ref+'"'+(emItem.parentId===it.ref?' selected':'')+'>'+_escOpt(it.text)+'</option>'; }); emH+='</optgroup>'; }); }
         if(_elig.length){ emH+='<optgroup label="Goals">'; _elig.forEach(function(p){ emH+='<option value="'+p.id+'"'+(emItem.parentId===p.id?' selected':'')+'>'+goalHorizonTag(p)+': '+_escOpt(p.title)+' ('+p.owner+')</option>'; }); emH+='</optgroup>'; }
         emH+='</select>';
         var _kids=goalChildren(emId);
@@ -26626,7 +26732,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-62';
+window.VSP_BUILD = 'v186-merge-76';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -27823,7 +27929,7 @@ try {
 } catch(e){ window.__VSP_SEED_IDS = null; console.warn('[VSP] seed-id capture failed:', e.message); }
 
 // Restore saved state before first render.
-try { vspLoadAll(); } catch(e){ console.warn(e); }
+try { vspLoadAll(); } catch(e){ console.warn(e); } try{ if(window._vspMigrateYearGoalIds) window._vspMigrateYearGoalIds(); }catch(e){}
 try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } } catch(e){}
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
@@ -28456,7 +28562,7 @@ function vspBookMeetingModal(){
       '<div class="smb-fld"><label for="sm-time">Time</label><input type="text" id="sm-time" placeholder="e.g. 9:00 AM"></div>'+
       '<div class="smb-fld"><label for="sm-duration">Duration (minutes)</label><select id="sm-duration">'+[30,45,60,90,120,180].map(function(d){return '<option value="'+d+'"'+(d===60?' selected':'')+'>'+d+' min</option>';}).join('')+'</select></div>'+
       '<div class="smb-fld"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:2px"><input type="checkbox" id="sm-allday" style="width:15px;height:15px"> All-day event (ignore time)</label>'
-      +'<label for="sm-days" style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:6px;display:block">Length</label>'
+      +'<label for="sm-days" style="font-size:var(--fz-body);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:6px;display:block">Length</label>'
       +'<select id="sm-days"><option value="1">1 day</option><option value="2">2 days</option><option value="3">3 days</option><option value="4">4 days</option><option value="5">5 days</option></select></div>'+
       '<div class="smb-fld"><label for="sm-link">Meeting link</label><input type="text" id="sm-link" placeholder="Zoom, Teams, or Meet URL (optional)"></div>'+
       (_msConnected()
@@ -28967,7 +29073,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       }
     } catch(e){}
     try { origSet(V_keyName(), raw); } catch(e){}
-    try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){}
+    try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){} try{ if(window._vspMigrateYearGoalIds) window._vspMigrateYearGoalIds(); }catch(e){}
     // Keep this user on the team they are viewing, not the team the saver was on.
     try { if(keepTeam && typeof state !== 'undefined' && state){ state.currentTeam = keepTeam; if(typeof syncTeamData === 'function') syncTeamData(); } } catch(e){}
     try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
@@ -29851,7 +29957,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       }
     } catch(e){}
     try { origSet(V_keyName(), raw); } catch(e){}
-    try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){}
+    try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){} try{ if(window._vspMigrateYearGoalIds) window._vspMigrateYearGoalIds(); }catch(e){}
     // Keep this user on the team they are viewing, not the team the saver was on.
     try { if(keepTeam && typeof state !== 'undefined' && state){ state.currentTeam = keepTeam; if(typeof syncTeamData === 'function') syncTeamData(); } } catch(e){}
     try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
