@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-85</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-86</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -20588,7 +20588,8 @@ function _msInviteBody(m){
     var cAg=null;
     try{ cAg=agendaFor(m.teamId||state.currentTeam, t); }catch(e){}
     var cSecs=(cAg&&cAg.sections)?cAg.sections.filter(function(x){return x.visible!==false;}):[];
-    var ch='<p>This is your recurring <b>Monthly Client Meeting</b>, held in person with your Project Manager and Interior Designer.</p>';
+    var ch=(m.clientName?('<p>Hi '+_scEsc(m.clientName)+',</p>'):'');
+    ch+='<p>This is your recurring <b>Monthly Client Meeting</b>, held in person with your Project Manager and Interior Designer.</p>';
     if(cSecs.length){
       ch+='<p><b>Each month we walk through:</b></p><ol>';
       cSecs.forEach(function(x){ ch+='<li>'+_scEsc(x.label)+(x.min?(' ('+x.min+' min)'):'')+'</li>'; });
@@ -20612,6 +20613,10 @@ function _msEventPayload(m){
     var p=ppl.find(function(x){return x.initials===ini;});
     return (p&&p.email)?{ emailAddress:{ address:p.email, name:p.first+' '+p.last }, type:'required' }:null;
   }).filter(Boolean);
+  // External client invitees (Dave, 2026-07-31): real attendees on the event.
+  (m.clientEmails||[]).forEach(function(em){
+    att.push({ emailAddress:{ address:em, name:m.clientName||em }, type:'required' });
+  });
   if(m.bookBoardroom){
     att.push({ emailAddress:{ address:VSP_BOARDROOM_EMAIL, name:'Boardroom' }, type:'resource' });
   }
@@ -20675,6 +20680,9 @@ function addScheduledMeeting(){
   // Team picker (Dave, 2026-07-31): the meeting books against the team chosen
   // in the popup, which may differ from the topbar team.
   var _bmTid=(function(){ var t=document.getElementById('sm-team'); return (t&&t.value&&teamsRegistry[t.value])?t.value:state.currentTeam; })();
+  var _bmIsClient=(type&&type.value)==='Monthly Client Meeting';
+  var _bmClientName=_bmIsClient?String(state.smClientName||'').trim():'';
+  var _bmClientEmails=_bmIsClient?String(state.smClientEmails||'').split(',').map(function(s){return s.trim();}).filter(function(s){return /.+@.+\..+/.test(s);}):[];
   var _bmMeeting={
     id:Date.now(),
     type:type?type.value:'Weekly',
@@ -20688,7 +20696,9 @@ function addScheduledMeeting(){
     recurEvery:rec?parseInt(rec.value,10)||0:0,
     recurUntil:(function(){var u=document.getElementById('sm-until');return u?u.value.trim():'';})(),
     attendees:_smSelectedAttendees(),
-    teamName:(teamsRegistry[_bmTid]||{}).name||'',
+    clientName:_bmClientName,
+    clientEmails:_bmClientEmails,
+    teamName:_bmIsClient?(_bmClientName||'Client'):((teamsRegistry[_bmTid]||{}).name||''),
     teamId:_bmTid,
     bookBoardroom:!!(document.getElementById('sm-boardroom')&&document.getElementById('sm-boardroom').checked),
     allDay:!!(document.getElementById('sm-allday')&&document.getElementById('sm-allday').checked),
@@ -26824,7 +26834,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-85';
+window.VSP_BUILD = 'v186-merge-86';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -28656,8 +28666,8 @@ function vspBookMeetingModal(){
   var body=''+
     (_msConnected() ? '' : '<div style="background:var(--gpb,#fdf6e3);border:1px solid var(--gpd,#b8860b);border-radius:6px;padding:10px 12px;margin-bottom:14px;color:var(--gpd,#7a5b00);font-size:var(--fz-body);line-height:1.5"><strong>Outlook not connected.</strong> The meeting is saved and tracked here. Click <b>Connect Outlook</b> on the Meetings page top-right to send real calendar invites from this browser.</div>')+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
-      '<div class="smb-fld"><label for="sm-team">Team</label><select id="sm-team" onchange="_smTeamChange(this.value)">'+teamOpts+'</select></div>'+
-      '<div class="smb-fld"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="state.smType=this.value;state.smReport=\'\';_vspBookMeetingRefreshAtt()">'+typeOpts.map(function(t){return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+_meetTypeLabel(t, _bmTeamName)+'</option>';}).join('')+'</select></div>'+
+      '<div class="smb-fld" id="sm-team-wrap"'+(curType==='Monthly Client Meeting'?' style="display:none"':'')+'><label for="sm-team">Team</label><select id="sm-team" onchange="_smTeamChange(this.value)">'+teamOpts+'</select></div>'+
+      '<div class="smb-fld"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="_smTypeChange(this.value)">'+typeOpts.map(function(t){return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+_meetTypeLabel(t, _bmTeamName)+'</option>';}).join('')+'</select></div>'+
       '<div class="smb-fld"><label for="sm-recurring">Repeats</label><select id="sm-recurring"><option value="0">One-time</option><option value="7">Weekly</option><option value="14">Every 2 weeks</option><option value="28">Every 4 weeks</option><option value="30">Monthly</option><option value="91">Quarterly</option><option value="365">Annually</option></select></div>'+
       '<div class="smb-fld"><label for="sm-until">Ends on (optional, for repeats)</label><input type="date" id="sm-until"></div>'+
       '<div class="smb-fld"><label for="sm-date">Start date</label><input type="date" id="sm-date"></div>'+
@@ -28689,12 +28699,21 @@ function _vspBookMeetingAttHtml(){
     var opts=ppl.filter(function(p){return (p.status||'active')==='active';}).map(function(p){return '<option value="'+p.initials+'"'+((state.smReport===p.initials)?' selected':'')+'>'+_vspDlgEsc(p.first+' '+p.last)+'</option>';}).join('');
     return '<div class="smb-fld" style="min-width:260px"><label for="sm-report">Direct report</label><select id="sm-report" onchange="state.smReport=this.value">'+'<option value="">Select a person</option>'+opts+'</select><div style="font-size:var(--fz-base);color:var(--txm);margin-top:3px">Their supervisor is added automatically.</div></div>';
   }
+  var h='';
+  if(ty==='Monthly Client Meeting'){
+    // Client fields (Dave, 2026-07-31): the client is a real invitee. Name
+    // opens the invite greeting; emails go on the Outlook event as attendees.
+    h+='<div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">';
+    h+='<div class="smb-fld"><label for="sm-client-name">Client name(s)</label><input type="text" id="sm-client-name" value="'+_vspDlgEsc(state.smClientName||'')+'" oninput="state.smClientName=this.value" placeholder="e.g. Ray and Jaya"></div>';
+    h+='<div class="smb-fld"><label for="sm-client-emails">Client email(s)</label><input type="text" id="sm-client-emails" value="'+_vspDlgEsc(state.smClientEmails||'')+'" oninput="state.smClientEmails=this.value" placeholder="one or more, comma-separated"></div>';
+    h+='</div>';
+    h+='<div style="width:100%;font-size:var(--fz-base);color:var(--txm);margin-bottom:6px">LIDA attendees - add the PM and the Interior Designer:</div>';
+  }
   // Dropdown + chips (Dave, 2026-07-31): scales past a checkbox wall.
   // Defaults: current team's members. Chips remove on click.
   if(!Array.isArray(state.smAtt)){
     state.smAtt=((teamsRegistry[state.smTeam||state.currentTeam]||{}).members||[]).slice();
   }
-  var h='';
   h+='<div style="width:100%">';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
   state.smAtt.forEach(function(ini){
@@ -28720,6 +28739,24 @@ function _smTeamChange(tid){
   var tn=(teamsRegistry[tid]||{}).name||'Team';
   var sel=document.getElementById('sm-type');
   if(sel){ for(var i=0;i<sel.options.length;i++){ sel.options[i].text=_meetTypeLabel(sel.options[i].value, tn); } }
+  _vspBookMeetingRefreshAtt();
+}
+function _smTypeChange(t){
+  // Meeting type switched. A Monthly Client Meeting belongs to a project, not
+  // a team (Dave, 2026-07-31): hide the Team field, start with NO preloaded
+  // attendees (PM and ID get added by hand), and show the client name/email
+  // fields. Switching back restores the team default.
+  var was=state.smType;
+  state.smType=t;
+  state.smReport='';
+  var wrap=document.getElementById('sm-team-wrap');
+  if(t==='Monthly Client Meeting'){
+    if(wrap) wrap.style.display='none';
+    if(was!=='Monthly Client Meeting') state.smAtt=[];
+  } else {
+    if(wrap) wrap.style.display='';
+    if(was==='Monthly Client Meeting') state.smAtt=null;
+  }
   _vspBookMeetingRefreshAtt();
 }
 function _smAttRemove(ini){ if(!Array.isArray(state.smAtt)) return; var i=state.smAtt.indexOf(ini); if(i>-1) state.smAtt.splice(i,1); _vspBookMeetingRefreshAtt(); }
