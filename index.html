@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-44</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-49</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -16759,7 +16759,7 @@ function _mcTone(st){
 }
 function _mcLabel(e){
   var att=(e.m.attendees||[]).join(', ');
-  return (e.m.type||'Meeting')+(att?(' \u00b7 '+att):'');
+  return _meetTypeLabel(e.m.type, e.teamName)+(att?(' \u00b7 '+att):'');
 }
 function _mcMatch(e, f){
   if(f.team && e.teamId!==f.team) return false;
@@ -16879,6 +16879,15 @@ function _mcRender(){
   h+=_mcMoveOverlay();
   return h;
 }
+function _meetTypeLabel(t, teamName){
+  // Say what it is (Dave, 2026-07-31): "Weekly Leadership Meeting",
+  // "Quarterly Field Operations Meeting". Stored values stay as-is so
+  // agendas, history, and the replacement rule keep working.
+  if(t==='Weekly'||t==='Quarterly'||t==='Annual'){
+    return t+' '+(teamName||'Team')+' Meeting';
+  }
+  return t||'Meeting';
+}
 function _mcChipCtx(e){
   // Which meeting is this? Chips carry their context: a huddle shows the
   // report's name; a team meeting shows the team (Dave, 2026-07-31).
@@ -16932,7 +16941,7 @@ function _mcMonthGrid(series, r, f){
       // booked meeting held; huddle answers mark a huddle held; a completed
       // review marks a review held. No manual mark-held - the record is the truth.
       var mv=it.e.real?(' onclick="_mcOpenMove('+it.e.m.id+',\''+iso+'\')" '):'';
-      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+(it.e.m.type||'')).trim()+(_mcChipCtx(it.e)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
+      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+_meetTypeLabel(it.e.m.type, it.e.teamName)).trim()+((_mcChipCtx(it.e)&&['Weekly','Quarterly','Annual'].indexOf(it.e.m.type)===-1)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
     });
     if(items.length>3) h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
     h+='</div>';
@@ -16970,7 +16979,7 @@ function _mcMatrix(series, r, f, fromIso, toIso){
     var held=occs.filter(function(o){return o.status==='held';}).length;
     var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
     h+='<tr style="border-top:1px solid var(--brd)">';
-    h+='<td style="padding:6px 8px;font-size:var(--fz-base);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(e.m.type||'Meeting')+'</b><div style="font-size:var(--fz-xs);color:var(--txm)">'+_scEsc((e.m.attendees||[]).join(', ')+' \u00b7 '+e.teamName)+'</div></td>';
+    h+='<td style="padding:6px 8px;font-size:var(--fz-base);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(e.m.type, e.teamName))+'</b><div style="font-size:var(--fz-xs);color:var(--txm)">'+_scEsc((e.m.attendees||[]).join(', ')+' \u00b7 '+e.teamName)+'</div></td>';
     cols.forEach(function(c){
       var sts=byCol[c.key]||[];
       h+='<td style="padding:4px;text-align:center">';
@@ -17068,7 +17077,7 @@ function renderMeetings(){
 
   // Tabs
   h+='<div class="tab-bar">';
-  [{v:"calendar",l:"Calendar"},{v:"upcoming",l:"Schedule"},{v:"compliance",l:"Compliance"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
+  [{v:"calendar",l:"Calendar"},{v:"upcoming",l:"Schedule"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
     h+='<button class="tab'+(tab===t.v?" active":"")+'" onclick="state.meetTab=\''+t.v+'\';renderPage()">'+t.l+'</button>';
   });
   // Print Agenda button removed (post-meeting feedback May 21) - the Recap on past meetings serves the actual-meeting-print need.
@@ -17123,7 +17132,7 @@ function renderMeetings(){
       var _more=_secs.length-_shown.length;
       h+='<div class="card" style="border-top:3px solid '+mt.c+'">';
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
-      h+='<div style="font-size:var(--fz-body);font-weight:600">'+mt.type+'</div>';
+      h+='<div style="font-size:var(--fz-body);font-weight:600">'+_scEsc(_meetTypeLabel(mt.type, (teamsRegistry[state.currentTeam]||{}).name))+'</div>';
       if(mt.cat==='supervisor') h+='<span style="background:#f3e8ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:10px;padding:1px 7px">\ud83d\udd12 Private</span>';
       if(mt.cat==='client') h+='<span style="background:#cffafe;color:#0891b2;border:1px solid #67e8f9;border-radius:10px;padding:1px 7px">Client</span>';
       h+='</div>';
@@ -17204,7 +17213,13 @@ function renderMeetings(){
       r+='</div>';
       r+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
       r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();vspMeetEmailInvite('+m.id+')" title="Compose, log, and open your mail app">\u2709 Email</button>';
-      r+='<button type="button" onclick="vspAlert(\'One-click Outlook invites that send to every attendee automatically arrive with the Calendar Integration Backend. For now, use Download .ics or Email.\')" title="One-click auto-invite - coming soon" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to Outlook <span style="font-size:var(--fz-xs);background:var(--brd);color:var(--txd);border-radius:8px;padding:0 5px;margin-left:2px">Soon</span></button>';
+      if(_msConnected()){
+        if(m.outlookEventId){
+          r+='<span title="This meeting exists on your Outlook calendar" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #86efac;border-radius:6px;background:#dcfce7;color:#15803d;font-size:var(--fz-base);flex-shrink:0">In Outlook \u2713</span>';
+        } else {
+          r+='<button type="button" onclick="_msCreateEvent(_findScheduledById('+m.id+').m)" title="Create this meeting in Outlook and send invites" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid var(--brd2);border-radius:6px;background:var(--sur);color:var(--txt);cursor:pointer;font-family:inherit;font-size:var(--fz-base);flex-shrink:0">Add to Outlook</button>';
+        }
+      }
       r+='<button onclick="deleteScheduledMeeting('+m.id+')" title="Delete" style="width:28px;height:28px;border-radius:6px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:var(--fz-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0">\u00d7</button>';
       r+='</div>';
       return r;
@@ -18072,7 +18087,7 @@ function renderMeetings(){
         var _hp=ppl.find(function(x){ return x && x.initials===m.huddleReport; });
         _hrName = _hp ? (_hp.first+' '+_hp.last) : m.huddleReport;
       }
-      h+='<span style="font-size:var(--fz-body);font-weight:500">'+m.type+(_hrName?'':' Meeting')+'</span>';
+      h+='<span style="font-size:var(--fz-body);font-weight:500">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
       if(_hrName) h+='<span style="font-size:var(--fz-body);font-weight:600;color:'+tc+'">'+_scEsc(_hrName)+'</span>';
       h+='<span style="font-size:var(--fz-base);color:'+tc+';background:'+tc+'12;border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.date+'</span></div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">'+m.highlights+'</div>';
@@ -20163,7 +20178,14 @@ function _msEventPayload(m){
     return (p&&p.email)?{ emailAddress:{ address:p.email, name:p.first+' '+p.last }, type:'required' }:null;
   }).filter(Boolean);
   var payload={
-    subject: m.type + ((m.attendees||[]).length===2 ? (' - '+(m.attendees||[]).map(function(ini){var p=ppl.find(function(x){return x.initials===ini;});return p?p.first:ini;}).join(' / ')) : ''),
+    subject: (function(){
+      // Subject always carries context (Dave, 2026-07-31): who or which team,
+      // so "Weekly" in a busy calendar is never ambiguous.
+      var names=(m.attendees||[]).map(function(ini){var p=ppl.find(function(x){return x.initials===ini;});return p?p.first:ini;});
+      var isTeam=['Weekly','Quarterly','Annual'].indexOf(m.type)>-1;
+      var base=_meetTypeLabel(m.type, m.teamName);
+      return isTeam ? base : (base + (names.length ? (' \u00b7 '+names.join(' / ')) : ''));
+    })(),
     body: _msInviteBody(m),
     start:{ dateTime:startDT, timeZone:'Pacific Standard Time' },
     end:{ dateTime:endDT, timeZone:'Pacific Standard Time' },
@@ -20211,7 +20233,8 @@ function addScheduledMeeting(){
     notes:(function(){var n=document.getElementById('sm-notes');return n?n.value.trim():'';})(),
     recurring:({0:'One-time',7:'Weekly',14:'Every 2 weeks',28:'Every 4 weeks',30:'Monthly',91:'Quarterly',365:'Annually'}[rec?parseInt(rec.value,10)||0:0])||'One-time',
     recurEvery:rec?parseInt(rec.value,10)||0:0,
-    attendees:_smSelectedAttendees()
+    attendees:_smSelectedAttendees(),
+    teamName:(teamsRegistry[state.currentTeam]||{}).name||''
   });
   // Outlook: when connected and the box is ticked, create the real event
   // (series + attendees). The meeting saves in VSP regardless.
@@ -26344,7 +26367,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-44';
+window.VSP_BUILD = 'v186-merge-49';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -28168,7 +28191,7 @@ function vspBookMeetingModal(){
   var body=''+
     (_msConnected() ? '' : '<div style="background:var(--gpb,#fdf6e3);border:1px solid var(--gpd,#b8860b);border-radius:6px;padding:10px 12px;margin-bottom:14px;color:var(--gpd,#7a5b00);font-size:var(--fz-body);line-height:1.5"><strong>Outlook not connected.</strong> The meeting is saved and tracked here. Click <b>Connect Outlook</b> on the Meetings page top-right to send real calendar invites from this browser.</div>')+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
-      '<div class="smb-fld"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="state.smType=this.value;state.smReport=\'\';_vspBookMeetingRefreshAtt()">'+typeOpts.map(function(t){return '<option'+(curType===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div>'+
+      '<div class="smb-fld"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="state.smType=this.value;state.smReport=\'\';_vspBookMeetingRefreshAtt()">'+typeOpts.map(function(t){var tn=(teamsRegistry[state.currentTeam]||{}).name||'Team';return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+_meetTypeLabel(t, tn)+'</option>';}).join('')+'</select></div>'+
       '<div class="smb-fld"><label for="sm-recurring">Repeats</label><select id="sm-recurring"><option value="0">One-time</option><option value="7">Weekly</option><option value="14">Every 2 weeks</option><option value="28">Every 4 weeks</option><option value="30">Monthly</option><option value="91">Quarterly</option><option value="365">Annually</option></select></div>'+
       '<div class="smb-fld"><label for="sm-date">Start date</label><input type="date" id="sm-date"></div>'+
       '<div class="smb-fld"><label for="sm-time">Time</label><input type="text" id="sm-time" placeholder="e.g. 9:00 AM"></div>'+
