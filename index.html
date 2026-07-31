@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-77</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-80</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -6584,7 +6584,7 @@ function planMeasurablesBlock(scope){
   return h;
 }
 function _planMeas(scope,id){ var a=(planData[scope]&&planData[scope].measurables)||[]; return a.find(function(x){return x.id===id;}); }
-function planMeasurableOwner(scope,id,ini){ var m=_planMeas(scope,id); if(!m) return; m.owner=ini; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
+function planMeasurableOwner(scope,id,ini){ var m=_planMeas(scope,id); if(!m) return; m.owner=ini; m.updatedAt=Date.now(); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
 function _measOwnerSelect(scope,m){
   var cur=m.owner||'DS';
   var h='<select onchange="planMeasurableOwner(\''+scope+'\','+m.id+',this.value)" title="Owner" style="font-size:var(--fz-base);padding:4px 6px;border:1px solid var(--brd2);border-radius:4px;font-family:inherit;background:var(--sur);max-width:120px">';
@@ -6595,7 +6595,7 @@ function _measOwnerSelect(scope,m){
   return h;
 }
 function planMeasurableCycle(scope,id){ var m=_planMeas(scope,id); if(!m) return; var s=m.status||'none'; m.status=(s==='none')?'on-track':(s==='on-track')?'off-track':'none'; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
-function planMeasurableSet(scope,id,field,val){ var m=_planMeas(scope,id); if(!m) return; m[field]=val; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} }
+function planMeasurableSet(scope,id,field,val){ var m=_planMeas(scope,id); if(!m) return; m[field]=val; m.updatedAt=Date.now(); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} }
 function addPlanMeasurable(scope){ if(!planData[scope]) return; if(!Array.isArray(planData[scope].measurables)) planData[scope].measurables=[]; planData[scope].measurables.push({id:Date.now(),text:'',target:'',status:'none',owner:'DS'}); renderPage(); }
 function removePlanMeasurable(scope,id){ var a=planData[scope]&&planData[scope].measurables; if(!Array.isArray(a)) return; var i=a.findIndex(function(x){return x.id===id;}); if(i>-1) a.splice(i,1); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){} renderPage(); }
 
@@ -17047,6 +17047,10 @@ function _mcMatrix(series, r, f, fromIso, toIso){
   var cols=[];
   if(_mcSt().view==='quarter'){
     var d=new Date(r.from); var day=(d.getDay()+6)%7; d.setDate(d.getDate()-day);
+    // Start at the current week when viewing the current quarter - dead past
+    // columns waste half the grid (Dave, 2026-07-31).
+    var _nowW=new Date(); var _nd=(_nowW.getDay()+6)%7; _nowW.setDate(_nowW.getDate()-_nd); _nowW.setHours(0,0,0,0);
+    if(_nowW>d && _nowW<=r.to) d=_nowW;
     while(d<=r.to){ cols.push({key:_mcIso(d), label:(d.getMonth()+1)+'/'+d.getDate()}); d.setDate(d.getDate()+7); }
   } else {
     for(var mth=0; mth<12; mth++){ cols.push({key:r.from.getFullYear()+'-'+String(mth+1).padStart(2,'0'), label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mth]}); }
@@ -17056,33 +17060,49 @@ function _mcMatrix(series, r, f, fromIso, toIso){
   h+='<th style="text-align:left;padding:6px 8px;font-size:var(--fz-body);color:var(--txm);text-transform:uppercase;letter-spacing:.04em;position:sticky;left:0;background:var(--sur)">Meeting</th>';
   cols.forEach(function(c){ h+='<th style="padding:6px 4px;font-size:var(--fz-body);color:var(--txm);white-space:nowrap">'+c.label+'</th>'; });
   h+='<th style="padding:6px 8px;font-size:var(--fz-body);color:var(--txm)">HELD/DUE</th></tr></thead><tbody>';
+  // Merge rows: one row per team+type, so a series and a one-time of the same
+  // meeting do not render as confusing twins. Grouped under team headers.
+  var _rowsByKey={}, _teamOrder=[];
   series.forEach(function(e){
-    var occs=_mcOccs(e, fromIso, toIso).filter(function(o){
+    var rk=(e.m.teamId||e.teamName||'')+'|'+e.m.type;
+    if(!_rowsByKey[rk]){ _rowsByKey[rk]={team:e.teamName||'', type:e.m.type, entries:[], att:e.m.attendees||[]}; if(_teamOrder.indexOf(e.teamName||'')===-1) _teamOrder.push(e.teamName||''); }
+    _rowsByKey[rk].entries.push(e);
+  });
+  _teamOrder.forEach(function(tn){
+    var keys=Object.keys(_rowsByKey).filter(function(k){ return _rowsByKey[k].team===tn; });
+    if(!keys.length) return;
+    h+='<tr><td colspan="'+(cols.length+2)+'" style="padding:8px 8px 4px;font-size:var(--fz-base);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;position:sticky;left:0;background:var(--sur)">'+_scEsc(tn||'Other')+'</td></tr>';
+    keys.forEach(function(rk){
+      var R=_rowsByKey[rk];
+      var occs=[];
+      R.entries.forEach(function(e){ occs=occs.concat(_mcOccs(e, fromIso, toIso)); });
+      occs=occs.filter(function(o){
       return !f.status || o.status===f.status || (f.status==='upcoming'&&o.status==='today');
     });
-    if(!occs.length && (f.status||f.person||f.type||f.team)) return;
-    var byCol={};
-    occs.forEach(function(o){
-      var key=(_mcSt().view==='quarter') ? _meetIsoWeekKey(o.iso) : o.iso.slice(0,7);
-      (byCol[key]=byCol[key]||[]).push(o.status);
-    });
-    var held=occs.filter(function(o){return o.status==='held';}).length;
-    var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
-    h+='<tr style="border-top:1px solid var(--brd)">';
-    h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(e.m.type, e.teamName))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc((e.m.attendees||[]).join(', ')+' \u00b7 '+e.teamName)+'</div></td>';
-    cols.forEach(function(c){
-      var sts=byCol[c.key]||[];
-      h+='<td style="padding:4px;text-align:center">';
-      sts.forEach(function(st){
-        var t=_mcTone(st);
-        var glyph=st==='held'?'\u2713':st==='missed'?'\u2717':st==='absorbed'?'\u25b2':'\u25cf';
-        h+='<span title="'+t.l+'" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';font-size:11px;font-weight:700;margin:1px">'+glyph+'</span>';
+      if(!occs.length && (f.status||f.person||f.type||f.team)) return;
+      var byCol={};
+      occs.forEach(function(o){
+        var key=(_mcSt().view==='quarter') ? _meetIsoWeekKey(o.iso) : o.iso.slice(0,7);
+        (byCol[key]=byCol[key]||[]).push(o.status);
       });
-      h+='</td>';
+      var held=occs.filter(function(o){return o.status==='held';}).length;
+      var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
+      h+='<tr style="border-top:1px solid var(--brd)">';
+      h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(R.type, R.team))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(R.att.join(', '))+'</div></td>';
+      cols.forEach(function(c){
+        var sts=byCol[c.key]||[];
+        h+='<td style="padding:4px;text-align:center">';
+        sts.forEach(function(st){
+          var t=_mcTone(st);
+          var glyph=st==='held'?'\u2713':st==='missed'?'\u2717':st==='absorbed'?'\u25b2':'\u25cf';
+          h+='<span title="'+t.l+'" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';font-size:11px;font-weight:700;margin:1px">'+glyph+'</span>';
+        });
+        h+='</td>';
+      });
+      var pc=due?Math.round(held/due*100):null;
+      h+='<td style="padding:6px 8px;text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(pc==null?'var(--txm)':pc>=90?'#15803d':pc>=70?'#b45309':'#b91c1c')+'">'+(due?(held+'/'+due+(pc!=null?(' \u00b7 '+pc+'%'):'')):'\u2014')+'</td>';
+      h+='</tr>';
     });
-    var pc=due?Math.round(held/due*100):null;
-    h+='<td style="padding:6px 8px;text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(pc==null?'var(--txm)':pc>=90?'#15803d':pc>=70?'#b45309':'#b91c1c')+'">'+held+'/'+due+'</td>';
-    h+='</tr>';
   });
   h+='</tbody></table>';
   h+=_mcLegend();
@@ -17443,7 +17463,7 @@ function renderMeetings(){
       if(ch.txt==='Held this period') return {key:'done', cls:'c-grn', txt:'Done'};
       return {key:'upcoming', cls:'c-blu', txt:'Upcoming'};
     }
-    function _rowFor(m, last){
+    function _rowFor(m, last, occIso){
       var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
       var tc=typeColors[m.type]||"#64748b";
       var st=_meetStatus(m);
@@ -17453,11 +17473,11 @@ function renderMeetings(){
       r+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
       r+='<div style="flex:1">';
       r+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
-      r+='<span onclick="_mcOpenMove('+m.id+',\''+(m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
+      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
       r+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span>';
       if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
       r+='</div>';
-      r+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
+      r+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(occIso||_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
       if(comp.due>0){ r+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:3px">Held '+comp.held+' of '+comp.due+(comp.missed>0?' \u00b7 '+comp.missed+' missed':'')+'</div>'; }
       r+='</div>';
       r+='<div style="display:flex;align-items:center;gap:-4px;flex-shrink:0">';
@@ -17487,10 +17507,17 @@ function renderMeetings(){
         var st=_meetStatus(m);
         if(!st){ return; }
         if(st.key==='notdone' || st.key==='duesoon'){ _attn.push(m); return; }
-        // Done or Upcoming: include only if the next occurrence is within horizon.
-        var nx=_vspNextOccur(m.date,m.recurEvery);
-        if(st.key==='done' || (nx<=_horizonIso)) _ontrack.push(m);
+        // Done or Upcoming: one entry PER OCCURRENCE in the range (Dave,
+        // 2026-07-31) so a quarter shows all its meetings, not one row per series.
+        var _hzIso=_horizonIso;
+        if(m.recurEvery){
+          _meetOccurrences(m, _todayIso, _hzIso).forEach(function(oc){ _ontrack.push({m:m, occ:oc}); });
+        } else {
+          var nx=_vspNextOccur(m.date,m.recurEvery);
+          if(st.key==='done' || (nx<=_hzIso)) _ontrack.push({m:m, occ:m.date});
+        }
       });
+      _ontrack.sort(function(a,b){ return (a.occ||'').localeCompare(b.occ||''); });
       if(_attn.length){
         h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">Needs attention</div>';
         h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;margin-bottom:16px">';
@@ -17515,7 +17542,7 @@ function renderMeetings(){
           h+='<div style="padding:24px;text-align:center;color:var(--txm);font-size:var(--fz-body)">Nothing else in this range.</div>';
         }
       }
-      _ontrack.forEach(function(m,i){ h+=_rowFor(m, i===_ontrack.length-1); });
+      _ontrack.forEach(function(e,i){ h+=_rowFor(e.m, i===_ontrack.length-1, e.occ); });
       h+='</div>';
     }
     h+=_mcMoveOverlay();
@@ -26742,7 +26769,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-77';
+window.VSP_BUILD = 'v186-merge-80';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -29238,6 +29265,24 @@ try{ _vspMigrateJobNotes(); }catch(e){}
   // what a stale pre-archive tab looks like. Restore stamps restoredAt,
   // so a deliberate un-archive wins over an older tombstone.
   // ============================================================
+  function V_measReconcile(aObj,bObj){
+    // planData measurable merge (Dave, 2026-07-31: owner edits kept reverting).
+    // Per measurable id, the copy with the newer updatedAt wins. Runs on every
+    // push-merge and adopt, both directions, protecting all plan scopes.
+    try{
+      ['oneyr','q1','pic3yr'].forEach(function(sc){
+        var A=aObj&&aObj.planData&&aObj.planData[sc]&&aObj.planData[sc].measurables;
+        var B=bObj&&bObj.planData&&bObj.planData[sc]&&bObj.planData[sc].measurables;
+        if(!Array.isArray(A)||!Array.isArray(B)) return;
+        var byId={}; A.forEach(function(m){ if(m&&m.id!=null) byId[m.id]=m; });
+        B.forEach(function(m,i){
+          var o=byId[m&&m.id];
+          if(o && (o.updatedAt||0)>(m.updatedAt||0)) B[i]=o;
+        });
+      });
+    }catch(e){}
+    return bObj;
+  }
   function V_goalReconcile(keepFromRaw, intoRaw){
     try{
       var src = JSON.parse(keepFromRaw), dst = JSON.parse(intoRaw);
@@ -29289,6 +29334,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       if(changed){
         try{ console.log('[VSP guard] goal placement reconciled on '+changed+' goal(s).'); }catch(e){}
       }
+      try{ V_measReconcile(src,dst); }catch(e){}
       return JSON.stringify(dst);
     }catch(e){ return intoRaw; }
   }
