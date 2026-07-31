@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-76</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-77</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -17408,7 +17408,17 @@ function renderMeetings(){
     // Range filter for the tracker: how far ahead to list occurrences. Overdue
     // (Not Done) always shows regardless of range. Default: this month.
     var _mr=state.meetRange||'month';
-    var _rangeDays={week:7,month:31,quarter:92,year:366,nextyear:731,all:36500}[_mr]||31;
+    // Calendar boundaries, not rolling days (Dave, 2026-07-31): This Week ends
+    // Sunday, This Month ends month-end, quarter/year on real calendar edges.
+    var _hz=(function(){
+      var d=new Date(); d.setHours(23,59,59,999);
+      if(_mr==='week'){ var dow=(d.getDay()+6)%7; d.setDate(d.getDate()+(6-dow)); return d; }
+      if(_mr==='month'){ return new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59); }
+      if(_mr==='quarter'){ var qEndM=Math.floor(d.getMonth()/3)*3+3; return new Date(d.getFullYear(), qEndM, 0, 23,59,59); }
+      if(_mr==='year'){ return new Date(d.getFullYear(), 11, 31, 23,59,59); }
+      if(_mr==='nextyear'){ return new Date(d.getFullYear()+1, 11, 31, 23,59,59); }
+      var far=new Date(d); far.setFullYear(far.getFullYear()+100); return far;
+    })();
     h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
     h+='<span style="font-size:var(--fz-base);color:var(--txm)">Show:</span>';
     [['week','This Week'],['month','This Month'],['quarter','This Quarter'],['year','This Year'],['nextyear','Next Year'],['all','All']].forEach(function(r){
@@ -17423,7 +17433,7 @@ function renderMeetings(){
     // (Upcoming + Done). Meetings whose next occurrence is past the range window
     // and not overdue are hidden until closer.
     var _todayIso=new Date().toISOString().slice(0,10);
-    var _horizon=new Date(); _horizon.setDate(_horizon.getDate()+_rangeDays);
+    var _horizon=_hz;
     var _horizonIso=_horizon.toISOString().slice(0,10);
     function _meetStatus(m){
       var ch=_meetCadenceHealth(m);
@@ -26732,7 +26742,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-76';
+window.VSP_BUILD = 'v186-merge-77';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
