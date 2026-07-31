@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-32</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-34</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8758,6 +8758,9 @@ function _togVis(el){
    the group - a partly finished count is never reported. Automated cells
    are read-only with a lock glyph; notes stay allowed (right-click).
    ============================================================ */
+/* Outlook OAuth: complete the sign-in when Microsoft redirects back. */
+try{ _msHandleRedirect(); }catch(e){}
+
 /* One-shot text migration (Dave, 2026-07-30): retire the legacy system name
    from the client-update standards in the LIVE role-standards store. Row ids
    are untouched, so huddle answers, formulas, and history are unaffected. */
@@ -14036,7 +14039,12 @@ function vspMeetEmailInvite(id){
 // missed occurrence is a past due date with no held stamp within half a period.
 // Status per meeting reuses the same four states the chip shows.
 function _meetOccurrences(m, fromIso, toIso){
-  // Return array of occurrence date ISOs for m within [fromIso, toIso] inclusive.
+  // Return array of occurrence date ISOs for m within [fromIso, toIso] inclusive,
+  // after the Huddle Replacement Rule (below) removes absorbed occurrences.
+  var out=_meetOccurrencesRaw(m, fromIso, toIso);
+  return _meetApplyReplacement(m, out);
+}
+function _meetOccurrencesRaw(m, fromIso, toIso){
   var out=[];
   if(!m || !m.date) return out;
   var start=new Date(m.date+'T00:00:00'); if(isNaN(start.getTime())) return out;
@@ -14059,6 +14067,70 @@ function _meetOccurrences(m, fromIso, toIso){
     guard++;
   }
   return out;
+}
+/* ============================================================
+   HUDDLE REPLACEMENT RULE v1 (Dave, 2026-07-30). For the same
+   supervisor/report pair: a Quarterly Performance Huddle absorbs that
+   ISO week's Weekly (incl. bi-weekly) huddle occurrence, and an Annual
+   absorbs that quarter's Quarterly plus that week's Weekly. Higher
+   cadence always replaces lower. Applied at occurrence-expansion time,
+   so the Meetings page, dashboard Next Meeting, and Cadence Health all
+   agree - the absorbed week counts through the higher meeting, never
+   as a miss.
+   ============================================================ */
+function _meetPairKey(m){
+  // supervisor/report pair for a performance huddle; '' for team meetings.
+  if(String(m.type||'').indexOf('Performance Huddle')===-1) return '';
+  var att=(m.attendees||[]).slice().sort();
+  return att.join('|');
+}
+function _meetTierOf(m){
+  var t=String(m.type||'');
+  if(t.indexOf('Annual')===0) return 3;
+  if(t.indexOf('Quarterly')===0) return 2;
+  if(t.indexOf('Weekly')===0) return 1;
+  return 0;
+}
+function _meetIsoWeekKey(iso){
+  var d=new Date(iso+'T00:00:00');
+  var day=d.getDay(); var diff=(day===0?-6:1)-day;
+  var mon=new Date(d.getFullYear(), d.getMonth(), d.getDate()+diff);
+  return mon.toISOString().slice(0,10);
+}
+function _meetQuarterKey(iso){
+  var d=new Date(iso+'T00:00:00');
+  return d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1);
+}
+function _meetApplyReplacement(m, occs){
+  try{
+    var tier=_meetTierOf(m);
+    if(tier===0 || tier===3 || !occs.length) return occs; // annual never absorbed
+    var pair=_meetPairKey(m);
+    if(!pair) return occs;
+    var all=[];
+    Object.keys(teamsRegistry).forEach(function(tid){
+      ((teamsRegistry[tid]||{}).scheduledMeetings||[]).forEach(function(x){ all.push(x); });
+    });
+    var higher=all.filter(function(x){
+      return x!==m && _meetPairKey(x)===pair && _meetTierOf(x)>tier;
+    });
+    if(!higher.length) return occs;
+    // Collect the absorbing keys from every higher-tier series over the span.
+    var lo=occs[0], hi=occs[occs.length-1];
+    var weekAbsorb={}, quarterAbsorb={};
+    higher.forEach(function(x){
+      _meetOccurrencesRaw(x, null, hi).forEach(function(iso){
+        if(iso<lo && _meetQuarterKey(iso)!==_meetQuarterKey(lo)) return;
+        weekAbsorb[_meetIsoWeekKey(iso)]=1;
+        if(_meetTierOf(x)===3) quarterAbsorb[_meetQuarterKey(iso)]=1;
+      });
+    });
+    return occs.filter(function(iso){
+      if(weekAbsorb[_meetIsoWeekKey(iso)]) return false;               // same week: absorbed
+      if(tier===2 && quarterAbsorb[_meetQuarterKey(iso)]) return false; // quarterly absorbed by annual that quarter
+      return true;
+    });
+  }catch(e){ return occs; }
 }
 function _meetHeldOn(m, iso){
   // A meeting counts as held for an occurrence if a held stamp falls within
@@ -16605,7 +16677,14 @@ function renderMeetings(){
   var tab=state.meetTab;
   var isLT=state.currentTeam==='lt';
   var h='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div><div class="pg-title">Meetings</div><div class="pg-sub">Improve alignment and transparency across your organization</div></div>';
-  h+='<button type="button" class="btn btn-sm" style="flex-shrink:0;margin-top:6px" onclick="nav(\'headlines\')" title="Capture wins and news for the next meeting">Headlines</button></div>';
+  h+='<div style="display:flex;gap:8px;flex-shrink:0;margin-top:6px;align-items:center">';
+  if(_msConnected()){
+    h+='<span class="chip c-grn" title="Outlook connected - bookings can send real invites">Outlook: '+_scEsc(((_msStore()||{}).account||'connected'))+'</span>';
+    h+='<button type="button" class="btn btn-sm" onclick="msDisconnectOutlook()" title="Disconnect Outlook from this browser">Disconnect</button>';
+  } else {
+    h+='<button type="button" class="btn btn-sm" onclick="msConnectOutlook()" title="Sign in with Microsoft so bookings create real Outlook events with invites">Connect Outlook</button>';
+  }
+  h+='<button type="button" class="btn btn-sm" onclick="nav(\'headlines\')" title="Capture wins and news for the next meeting">Headlines</button></div></div>';
 
   // Tabs
   h+='<div class="tab-bar">';
@@ -19530,6 +19609,165 @@ function _vspNextOccur(iso, every){
   while(d<today && guard<520){ d.setDate(d.getDate()+every); guard++; }
   return d.toISOString().slice(0,10);
 }
+/* ============================================================
+   OUTLOOK CALENDAR CONNECT v1 (2026-07-30, Dave). Browser-side
+   Microsoft sign-in (OAuth2 auth-code + PKCE against the LIDA Entra
+   app registration) so booking a huddle can create the REAL Outlook
+   event: series recurrence, attendees by email, invites sent by
+   Outlook itself. Staging-scoped: tokens live in this browser only;
+   inbound mail/webhooks still wait on the production backend. Only
+   works on the deployed URL (the registered redirect URI), not on a
+   local file.
+   ============================================================ */
+var VSP_MS_CLIENT_ID='6b0771e0-31ce-4493-8c9c-651fe119baae';
+var VSP_MS_AUTHORITY='https://login.microsoftonline.com/organizations';
+var VSP_MS_SCOPES='openid profile offline_access User.Read Calendars.ReadWrite';
+function _msRedirectUri(){ return location.origin + location.pathname; }
+function _msStore(){ try{ return JSON.parse(localStorage.getItem('smb.vsp.msauth')||'null'); }catch(e){ return null; } }
+function _msSave(t){ try{ localStorage.setItem('smb.vsp.msauth', JSON.stringify(t)); }catch(e){} }
+function _msClear(){ try{ localStorage.removeItem('smb.vsp.msauth'); }catch(e){} }
+function _msConnected(){ var t=_msStore(); return !!(t&&t.refresh_token); }
+function _msRandom(n){
+  var a=new Uint8Array(n); crypto.getRandomValues(a);
+  return btoa(String.fromCharCode.apply(null,a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function msConnectOutlook(){
+  var verifier=_msRandom(64);
+  try{ sessionStorage.setItem('smb.vsp.pkce', verifier); }catch(e){}
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)).then(function(buf){
+    var challenge=btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    var u=VSP_MS_AUTHORITY+'/oauth2/v2.0/authorize'
+      +'?client_id='+encodeURIComponent(VSP_MS_CLIENT_ID)
+      +'&response_type=code'
+      +'&redirect_uri='+encodeURIComponent(_msRedirectUri())
+      +'&response_mode=query'
+      +'&scope='+encodeURIComponent(VSP_MS_SCOPES)
+      +'&code_challenge='+challenge
+      +'&code_challenge_method=S256';
+    location.assign(u);
+  });
+}
+function msDisconnectOutlook(){ _msClear(); renderPage(); }
+function _msTokenRequest(bodyParams){
+  var body=Object.keys(bodyParams).map(function(k){ return k+'='+encodeURIComponent(bodyParams[k]); }).join('&');
+  return fetch(VSP_MS_AUTHORITY+'/oauth2/v2.0/token', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:body
+  }).then(function(r){ return r.json(); });
+}
+function _msHandleRedirect(){
+  // On boot: if Microsoft sent us back with ?code=, exchange it and clean the URL.
+  try{
+    var q=new URLSearchParams(location.search);
+    var code=q.get('code');
+    if(!code) return;
+    var verifier=null; try{ verifier=sessionStorage.getItem('smb.vsp.pkce'); }catch(e){}
+    history.replaceState(null,'',location.pathname);
+    if(!verifier) return;
+    _msTokenRequest({
+      client_id:VSP_MS_CLIENT_ID, grant_type:'authorization_code', code:code,
+      redirect_uri:_msRedirectUri(), code_verifier:verifier
+    }).then(function(t){
+      if(t && t.access_token){
+        t.expires_at=Date.now()+((t.expires_in||3600)-60)*1000;
+        _msSave(t);
+        fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+t.access_token}})
+          .then(function(r){return r.json();}).then(function(me){
+            var cur=_msStore()||t; cur.account=(me&&(me.mail||me.userPrincipalName))||''; _msSave(cur);
+            try{ showToast('Outlook connected as '+cur.account); }catch(e){}
+            renderPage();
+          }).catch(function(){ renderPage(); });
+      } else {
+        try{ showToast('Outlook sign-in failed: '+((t&&t.error_description)||'unknown').slice(0,120)); }catch(e){}
+      }
+    });
+  }catch(e){}
+}
+function _msToken(){
+  // Resolve a live access token (refreshing if needed). -> Promise<string|null>
+  var t=_msStore();
+  if(!t) return Promise.resolve(null);
+  if(t.access_token && t.expires_at && Date.now()<t.expires_at) return Promise.resolve(t.access_token);
+  if(!t.refresh_token) return Promise.resolve(null);
+  return _msTokenRequest({
+    client_id:VSP_MS_CLIENT_ID, grant_type:'refresh_token', refresh_token:t.refresh_token,
+    scope:VSP_MS_SCOPES
+  }).then(function(nt){
+    if(nt && nt.access_token){
+      nt.refresh_token=nt.refresh_token||t.refresh_token;
+      nt.account=t.account;
+      nt.expires_at=Date.now()+((nt.expires_in||3600)-60)*1000;
+      _msSave(nt);
+      return nt.access_token;
+    }
+    return null;
+  }).catch(function(){ return null; });
+}
+function _msRecurrence(m){
+  // Map recurEvery -> Graph recurrence. One-time returns null.
+  var e=m.recurEvery||0;
+  if(!e) return null;
+  var start=m.date;
+  var dow=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(start+'T00:00:00').getDay()];
+  var pat;
+  if(e===7) pat={type:'weekly',interval:1,daysOfWeek:[dow]};
+  else if(e===14) pat={type:'weekly',interval:2,daysOfWeek:[dow]};
+  else if(e===28) pat={type:'weekly',interval:4,daysOfWeek:[dow]};
+  else if(e===30) pat={type:'absoluteMonthly',interval:1,dayOfMonth:new Date(start+'T00:00:00').getDate()};
+  else if(e===91) pat={type:'absoluteMonthly',interval:3,dayOfMonth:new Date(start+'T00:00:00').getDate()};
+  else if(e===365) pat={type:'absoluteYearly',interval:1,dayOfMonth:new Date(start+'T00:00:00').getDate(),month:new Date(start+'T00:00:00').getMonth()+1};
+  else pat={type:'weekly',interval:Math.max(1,Math.round(e/7)),daysOfWeek:[dow]};
+  return { pattern:pat, range:{ type:'noEnd', startDate:start } };
+}
+function _msParseTime(t){
+  // '9:00 AM' / '14:30' -> {h,m}
+  var m=String(t||'9:00 AM').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if(!m) return {h:9,m:0};
+  var h=parseInt(m[1],10), mi=parseInt(m[2],10);
+  var ap=(m[3]||'').toUpperCase();
+  if(ap==='PM'&&h<12)h+=12; if(ap==='AM'&&h===12)h=0;
+  return {h:h,m:mi};
+}
+function _msEventPayload(m){
+  var tm=_msParseTime(m.time);
+  var pad=function(n){return String(n).padStart(2,'0');};
+  var startDT=m.date+'T'+pad(tm.h)+':'+pad(tm.m)+':00';
+  var endMin=tm.h*60+tm.m+(m.durationMin||60);
+  var endDT=m.date+'T'+pad(Math.floor(endMin/60)%24)+':'+pad(endMin%60)+':00';
+  var att=(m.attendees||[]).map(function(ini){
+    var p=ppl.find(function(x){return x.initials===ini;});
+    return (p&&p.email)?{ emailAddress:{ address:p.email, name:p.first+' '+p.last }, type:'required' }:null;
+  }).filter(Boolean);
+  var payload={
+    subject: m.type + ((m.attendees||[]).length===2 ? (' - '+(m.attendees||[]).map(function(ini){var p=ppl.find(function(x){return x.initials===ini;});return p?p.first:ini;}).join(' / ')) : ''),
+    body:{ contentType:'text', content:(m.notes||'')+(m.meetingLink?('\nJoin: '+m.meetingLink):'')+'\n\nScheduled from Self-Managing Builder VSP.' },
+    start:{ dateTime:startDT, timeZone:'Pacific Standard Time' },
+    end:{ dateTime:endDT, timeZone:'Pacific Standard Time' },
+    location:{ displayName:m.location||'' },
+    attendees:att
+  };
+  var rec=_msRecurrence(m);
+  if(rec) payload.recurrence=rec;
+  return payload;
+}
+function _msCreateEvent(m){
+  return _msToken().then(function(tok){
+    if(!tok){ try{ showToast('Outlook not connected - meeting saved in VSP only.'); }catch(e){} return null; }
+    return fetch('https://graph.microsoft.com/v1.0/me/events',{
+      method:'POST', headers:{ Authorization:'Bearer '+tok, 'Content-Type':'application/json' },
+      body: JSON.stringify(_msEventPayload(m))
+    }).then(function(r){ return r.json(); }).then(function(ev){
+      if(ev && ev.id){
+        m.outlookEventId=ev.id;
+        try{ vspSaveNow(); }catch(e){}
+        var invited=(_msEventPayload(m).attendees||[]).length;
+        try{ showToast('Outlook event created'+(invited?' - invites sent to '+invited+' attendee(s).':'.')); }catch(e){}
+      } else {
+        try{ showToast('Outlook event failed: '+((ev&&ev.error&&ev.error.message)||'unknown').slice(0,120)); }catch(e){}
+      }
+      return ev;
+    }).catch(function(){ try{ showToast('Outlook event failed - network.'); }catch(e){} return null; });
+  });
+}
 function addScheduledMeeting(){
   var type=document.getElementById('sm-type');
   var date=document.getElementById('sm-date');
@@ -19550,6 +19788,14 @@ function addScheduledMeeting(){
     recurEvery:rec?parseInt(rec.value,10)||0:0,
     attendees:_smSelectedAttendees()
   });
+  // Outlook: when connected and the box is ticked, create the real event
+  // (series + attendees). The meeting saves in VSP regardless.
+  try{
+    var _ol=document.getElementById('sm-outlook');
+    if(_ol && _ol.checked && _msConnected()){
+      _msCreateEvent(scheduledMeetings[scheduledMeetings.length-1]);
+    }
+  }catch(e){}
   // Also sync to current team registry
   var cur=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   cur.scheduledMeetings=scheduledMeetings;
@@ -25654,7 +25900,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-32';
+window.VSP_BUILD = 'v186-merge-34';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -27484,6 +27730,9 @@ function vspBookMeetingModal(){
       '<div class="smb-fld"><label for="sm-time">Time</label><input type="text" id="sm-time" placeholder="e.g. 9:00 AM"></div>'+
       '<div class="smb-fld"><label for="sm-duration">Duration (minutes)</label><select id="sm-duration">'+[30,45,60,90,120,180].map(function(d){return '<option value="'+d+'"'+(d===60?' selected':'')+'>'+d+' min</option>';}).join('')+'</select></div>'+
       '<div class="smb-fld"><label for="sm-link">Meeting link</label><input type="text" id="sm-link" placeholder="Zoom, Teams, or Meet URL (optional)"></div>'+
+      (_msConnected()
+        ? '<div class="smb-fld"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="sm-outlook" checked style="width:15px;height:15px"> Create in Outlook and send invites ('+_scEsc((_msStore()||{}).account||'connected')+')</label></div>'
+        : '<div class="smb-fld" style="font-size:var(--fz-base);color:var(--txm)">Connect Outlook on the Meetings page to send real calendar invites from here.</div>')+
     '</div>'+
     '<div class="smb-fld" style="margin-top:12px"><label for="sm-location">Location</label><input type="text" id="sm-location" placeholder="Address, office, or job site"></div>'+
     '<div class="smb-fld" style="margin-top:12px"><label>Attendees</label><div id="sm-att-host" style="display:flex;flex-wrap:wrap;gap:10px 16px;padding:4px 0">'+_vspBookMeetingAttHtml()+'</div></div>'+
