@@ -17011,35 +17011,48 @@ function _mcMoveOverlay(){
   var mv=state.mcMove; if(!mv) return '';
   var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; return ''; }
   var m=f.m;
-  var h='<div onclick="state.mcMove=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
-  h+='<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;background:var(--sur);border:1px solid var(--brd);border-radius:10px;z-index:201;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.18)">';
-  h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:4px">Move meeting</div>';
-  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:12px">'+_scEsc(_meetTypeLabel(m.type, m.teamName)+' \u00b7 '+(m.attendees||[]).join(', '))+'</div>';
-  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:10px';
-  h+='<label style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">New date</label>';
-  h+='<input type="date" id="mc-mv-date" value="'+_scEsc(m.date||mv.iso)+'" style="'+inp+'">';
-  h+='<label style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">New time</label>';
-  h+='<input type="text" id="mc-mv-time" value="'+_scEsc(m.time||'9:00 AM')+'" placeholder="9:00 AM" style="'+inp+'">';
-  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-bottom:12px">'+(m.recurEvery?'Moves ONLY this occurrence; the series stays on its schedule. Attendees are invited to the new time automatically.':(m.outlookEventId?'The Outlook event updates and every attendee is emailed the change automatically.':(_msConnected()?'Attendees are emailed the new date and time.':'Saved in VSP. Connect Outlook to email attendees automatically.')))+'</div>';
-  // Permissions (Dave, 2026-07-31): the organizer (whoever booked it) can
-  // MOVE their meeting; only the admin can CANCEL. Everyone else read-only.
-  var _canMove=_mcIsOrganizer(m)||_vspAutoIsAdmin();
+  var _canEdit=_mcIsOrganizer(m)||_vspAutoIsAdmin();
   var _canCancel=_vspAutoIsAdmin();
-  if(_canMove){
-    h+='<button type="button" class="btn btn-blu" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px" onclick="_mcMoveSave()">'+(m.recurEvery?'Move this occurrence':'Move meeting')+'</button>';
+  var h='<div onclick="state.mcMove=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
+  h+='<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:460px;max-height:88vh;overflow-y:auto;background:var(--sur);border:1px solid var(--brd);border-radius:10px;z-index:201;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.18)">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:2px">Edit meeting</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:14px">'+_scEsc(_meetTypeLabel(m.type, m.teamName)+' \u00b7 '+(m.attendees||[]).join(', '))+'</div>';
+  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur);margin-bottom:10px';
+  var lbl='font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;display:block';
+  var isRec=!!m.recurEvery;
+  if(isRec) h+='<div style="background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:6px;padding:8px 10px;font-size:var(--fz-xs);margin-bottom:12px">This is a recurring series. Changes here update the whole series; use Move this occurrence for one date only.</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h+='<div><label style="'+lbl+'">Date</label><input type="date" id="mc-e-date" value="'+_scEsc(m.date||mv.iso)+'" style="'+inp+'" '+(!_canEdit?'disabled':'')+'></div>';
+  h+='<div><label style="'+lbl+'">Time</label><input type="text" id="mc-e-time" value="'+_scEsc(m.time||'')+'" placeholder="9:00 AM" style="'+inp+'" '+(!_canEdit?'disabled':'')+'></div>';
+  h+='</div>';
+  h+='<label style="'+lbl+'">Duration (minutes)</label><select id="mc-e-dur" style="'+inp+'" '+(!_canEdit?'disabled':'')+'>';
+  [30,45,60,90,120,180].forEach(function(d){ h+='<option value="'+d+'"'+((m.durationMin||60)===d?' selected':'')+'>'+d+' min</option>'; });
+  h+='</select>';
+  h+='<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:2px 0 10px"><input type="checkbox" id="mc-e-allday" '+(m.allDay?'checked':'')+' '+(!_canEdit?'disabled':'')+' style="width:15px;height:15px"> All-day event</label>';
+  h+='<label style="'+lbl+'">Length (days)</label><select id="mc-e-days" style="'+inp+'" '+(!_canEdit?'disabled':'')+'>';
+  [1,2,3,4,5].forEach(function(d){ h+='<option value="'+d+'"'+((m.days||1)===d?' selected':'')+'>'+d+' day'+(d>1?'s':'')+'</option>'; });
+  h+='</select>';
+  h+='<label style="'+lbl+'">Location</label><input type="text" id="mc-e-loc" value="'+_scEsc(m.location||'')+'" placeholder="Address, office, or job site" style="'+inp+'" '+(!_canEdit?'disabled':'')+'>';
+  h+='<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:2px 0 10px"><input type="checkbox" id="mc-e-room" '+(m.bookBoardroom?'checked':'')+' '+(!_canEdit?'disabled':'')+' style="width:15px;height:15px"> Book the boardroom (room accepts/declines by availability)</label>';
+  h+='<label style="'+lbl+'">Meeting link</label><input type="text" id="mc-e-link" value="'+_scEsc(m.meetingLink||'')+'" placeholder="Zoom, Teams, or Meet URL" style="'+inp+'" '+(!_canEdit?'disabled':'')+'>';
+  h+='<label style="'+lbl+'">Notes</label><textarea id="mc-e-notes" style="'+inp+';min-height:60px;font-family:inherit" '+(!_canEdit?'disabled':'')+'>'+_scEsc(m.notes||'')+'</textarea>';
+  var noteMsg='';
+  if(m.outlookEventId && _msConnected()) noteMsg='Saves update the Outlook event; attendees are notified automatically.';
+  else if(_msConnected()) noteMsg='Saves stay in VSP. Ticking Outlook on the original booking is required to sync.';
+  else noteMsg='Saved in VSP. Connect Outlook to sync updates automatically.';
+  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin:6px 0 12px">'+noteMsg+'</div>';
+  if(_canEdit){
+    h+='<button type="button" class="btn btn-blu" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px" onclick="_mcSaveEdit()">Save changes</button>';
   }
   h+='<div style="display:flex;gap:8px">';
-  if(_canMove && m.recurEvery) h+='<button type="button" onclick="_mcSkipDate()" title="Remove only this occurrence; the series continues" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap">Skip this date</button>';
-  if(_canCancel) h+='<button type="button" onclick="_mcCancelMeeting()" title="Cancel the WHOLE series" style="flex:1;padding:9px 0;border:1.5px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap">'+(m.recurEvery?'Cancel entire series':'Cancel meeting')+'</button>';
-  if(!_canMove && !_canCancel) h+='<div style="flex:1;font-size:var(--fz-base);color:var(--txm);align-self:center">Only the organizer can move this meeting; only Dave can cancel it.</div>';
+  if(_canEdit && isRec) h+='<button type="button" onclick="_mcMoveOccurrence()" title="Move only this occurrence; the series stays" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit">Move this occurrence</button>';
+  if(_canEdit && isRec) h+='<button type="button" onclick="_mcSkipDate()" title="Remove only this occurrence; the series continues" style="flex:1;padding:9px 0;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);border-radius:6px;cursor:pointer;font-family:inherit">Skip this date</button>';
+  if(_canCancel) h+='<button type="button" onclick="_mcCancelMeeting()" title="Cancel the WHOLE series" style="flex:1;padding:9px 0;border:1.5px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap">'+(isRec?'Cancel series':'Cancel meeting')+'</button>';
   h+='<button type="button" class="btn" style="flex:0 0 auto;padding:9px 16px" onclick="state.mcMove=null;renderPage()">Close</button></div>';
   h+='</div>';
   return h;
 }
 function _mcSkipDate(){
-  // Remove ONE occurrence (Dave, 2026-07-31); the series continues. In
-  // Outlook, delete that single occurrence by hand - series deletes from
-  // VSP would nuke the whole thing, which is exactly the accident this fixes.
   var mv=state.mcMove; if(!mv) return;
   var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; renderPage(); return; }
   if(!(_mcIsOrganizer(f.m)||_vspAutoIsAdmin())){ try{ showToast('Only the organizer or Dave can change this meeting.'); }catch(e){} return; }
@@ -17052,9 +17065,6 @@ function _mcSkipDate(){
 }
 function _mcCancelMeeting(){
   if(!_vspAutoIsAdmin()){ try{ showToast('Only Dave can cancel meetings.'); }catch(e){} return; }
-  // Cancel from the calendar chip (Dave, 2026-07-31): removes the booking
-  // from its team wherever it lives, and cancels the Outlook event so every
-  // attendee gets Outlook's cancellation email automatically.
   var mv=state.mcMove; if(!mv) return;
   var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; renderPage(); return; }
   var m=f.m;
@@ -17074,6 +17084,40 @@ function _mcCancelMeeting(){
   state.mcMove=null;
   renderPage();
 }
+function _mcSaveEdit(){
+  var mv=state.mcMove; if(!mv) return;
+  var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; renderPage(); return; }
+  if(!(_mcIsOrganizer(f.m)||_vspAutoIsAdmin())){ try{ showToast('Only the organizer or Dave can edit this meeting.'); }catch(e){} return; }
+  var m=f.m;
+  var g=function(id){ var el=document.getElementById(id); return el?el.value:''; };
+  var c=function(id){ var el=document.getElementById(id); return !!(el&&el.checked); };
+  m.date=g('mc-e-date')||m.date;
+  m.time=g('mc-e-time');
+  m.durationMin=parseInt(g('mc-e-dur'),10)||m.durationMin||60;
+  m.allDay=c('mc-e-allday');
+  m.days=parseInt(g('mc-e-days'),10)||1;
+  m.location=g('mc-e-loc');
+  m.bookBoardroom=c('mc-e-room');
+  m.meetingLink=g('mc-e-link');
+  m.notes=g('mc-e-notes');
+  try{ vspSaveNow(); }catch(e){}
+  if(m.outlookEventId && _msConnected()){
+    var pl=_msEventPayload(m);
+    _msToken().then(function(tok){
+      if(!tok) return;
+      fetch('https://graph.microsoft.com/v1.0/me/events/'+encodeURIComponent(m.outlookEventId),{
+        method:'PATCH', headers:{ Authorization:'Bearer '+tok, 'Content-Type':'application/json' },
+        body: JSON.stringify({ subject:pl.subject, body:pl.body, start:pl.start, end:pl.end, location:pl.location, attendees:pl.attendees, isAllDay:pl.isAllDay, recurrence:pl.recurrence })
+      }).then(function(r){ try{ showToast(r.ok?'Meeting updated; Outlook attendees notified.':'Saved in VSP; Outlook update failed.'); }catch(e){} });
+    });
+  } else {
+    try{ showToast('Meeting updated in VSP.'); }catch(e){}
+  }
+  state.mcMove=null;
+  renderPage();
+}
+function _mcMoveOccurrence(){ /* uses the existing recurring-move path via _mcMoveSave */ _mcMoveSave(); }
+
 function _mcMoveSave(){
   var mv=state.mcMove; if(!mv) return;
   var _f0=_findScheduledById(mv.id);
