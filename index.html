@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-43</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-44</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -16706,20 +16706,9 @@ function _mcAllSeries(){
 function _mcDerivedSeries(){
   var out=[];
   try{
-    var cad={}; try{ cad=(JSON.parse(localStorage.getItem('smb_pnd_cadence_v1')||'{}').map)||{}; }catch(e){}
-    var huds={}; try{ huds=JSON.parse(localStorage.getItem('smb_perf_huddles_v1')||'{}'); }catch(e){}
-    ppl.forEach(function(p){
-      if(p.status!=='active') return;
-      var pid=_vspPndPersonId(p); if(!pid) return;
-      if(!_vspAutoStandardsFor(p).length) return;
-      var sup=ppl.find(function(x){ return x.id===p.reportsTo; });
-      var supIni=sup?sup.initials:'';
-      var c=cad[p.roleLabel||p.role||'']||'weekly';
-      var every=c==='monthly'?28:(c==='biweekly'?14:7);
-      out.push({ virtual:'huddle', pid:pid, huds:huds, teamId:'', teamName:'P&D',
-        m:{ id:'vh_'+p.initials, type:'Weekly Performance Huddle', attendees:[supIni,p.initials].filter(Boolean),
-            date:'2026-01-05', time:'', recurEvery:every } });
-    });
+    // Weekly huddle scoring is NOT a meeting (Dave, 2026-07-31): those
+    // obligations live on the scorecards/compliance metrics, not here.
+    // Only real dated reviews (below) and booked meetings appear.
     var rd={}; try{ rd=JSON.parse(localStorage.getItem('smb_pnd_review_dates_v1')||'{}'); }catch(e){}
     var qrec={}; try{ qrec=JSON.parse(localStorage.getItem('smb_perf_quarterly_v1')||'{}'); }catch(e){}
     var arec={}; try{ arec=JSON.parse(localStorage.getItem('smb_perf_annual_v1')||'{}'); }catch(e){}
@@ -16887,6 +16876,7 @@ function _mcRender(){
   }
   if(f.view==='month') h+=_mcMonthGrid(series, r, f);
   else h+=_mcMatrix(series, r, f, fromIso, toIso);
+  h+=_mcMoveOverlay();
   return h;
 }
 function _mcChipCtx(e){
@@ -16935,18 +16925,14 @@ function _mcMonthGrid(series, r, f){
     var items=byDay[iso]||[];
     h+='<div style="min-height:74px;border:1px solid '+(isToday?'var(--blu)':'var(--brd)')+';border-radius:6px;padding:4px;background:'+(inMonth?'var(--sur)':'var(--sur2)')+';opacity:'+(inMonth?'1':'.55')+'">';
     h+='<div style="font-size:var(--fz-xs);font-weight:700;color:'+(isToday?'var(--blu)':'var(--txm)')+'">'+cur.getDate()+'</div>';
-    if(inMonth && ((cur.getDay()+6)%7)===0 && byWeek[iso]){
-      var wb=byWeek[iso];
-      if(wb.held) h+='<div title="Huddles completed this week" style="font-size:var(--fz-xs);background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:4px;padding:1px 4px;margin-top:2px">Huddles: '+wb.held+' done</div>';
-      if(wb.missed) h+='<div title="Huddle answers not entered - week closed" style="font-size:var(--fz-xs);background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:4px;padding:1px 4px;margin-top:2px">Huddles: '+wb.missed+' not done</div>';
-      if(wb.upcoming) h+='<div title="Huddles due this week" style="font-size:var(--fz-xs);background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd;border-radius:4px;padding:1px 4px;margin-top:2px">Huddles due: '+wb.upcoming+'</div>';
-    }
+
     items.slice(0,3).forEach(function(it){
       var t=_mcTone(it.status);
       // Status is system-derived only (Dave, 2026-07-31): End Meeting marks a
       // booked meeting held; huddle answers mark a huddle held; a completed
       // review marks a review held. No manual mark-held - the record is the truth.
-      h+='<div title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l)+'" style="font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+(it.e.m.type||'')).trim()+(_mcChipCtx(it.e)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
+      var mv=it.e.real?(' onclick="_mcOpenMove('+it.e.m.id+',\''+iso+'\')" '):'';
+      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(((it.e.m.time||'')+' '+(it.e.m.type||'')).trim()+(_mcChipCtx(it.e)?(' \u00b7 '+_mcChipCtx(it.e)):''))+'</div>';
     });
     if(items.length>3) h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
     h+='</div>';
@@ -17003,6 +16989,60 @@ function _mcMatrix(series, r, f, fromIso, toIso){
   h+=_mcLegend();
   h+='</div></div>';
   return h;
+}
+function _mcOpenMove(mid, iso){ state.mcMove={id:mid, iso:iso}; renderPage(); }
+function _mcMoveOverlay(){
+  var mv=state.mcMove; if(!mv) return '';
+  var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; return ''; }
+  var m=f.m;
+  var h='<div onclick="state.mcMove=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
+  h+='<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;background:var(--sur);border:1px solid var(--brd);border-radius:10px;z-index:201;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.18)">';
+  h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:4px">Move meeting</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:12px">'+_scEsc((m.type||'')+' \u00b7 '+(m.attendees||[]).join(', '))+'</div>';
+  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:10px';
+  h+='<label style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">New date</label>';
+  h+='<input type="date" id="mc-mv-date" value="'+_scEsc(m.date||mv.iso)+'" style="'+inp+'">';
+  h+='<label style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">New time</label>';
+  h+='<input type="text" id="mc-mv-time" value="'+_scEsc(m.time||'9:00 AM')+'" placeholder="9:00 AM" style="'+inp+'">';
+  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-bottom:12px">'+(m.outlookEventId?'The Outlook event updates and every attendee is emailed the change automatically.':(_msConnected()?'Attendees are emailed the new date and time.':'Saved in VSP. Connect Outlook to email attendees automatically.'))+'</div>';
+  h+='<div style="display:flex;gap:8px"><button type="button" class="btn btn-blu" style="flex:1;justify-content:center;padding:9px" onclick="_mcMoveSave()">Move meeting</button>';
+  h+='<button type="button" class="btn" style="padding:9px 14px" onclick="state.mcMove=null;renderPage()">Cancel</button></div>';
+  h+='</div>';
+  return h;
+}
+function _mcMoveSave(){
+  var mv=state.mcMove; if(!mv) return;
+  var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; renderPage(); return; }
+  var m=f.m;
+  var nd=(document.getElementById('mc-mv-date')||{}).value;
+  var nt=(document.getElementById('mc-mv-time')||{}).value;
+  if(!nd){ vspAlert('Pick a date.'); return; }
+  var od=m.date, ot=m.time;
+  m.date=nd; m.time=nt||m.time;
+  try{ vspSaveNow(); }catch(e){}
+  state.mcMove=null;
+  var nice=new Date(nd+'T00:00:00').toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});
+  if(m.outlookEventId && _msConnected()){
+    // PATCH the real event - Outlook emails every attendee the update itself.
+    var pl=_msEventPayload(m);
+    _msToken().then(function(tok){
+      if(!tok) return;
+      fetch('https://graph.microsoft.com/v1.0/me/events/'+encodeURIComponent(m.outlookEventId),{
+        method:'PATCH', headers:{ Authorization:'Bearer '+tok, 'Content-Type':'application/json' },
+        body: JSON.stringify({ start:pl.start, end:pl.end })
+      }).then(function(r){ try{ showToast(r.ok?'Outlook updated - attendees notified of the move.':'Outlook update failed - meeting moved in VSP only.'); }catch(e){} });
+    });
+  } else if(_msConnected()){
+    (m.attendees||[]).forEach(function(ini){
+      var p=ppl.find(function(x){ return x.initials===ini; });
+      if(p&&p.email) _msSendMail(p.email, (m.type||'Meeting')+' moved to '+nice+(m.time?(' at '+m.time):''),
+        '<p>The '+_scEsc(m.type||'meeting')+' previously on '+_scEsc(od||'')+(ot?(' at '+_scEsc(ot)):'')+' has moved to <b>'+nice+(m.time?(' at '+_scEsc(m.time)):'')+'</b>.</p><p>Sent automatically by Self-Managing Builder.</p>');
+    });
+    try{ showToast('Meeting moved - attendees emailed.'); }catch(e){}
+  } else {
+    try{ showToast('Meeting moved.'); }catch(e){}
+  }
+  renderPage();
 }
 function _mcLegend(){
   var h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:var(--fz-xs);color:var(--txm)">';
@@ -26304,7 +26344,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-43';
+window.VSP_BUILD = 'v186-merge-44';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
