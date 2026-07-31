@@ -3733,7 +3733,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-34b</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-38e</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8758,6 +8758,31 @@ function _togVis(el){
    the group - a partly finished count is never reported. Automated cells
    are read-only with a lock glyph; notes stay allowed (right-click).
    ============================================================ */
+/* Meeting-type consolidation (Dave, 2026-07-30): five types instead of seven.
+   Renames stored bookings once so history and cadence health keep working. */
+(function(){
+  try{
+    var map={
+      'Weekly':'Team Meeting',
+      'Quarterly':'Team Meeting',
+      'Annual':'Team Meeting',
+      'Monthly Client Meeting':'Client Meeting'
+    };
+    var changed=false;
+    Object.keys(teamsRegistry||{}).forEach(function(tid){
+      var tr=teamsRegistry[tid]; if(!tr) return;
+      (tr.scheduledMeetings||[]).forEach(function(m){
+        if(m && map[m.type]){ m.type=map[m.type]; changed=true; }
+      });
+      (tr.pastMeetings||[]).forEach(function(m){
+        if(m && map[m.type]){ m.type=map[m.type]; changed=true; }
+      });
+    });
+    // No boot-time save: the rename persists on the next organic save.
+    // (A save here fired before state hydration and tripped the guard.)
+  }catch(e){}
+})();
+
 /* One-shot text migration (Dave, 2026-07-30): retire the legacy system name
    from the client-update standards in the LIVE role-standards store. Row ids
    are untouched, so huddle answers, formulas, and history are unaffected. */
@@ -8768,6 +8793,10 @@ function _togVis(el){
     if(raw.indexOf('Builder Playbook Weekly Client Update sent')===-1) return;
     var fixed=raw.split('Builder Playbook Weekly Client Update sent').join('Weekly Client Update sent');
     localStorage.setItem('smb_perf_role_standards_v1', fixed);
+    // Runs before the staging adapter installs its save hook, so flag the
+    // adapter to push this key up once - otherwise the cloud's old text
+    // re-adopts every session (one flash per open, and the rename undone).
+    localStorage.setItem('vsp.stdmig.pending','1');
     console.log('[VSP] standards text migration: retired "Builder Playbook" from client-update rows.');
   }catch(e){}
 })();
@@ -16670,6 +16699,330 @@ function deleteMeeting(id){
   renderPage();
   vspUndoToast('Meeting deleted', function(){ pastMeetings.splice(Math.min(idx,pastMeetings.length),0,item); });
 }
+/* ============================================================
+   MEETINGS CALENDAR / ACCOUNTABILITY TRACKER v1 (Dave, 2026-07-30).
+   Every company meeting in one view: Month grid, Quarter matrix,
+   Year matrix. Filters: person, meeting type, status, team. Every
+   occurrence carries a status - Held (green), Missed (red), Upcoming
+   (blue), Today (amber), Absorbed (replaced by a higher-cadence huddle
+   that week). Missed is the accountability signal: a due date passed
+   with no held stamp.
+   ============================================================ */
+function _mcSt(){
+  state.meetCal = state.meetCal || { view:'month', anchor:new Date().toISOString().slice(0,10), person:'', type:'', status:'', team:'' };
+  return state.meetCal;
+}
+function _mcAllSeries(){
+  var out=[];
+  Object.keys(teamsRegistry).forEach(function(tid){
+    ((teamsRegistry[tid]||{}).scheduledMeetings||[]).forEach(function(m){
+      out.push({ m:m, teamId:tid, teamName:(teamsRegistry[tid]||{}).name||tid, real:true });
+    });
+  });
+  return out.concat(_mcDerivedSeries());
+}
+/* Derived rows (2026-07-30): the huddles and reviews the company actually
+   runs live in the P&D stores, not in bookings. The Calendar reads them
+   directly so accountability covers work that was never "booked":
+   - Supervisor huddles: expected from role cadence + org chart; HELD when
+     the week's huddle answers exist (doing the work is the proof).
+   - Quarterly/Annual reviews: dates from the review-date store; HELD when
+     the review record exists for that person+period. */
+function _mcDerivedSeries(){
+  var out=[];
+  try{
+    var cad={}; try{ cad=(JSON.parse(localStorage.getItem('smb_pnd_cadence_v1')||'{}').map)||{}; }catch(e){}
+    var huds={}; try{ huds=JSON.parse(localStorage.getItem('smb_perf_huddles_v1')||'{}'); }catch(e){}
+    ppl.forEach(function(p){
+      if(p.status!=='active') return;
+      var pid=_vspPndPersonId(p); if(!pid) return;
+      if(!_vspAutoStandardsFor(p).length) return;
+      var sup=ppl.find(function(x){ return x.id===p.reportsTo; });
+      var supIni=sup?sup.initials:'';
+      var c=cad[p.roleLabel||p.role||'']||'weekly';
+      var every=c==='monthly'?28:(c==='biweekly'?14:7);
+      out.push({ virtual:'huddle', pid:pid, huds:huds, teamId:'', teamName:'P&D',
+        m:{ id:'vh_'+p.initials, type:'Weekly Performance Huddle', attendees:[supIni,p.initials].filter(Boolean),
+            date:'2026-01-05', time:'', recurEvery:every } });
+    });
+    var rd={}; try{ rd=JSON.parse(localStorage.getItem('smb_pnd_review_dates_v1')||'{}'); }catch(e){}
+    var qrec={}; try{ qrec=JSON.parse(localStorage.getItem('smb_perf_quarterly_v1')||'{}'); }catch(e){}
+    var arec={}; try{ arec=JSON.parse(localStorage.getItem('smb_perf_annual_v1')||'{}'); }catch(e){}
+    Object.keys(rd).forEach(function(k){
+      var parts=k.split('__'); if(parts.length<3) return;
+      var pid=parts[0], kind=parts[1], per=parts[2];
+      var pp=ppl.find(function(x){ return _vspPndPersonId(x)===pid; });
+      if(!pp) return;
+      var sup=ppl.find(function(x){ return x.id===pp.reportsTo; });
+      var recKey = kind==='annual' ? (pid+'__'+per) : (pid+'__'+per.replace('-Q','__Q'));
+      var done = kind==='annual' ? !!arec[recKey] : !!qrec[recKey];
+      out.push({ virtual:kind, done:done, teamId:'', teamName:'P&D',
+        m:{ id:'vr_'+k, type:(kind==='annual'?'Annual':'Quarterly')+' Performance Huddle',
+            attendees:[sup?sup.initials:'', pp.initials].filter(Boolean),
+            date:(rd[k]||{}).date||'', time:(rd[k]||{}).time||'', recurEvery:0 } });
+    });
+  }catch(e){}
+  return out;
+}
+function _mcTypes(){
+  var seen={}, out=[];
+  _mcAllSeries().forEach(function(e){ var t=e.m.type||''; if(t&&!seen[t]){ seen[t]=1; out.push(t); } });
+  return out.sort();
+}
+function _mcOccStatus(m, iso, e){
+  var todayIso=new Date().toISOString().slice(0,10);
+  var held;
+  if(e && e.virtual==='huddle'){
+    var wk=_meetIsoWeekKey(iso);
+    var rec=e.huds[e.pid+'__'+wk];
+    held=!!(rec && (rec.away || (rec.answers && Object.keys(rec.answers).length)));
+  } else if(e && (e.virtual==='quarterly'||e.virtual==='annual')){
+    held=!!e.done;
+  } else {
+    held=_meetHeldOn(m,iso);
+  }
+  if(held) return 'held';
+  if(iso===todayIso) return 'today';
+  if(iso>todayIso) return 'upcoming';
+  return 'missed';
+}
+function _mcTone(st){
+  return st==='held'?{bg:'#dcfce7',c:'#15803d',b:'#86efac',l:'Held'}
+       : st==='missed'?{bg:'#fee2e2',c:'#b91c1c',b:'#fca5a5',l:'Missed'}
+       : st==='today'?{bg:'#fef3c7',c:'#b45309',b:'#fcd34d',l:'Today'}
+       : st==='absorbed'?{bg:'var(--sur2)',c:'var(--txm)',b:'var(--brd)',l:'Absorbed'}
+       : {bg:'#dbeafe',c:'#1d4ed8',b:'#93c5fd',l:'Upcoming'};
+}
+function _mcLabel(e){
+  var att=(e.m.attendees||[]).join(', ');
+  return (e.m.type||'Meeting')+(att?(' \u00b7 '+att):'');
+}
+function _mcMatch(e, f){
+  if(f.team && e.teamId!==f.team) return false;
+  if(f.type && (e.m.type||'')!==f.type) return false;
+  if(f.person && (e.m.attendees||[]).indexOf(f.person)===-1) return false;
+  return true;
+}
+function _mcOccs(e, fromIso, toIso){
+  // occurrences with status, including absorbed ones (raw minus replaced)
+  var kept=_meetOccurrences(e.m, fromIso, toIso);
+  var raw=_meetOccurrencesRaw(e.m, fromIso, toIso);
+  var keptIdx={}; kept.forEach(function(i){ keptIdx[i]=1; });
+  return raw.map(function(iso){
+    return { iso:iso, status: keptIdx[iso] ? _mcOccStatus(e.m, iso, e) : 'absorbed' };
+  });
+}
+function _mcNav(dir){
+  var f=_mcSt();
+  var d=new Date(f.anchor+'T00:00:00');
+  if(f.view==='month') d.setMonth(d.getMonth()+dir);
+  else if(f.view==='quarter') d.setMonth(d.getMonth()+3*dir);
+  else d.setFullYear(d.getFullYear()+dir);
+  f.anchor=d.toISOString().slice(0,10);
+  renderPage();
+}
+function _mcSet(k,v){ _mcSt()[k]=v; renderPage(); }
+function _mcRange(){
+  var f=_mcSt();
+  var d=new Date(f.anchor+'T00:00:00');
+  if(f.view==='month'){
+    var s0=new Date(d.getFullYear(), d.getMonth(), 1);
+    var e0=new Date(d.getFullYear(), d.getMonth()+1, 0);
+    return { from:s0, to:e0, label:s0.toLocaleString('en',{month:'long',year:'numeric'}) };
+  }
+  if(f.view==='quarter'){
+    var q=Math.floor(d.getMonth()/3);
+    var s1=new Date(d.getFullYear(), q*3, 1);
+    var e1=new Date(d.getFullYear(), q*3+3, 0);
+    return { from:s1, to:e1, label:'Q'+(q+1)+' '+d.getFullYear() };
+  }
+  return { from:new Date(d.getFullYear(),0,1), to:new Date(d.getFullYear(),11,31), label:String(d.getFullYear()) };
+}
+function _mcIso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function _mcRender(){
+  var f=_mcSt();
+  var r=_mcRange();
+  var fromIso=_mcIso(r.from), toIso=_mcIso(r.to);
+  var series=_mcAllSeries().filter(function(e){ return _mcMatch(e,f); });
+  // Gather all occurrences with status for KPIs
+  var occAll=[];
+  series.forEach(function(e){
+    _mcOccs(e, fromIso, toIso).forEach(function(o){ occAll.push({e:e,iso:o.iso,status:o.status}); });
+  });
+  var held=occAll.filter(function(o){return o.status==='held';}).length;
+  var missed=occAll.filter(function(o){return o.status==='missed';}).length;
+  var upcoming=occAll.filter(function(o){return o.status==='upcoming'||o.status==='today';}).length;
+  var due=held+missed;
+  var pct=due?Math.round(held/due*100):null;
+
+  var h='';
+  // Controls row
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 12px">';
+  h+='<div style="display:inline-flex;border:1.5px solid var(--brd2);border-radius:7px;overflow:hidden">';
+  [['month','Month'],['quarter','Quarter'],['year','Year']].forEach(function(v){
+    var on=f.view===v[0];
+    h+='<button onclick="_mcSet(\'view\',\''+v[0]+'\')" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+v[1]+'</button>';
+  });
+  h+='</div>';
+  h+='<div style="display:inline-flex;align-items:center;gap:4px">';
+  h+='<button class="btn btn-sm" onclick="_mcNav(-1)" aria-label="Previous">\u2039</button>';
+  h+='<span style="font-size:var(--fz-lg);font-weight:600;min-width:130px;text-align:center">'+r.label+'</span>';
+  h+='<button class="btn btn-sm" onclick="_mcNav(1)" aria-label="Next">\u203a</button>';
+  h+='</div>';
+  // Filters
+  var selSt='padding:6px 10px;border:1.5px solid var(--brd2);border-radius:7px;background:var(--sur);font-family:inherit;font-size:var(--fz-body);color:var(--txt)';
+  h+='<select onchange="_mcSet(\'person\',this.value)" style="'+selSt+'"><option value="">All people</option>';
+  ppl.filter(function(p){return p.status==='active';}).forEach(function(p){
+    h+='<option value="'+p.initials+'"'+(f.person===p.initials?' selected':'')+'>'+_scEsc(p.first+' '+p.last)+'</option>';
+  });
+  h+='</select>';
+  h+='<select onchange="_mcSet(\'type\',this.value)" style="'+selSt+'"><option value="">All types</option>';
+  _mcTypes().forEach(function(t){ h+='<option'+(f.type===t?' selected':'')+'>'+_scEsc(t)+'</option>'; });
+  h+='</select>';
+  h+='<select onchange="_mcSet(\'team\',this.value)" style="'+selSt+'"><option value="">All teams</option>';
+  Object.keys(teamsRegistry).forEach(function(tid){
+    h+='<option value="'+tid+'"'+(f.team===tid?' selected':'')+'>'+_scEsc((teamsRegistry[tid]||{}).name||tid)+'</option>';
+  });
+  h+='</select>';
+  h+='<select onchange="_mcSet(\'status\',this.value)" style="'+selSt+'">';
+  [['','All statuses'],['held','Held'],['missed','Missed'],['upcoming','Upcoming']].forEach(function(o){
+    h+='<option value="'+o[0]+'"'+(f.status===o[0]?' selected':'')+'>'+o[1]+'</option>';
+  });
+  h+='</select>';
+  h+='</div>';
+
+  // KPI strip
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">';
+  [
+    {n:occAll.length,l:'Scheduled',c:'var(--txt)',bg:'var(--sur2)'},
+    {n:held,l:'Held',c:'#15803d',bg:'#dcfce7'},
+    {n:missed,l:'Missed',c:'#b91c1c',bg:'#fee2e2'},
+    {n:upcoming,l:'Upcoming',c:'#1d4ed8',bg:'#dbeafe'},
+    {n:(pct==null?'\u2013':pct+'%'),l:'Compliance',c:(pct==null?'var(--txm)':pct>=90?'#15803d':pct>=70?'#b45309':'#b91c1c'),bg:'var(--sur2)'}
+  ].forEach(function(k){
+    h+='<div style="background:'+k.bg+';border:1px solid var(--brd);border-radius:8px;padding:8px 16px;min-width:92px;text-align:center">';
+    h+='<div style="font-size:var(--fz-xl);font-weight:700;color:'+k.c+'">'+k.n+'</div>';
+    h+='<div style="font-size:var(--fz-xs);color:var(--txm);text-transform:uppercase;letter-spacing:.05em;font-weight:700">'+k.l+'</div></div>';
+  });
+  h+='</div>';
+
+  if(!series.length){
+    h+='<div class="card"><div class="card-body" style="color:var(--txm)">No meetings match these filters. Book meetings on the Schedule tab - every booking shows here.</div></div>';
+    return h;
+  }
+  if(f.view==='month') h+=_mcMonthGrid(series, r, f);
+  else h+=_mcMatrix(series, r, f, fromIso, toIso);
+  return h;
+}
+function _mcMonthGrid(series, r, f){
+  // classic calendar grid; each day lists occurrence chips
+  var byDay={};
+  var fromIso=_mcIso(r.from), toIso=_mcIso(r.to);
+  series.forEach(function(e){
+    _mcOccs(e, fromIso, toIso).forEach(function(o){
+      if(f.status && o.status!==f.status && !(f.status==='upcoming'&&o.status==='today')) return;
+      (byDay[o.iso]=byDay[o.iso]||[]).push({e:e,status:o.status});
+    });
+  });
+  var h='<div class="card"><div class="card-body" style="padding:10px">';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(function(dw){
+    h+='<div style="font-size:var(--fz-xs);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;padding:4px 6px">'+dw+'</div>';
+  });
+  var first=new Date(r.from);
+  var lead=(first.getDay()+6)%7;
+  var cur=new Date(first); cur.setDate(cur.getDate()-lead);
+  var todayIso=new Date().toISOString().slice(0,10);
+  for(var cell=0; cell<42; cell++){
+    var iso=_mcIso(cur);
+    var inMonth=cur.getMonth()===r.from.getMonth();
+    var isToday=iso===todayIso;
+    var items=byDay[iso]||[];
+    h+='<div style="min-height:74px;border:1px solid '+(isToday?'var(--blu)':'var(--brd)')+';border-radius:6px;padding:4px;background:'+(inMonth?'var(--sur)':'var(--sur2)')+';opacity:'+(inMonth?'1':'.55')+'">';
+    h+='<div style="font-size:var(--fz-xs);font-weight:700;color:'+(isToday?'var(--blu)':'var(--txm)')+'">'+cur.getDate()+'</div>';
+    items.slice(0,3).forEach(function(it){
+      var t=_mcTone(it.status);
+      var clickable=it.e.real && (it.status==='missed'||it.status==='today'||it.status==='held');
+      var oc=clickable?(' onclick="_mcMarkHeld('+it.e.m.id+',\''+iso+'\')" '):'';
+      h+='<div'+oc+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+(clickable?' \u00b7 click to mark held/unheld':''))+'" style="cursor:'+(clickable?'pointer':'default')+';font-size:var(--fz-xs);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc((it.e.m.time||'')+' '+(it.e.m.type||''))+'</div>';
+    });
+    if(items.length>3) h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
+    h+='</div>';
+    cur.setDate(cur.getDate()+1);
+  }
+  h+='</div>';
+  h+=_mcLegend();
+  h+='</div></div>';
+  return h;
+}
+function _mcMatrix(series, r, f, fromIso, toIso){
+  // Quarter: columns = ISO weeks. Year: columns = months. Rows = each series.
+  var cols=[];
+  if(_mcSt().view==='quarter'){
+    var d=new Date(r.from); var day=(d.getDay()+6)%7; d.setDate(d.getDate()-day);
+    while(d<=r.to){ cols.push({key:_mcIso(d), label:(d.getMonth()+1)+'/'+d.getDate()}); d.setDate(d.getDate()+7); }
+  } else {
+    for(var mth=0; mth<12; mth++){ cols.push({key:r.from.getFullYear()+'-'+String(mth+1).padStart(2,'0'), label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mth]}); }
+  }
+  var h='<div class="card"><div class="card-body" style="padding:10px;overflow-x:auto">';
+  h+='<table style="border-collapse:collapse;width:100%"><thead><tr>';
+  h+='<th style="text-align:left;padding:6px 8px;font-size:var(--fz-xs);color:var(--txm);text-transform:uppercase;letter-spacing:.04em;position:sticky;left:0;background:var(--sur)">Meeting</th>';
+  cols.forEach(function(c){ h+='<th style="padding:6px 4px;font-size:var(--fz-xs);color:var(--txm);white-space:nowrap">'+c.label+'</th>'; });
+  h+='<th style="padding:6px 8px;font-size:var(--fz-xs);color:var(--txm)">HELD/DUE</th></tr></thead><tbody>';
+  series.forEach(function(e){
+    var occs=_mcOccs(e, fromIso, toIso).filter(function(o){
+      return !f.status || o.status===f.status || (f.status==='upcoming'&&o.status==='today');
+    });
+    if(!occs.length && (f.status||f.person||f.type||f.team)) return;
+    var byCol={};
+    occs.forEach(function(o){
+      var key=(_mcSt().view==='quarter') ? _meetIsoWeekKey(o.iso) : o.iso.slice(0,7);
+      (byCol[key]=byCol[key]||[]).push(o.status);
+    });
+    var held=occs.filter(function(o){return o.status==='held';}).length;
+    var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
+    h+='<tr style="border-top:1px solid var(--brd)">';
+    h+='<td style="padding:6px 8px;font-size:var(--fz-base);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(e.m.type||'Meeting')+'</b><div style="font-size:var(--fz-xs);color:var(--txm)">'+_scEsc((e.m.attendees||[]).join(', ')+' \u00b7 '+e.teamName)+'</div></td>';
+    cols.forEach(function(c){
+      var sts=byCol[c.key]||[];
+      h+='<td style="padding:4px;text-align:center">';
+      sts.forEach(function(st){
+        var t=_mcTone(st);
+        var glyph=st==='held'?'\u2713':st==='missed'?'\u2717':st==='absorbed'?'\u25b2':'\u25cf';
+        h+='<span title="'+t.l+'" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';font-size:11px;font-weight:700;margin:1px">'+glyph+'</span>';
+      });
+      h+='</td>';
+    });
+    var pc=due?Math.round(held/due*100):null;
+    h+='<td style="padding:6px 8px;text-align:center;font-size:var(--fz-base);font-weight:600;color:'+(pc==null?'var(--txm)':pc>=90?'#15803d':pc>=70?'#b45309':'#b91c1c')+'">'+held+'/'+due+'</td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  h+=_mcLegend();
+  h+='</div></div>';
+  return h;
+}
+function _mcMarkHeld(mid, iso){
+  // One-click accountability confirmation for booked meetings that are not
+  // run through the VSP runner (client meetings etc). Toggle: click again
+  // to undo. Stamps heldLog for that occurrence date.
+  var f=_findScheduledById(mid); if(!f||!f.m) return;
+  f.m.heldLog=Array.isArray(f.m.heldLog)?f.m.heldLog:[];
+  var i=f.m.heldLog.indexOf(iso);
+  if(i>-1){ f.m.heldLog.splice(i,1); try{ showToast('Unmarked - occurrence back to missed/upcoming.'); }catch(e){} }
+  else { f.m.heldLog.push(iso); try{ showToast('Marked held for '+iso+'.'); }catch(e){} }
+  try{ vspSaveNow(); }catch(e){}
+  renderPage();
+}
+function _mcLegend(){
+  var h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:var(--fz-xs);color:var(--txm)">';
+  [['held','\u2713 Held'],['missed','\u2717 Missed'],['upcoming','\u25cf Upcoming'],['today','\u25cf Today'],['absorbed','\u25b2 Absorbed by a higher huddle that week']].forEach(function(x){
+    var t=_mcTone(x[0]);
+    h+='<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:50%;background:'+t.bg+';border:1px solid '+t.b+';display:inline-block"></span>'+x[1]+'</span>';
+  });
+  h+='</div>';
+  return h;
+}
 function renderMeetings(){
   var tab=state.meetTab;
   var isLT=state.currentTeam==='lt';
@@ -16685,11 +17038,13 @@ function renderMeetings(){
 
   // Tabs
   h+='<div class="tab-bar">';
-  [{v:"upcoming",l:"Schedule"},{v:"compliance",l:"Compliance"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
+  [{v:"calendar",l:"Calendar"},{v:"upcoming",l:"Schedule"},{v:"compliance",l:"Compliance"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
     h+='<button class="tab'+(tab===t.v?" active":"")+'" onclick="state.meetTab=\''+t.v+'\';renderPage()">'+t.l+'</button>';
   });
   // Print Agenda button removed (post-meeting feedback May 21) - the Recap on past meetings serves the actual-meeting-print need.
   h+='</div>';
+
+  if(tab==='calendar'){ h+=_mcRender(); return h; }
 
   // ── UPCOMING ──────────────────────────────────────────────
   if(tab==="upcoming"){
@@ -25900,7 +26255,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-34b';
+window.VSP_BUILD = 'v186-merge-38e';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -27719,10 +28074,10 @@ function modalErr(msg){ var e=document.getElementById('smb-modal-err'); if(e){ e
 /* Book Meeting modal - BD-parity popup. Renders the same fields as the former
    inline panel, into the BD modal shell, and saves via addScheduledMeeting(). */
 function vspBookMeetingModal(){
-  var typeOpts=['Weekly','Quarterly','Annual','Weekly Performance Huddle','Quarterly Performance Huddle','Annual Performance Huddle','Monthly Client Meeting'];
+  var typeOpts=['Weekly Performance Huddle','Quarterly Performance Huddle','Annual Performance Huddle','Team Meeting','Client Meeting'];
   var curType=state.smType||'Weekly';
   var body=''+
-    '<div style="background:var(--gpb,#fdf6e3);border:1px solid var(--gpd,#b8860b);border-radius:6px;padding:10px 12px;margin-bottom:14px;color:var(--gpd,#7a5b00);font-size:var(--fz-body);line-height:1.5"><strong>Calendar integration is pending.</strong> The meeting is saved and tracked here, and the Email button opens your mail app to notify attendees now. Once the backend ships, real calendar invites will be sent automatically to every attendee.</div>'+
+    (_msConnected() ? '' : '<div style="background:var(--gpb,#fdf6e3);border:1px solid var(--gpd,#b8860b);border-radius:6px;padding:10px 12px;margin-bottom:14px;color:var(--gpd,#7a5b00);font-size:var(--fz-body);line-height:1.5"><strong>Outlook not connected.</strong> The meeting is saved and tracked here. Click <b>Connect Outlook</b> on the Meetings page top-right to send real calendar invites from this browser.</div>')+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
       '<div class="smb-fld"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="state.smType=this.value;state.smReport=\'\';_vspBookMeetingRefreshAtt()">'+typeOpts.map(function(t){return '<option'+(curType===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div>'+
       '<div class="smb-fld"><label for="sm-recurring">Repeats</label><select id="sm-recurring"><option value="0">One-time</option><option value="7">Weekly</option><option value="14">Every 2 weeks</option><option value="28">Every 4 weeks</option><option value="30">Monthly</option><option value="91">Quarterly</option><option value="365">Annually</option></select></div>'+
@@ -28529,7 +28884,34 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       // Rescue snapshot first: the pre-adopt local copy is always kept in
       // one slot so an adopt can never destroy the only copy of anything.
       try{ if(local) localStorage.setItem(V_keyName() + '.guard.preAdopt', JSON.stringify({ at: new Date().toISOString(), data: local })); }catch(e){}
-      if(local){ remote = V_goalReconcile(local, remote); }
+      if(remote === V_lastSyncedRaw){
+        // This exact cloud copy was already adopted this session - local
+        // re-serialization must not trigger endless re-adopts.
+        V_ready = true;
+        return;
+      }
+      if(local && remote === local){
+        // Byte-identical copies: nothing to adopt, nothing to reconcile,
+        // nothing to render. (Comparing AFTER reconcile caused a 4s flash
+        // loop: parse/stringify changes bytes without changing meaning.)
+        V_lastSyncedRaw = remote;
+        V_ready = true;
+        return;
+      }
+      if(local){
+        var _preRec = remote;
+        remote = V_goalReconcile(local, remote);
+        // Loop stop (2026-07-31): if the reconciled copy is byte-identical to
+        // what this browser already holds, there is nothing to adopt - do
+        // NOT rewrite storage or re-render (that caused a 4s flash loop).
+        // If reconcile CHANGED the cloud copy (tombstone repair), push the
+        // repaired copy up once so the cloud converges and stops differing.
+        if(remote === local){
+          if(remote !== _preRec){ V_lastSyncedRaw = remote; V_pushUp(remote); }
+          V_ready = true;
+          return;
+        }
+      }
       if(local && V_countRemovals(local, remote) >= V_GUARD_THRESHOLD){
         // The cloud copy is missing readings this browser has (stale-tab
         // clobber upstream). Merge ours in, apply, and repair the cloud.
@@ -28688,6 +29070,12 @@ try{ _vspMigrateJobNotes(); }catch(e){}
   }
 
   // Pull the P&D root once and reconcile.
+  try{
+    if(localStorage.getItem('vsp.stdmig.pending')==='1'){
+      localStorage.removeItem('vsp.stdmig.pending');
+      P_pendingPush = true;
+    }
+  }catch(e){}
   function P_pull(){
     if(typeof fetch !== 'function') return;
     if(P_pulling) return;
