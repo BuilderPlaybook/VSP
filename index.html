@@ -17420,6 +17420,7 @@ function renderMeetings(){
       _ontrack.forEach(function(m,i){ h+=_rowFor(m, i===_ontrack.length-1); });
       h+='</div>';
     }
+    h+=_mcMoveOverlay();
   }
 
   // ── COMPLIANCE ────────────────────────────────────────────
