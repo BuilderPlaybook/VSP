@@ -17034,6 +17034,23 @@ function _mcMoveOverlay(){
   h+='</select>';
   h+='<label style="'+lbl+'">Location</label><input type="text" id="mc-e-loc" value="'+_scEsc(m.location||'')+'" placeholder="Address, office, or job site" style="'+inp+'" '+(!_canEdit?'disabled':'')+'>';
   h+='<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:2px 0 10px"><input type="checkbox" id="mc-e-room" '+(m.bookBoardroom?'checked':'')+' '+(!_canEdit?'disabled':'')+' style="width:15px;height:15px"> Book the boardroom (room accepts/declines by availability)</label>';
+  h+='<label style="'+lbl+'">Attendees</label>';
+  var _att=Array.isArray(m.attendees)?m.attendees.slice():[];
+  h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">';
+  _att.forEach(function(ini){
+    var p=ppl.find(function(x){return x.initials===ini;});
+    if(!p) return;
+    var noMail=!p.email;
+    h+='<span '+(_canEdit?'onclick="_mcEditAttRemove(\''+ini+'\')"':'')+' title="'+(noMail?'No email on file - will not receive an Outlook invite. ':'')+(_canEdit?'Click to remove':'')+'" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:14px;border:1px solid '+(noMail?'#fcd34d':'var(--brd2)')+';background:'+(noMail?'#fffbeb':'var(--sur2)')+';font-size:var(--fz-base);cursor:'+(_canEdit?'pointer':'default')+'">'+_scEsc(p.first+' '+p.last)+(noMail?' \u26a0':'')+(_canEdit?' \u00d7':'')+'</span>';
+  });
+  if(!_att.length) h+='<span style="font-size:var(--fz-base);color:var(--txm)">No attendees yet.</span>';
+  h+='</div>';
+  if(_canEdit){
+    var _avail=ppl.filter(function(p){return (p.status||'active')==='active' && _att.indexOf(p.initials)===-1;});
+    h+='<select onchange="_mcEditAttAdd(this.value)" style="'+inp+'"><option value="">+ Add attendee\u2026</option>';
+    _avail.forEach(function(p){ h+='<option value="'+p.initials+'">'+_scEsc(p.first+' '+p.last)+(p.email?'':' (no email)')+'</option>'; });
+    h+='</select>';
+  }
   h+='<label style="'+lbl+'">Meeting link</label><input type="text" id="mc-e-link" value="'+_scEsc(m.meetingLink||'')+'" placeholder="Zoom, Teams, or Meet URL" style="'+inp+'" '+(!_canEdit?'disabled':'')+'>';
   h+='<label style="'+lbl+'">Notes</label><textarea id="mc-e-notes" style="'+inp+';min-height:60px;font-family:inherit" '+(!_canEdit?'disabled':'')+'>'+_scEsc(m.notes||'')+'</textarea>';
   var noteMsg='';
@@ -17082,6 +17099,22 @@ function _mcCancelMeeting(){
     try{ showToast('Meeting cancelled.'); }catch(e){}
   }
   state.mcMove=null;
+  renderPage();
+}
+function _mcEditAttAdd(ini){
+  if(!ini) return;
+  var mv=state.mcMove; if(!mv) return;
+  var f=_findScheduledById(mv.id); if(!f||!f.m) return;
+  if(!(_mcIsOrganizer(f.m)||_vspAutoIsAdmin())) return;
+  f.m.attendees=Array.isArray(f.m.attendees)?f.m.attendees:[];
+  if(f.m.attendees.indexOf(ini)===-1) f.m.attendees.push(ini);
+  renderPage();
+}
+function _mcEditAttRemove(ini){
+  var mv=state.mcMove; if(!mv) return;
+  var f=_findScheduledById(mv.id); if(!f||!f.m) return;
+  if(!(_mcIsOrganizer(f.m)||_vspAutoIsAdmin())) return;
+  f.m.attendees=(f.m.attendees||[]).filter(function(x){ return x!==ini; });
   renderPage();
 }
 function _mcSaveEdit(){
@@ -17322,7 +17355,7 @@ function renderMeetings(){
       r+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
       r+='<div style="flex:1">';
       r+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
-      r+='<span style="font-size:var(--fz-body);font-weight:500">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
+      r+='<span onclick="_mcOpenMove('+m.id+',\''+(m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
       r+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span>';
       if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
       r+='</div>';
