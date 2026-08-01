@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-88</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-91</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -18373,14 +18373,16 @@ function renderMeetings(){
     });
     h+='</div>';
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px">';
-    // Header row
-    h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
-    h+='<span style="flex:1;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em">Meeting</span>';
-    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;min-width:52px;text-align:center">Duration</span>';
-    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;min-width:52px;text-align:center">Rating</span>';
-    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;min-width:52px;text-align:center">Resolved</span>';
-    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;min-width:52px;text-align:center">To-Dos</span>';
-    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;min-width:80px;text-align:right">Attended</span>';
+    // Header row (Dave, 2026-08-01): header and data rows share ONE grid
+    // template so the column labels sit exactly above their values.
+    var _pmGrid='display:grid;grid-template-columns:minmax(0,1fr) 72px 64px 72px 64px 96px;gap:10px;align-items:center';
+    h+='<div style="'+_pmGrid+';padding:8px 16px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
+    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em">Meeting</span>';
+    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;text-align:center">Duration</span>';
+    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;text-align:center">Rating</span>';
+    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;text-align:center">Resolved</span>';
+    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;text-align:center">To-Dos</span>';
+    h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;text-align:right">Attended</span>';
     h+='</div>';
     pastMeetings.forEach(function(m,i){
       var rc=m.rating>=8?"#16a34a":m.rating>=6?"#d97706":"#dc2626";
@@ -18388,8 +18390,8 @@ function renderMeetings(){
       var tc=typeColors[m.type]||"#64748b";
       var isExpanded=state.expandedMeeting===m.id;
       h+='<div style="border-bottom:'+(i<pastMeetings.length-1?'0.5px solid var(--brd)':'none')+'">';
-      h+='<div onclick="state.expandedMeeting=(state.expandedMeeting==='+m.id+'?null:'+m.id+');renderPage()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer" onmouseover="this.style.background=\'var(--sur2)\'" onmouseout="this.style.background=\'transparent\'">';
-      h+='<div style="flex:1">';
+      h+='<div onclick="state.expandedMeeting=(state.expandedMeeting==='+m.id+'?null:'+m.id+');renderPage()" style="'+_pmGrid+';padding:11px 16px;cursor:pointer" onmouseover="this.style.background=\'var(--sur2)\'" onmouseout="this.style.background=\'transparent\'">';
+      h+='<div style="min-width:0">';
       h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
       h+='<svg width="10" height="10" fill="none" stroke="'+tc+'" stroke-width="2" viewBox="0 0 24 24" style="transform:'+(isExpanded?'rotate(90deg)':'rotate(0)')+';transition:transform .15s"><path d="M9 18l6-6-6-6"/></svg>';
       var _hrName='';
@@ -18402,11 +18404,11 @@ function renderMeetings(){
       h+='<span style="font-size:var(--fz-base);color:'+tc+';background:'+tc+'12;border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.date+'</span></div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">'+m.highlights+'</div>';
       h+='</div>';
-      h+='<div style="text-align:center;min-width:52px"><span style="font-size:var(--fz-lg);color:var(--txm)">'+m.duration+' min</span></div>';
-      h+='<div style="text-align:center;min-width:52px"><span style="font-size:var(--fz-lg);font-weight:600;color:'+rc+'">'+m.rating+'/10</span></div>';
-      h+='<div style="text-align:center;min-width:52px"><span style="font-size:var(--fz-lg);font-weight:600;color:#16a34a">'+m.resolved+'</span></div>';
-      h+='<div style="text-align:center;min-width:52px"><span style="font-size:var(--fz-lg);font-weight:600;color:#d97706">'+m.todos+'</span></div>';
-      h+='<div style="display:flex;gap:2px;justify-content:flex-end;min-width:80px">';
+      h+='<div style="text-align:center"><span style="font-size:var(--fz-lg);color:var(--txm)">'+m.duration+' min</span></div>';
+      h+='<div style="text-align:center"><span style="font-size:var(--fz-lg);font-weight:600;color:'+rc+'">'+m.rating+'/10</span></div>';
+      h+='<div style="text-align:center"><span style="font-size:var(--fz-lg);font-weight:600;color:#16a34a">'+m.resolved+'</span></div>';
+      h+='<div style="text-align:center"><span style="font-size:var(--fz-lg);font-weight:600;color:#d97706">'+m.todos+'</span></div>';
+      h+='<div style="display:flex;gap:2px;justify-content:flex-end">';
       m.attended.forEach(function(a){
         var ac=pplColor(a);
         h+=avatar(a,ac,20);
@@ -20087,10 +20089,10 @@ function generateMeetingRecap(meetingId){
       totalIssues:(function(){
         try{
           if(typeof _vspItemInThisMeeting==='function' && _vspCurrentMeetingRoute()){
-            return issues.filter(_vspItemInThisMeeting).length + resolvedIssues.filter(_vspItemInThisMeeting).length;
+            return issues.filter(_vspItemInThisMeeting).length;
           }
         }catch(e){}
-        return issues.length+resolvedIssues.length;
+        return issues.length;
       })(),
       type:runType,
       createdTodos:(state.meetCreatedTodoIds||[]).map(function(id){ return todos.find(function(x){ return x.id===id; }); }).filter(function(t){ return t; }).map(function(t){return {task:t.task,owner:t.owner,due:t.due};}),
@@ -20115,7 +20117,7 @@ function generateMeetingRecap(meetingId){
             return out;
           }
         }catch(e){}
-        return team2.members || ['DS'];
+        return (team2.members||['DS']).filter(function(ini){ return !(state.meetAbsent&&state.meetAbsent[ini]); });
       })(),
       headlines:headlines.slice(0,10).map(function(h){return {text:h.text,type:h.type,owner:h.owner};}),
       cascades:cascadesRegistry.slice(0,5).map(function(cs){return {subject:cs.subject,fromTeam:cs.fromTeam,toTeams:cs.toTeams,sentAt:cs.sentAt};}),
@@ -20175,8 +20177,14 @@ function generateMeetingRecap(meetingId){
     _rt = _rt + ' with ' + (_rp ? (_rp.first+' '+_rp.last) : m.huddleReport);
   }
   html+='<div class="meeting-title">'+m.date+' - '+_rt+' Recap</div>';
-  html+='<div class="meta">From: Self-Managing Builder &lt;meetings@lida.ca&gt; &nbsp;·&nbsp; Date: '+m.date+(m.time?' at '+m.time:'')+'<br>';
-  html+='To: '+(m.attended||[]).join(', ')+'</div>';
+  // Honest header (Dave, 2026-08-01): no fake From/To email line. Name the
+  // meeting, the date, and who actually attended, resolved to full names.
+  var _attNames=(m.attended||[]).map(function(ini){
+    var p=ppl.find(function(x){ return x && x.initials===ini; });
+    return p ? (p.first+' '+p.last) : ini;
+  }).join(', ');
+  html+='<div class="meta">'+m.date+(m.time?' at '+m.time:'')+'<br>';
+  html+='Attended: '+(_attNames||'\u2014')+'</div>';
 
   // Headlines
   html+='<h2>Headlines</h2>';
@@ -20216,10 +20224,13 @@ function generateMeetingRecap(meetingId){
   }
 
   // Short-Term Issues stats
+  // Open issues only (Dave, 2026-08-01): the total used to include the entire
+  // resolved archive, so it only ever grew. Show open issues - the count that
+  // means "issues still to deal with" and goes down when solved.
   var totalIss=(typeof m.totalIssues==='number' ? m.totalIssues : issues.length);
-  html+='<h2>Short-Term Issues</h2>';
+  html+='<h2>Open Issues</h2>';
   html+='<div class="stat-grid">';
-  html+='<div class="stat-card"><div class="stat-n">'+totalIss+'</div><div class="stat-l">Total Tracked Issues</div></div>';
+  html+='<div class="stat-card"><div class="stat-n">'+totalIss+'</div><div class="stat-l">Open Issues</div></div>';
   html+='<div class="stat-card"><div class="stat-n">'+(m.resolved||0)+'</div><div class="stat-l">Issues Solved Today</div></div>';
   html+='</div>';
 
@@ -20235,9 +20246,26 @@ function generateMeetingRecap(meetingId){
     html+='<p style="color:#64748b;font-style:italic">No to-dos were created this meeting.</p>';
   }
 
-  // Meeting Notes
+  // Meeting Notes (Dave, 2026-08-01): the recap used to print only the
+  // free-text box (m.notes) and ignored the per-agenda-step notes
+  // (record.stepNotes), so a meeting whose notes were typed on the agenda
+  // steps printed "No notes were taken." Render both: step notes labeled by
+  // their section, then the free-text box.
   html+='<h2>Meeting Notes</h2>';
-  html+='<p style="color:#64748b;font-style:italic">'+(m.notes&&m.notes.trim()?m.notes:'No notes were taken during this meeting.')+'</p>';
+  var _noteBits='';
+  if(m.stepNotes && typeof m.stepNotes==='object'){
+    var _secLbls=(m.sectionDurations||[]).map(function(s){return s.label;});
+    Object.keys(m.stepNotes).map(function(k){return parseInt(k,10);}).filter(function(n){return !isNaN(n);}).sort(function(a,b){return a-b;}).forEach(function(idx){
+      var txt=(m.stepNotes[idx]||'').trim(); if(!txt) return;
+      var lbl=_secLbls[idx]||('Step '+(idx+1));
+      _noteBits+='<div style="margin-bottom:8px"><div style="font-weight:600;color:#334155">'+_vspEscNote(lbl)+'</div><div style="white-space:pre-wrap">'+_vspEscNote(txt)+'</div></div>';
+    });
+  }
+  if(m.notes && m.notes.trim()){
+    _noteBits+='<div style="margin-bottom:8px"><div style="font-weight:600;color:#334155">General</div><div style="white-space:pre-wrap">'+_vspEscNote(m.notes.trim())+'</div></div>';
+  }
+  if(_noteBits){ html+=_noteBits; }
+  else { html+='<p style="color:#64748b;font-style:italic">No notes were taken during this meeting.</p>'; }
 
   // Meeting Ratings
   html+='<h2>Meeting Ratings</h2>';
@@ -20935,6 +20963,11 @@ function endMeeting(){
   // Actual total duration
   var actualSecs=Object.values(state.meetSectionDurations).reduce(function(a,b){return a+b;},0);
   var actualMins=Math.round(actualSecs/60);
+  // Wall-clock is the truth (Dave, 2026-08-01): section timers only accumulate
+  // for steps the facilitator clicked through, so a meeting that ran long on
+  // discussion without advancing every step under-reports. Prefer real elapsed
+  // time from meetStartTime; fall back to summed section timers, then planned.
+  var wallMins=state.meetStartTime?Math.max(1,Math.round((Date.now()-state.meetStartTime)/60000)):0;
   // Issues solved during this meeting
   var solvedThisMeeting=state.meetSolvedIds.map(function(id){
     return resolvedIssues.find(function(i){return i.id===id;})||{title:'Issue #'+id,owner:'DS'};
@@ -20983,7 +21016,7 @@ function endMeeting(){
     time:timeStr,
     rating:avgRating,
     indvRatings:indvRatings,
-    duration:actualMins||sections.reduce(function(a,s){return a+s.min;},0),
+    duration:wallMins||actualMins||sections.reduce(function(a,s){return a+s.min;},0),
     resolved:solvedThisMeeting.length,
     resolvedIssues:solvedThisMeeting,
     todos:createdTodos.length,
@@ -21009,7 +21042,10 @@ function endMeeting(){
           return out;
         }
       }catch(e){}
-      return team.members || ['DS'];
+      // Team meeting: attendance is who was actually present (Dave, 2026-08-01)
+      // - the roster minus anyone marked absent at the Conclude step, not the
+      // whole team.
+      return (team.members||['DS']).filter(function(ini){ return !(state.meetAbsent&&state.meetAbsent[ini]); });
     })(),
     headlines:meetHeadlines,
     cascades:meetCascades,
@@ -21024,12 +21060,10 @@ function endMeeting(){
   record.totalIssues=(function(){
     try{
       if(typeof _vspItemInThisMeeting==='function' && _vspCurrentMeetingRoute()){
-        var a=issues.filter(_vspItemInThisMeeting).length;
-        var b=resolvedIssues.filter(_vspItemInThisMeeting).length;
-        return a+b;
+        return issues.filter(_vspItemInThisMeeting).length;
       }
     }catch(e){}
-    return issues.length+resolvedIssues.length;
+    return issues.length;
   })();
   record.solveRate=record.totalIssues?Math.round((solvedThisMeeting.length/record.totalIssues)*100):0;
   // Attendance (present/absent) captured at the conclude step
@@ -26836,7 +26870,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-88';
+window.VSP_BUILD = 'v186-merge-91';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
