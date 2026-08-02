@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-91</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-93</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -13419,7 +13419,8 @@ function goalRow(g,archived,isLast,ctx){
     // Milestones
     h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Milestones</div>';
     g.milestones.forEach(function(m){
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--brd)">';
+      h+='<div draggable="true" ondragstart="event.stopPropagation();msDragStart(event,'+g.id+','+m.id+')" ondragover="msDragOver(event,'+g.id+','+m.id+')" ondragleave="msDragLeave(event)" ondrop="event.stopPropagation();msDrop(event,'+g.id+','+m.id+')" ondragend="msDragEnd(event)" style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--brd)">';
+      h+='<span title="Drag to reorder" style="cursor:grab;color:var(--txd);font-size:var(--fz-lg);flex-shrink:0;line-height:1">\\u2630</span>';
       h+='<div onclick="event.stopPropagation();toggleMilestone('+g.id+','+m.id+')" style="width:15px;height:15px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:'+(m.done?'#16a34a':'transparent')+';border:1.5px solid '+(m.done?'#16a34a':'var(--brd2)')+';cursor:pointer">';
       h+=(m.done?'<svg width="8" height="8" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':'')+'</div>';
       h+='<span onclick="event.stopPropagation();toggleMilestone('+g.id+','+m.id+')" style="flex:1;font-size:var(--fz-body);color:'+(m.done?'var(--txm)':'var(--txt)')+';text-decoration:'+(m.done?'line-through':'none')+';cursor:pointer">'+m.text+'</span>';
@@ -14091,19 +14092,41 @@ function _vspMeetMailtoHref(m){
   return 'mailto:'+emails.join(',');
 }
 function vspMeetEmailInvite(id){
+  // Preview-first reminder (Dave, 2026-08-01): open a preview of the reminder
+  // email - subject + full agenda body pulled live from the meeting - then send
+  // it as a real email through Outlook (Mail.Send). Falls back to a bare mailto
+  // when Outlook is not connected so the button still does something.
   var f=_findScheduledById(id); if(!f||!f.m){ vspAlert('Meeting not found'); return; }
+  state.emailReminderId=id;
+  renderPage();
+}
+function _vspEmailReminderData(id){
+  var f=_findScheduledById(id); if(!f||!f.m) return null;
   var m=f.m;
-  var emails=(m.attendees||[]).map(function(a){ var p=ppl.find(function(x){return x.initials===a;}); return p&&p.email?p.email:''; }).filter(Boolean);
-  if(!emails.length){ vspAlert('No email addresses on file for the attendees.'); return; }
-  // EXACTLY BD's _composeEmail: a bare mailto to the recipients, fresh anchor,
-  // append/click/remove, synchronous inside this click handler. No subject, no
-  // body (a pre-filled body suppresses the mail-app signature and new Outlook
-  // rejects a mailto carrying a querystring). This is the form proven to open
-  // Outlook in BD on this machine.
-  try{
-    var a=document.createElement('a'); a.href='mailto:'+emails.join(',');
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }catch(e){}
+  var isClient=(m.type==='Monthly Client Meeting');
+  var toList=isClient
+    ? (m.clientEmails||[]).slice()
+    : (m.attendees||[]).map(function(a){ var p=ppl.find(function(x){return x.initials===a;}); return p&&p.email?p.email:''; }).filter(Boolean);
+  var subject='Reminder: '+_meetTypeLabel(m.type, m.teamName)+' \u2013 '+(m.date||'');
+  var bodyObj=_msInviteBody(m);
+  var htmlBody=(bodyObj&&bodyObj.contentType==='HTML')?bodyObj.content:('<p>'+_scEsc(String(bodyObj&&bodyObj.content||'').replace(/\n/g,'<br>'))+'</p>');
+  return { m:m, toList:toList, subject:subject, htmlBody:htmlBody, isClient:isClient };
+}
+function vspSendEmailReminder(id){
+  var d=_vspEmailReminderData(id); if(!d){ state.emailReminderId=null; renderPage(); return; }
+  if(!d.toList.length){ vspAlert('No email addresses on file for the recipients.'); return; }
+  if(_msConnected()){
+    _msSendMail(d.toList, d.subject, d.htmlBody).then(function(ok){
+      try{ showToast(ok?('Reminder sent to '+d.toList.length+' recipient'+(d.toList.length>1?'s':'')+'.'):'Reminder could not be sent.'); }catch(e){}
+    });
+  } else {
+    // Not connected: fall back to a bare mailto (recipients only; Outlook rejects
+    // a querystring body). Agenda cannot travel this path - warn the user.
+    try{ var a=document.createElement('a'); a.href='mailto:'+d.toList.join(','); document.body.appendChild(a); a.click(); document.body.removeChild(a); }catch(e){}
+    try{ showToast('Outlook not connected - opened a blank email to the recipients.'); }catch(e){}
+  }
+  state.emailReminderId=null;
+  renderPage();
 }
 // ── Meeting occurrence + compliance (Schedule tracker) ────────────────────────
 // Occurrences are computed on the fly from a meeting's start date + recurEvery,
@@ -17138,6 +17161,28 @@ function _mcIsOrganizer(m){
   return (m.attendees||[])[0]===me;
 }
 function _mcOpenMove(mid, iso){ state.mcMove={id:mid, iso:iso}; renderPage(); }
+function _vspEmailReminderOverlay(){
+  var id=state.emailReminderId; if(id==null) return '';
+  var d=_vspEmailReminderData(id); if(!d){ return ''; }
+  var recips=d.toList.length?d.toList.join(', '):'(no email addresses on file)';
+  var esc=function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var connNote=_msConnected()
+    ? '<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:10px">Sends from your connected Outlook ('+esc(((_msStore()||{}).account)||'your account')+').</div>'
+    : '<div style="font-size:var(--fz-base);color:var(--amb);margin-bottom:10px">Outlook is not connected, so the agenda cannot be sent. Send will open a blank email to the recipients instead. Connect Outlook on the Meetings page to send the full reminder.</div>';
+  var h='<div onclick="state.emailReminderId=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
+  h+='<div onkeydown="event.stopPropagation()" onclick="event.stopPropagation()" class="smb-modal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(620px,92vw);max-height:86vh;overflow:auto;background:var(--sur);border:1px solid var(--brd);border-radius:12px;z-index:201;padding:22px">';
+  h+='<div class="smb-modal-title" style="margin-bottom:4px">Send meeting reminder</div>';
+  h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:14px">Review before sending. This sends a reminder email, not a calendar invite.</div>';
+  h+='<div style="font-size:var(--fz-body);margin-bottom:8px"><b>To:</b> '+esc(recips)+'</div>';
+  h+='<div style="font-size:var(--fz-body);margin-bottom:12px"><b>Subject:</b> '+esc(d.subject)+'</div>';
+  h+=connNote;
+  h+='<div style="border:1px solid var(--brd);border-radius:8px;padding:14px;background:var(--bg);font-size:var(--fz-body);max-height:340px;overflow:auto">'+d.htmlBody+'</div>';
+  h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">';
+  h+='<button type="button" class="btn" onclick="state.emailReminderId=null;renderPage()">Cancel</button>';
+  h+='<button type="button" class="btn btn-primary" onclick="vspSendEmailReminder('+id+')"'+(d.toList.length?'':' disabled')+'>Send reminder</button>';
+  h+='</div></div>';
+  return h;
+}
 function _mcMoveOverlay(){
   var mv=state.mcMove; if(!mv) return '';
   var f=_findScheduledById(mv.id); if(!f||!f.m){ state.mcMove=null; return ''; }
@@ -17576,6 +17621,7 @@ function renderMeetings(){
       h+='</div>';
     }
     h+=_mcMoveOverlay();
+    h+=_vspEmailReminderOverlay();
   }
 
   // ── COMPLIANCE ────────────────────────────────────────────
@@ -18786,7 +18832,7 @@ function goalSetParent(id, raw){
 }
 function goalQuickMs(id, el){
   var t=(el&&el.value||'').trim(); if(!t) return;
-  var g=goals.find(function(x){return x.id===id;}); if(!g) return;
+  var g=_findGoal(id); if(!g) return;
   g.milestones=g.milestones||[];
   g.milestones.push({id:Date.now()+Math.floor(Math.random()*999), text:t, done:false});
   el.value='';
@@ -18953,14 +18999,13 @@ function updateGoalProgress(id,val){
   spans.forEach(function(s){s.textContent=val+'%';});
 }
 function toggleMilestone(goalId, milestoneId){
-  var g=goals.find(function(x){return x.id===goalId;});
+  var g=_findGoal(goalId);
   if(!g) return;
-  var m=g.milestones.find(function(x){return x.id===milestoneId;});
+  var m=(g.milestones||[]).find(function(x){return x.id===milestoneId;});
   if(m) m.done=!m.done;
-  // Auto-update progress from milestone completion
-  if(g.milestones.length){
-    g.progress=Math.round((g.milestones.filter(function(x){return x.done;}).length/g.milestones.length)*100);
-  }
+  if(typeof _syncGoalProgress==='function') _syncGoalProgress(g);
+  else if(g.milestones&&g.milestones.length){ g.progress=Math.round((g.milestones.filter(function(x){return x.done;}).length/g.milestones.length)*100); }
+  try{ vspSaveNow(); }catch(e){}
   renderPage();
 }
 function changeGoalStatus(id, status){
@@ -19152,20 +19197,50 @@ function openIssueDetail(id){
 
 
 // Goal milestone helpers (post-meeting feedback May 21)
+var _msDrag=null;
+function msDragStart(e,goalId,msId){ _msDrag={g:goalId,m:msId}; try{ e.dataTransfer.effectAllowed='move'; }catch(x){} }
+function msDragOver(e,goalId,msId){
+  if(!_msDrag||_msDrag.g!==goalId) return;
+  e.preventDefault();
+  try{ e.currentTarget.style.borderTop='2px solid var(--blu)'; }catch(x){}
+}
+function msDragLeave(e){ try{ e.currentTarget.style.borderTop=''; }catch(x){} }
+function msDragEnd(e){ document.querySelectorAll('[ondrop]').forEach(function(el){ try{el.style.borderTop='';}catch(x){} }); _msDrag=null; }
+function msDrop(e,goalId,targetMsId){
+  e.preventDefault();
+  if(!_msDrag||_msDrag.g!==goalId){ _msDrag=null; return; }
+  var g=_findGoal(goalId); if(!g||!Array.isArray(g.milestones)){ _msDrag=null; return; }
+  var from=g.milestones.findIndex(function(x){return x.id===_msDrag.m;});
+  var to=g.milestones.findIndex(function(x){return x.id===targetMsId;});
+  if(from>-1&&to>-1&&from!==to){
+    var moved=g.milestones.splice(from,1)[0];
+    g.milestones.splice(to,0,moved);
+    try{ vspSaveNow(); }catch(x){}
+  }
+  _msDrag=null;
+  renderPage();
+}
 function addMilestoneFromInput(goalId){
   var input = document.getElementById('goal-new-ms-' + goalId);
   if(!input || !input.value.trim()) return;
-  var g = goals.find(function(x){return x.id===goalId;});
+  var g = _findGoal(goalId);
   if(!g) return;
   if(!Array.isArray(g.milestones)) g.milestones = [];
   g.milestones.push({id: Date.now(), text: input.value.trim(), done: false});
   input.value = '';
+  // Persist (Dave, 2026-08-02): this path pushed the milestone and re-rendered
+  // but never synced progress or saved, so the next sync/render dropped it and
+  // the % bar never moved. Match goalQuickMs: sync then save.
+  if(typeof _syncGoalProgress==='function') _syncGoalProgress(g);
+  try{ vspSaveNow(); }catch(e){}
   renderPage();
 }
 function deleteMilestone(goalId, msId){
-  var g = goals.find(function(x){return x.id===goalId;});
+  var g = _findGoal(goalId);
   if(!g || !Array.isArray(g.milestones)) return;
   g.milestones = g.milestones.filter(function(m){return m.id !== msId;});
+  if(typeof _syncGoalProgress==='function') _syncGoalProgress(g);
+  try{ vspSaveNow(); }catch(e){}
   renderPage();
 }
 
@@ -20483,13 +20558,15 @@ function _msToken(){
 function _msSendMail(to, subject, htmlBody){
   // Send via the signed-in user's Outlook (Mail.Send). Silent no-op when not
   // connected - the review flow never breaks on a missing connection.
+  // `to` may be a single address or an array of addresses.
+  var _rcpts=(Array.isArray(to)?to:[to]).filter(Boolean).map(function(a){ return {emailAddress:{address:a}}; });
   return _msToken().then(function(tok){
     if(!tok) return null;
     return fetch('https://graph.microsoft.com/v1.0/me/sendMail',{
       method:'POST', headers:{ Authorization:'Bearer '+tok, 'Content-Type':'application/json' },
       body: JSON.stringify({ message:{ subject:subject, body:{contentType:'HTML', content:htmlBody},
-        toRecipients:[{emailAddress:{address:to}}] }, saveToSentItems:true })
-    }).then(function(r){ if(r.ok){ try{ showToast('Notification emailed to '+to+'.'); }catch(e){} } return r.ok; })
+        toRecipients:_rcpts }, saveToSentItems:true })
+    }).then(function(r){ return r.ok; })
       .catch(function(){ return null; });
   });
 }
@@ -26870,7 +26947,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-91';
+window.VSP_BUILD = 'v186-merge-93';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
