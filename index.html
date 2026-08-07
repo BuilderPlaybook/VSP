@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-108</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-110</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8898,7 +8898,12 @@ function _vspAutoIsAdmin(){
 function _vspAutoMetricGroup(m){
   if(m.pndGroup) return m.pndGroup;
   var a=_vspAutoParse(m.auto||m._autoKey);
-  return (a.kind==='compliance'||a.kind==='rowcount') ? a.group : null;
+  // 'workloadavg' added (Dave, 2026-08-07 merge-109): the LT workload rollup
+  // rows fill their values and refuse edits, but the padlock GLYPH resolved the
+  // group only for compliance/rowcount, so it returned null and the lock never
+  // rendered even on closed weeks. workloadavg locks on the same group-closed
+  // math as the others.
+  return (a.kind==='compliance'||a.kind==='rowcount'||a.kind==='workloadavg') ? a.group : null;
 }
 function _vspAutoGroups(){
   var out=[{id:'companywide',label:'Companywide'}];
@@ -14569,6 +14574,20 @@ function _meetCadenceHealth(m){
   if(expIso<todayIso) return {cls:'c-red', txt:'Overdue'};
   return {cls:'c-amb', txt:'Due'};
 }
+// The occurrence a meeting's current status is ABOUT (Dave, 2026-08-07 merge-110):
+// the current expected occurrence for a recurring meeting, or the anchor date
+// for a one-time meeting. Used to scope overdue/due meetings to the selected
+// range window so a stale months-old meeting does not leak into This Week /
+// This Month.
+function _meetCurrentOccIso(m){
+  var anchor=new Date((m.date||'')+'T00:00:00'); if(isNaN(anchor.getTime())) return (m.date||'');
+  var today=new Date(); today.setHours(0,0,0,0);
+  if(!m.recurEvery || m.recurEvery<=0){ return anchor.toISOString().slice(0,10); }
+  if(anchor>today) return anchor.toISOString().slice(0,10);
+  var exp=new Date(anchor), guard=0;
+  while(guard++<5000){ var nx=new Date(exp); nx.setDate(nx.getDate()+m.recurEvery); if(nx>today) break; exp=nx; }
+  return exp.toISOString().slice(0,10);
+}
 /* v132: two huddles of the same type are still two different meetings. This
    answers "is the scheduled meeting I am opening the one already running?" by
    resolving the record's direct report the same way the start path does. */
@@ -17822,6 +17841,18 @@ function renderMeetings(){
       var far=new Date(d); far.setFullYear(far.getFullYear()+100); return far;
     })();
     var _hzFrom=(_mr==='nextyear')?(new Date().getFullYear()+1)+'-01-01':null;
+    // Calendar-window START, paired with _hz (the end), so overdue/due meetings
+    // are scoped to the selected range instead of always surfacing (Dave,
+    // 2026-08-07 merge-110). 'all' has no start (everything shows).
+    var _wStartIso=(function(){
+      var d=new Date(); d.setHours(0,0,0,0);
+      if(_mr==='week'){ var dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d.toISOString().slice(0,10); }
+      if(_mr==='month'){ return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10); }
+      if(_mr==='quarter'){ var qs=Math.floor(d.getMonth()/3)*3; return new Date(d.getFullYear(), qs, 1).toISOString().slice(0,10); }
+      if(_mr==='year'){ return new Date(d.getFullYear(),0,1).toISOString().slice(0,10); }
+      if(_mr==='nextyear'){ return new Date(d.getFullYear()+1,0,1).toISOString().slice(0,10); }
+      return null; // all
+    })();
     h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
     h+='<span style="font-size:var(--fz-base);color:var(--txm)">Show:</span>';
     [['week','This Week'],['month','This Month'],['quarter','This Quarter'],['year','This Year'],['nextyear','Next Year'],['all','All']].forEach(function(r){
@@ -17889,7 +17920,15 @@ function renderMeetings(){
       _allSched.forEach(function(m){
         var st=_meetStatus(m);
         if(!st){ return; }
-        if(st.key==='notdone' || st.key==='duesoon'){ _attn.push(m); return; }
+        if(st.key==='notdone' || st.key==='duesoon'){
+          // Scope to the selected range by the occurrence the status is about,
+          // so a stale months-old overdue meeting does not clutter This Week /
+          // This Month (Dave, 2026-08-07 merge-110). 'all' shows everything.
+          var _ref=_meetCurrentOccIso(m);
+          var _inWin=(_mr==='all') || ((!_wStartIso || _ref>=_wStartIso) && _ref<=_horizonIso);
+          if(_inWin){ _attn.push(m); }
+          return;
+        }
         // Done or Upcoming: one entry PER OCCURRENCE in the range (Dave,
         // 2026-07-31) so a quarter shows all its meetings, not one row per series.
         var _hzIso=_horizonIso;
@@ -27314,7 +27353,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-108';
+window.VSP_BUILD = 'v186-merge-110';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
