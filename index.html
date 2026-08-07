@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-96</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-98</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9017,8 +9017,60 @@ function _vspAutoWeekClosedForGroup(groupId, weekIso){
   }
   return true;
 }
-/* Boot heal (2026-07-30): re-arm rowcount wirings the old strip migration
-   demoted to _autoKey on a previous load. One-way, idempotent. */
+/* Compliance from source (Dave, 2026-08-06): the pnd.compliance.<group> cells
+   were fed ONLY by the P&D-published smb_pnd_compliance_bridge_v1 snapshot,
+   which goes stale when a member completes a week after the bridge last
+   published (Mika entered 2026-07-27 on Aug 4; the bridge froze Jul 29, so
+   Terry's roll-up showed her not-started). The rowcount cells already
+   self-heal from raw via _vspAutoFillRowcounts; compliance had no equivalent.
+   This recomputes each compliance group's weekly % directly from the raw
+   smb_perf_huddles_v1 store using VSP's own scorer, matching the bridge's
+   combine rule exactly: simple average across covered members, away excluded
+   from numerator AND denominator, a hard-fail scores that member 0%, and a
+   week only counts once it is closed for the whole group. Runs after the
+   bridge pull so live source overrides a stale snapshot; the bridge remains
+   the fallback for weeks with no raw coverage (pre-feed history). */
+function _vspAutoFillCompliance(){
+  try{
+    var weeks=_vspHuddleWeeksIsos52();
+    scorecard.forEach(function(sec){
+      (sec.metrics||[]).forEach(function(m){
+        var a=_vspAutoParse(m.auto||(m.pndGroup?('pnd.compliance.'+m.pndGroup):''));
+        if(a.kind!=='compliance') return;
+        m.autoSrc=m.autoSrc||'P&D';
+        var mem=_vspAutoGroupMembers(a.group);
+        if(!mem.length) return;
+        m.readings=m.readings||[];
+        for(var idx=0; idx<Math.max(m.readings.length,22); idx++){
+          var wd; try{ wd=scWeekDate(idx); }catch(e){ continue; }
+          var iso=wd.getFullYear()+'-'+String(wd.getMonth()+1).padStart(2,'0')+'-'+String(wd.getDate()).padStart(2,'0');
+          if(weeks.indexOf(iso)===-1) continue;
+          // Whole-group-or-nothing: only recompute once the week is closed for
+          // everyone. An open week is left as-is (bridge value or blank).
+          if(!_vspAutoWeekClosedForGroup(a.group, iso)) continue;
+          var sum=0, covered=0;
+          mem.forEach(function(pid){
+            var pp=ppl.find(function(x){ return _vspPndPersonId(x)===pid; });
+            if(!pp) return;
+            var std=_vspAutoStandardsFor(pp);
+            if(!std.length) return;
+            var sc=_vspPerfWeekScore(pp, iso, std);
+            // Away or genuinely no data: excluded from both sides.
+            if(!sc.hasData) return;
+            covered++;
+            sum += sc.hardFail ? 0 : sc.pct;
+          });
+          // No covered members this week = predates the feed; leave the
+          // existing value (bridge/manual), never rewrite history to 0.
+          if(covered>0){
+            m.readings[idx]=Math.round((sum/covered)*100)/100;
+            m._pndBacked=true;
+          }
+        }
+      });
+    });
+  }catch(e){}
+}
 function _vspAutoHealStripped(){
   try{
     scorecard.forEach(function(sec){
@@ -11486,6 +11538,7 @@ function scStartResize(e){
 }
 function renderScorecard(){
   _vspAutoFillRowcounts();
+  _vspAutoFillCompliance();
   _recalcAll();
   // Step 2 of D-123 merge: Scorecard gains Company | Team | My scopes over
   // the P&D-native huddle data. Existing team-metrics render is preserved
@@ -16784,10 +16837,13 @@ function deleteMeeting(id){
   var idx=pastMeetings.findIndex(function(m){return m.id===id;});
   if(idx<0) return;
   var item=pastMeetings.splice(idx,1)[0];
+  // Tombstone (Dave, 2026-08-06): mark the id deleted so a merge-by-id sync
+  // cannot resurrect it from another device's snapshot. Mirrors issues/todos.
+  _delMeet()[id]=true;
   if(state.expandedMeeting===id) state.expandedMeeting=null;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
-  vspUndoToast('Meeting deleted', function(){ pastMeetings.splice(Math.min(idx,pastMeetings.length),0,item); });
+  vspUndoToast('Meeting deleted', function(){ delete _delMeet()[id]; pastMeetings.splice(Math.min(idx,pastMeetings.length),0,item); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} });
 }
 /* ============================================================
    MEETINGS CALENDAR / ACCOUNTABILITY TRACKER v1 (Dave, 2026-07-30).
@@ -19053,6 +19109,7 @@ function addHeadlineFromPanel(){
 function _delHL(){ return (window.__VSP_DELETED_HEADLINES = window.__VSP_DELETED_HEADLINES || {}); }
 function _delTD(){ return (window.__VSP_DELETED_TODOS = window.__VSP_DELETED_TODOS || {}); }
 function _delIS(){ return (window.__VSP_DELETED_ISSUES = window.__VSP_DELETED_ISSUES || {}); }
+function _delMeet(){ return (window.__VSP_DELETED_MEETINGS = window.__VSP_DELETED_MEETINGS || {}); }
 function _delCascade(){ return (window.__VSP_DELETED_CASCADES = window.__VSP_DELETED_CASCADES || {}); }
 function deleteCascade(id){
   var idx=cascadesRegistry.findIndex(function(c){return c.id===id;});
@@ -26993,7 +27050,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-96';
+window.VSP_BUILD = 'v186-merge-98';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -27461,6 +27518,7 @@ function vspSnapshot(){
     deletedHeadlineIds: Object.keys((window.__VSP_DELETED_HEADLINES||{})),
     deletedTodoIds: Object.keys((window.__VSP_DELETED_TODOS||{})),
     deletedIssueIds: Object.keys((window.__VSP_DELETED_ISSUES||{})),
+    deletedMeetingIds: Object.keys((window.__VSP_DELETED_MEETINGS||{})),
     deletedCascadeIds: Object.keys((window.__VSP_DELETED_CASCADES||{})),
     seatAnnotations: (window.SMB_VSP&&window.SMB_VSP.seatAnnotations)||{},
     futureSeats: (window.SMB_VSP&&window.SMB_VSP.futureSeats)||[],
@@ -27739,6 +27797,7 @@ function vspApplySnapshot(s){
   try{ if(Array.isArray(s.deletedHeadlineIds)){ var _du=_delHL(); s.deletedHeadlineIds.forEach(function(x){ _du[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedTodoIds)){ var _dut=_delTD(); s.deletedTodoIds.forEach(function(x){ _dut[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedIssueIds)){ var _dui=_delIS(); s.deletedIssueIds.forEach(function(x){ _dui[x]=true; }); } }catch(e){}
+  try{ if(Array.isArray(s.deletedMeetingIds)){ var _dum=_delMeet(); s.deletedMeetingIds.forEach(function(x){ _dum[x]=true; }); } }catch(e){}
   try{ if(Array.isArray(s.deletedCascadeIds)){ var _dc0=_delCascade(); s.deletedCascadeIds.forEach(function(x){ _dc0[x]=true; }); } }catch(e){}
   try{ if(s.seatAnnotations && typeof s.seatAnnotations==='object'){ _vspEnsure(); window.SMB_VSP.seatAnnotations = s.seatAnnotations; } }catch(e){}
   try{ if(Array.isArray(s.futureSeats)){ _vspEnsure(); window.SMB_VSP.futureSeats = s.futureSeats; } }catch(e){}
@@ -27787,10 +27846,17 @@ function vspApplySnapshot(s){
       if(Array.isArray(reg.issues)) reg.issues = reg.issues.filter(function(x){ return !(x && _dis[x.id]); });
       if(Array.isArray(reg.longTermIssues)) reg.longTermIssues = reg.longTermIssues.filter(function(x){ return !(x && _dis[x.id]); });
       if(Array.isArray(reg.resolvedIssues)) reg.resolvedIssues = reg.resolvedIssues.filter(function(x){ return !(x && _dis[x.id]); });
-      // Full-replace fields (scorecard structure, meetings)
+      // Full-replace fields (scorecard structure)
       if(Array.isArray(saved.scorecard) && saved.scorecard.length) repl(reg.scorecard||(reg.scorecard=[]), saved.scorecard);
-      if(Array.isArray(saved.scheduledMeetings)) repl(reg.scheduledMeetings||(reg.scheduledMeetings=[]), saved.scheduledMeetings);
-      if(Array.isArray(saved.pastMeetings)) repl(reg.pastMeetings||(reg.pastMeetings=[]), saved.pastMeetings);
+      // Meetings merge by id (Dave, 2026-08-06): a full replace here let one
+      // device's push clobber another's just-saved meeting (Mika ended the LT
+      // meeting; a later push without it wiped it via repl). Union both sides
+      // by id so no device's record is lost, then drop any tombstoned meeting.
+      if(Array.isArray(saved.scheduledMeetings)) mergeById(reg.scheduledMeetings||(reg.scheduledMeetings=[]), saved.scheduledMeetings, null);
+      if(Array.isArray(saved.pastMeetings)) mergeById(reg.pastMeetings||(reg.pastMeetings=[]), saved.pastMeetings, null);
+      var _dmt=_delMeet();
+      if(Array.isArray(reg.pastMeetings)) reg.pastMeetings = reg.pastMeetings.filter(function(x){ return !(x && _dmt[x.id]); });
+      if(Array.isArray(reg.scheduledMeetings)) reg.scheduledMeetings = reg.scheduledMeetings.filter(function(x){ return !(x && _dmt[x.id]); });
       // Scalar/object team metadata
       ['name','color','quarter','members'].forEach(function(f){
         if(saved[f] !== undefined) reg[f] = saved[f];
@@ -28205,6 +28271,7 @@ try {
   }
 } catch(e){ console.warn('[VSP] v113 restore:', e.message); }
 try { vspPullPndCompliance(); } catch(e){ console.warn(e); }  // v112: P&D->VSP Compliance bridge
+try { _vspAutoFillCompliance(); } catch(e){ console.warn(e); }  // 2026-08-06: source overrides stale bridge
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
 // One-time priority migration: any persisted 'medium' becomes 'low' (new model is High/Low only)
@@ -29378,6 +29445,17 @@ try{ _vspMigrateJobNotes(); }catch(e){}
           if(_rs.teams){ for(var _k in _rs.teams){ var _t=_rs.teams[_k]; if(_t){ _t.todos=_drop(_t.todos); _t.privateTodos=_drop(_t.privateTodos); } } }
           raw = JSON.stringify(_rs);
         }
+        try{
+          var _um={};
+          (_ls.deletedMeetingIds||[]).concat(_rs.deletedMeetingIds||[]).forEach(function(x){ _um[x]=true; });
+          var _mk=Object.keys(_um);
+          if(_mk.length){
+            _rs.deletedMeetingIds=_mk;
+            var _dropM=function(arr){ return Array.isArray(arr) ? arr.filter(function(t){ return !(t && _um[t.id]); }) : arr; };
+            if(_rs.teams){ for(var _k2 in _rs.teams){ var _t2=_rs.teams[_k2]; if(_t2){ _t2.pastMeetings=_dropM(_t2.pastMeetings); _t2.scheduledMeetings=_dropM(_t2.scheduledMeetings); } } }
+            raw = JSON.stringify(_rs);
+          }
+        }catch(e){}
       }
     } catch(e){}
     try { origSet(V_keyName(), raw); } catch(e){}
@@ -30281,6 +30359,17 @@ try{ _vspMigrateJobNotes(); }catch(e){}
           if(_rs.teams){ for(var _k in _rs.teams){ var _t=_rs.teams[_k]; if(_t){ _t.todos=_drop(_t.todos); _t.privateTodos=_drop(_t.privateTodos); } } }
           raw = JSON.stringify(_rs);
         }
+        try{
+          var _um={};
+          (_ls.deletedMeetingIds||[]).concat(_rs.deletedMeetingIds||[]).forEach(function(x){ _um[x]=true; });
+          var _mk=Object.keys(_um);
+          if(_mk.length){
+            _rs.deletedMeetingIds=_mk;
+            var _dropM=function(arr){ return Array.isArray(arr) ? arr.filter(function(t){ return !(t && _um[t.id]); }) : arr; };
+            if(_rs.teams){ for(var _k2 in _rs.teams){ var _t2=_rs.teams[_k2]; if(_t2){ _t2.pastMeetings=_dropM(_t2.pastMeetings); _t2.scheduledMeetings=_dropM(_t2.scheduledMeetings); } } }
+            raw = JSON.stringify(_rs);
+          }
+        }catch(e){}
       }
     } catch(e){}
     try { origSet(V_keyName(), raw); } catch(e){}
