@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-116</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-117</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8550,7 +8550,11 @@ function _scDateRanges(){
   var cur=Math.max(scLastDataIdx(), scCurrentWeekIdx());
   var ps=scPlanStartIdx();
   function desc(lo,hi){ var r=[]; if(lo<0)lo=0; if(hi>N-1)hi=N-1; for(var i=hi;i>=lo;i--) r.push(i); return r; }
-  function lastN(n){ return desc(cur-n+1, cur); }
+  // Show the current in-progress week PLUS n COMPLETED weeks, so "Last 4 weeks"
+  // totals 4 finished weeks and the live current week is still visible but not
+  // counted (Dave, merge-117). The footer excludes the current week from the
+  // total; see _vspPerfFooterRow.
+  function lastN(n){ return desc(cur-n, cur); }
   var cd=scWeekDate(cur); var cyr=cd.getFullYear(); var cq=Math.floor(cd.getMonth()/3);
   var qStart=cur; for(var i=cur;i>=0;i--){ var d=scWeekDate(i); if(d.getFullYear()===cyr && Math.floor(d.getMonth()/3)===cq){ qStart=i; } else { break; } }
   // Last Quarter: the previous calendar quarter's weeks by real week date.
@@ -13101,7 +13105,10 @@ function _vspPerfFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     return { pct: hf?0:(t?Math.round(y/t*100):0), hf: hf, y: y, t: t };
   }
   var aggSum=0, aggN=0;
-  colIdxs.forEach(function(ci){ var r=_colPct(ci); if(r!=null){ aggSum+=r.pct; aggN++; } });
+  // Exclude the current in-progress week from the total (Dave, merge-117): it is
+  // shown as a live column but "Last N weeks" totals only completed weeks.
+  var _curWk = (typeof scCurrentWeekIdx==='function') ? scCurrentWeekIdx() : -1;
+  colIdxs.forEach(function(ci){ if(ci===_curWk) return; var r=_colPct(ci); if(r!=null){ aggSum+=r.pct; aggN++; } });
   var agg = aggN?Math.round(aggSum/aggN):null;
   var aggColor = agg==null?'var(--txm)':(agg>=90?'#16a34a':'#dc2626');
 
@@ -27461,7 +27468,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-116';
+window.VSP_BUILD = 'v186-merge-117';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
