@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-99</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-100</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8635,6 +8635,16 @@ function _scRollupVal(m){
   var a=_scMetricAggs(m);
   return (m && m.rollupAs==='Total') ? a.tot : a.avg;
 }
+/* A metric counts toward the on-target score only if it is in-cadence AND not
+   flagged noScore (the Workload Rating row is context, not a scored standard).
+   Cadence is checked against the active scorecard period; self-contained so it
+   works at any call site (the render-local _inCad is not in scope here). */
+function _scScored(m){
+  if(m && m._noScore) return false;
+  var per = (state && state.scorecardPeriod) || 'weekly';
+  var c = (m && m.cadence) || 'weekly';
+  return c === per;
+}
 function _goalLabel(m){
   if(m.goalType==='inside') return fmtVal(m.goalMin,m.unit)+'-'+fmtVal(m.goalMax,m.unit);
   if(m.goalType==='outside') return 'out '+fmtVal(m.goalMin,m.unit)+'-'+fmtVal(m.goalMax,m.unit);
@@ -11362,9 +11372,9 @@ function renderScorecardInline(opts){ _recalcAll();
     return '<svg width="11" height="11" fill="none" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M5 12h14" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>';
   }
 
-  var totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_inCad).length;},0);
+  var totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_scScored).length;},0);
   var totalGreen=scorecard.reduce(function(a,s){
-    return a+s.metrics.filter(function(m){return _inCad(m)&&isOnTrack(m,_metricLatest(m));}).length;
+    return a+s.metrics.filter(function(m){return _scScored(m)&&isOnTrack(m,_metricLatest(m));}).length;
   },0);
 
   var h = '';
@@ -11427,7 +11437,7 @@ function renderScorecardInline(opts){ _recalcAll();
   scorecard.forEach(function(section, sIdx){
     var _mets=section.metrics.filter(_inCad);
     if(!_mets.length) return;
-    var onTrack=_mets.filter(function(m){return isOnTrack(m,_metricLatest(m));}).length;
+    var onTrack=_mets.filter(function(m){return !m._noScore && isOnTrack(m,_metricLatest(m));}).length;
 
     h+='<div style="margin-bottom:20px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;overflow:hidden">';
 
@@ -11752,9 +11762,9 @@ function renderScorecard(){
   function _scColPx(ch,mn){ var w=Math.round(ch*8.2)+20; return w<mn?mn:w; }
   var _SCGW=_scColPx(_scwG,64),_SCAW=_scColPx(_scwA,56),_SCTW=_scColPx(_scwT,60);
 
-  var totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_inCad).length;},0);
+  var totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_scScored).length;},0);
   var totalGreen=scorecard.reduce(function(a,s){
-    return a+s.metrics.filter(function(m){return _inCad(m)&&isOnTrack(m,_metricLatest(m));}).length;
+    return a+s.metrics.filter(function(m){return _scScored(m)&&isOnTrack(m,_metricLatest(m));}).length;
   },0);
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   var allTeams=Object.values(teamsRegistry);
@@ -11772,9 +11782,9 @@ function renderScorecard(){
         syncTeamData();
         activeT=teamsRegistry[state.currentTeam];
         // Recompute the header counters for the newly bound team.
-        totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_inCad).length;},0);
+        totalMetrics=scorecard.reduce(function(a,s){return a+s.metrics.filter(_scScored).length;},0);
         totalGreen=scorecard.reduce(function(a,s){
-          return a+s.metrics.filter(function(m){return _inCad(m)&&isOnTrack(m,_metricLatest(m));}).length;
+          return a+s.metrics.filter(function(m){return _scScored(m)&&isOnTrack(m,_metricLatest(m));}).length;
         },0);
       }
       else { return _vspPerfHeader('Scorecard')+'<div class="card"><div class="card-body" style="color:var(--txm)">You are not a member of any team with a measurables scorecard. Your own weekly scorecard is on the My Performance tab.</div></div>'; }
@@ -11992,7 +12002,7 @@ function renderScorecard(){
     if(state.scMerged) return;
     var section=d.section;
     var _scOrder=_scMetricOrder(section); if(_scOrder.length===0 && section.metrics && section.metrics.length>0) return;
-    var onTrack=section.metrics.filter(function(m){return _inCad(m)&&isOnTrack(m,_metricLatest(m));}).length;
+    var onTrack=section.metrics.filter(function(m){return _scScored(m)&&isOnTrack(m,_metricLatest(m));}).length;
     var isCollapsed=!!state.collapsedSections['sec'+di];
     var isLastCol=colLabels.length-1;
 
@@ -12838,6 +12848,31 @@ function _vspPerfBuildSection(person, weeks){
   }
   var metrics = stds.map(function(row, idx){
     var _cad = (row.cadence==='monthly') ? 'monthly' : 'weekly';   // P&D _pndBuildScorecardData
+    if(row.numeric){
+      return {
+        id: idx+1,
+        _rowId: row.id,
+        _numeric: true,
+        _noScore: true,
+        title: row.std,
+        description: row.due,
+        unit: '#',
+        goalType: 'band',
+        goal: 8,
+        rollupAs: 'Average',
+        cadence: 'weekly',
+        readings: weeks.map(function(iso){
+          var rec = all[personId+'__'+iso];
+          if(!rec || !rec.answers) return null;
+          var v = rec.answers[row.id];
+          return (v==null||v==='') ? null : Number(v);
+        }),
+        notes: {},
+        deliverable: row.sec,
+        deadline: '',
+        _hard: false
+      };
+    }
     return {
       id: idx+1,
       _rowId: row.id,
@@ -27146,7 +27181,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-99';
+window.VSP_BUILD = 'v186-merge-100';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
