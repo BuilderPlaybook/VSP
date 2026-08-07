@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-100</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-104</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8853,16 +8853,17 @@ try{ window._vspMigrateYearGoalIds(); }catch(e){}
 /* Workload-row migration (Dave, 2026-08-06): the live tenant's standards come
    from stored smb_perf_role_standards_v1, which overrides the code seed. Inject
    the numeric Weekly Workload Rating row at the TOP of each role that is missing
-   it, so the row appears live without waiting for a re-seed. One-time per shape,
-   guarded by a version flag; flags the adapter to push the change up once.
-   User huddle answers/history are untouched. */
-(function(){
+   it. IDEMPOTENT - re-checks every load rather than using a one-shot flag,
+   because the staging adapter can adopt cloud standards AFTER first boot; a
+   flag-gated run could fire against an empty store, mark itself done, and add
+   nothing. Runs on every load and on demand; only writes when it actually adds
+   a row. User huddle answers/history are untouched. */
+function _vspEnsureWorkloadRows(){
   try{
-    if(localStorage.getItem('vsp.wlmig.v1')==='done') return;
     var raw=localStorage.getItem('smb_perf_role_standards_v1');
-    if(!raw){ localStorage.setItem('vsp.wlmig.v1','done'); return; }
+    if(!raw) return false;
     var store=JSON.parse(raw);
-    if(!store || typeof store!=='object'){ localStorage.setItem('vsp.wlmig.v1','done'); return; }
+    if(!store || typeof store!=='object') return false;
     var pfxByRole={'Project Manager':'pm','Sr. PM':'srpm','Foreman':'fm','VP Construction':'vp','Client Experience & Interior Design Manager':'cx','Accounting Administrator':'aa'};
     var changed=false;
     Object.keys(store).forEach(function(role){
@@ -8878,9 +8879,10 @@ try{ window._vspMigrateYearGoalIds(); }catch(e){}
       localStorage.setItem('vsp.stdmig.pending','1');
       console.log('[VSP] workload-row migration: added Weekly Workload Rating to stored standards.');
     }
-    localStorage.setItem('vsp.wlmig.v1','done');
-  }catch(e){}
-})();
+    return changed;
+  }catch(e){ return false; }
+}
+_vspEnsureWorkloadRows();
 /* Automation admin (Dave, 2026-07-30): only the President/Owner can edit,
    wire, unwire, or override automated measurables. Everyone else gets a
    read-only view of the formula and locked cells stay locked. */
@@ -8951,12 +8953,15 @@ function _vspAutoParse(auto){
   if(m1) return {kind:'compliance', group:m1[1]};
   var m2=String(auto||'').match(/^pnd\.rowcount\.([^.]+)\.(.+)$/);
   if(m2) return {kind:'rowcount', group:m2[1], rows:m2[2].split('|')};
+  var m3=String(auto||'').match(/^pnd\.workloadavg\.(.+)$/);
+  if(m3) return {kind:'workloadavg', group:m3[1]};
   return {kind:'manual'};
 }
 function _vspAutoFormulaText(auto){
   var a=_vspAutoParse(auto);
   if(a.kind==='compliance') return '= COMPLIANCE%( '+a.group+' )';
   if(a.kind==='rowcount')  return '= COUNT_NO( '+a.group+', '+a.rows.length+' standard row'+(a.rows.length===1?'':'s')+' )';
+  if(a.kind==='workloadavg') return '= WORKLOAD_AVG( '+a.group+' )';
   return 'Manual entry';
 }
 function _vspAutoFeedEditorBlock(m){
@@ -9111,6 +9116,55 @@ function _vspAutoFillCompliance(){
           });
           // No covered members this week = predates the feed; leave the
           // existing value (bridge/manual), never rewrite history to 0.
+          if(covered>0){
+            m.readings[idx]=Math.round((sum/covered)*100)/100;
+            m._pndBacked=true;
+          }
+        }
+      });
+    });
+  }catch(e){}
+}
+/* Workload average from source (Dave, 2026-08-06): the four LT workload rows
+   (All PM, All ID, All Financial, Companywide) are locked auto-cells that
+   average each group's individual Weekly Workload Rating for the week. Mirrors
+   _vspAutoFillCompliance but averages the raw 1-10 number instead of scoring %.
+   Simple average across covered members, away/no-data excluded, whole-group-or-
+   nothing (week closed for the group). Reads each person's workload answer
+   (row id ending _wl) from smb_perf_huddles_v1. */
+function _vspAutoWorkloadForPersonWeek(pid, iso){
+  try{
+    var all=_vspPndReadHuddles();
+    var rec=all[pid+'__'+iso];
+    if(!rec || !rec.answers) return null;
+    var k=Object.keys(rec.answers).filter(function(x){ return String(x).indexOf('_wl')>-1; })[0];
+    if(!k) return null;
+    var v=rec.answers[k];
+    return (v==null||v==='') ? null : Number(v);
+  }catch(e){ return null; }
+}
+function _vspAutoFillWorkload(){
+  try{
+    var weeks=_vspHuddleWeeksIsos52();
+    scorecard.forEach(function(sec){
+      (sec.metrics||[]).forEach(function(m){
+        var a=_vspAutoParse(m.auto||'');
+        if(a.kind!=='workloadavg') return;
+        m.autoSrc=m.autoSrc||'P&D';
+        var mem=_vspAutoGroupMembers(a.group);
+        if(!mem.length) return;
+        m.readings=m.readings||[];
+        for(var idx=0; idx<Math.max(m.readings.length,22); idx++){
+          var wd; try{ wd=scWeekDate(idx); }catch(e){ continue; }
+          var iso=wd.getFullYear()+'-'+String(wd.getMonth()+1).padStart(2,'0')+'-'+String(wd.getDate()).padStart(2,'0');
+          if(weeks.indexOf(iso)===-1) continue;
+          if(!_vspAutoWeekClosedForGroup(a.group, iso)) continue;
+          var sum=0, covered=0;
+          mem.forEach(function(pid){
+            var v=_vspAutoWorkloadForPersonWeek(pid, iso);
+            if(v==null || isNaN(v)) return;
+            covered++; sum+=v;
+          });
           if(covered>0){
             m.readings[idx]=Math.round((sum/covered)*100)/100;
             m._pndBacked=true;
@@ -11588,6 +11642,7 @@ function scStartResize(e){
 function renderScorecard(){
   _vspAutoFillRowcounts();
   _vspAutoFillCompliance();
+  _vspAutoFillWorkload();
   _recalcAll();
   // Step 2 of D-123 merge: Scorecard gains Company | Team | My scopes over
   // the P&D-native huddle data. Existing team-metrics render is preserved
@@ -13009,6 +13064,9 @@ function _vspPerfInstallCellAdapter(){
    Swap the scorecard globals for one synchronous render, then restore -
    the same discipline _vspRenderHuddleScorecard uses. */
 function _vspPerfRenderSections(people, editable, weeksOverride){
+  // Ensure the workload row exists in stored standards before we build - covers
+  // the case where cloud standards adopted after first boot (idempotent).
+  try{ _vspEnsureWorkloadRows(); }catch(e){}
   // weeksOverride (ascending week-Monday ISOs) scopes the grid to a specific
   // window - the Quarterly huddle passes the huddle's quarter so the scorecard
   // shows exactly that quarter's weeks. Default stays the rolling 52.
@@ -27181,7 +27239,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-100';
+window.VSP_BUILD = 'v186-merge-104';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -28403,6 +28461,86 @@ try {
 } catch(e){ console.warn('[VSP] v113 restore:', e.message); }
 try { vspPullPndCompliance(); } catch(e){ console.warn(e); }  // v112: P&D->VSP Compliance bridge
 try { _vspAutoFillCompliance(); } catch(e){ console.warn(e); }  // 2026-08-06: source overrides stale bridge
+/* Lock-tier corrections (Dave, 2026-08-06): P&D is frozen and there is no VSP
+   UI for lock tiers, so set two known corrections here. Lisa (p2) is a division
+   head -> tier 1 (Tuesday). Venessa (p12) has no reports -> tier 2 (Monday,
+   Individual). Guarded one-time; only sets these two, never touches others. */
+try {
+  if(localStorage.getItem('vsp.locktierfix.v3')!=='done'){
+    var _lt = JSON.parse(localStorage.getItem('smb_pnd_lock_tier_v1')||'{}') || {};
+    // Undo the bad p2 key from v2: Terry's VSP id is also p2, so an override on
+    // p2 wrongly forced Terry to Division. Key each person by their VSP id, which
+    // the lookup checks and which does not collide (Lisa p5, Venessa p6).
+    if(_lt.p2===1) delete _lt.p2;
+    if(_lt.p5==null) _lt.p5 = 1;   // Lisa (VSP p5) -> Division (Tuesday)
+    if(_lt.p6==null) _lt.p6 = 2;   // Venessa (VSP p6) -> Individual (Monday)
+    localStorage.setItem('smb_pnd_lock_tier_v1', JSON.stringify(_lt));
+    localStorage.setItem('vsp.locktierfix.v3','done');
+    console.log('[VSP] lock-tier fix v3: Lisa=Division, Venessa=Individual, Terry untouched.');
+  }
+} catch(e){ console.warn('[VSP] lock-tier fix:', e.message); }
+/* Stage 2 wiring + history seed (Dave, 2026-08-06): make the four LT workload
+   rows locked auto-rollups, and seed each supervisor's individual workload
+   history from their current LT row ("put whatever number they have now is
+   their number"). One-time, guarded. Mika<-All ID, Lisa<-All Financial,
+   Will<-All PM, Terry<-Companywide. Venessa starts clean. */
+try {
+  if(localStorage.getItem('vsp.wlwire.v1')!=='done'){
+    var _ltReg=(typeof teamsRegistry!=='undefined') ? (teamsRegistry.lt||teamsRegistry[Object.keys(teamsRegistry)[0]]) : null;
+    if(_ltReg && Array.isArray(_ltReg.scorecard)){
+      var _wlMap={26:'pm', 33:'id', 46:'financial', 39:'companywide'};
+      var _seedTo={26:'WL', 33:'MN', 46:'LS', 39:'TP'};
+      var _wks=(typeof _vspHuddleWeeksIsos52==='function')?_vspHuddleWeeksIsos52():[];
+      var _findM=function(id){ for(var s=0;s<_ltReg.scorecard.length;s++){ var mm=_ltReg.scorecard[s].metrics||[]; for(var i=0;i<mm.length;i++){ if(mm[i].id===id) return mm[i]; } } return null; };
+      var _seededAny=false;
+      Object.keys(_wlMap).forEach(function(rid){
+        var m=_findM(Number(rid)); if(!m) return;
+        var ini=_seedTo[rid];
+        var person=ppl.find(function(p){ return p.initials===ini; });
+        if(person && Array.isArray(m.readings)){
+          var pid=_vspPndPersonId(person);
+          var all=_vspPndReadHuddles();
+          var wlId=null;
+          try{ var std=JSON.parse(localStorage.getItem('smb_perf_role_standards_v1')||'{}'); var rows=std[person.roleLabel||person.role||'']||[]; var wr=rows.filter(function(r){return r.numeric||String(r.id).indexOf('_wl')>-1;})[0]; wlId=wr&&wr.id; }catch(e){}
+          if(wlId && pid){
+            var wrote=false;
+            for(var idx=0; idx<m.readings.length && idx<_wks.length; idx++){
+              var val=m.readings[idx];
+              if(val==null || isNaN(Number(val))) continue;
+              var iso; try{ var wd=scWeekDate(idx); iso=wd.getFullYear()+'-'+String(wd.getMonth()+1).padStart(2,'0')+'-'+String(wd.getDate()).padStart(2,'0'); }catch(e){ continue; }
+              var key=pid+'__'+iso;
+              var rec=all[key]||{answers:{},updatedAt:new Date().toISOString()};
+              rec.answers=rec.answers||{};
+              if(rec.answers[wlId]==null){ rec.answers[wlId]=Number(val); wrote=true; _seededAny=true; }
+              all[key]=rec;
+            }
+            if(wrote){ localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all)); }
+          }
+        }
+        m.auto='pnd.workloadavg.'+_wlMap[rid];
+        m.autoSrc='P&D';
+      });
+      localStorage.setItem('vsp.wlwire.v1','done');
+      localStorage.setItem('vsp.stdmig.pending','1');
+      console.log('[VSP] workload Stage 2: LT rows wired + history seeded'+(_seededAny?' (seeded)':''));
+    }
+  }
+} catch(e){ console.warn('[VSP] workload Stage 2:', e.message); }
+/* Always-ensure the four LT workload rows are wired to auto (idempotent, runs
+   every load). The seed above is one-shot (guarded), but the wiring must not
+   depend on that flag - if an earlier build set the flag before the LT data
+   loaded, the rows would never lock. Setting auto to the same value is a no-op,
+   so this is safe to run each time and guarantees the padlock shows. */
+try {
+  var _ltW=(typeof teamsRegistry!=='undefined') ? (teamsRegistry.lt||teamsRegistry[Object.keys(teamsRegistry)[0]]) : null;
+  if(_ltW && Array.isArray(_ltW.scorecard)){
+    var _wm={26:'pm', 33:'id', 46:'financial', 39:'companywide'};
+    _ltW.scorecard.forEach(function(s){ (s.metrics||[]).forEach(function(m){
+      if(_wm[m.id] && String(m.auto||'').indexOf('workloadavg')===-1){ m.auto='pnd.workloadavg.'+_wm[m.id]; m.autoSrc='P&D'; }
+    }); });
+  }
+} catch(e){ console.warn('[VSP] workload wire-ensure:', e.message); }
+try { _vspAutoFillWorkload(); } catch(e){ console.warn(e); }  // 2026-08-06: LT workload rows average from individuals
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
 // One-time priority migration: any persisted 'medium' becomes 'low' (new model is High/Low only)
