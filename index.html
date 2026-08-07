@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-104</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-108</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7562,7 +7562,7 @@ function _renderProjectionGauge(m){
   h += '</div>';
   h += '<div style="display:flex;justify-content:space-between;font-size:var(--fz-xs);color:var(--txm);margin-top:3px;line-height:1.2">';
   h += '<span>'+fmtVal(Math.round(rv*100)/100, m.unit)+' avg</span>';
-  h += '<span>'+m.goalType+' '+fmtVal(effGoal, m.unit)+' goal</span>';
+  h += '<span>'+(m.goalType==='band'?'':(m.goalType+' '))+fmtVal(effGoal, m.unit)+' goal</span>';
   h += '</div>';
   return h;
 }
@@ -8648,6 +8648,7 @@ function _scScored(m){
 function _goalLabel(m){
   if(m.goalType==='inside') return fmtVal(m.goalMin,m.unit)+'-'+fmtVal(m.goalMax,m.unit);
   if(m.goalType==='outside') return 'out '+fmtVal(m.goalMin,m.unit)+'-'+fmtVal(m.goalMax,m.unit);
+  if(m.goalType==='band') return fmtVal(m.goal,m.unit);
   return (m.goalType||'')+fmtVal(m.goal,m.unit);
 }
 function _renderBandedGauge(m){
@@ -9171,6 +9172,40 @@ function _vspAutoFillWorkload(){
           }
         }
       });
+    });
+  }catch(e){}
+}
+/* Workload lock wire (Dave, 2026-08-07, merge-105): the four LT workload rollup
+   rows (26 All PM, 33 All ID, 46 All Financial, 39 Companywide) lock only when
+   m.auto is set. Their auto was set once at parse time on teamsRegistry, but the
+   cloud adopt overwrites those rows with the stored copies (which never had auto
+   persisted), so the padlock never showed and the rollup never filled. Root
+   cause proven against Dave's 2026-08-07 backup: teams.lt.scorecard ids
+   26/33/46/39 all stored with auto=null. This idempotent pass re-sets auto on
+   every render and after every adopt; id-keyed and set-only-if-missing so it is
+   safe to run anywhere. Once it runs and the next save lands, storage self-heals. */
+function _vspWireWorkloadAuto(){
+  try{
+    if(typeof teamsRegistry!=='object' || !teamsRegistry) return;
+    var wm={26:'pm', 33:'id', 46:'financial', 39:'companywide'};
+    Object.keys(teamsRegistry).forEach(function(k){
+      var sc=teamsRegistry[k] && teamsRegistry[k].scorecard;
+      if(!Array.isArray(sc)) return;
+      sc.forEach(function(s){ (s.metrics||[]).forEach(function(m){
+        if(wm[m.id] && String(m.auto||'').indexOf('workloadavg')===-1){
+          m.auto='pnd.workloadavg.'+wm[m.id]; m.autoSrc='P&D';
+        }
+        // The four LT workload rollup rows match the per-person workload rows:
+        // numeric two-sided band coloring (keys on _numeric only), and excluded
+        // from the on-target score (keys on _noScore only). Neither field is in
+        // the Data Guard settings signature (goal/goalType/cadence/unit/rollup),
+        // so this does not trip the mass-settings-change guard. We deliberately
+        // do NOT change goalType/goal here. Dave, 2026-08-07 merge-107.
+        if(wm[m.id]){
+          if(!m._numeric){ m._numeric=true; }
+          if(!m._noScore){ m._noScore=true; }
+        }
+      }); });
     });
   }catch(e){}
 }
@@ -10127,12 +10162,22 @@ function renderDashboard(){
     var dt=_mParse(mt.date); if(isNaN(dt.getTime())) return null; dt.setHours(0,0,0,0);
     var rec=!!mt.recurring||['Weekly','Quarterly','Annual'].indexOf(mt.type)>=0;
     if(!rec){ return dt>=_mToday?dt:null; }
+    // Honor the meeting's real interval (recurEvery days), same as the Meetings
+    // page. Hardcoding +7 here made every 2-week meeting read as weekly and land
+    // a phantom occurrence a week early (Dave, 2026-08-07, merge-106).
+    var every=(mt.recurEvery&&mt.recurEvery>0)?mt.recurEvery:0;
     var guard=0;
-    while(dt<_mToday && guard<800){
-      if(mt.type==='Annual'){ dt.setFullYear(dt.getFullYear()+1); }
-      else if(mt.type==='Quarterly'){ dt.setMonth(dt.getMonth()+3); }
-      else { dt.setDate(dt.getDate()+7); }
-      guard++;
+    if(every>0){
+      while(dt<_mToday && guard++<800){ dt.setDate(dt.getDate()+every); }
+    } else if(mt.type==='Annual'){
+      while(dt<_mToday && guard++<800){ dt.setFullYear(dt.getFullYear()+1); }
+    } else if(mt.type==='Quarterly'){
+      while(dt<_mToday && guard++<800){ dt.setMonth(dt.getMonth()+3); }
+    } else {
+      // Recurring flag but no usable interval (e.g. a legacy label like
+      // 'Weekly Leadership' with no recurEvery). Treat as one-time, matching the
+      // Meetings page, so a stale anchor is not rolled into a phantom occurrence.
+      return dt>=_mToday?dt:null;
     }
     return dt;
   }
@@ -11642,6 +11687,7 @@ function scStartResize(e){
 function renderScorecard(){
   _vspAutoFillRowcounts();
   _vspAutoFillCompliance();
+  _vspWireWorkloadAuto();
   _vspAutoFillWorkload();
   _recalcAll();
   // Step 2 of D-123 merge: Scorecard gains Company | Team | My scopes over
@@ -14432,16 +14478,45 @@ function _meetHeldOn(m, iso){
   // A meeting counts as held for an occurrence if a held stamp falls within
   // half a period on or after the occurrence date (so a meeting held a day or
   // two late still counts for that occurrence, not the next).
-  var log=Array.isArray(m.heldLog)?m.heldLog:[];
-  if(!log.length) return false;
-  var every=(m.recurEvery&&m.recurEvery>0)?m.recurEvery:7;
   var occ=new Date(iso+'T00:00:00'); if(isNaN(occ.getTime())) return false;
+  var every=(m.recurEvery&&m.recurEvery>0)?m.recurEvery:7;
   var win=Math.max(1,Math.floor(every/2));
+  // 1) Explicit held stamps (written on conclude when a meeting was launched
+  //    from the scheduled tile).
+  var log=Array.isArray(m.heldLog)?m.heldLog:[];
   for(var i=0;i<log.length;i++){
     var h=new Date(log[i]+'T00:00:00'); if(isNaN(h.getTime())) continue;
     var diff=Math.round((h-occ)/86400000);
     if(diff>=(-1) && diff<=win) return true;
   }
+  // 2) Actual meeting history (Dave, 2026-08-07 merge-108). heldLog is only
+  //    stamped when a meeting is started from the scheduled tile, so ad-hoc and
+  //    historical meetings never marked the series held and every past
+  //    occurrence read as "missed". Derive held from pastMeetings of the same
+  //    type within the occurrence window, scoped by attendee overlap when the
+  //    series names any attendees. This makes the count and the status pill
+  //    reflect what actually happened, not just what was launched from the tile.
+  try{
+    var mType=String(m.type||''); var mAtt=(m.attendees||[]);
+    var pools=[];
+    if(typeof teamsRegistry==='object' && teamsRegistry){
+      Object.keys(teamsRegistry).forEach(function(k){ var a=teamsRegistry[k]&&teamsRegistry[k].pastMeetings; if(Array.isArray(a)) pools=pools.concat(a); });
+    } else if(typeof pastMeetings!=='undefined' && Array.isArray(pastMeetings)){ pools=pastMeetings; }
+    for(var j=0;j<pools.length;j++){
+      var p=pools[j]; if(!p) continue;
+      if(String(p.type||'')!==mType) continue;
+      var pd=new Date(p.date); if(isNaN(pd.getTime())) continue;
+      pd=new Date(pd.getFullYear(),pd.getMonth(),pd.getDate());
+      var pdiff=Math.round((pd-occ)/86400000);
+      if(pdiff< -1 || pdiff>win) continue;
+      if(mAtt.length){
+        var pAtt=(p.attended||p.attendees||[]); var shared=false;
+        for(var q=0;q<pAtt.length;q++){ if(mAtt.indexOf(pAtt[q])>-1){ shared=true; break; } }
+        if(!shared) continue;
+      }
+      return true;
+    }
+  }catch(e){}
   return false;
 }
 function _meetComplianceFor(m, fromIso, toIso){
@@ -14483,14 +14558,14 @@ function _meetCadenceHealth(m){
   if(!m.recurEvery || m.recurEvery<=0){
     if(anchor>today) return {cls:'c-blu', txt:'Scheduled'};
     var aIso=anchor.toISOString().slice(0,10);
-    if(m.lastHeld && m.lastHeld>=aIso) return {cls:'c-grn', txt:'Held this period'};
+    if(_meetHeldOn(m, aIso)) return {cls:'c-grn', txt:'Held this period'};
     return {cls:'c-red', txt:'Overdue'};
   }
   if(anchor>today) return {cls:'c-blu', txt:'Scheduled'};
   var exp=new Date(anchor);
   while(true){ var nx=new Date(exp); nx.setDate(nx.getDate()+m.recurEvery); if(nx>today) break; exp=nx; }
   var expIso=exp.toISOString().slice(0,10), todayIso=today.toISOString().slice(0,10);
-  if(m.lastHeld && m.lastHeld>=expIso) return {cls:'c-grn', txt:'Held this period'};
+  if(_meetHeldOn(m, expIso)) return {cls:'c-grn', txt:'Held this period'};
   if(expIso<todayIso) return {cls:'c-red', txt:'Overdue'};
   return {cls:'c-amb', txt:'Due'};
 }
@@ -27239,7 +27314,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-104';
+window.VSP_BUILD = 'v186-merge-108';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -28531,15 +28606,7 @@ try {
    depend on that flag - if an earlier build set the flag before the LT data
    loaded, the rows would never lock. Setting auto to the same value is a no-op,
    so this is safe to run each time and guarantees the padlock shows. */
-try {
-  var _ltW=(typeof teamsRegistry!=='undefined') ? (teamsRegistry.lt||teamsRegistry[Object.keys(teamsRegistry)[0]]) : null;
-  if(_ltW && Array.isArray(_ltW.scorecard)){
-    var _wm={26:'pm', 33:'id', 46:'financial', 39:'companywide'};
-    _ltW.scorecard.forEach(function(s){ (s.metrics||[]).forEach(function(m){
-      if(_wm[m.id] && String(m.auto||'').indexOf('workloadavg')===-1){ m.auto='pnd.workloadavg.'+_wm[m.id]; m.autoSrc='P&D'; }
-    }); });
-  }
-} catch(e){ console.warn('[VSP] workload wire-ensure:', e.message); }
+try { _vspWireWorkloadAuto(); } catch(e){ console.warn('[VSP] workload wire-ensure:', e.message); }  // merge-105: wire all teams, not just teamsRegistry.lt
 try { _vspAutoFillWorkload(); } catch(e){ console.warn(e); }  // 2026-08-06: LT workload rows average from individuals
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
@@ -29741,6 +29808,8 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     // retirement inventory.
     try { pullPerfAnswers(); } catch(e){}
     try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}
+    try { if(typeof _vspWireWorkloadAuto === 'function') _vspWireWorkloadAuto(); } catch(e){}
+    try { if(typeof _vspAutoFillWorkload === 'function') _vspAutoFillWorkload(); } catch(e){}
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
     try { if(typeof renderTopbarV2 === 'function') renderTopbarV2(); } catch(e){}
@@ -30655,6 +30724,8 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     // retirement inventory.
     try { pullPerfAnswers(); } catch(e){}
     try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}
+    try { if(typeof _vspWireWorkloadAuto === 'function') _vspWireWorkloadAuto(); } catch(e){}
+    try { if(typeof _vspAutoFillWorkload === 'function') _vspAutoFillWorkload(); } catch(e){}
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
     try { if(typeof renderTopbarV2 === 'function') renderTopbarV2(); } catch(e){}
