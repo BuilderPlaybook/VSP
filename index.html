@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-110</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-116</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5601,9 +5601,14 @@ function renderNav(){
     if(mod.children) mod.children.forEach(function(c){
       // VSP children navigate within this module. Other module children are
       // cross-module links - they alert until cross-module routing is wired.
+      // P&D is merged into VSP (D-123): its sidebar link opens the VSP scorecard
+      // on My Performance instead of dead-ending on the cross-module alert
+      // (Terry, merge-116). Other modules still alert until routing exists.
       var click = mod.id==='vsp'
         ? 'nav(\''+c.id+'\')'
-        : 'vspAlert(\'Cross-module routing required: '+mod.label.replace(/'/g,'')+' \u2192 '+c.label.replace(/'/g,'')+'\')';
+        : (mod.id==='pnd'
+            ? 'state.scorecardScope=\'mine\';nav(\'scorecard\')'
+            : 'vspAlert(\'Cross-module routing required: '+mod.label.replace(/'/g,'')+' \u2192 '+c.label.replace(/'/g,'')+'\')');
       h+='<button class="'+(state.page===c.id?'active':'')+'" onclick="'+click+'">'+c.label+'</button>';
     });
     h+='  </div>';
@@ -7268,10 +7273,12 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       + '</div></td>';
   }
   var hasVal = (val!==null && val!==undefined && val!=='' && !(typeof val==='number' && isNaN(val)));
+  // N/A cell (Dave, 2026-08-07 merge-111): neutral grey, never counted off-track.
+  var _isNA = hasVal && /^(na|n\/a)$/i.test(String(val));
   var _gm = (goalOverride!==null && goalOverride!==undefined) ? {goalType:m.goalType,goal:goalOverride,unit:m.unit,goalMin:m.goalMin,goalMax:m.goalMax} : m;
-  var ok = hasVal && isOnTrack(_gm, val);
-  var bg = !hasVal ? bgRow : (ok ? '#d1fae5' : '#fee2e2');
-  var color = !hasVal ? 'var(--txd)' : (ok ? '#065f46' : '#991b1b');
+  var ok = hasVal && !_isNA && isOnTrack(_gm, val);
+  var bg = !hasVal ? bgRow : (_isNA ? '#f1f5f9' : (ok ? '#d1fae5' : '#fee2e2'));
+  var color = !hasVal ? 'var(--txd)' : (_isNA ? 'var(--txm)' : (ok ? '#065f46' : '#991b1b'));
   // Workload band (Dave, 2026-08-06): 8.0-8.9 green, below 8 amber, 9+ red.
   // Two-sided target - not on-track/off-track - so it overrides the default.
   if(m._numeric && hasVal){
@@ -7280,8 +7287,8 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     else if(_wn>=8){ bg='#d1fae5'; color='#065f46'; }
     else { bg='#fef3c7'; color='#92400e'; }
   }
-  var display = hasVal ? fmtVal(val, m.unit) : '-';
-  var isOff = hasVal && !ok;
+  var display = hasVal ? (_isNA ? 'N/A' : fmtVal(val, m.unit)) : '-';
+  var isOff = hasVal && !ok && !_isNA;
   var offGlyph = isOff ? '<span aria-hidden="true" style="font-size:8px;vertical-align:1.5px;margin-right:2px">\u25BC</span>' : '';
   var cellWeight = isOff ? ';font-weight:700' : '';
   var ariaLbl = hasVal ? (' aria-label="'+display+(ok?' on goal':' off goal')+'"') : '';
@@ -9189,6 +9196,30 @@ function _vspAutoFillWorkload(){
    26/33/46/39 all stored with auto=null. This idempotent pass re-sets auto on
    every render and after every adopt; id-keyed and set-only-if-missing so it is
    safe to run anywhere. Once it runs and the next save lands, storage self-heals. */
+/* Sync Venessa's stored performance standards to the current 12-row card
+   (Dave, 2026-08-07 merge-112). Her scorecard reads the STORED standards
+   (smb_perf_role_standards_v1), which override the hardcoded ROLE_STANDARDS, so
+   the code change alone would not reach her live card. Idempotent, not
+   flag-gated (re-checks every load so a cloud adopt of the old rows self-heals):
+   if the stored Accounting Administrator standards are missing aa12 / the
+   Payroll row, replace them with the current hardcoded set. Safe - Venessa has
+   zero recorded weeks, so no answers are affected. Only the one role key is
+   touched. */
+function _vspSyncVenessaStandards(){
+  try{
+    if(typeof ROLE_STANDARDS!=='object' || !ROLE_STANDARDS) return;
+    var want = ROLE_STANDARDS['Accounting Administrator'];
+    if(!Array.isArray(want) || !want.length) return;
+    var raw = localStorage.getItem('smb_perf_role_standards_v1');
+    var map = raw ? JSON.parse(raw) : {};
+    var cur = map['Accounting Administrator'];
+    var hasNew = Array.isArray(cur) && cur.some(function(r){ return r && r.id==='aa12'; })
+              && cur.some(function(r){ return r && r.sec==='Payroll'; });
+    if(hasNew) return; // already migrated
+    map['Accounting Administrator'] = JSON.parse(JSON.stringify(want));
+    localStorage.setItem('smb_perf_role_standards_v1', JSON.stringify(map));
+  }catch(e){}
+}
 function _vspWireWorkloadAuto(){
   try{
     if(typeof teamsRegistry!=='object' || !teamsRegistry) return;
@@ -11693,6 +11724,7 @@ function renderScorecard(){
   _vspAutoFillRowcounts();
   _vspAutoFillCompliance();
   _vspWireWorkloadAuto();
+  try{ _vspSyncVenessaStandards(); }catch(e){}
   _vspAutoFillWorkload();
   _recalcAll();
   // Step 2 of D-123 merge: Scorecard gains Company | Team | My scopes over
@@ -12132,6 +12164,13 @@ function renderScorecard(){
       h+='<button onclick="scMoveGroup('+di+',1)" '+(di===scorecard.length-1?'disabled':'')+' style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:'+(di===scorecard.length-1?'default':'pointer')+';opacity:'+(di===scorecard.length-1?'.4':'1')+'" title="Move group down">\u2193</button>';
     }
     h+='<button class="btn btn-sm" style="color:var(--blu);border-color:#93c5fd;background:#eff6ff" onclick="openNewMeasurable('+di+')">+ New Measurable</button>';
+    // Onboarding controls, perf scorecards only (Dave, 2026-08-07 merge-113).
+    if(state.page==='scorecard' && (state.scorecardScope||'mine')!=='metrics'){
+      var _stIso=(typeof trackingStartFor==='function')?trackingStartFor(_vspResolvePersonId(section.ownerId)):null;
+      var _stLbl=_stIso?('Live from '+_pndFormatDateShort(_stIso)):'Set start week';
+      h+='<button class="btn btn-sm" onclick="vspSetStartWeek(\''+section.ownerId+'\')" title="Turn this scorecard live from a chosen week; earlier weeks are away and not scored">'+_stLbl+'</button>';
+      h+='<button class="btn btn-sm" onclick="vspMarkHistoryAway(\''+section.ownerId+'\')" title="Mark all past weeks away; score only from this week forward">Mark history away</button>';
+    }
     h+='<button onclick="openEditGroup('+di+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Edit group (seat & person)">';
     h+='<svg width="12" height="12" fill="none" stroke="var(--txm)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>';
     h+='<button onclick="deleteGroup('+di+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Delete group">';
@@ -12723,24 +12762,48 @@ function _vspPerfIsYes(v){
   var s = String(v).trim().toLowerCase();
   return (s==='yes'||s==='y'||s==='true'||s==='1');
 }
+/* N/A (Dave, 2026-08-07 merge-111): Venessa's Accounting Administrator rows can
+   be marked Not Applicable on weeks a task is not scheduled. An N/A cell is
+   excluded from the weekly score denominator, so if everything else is Yes she
+   is 100%. Only rows whose id starts 'aa' can reach this state (gated in the
+   cell cycle), so no other scorecard is affected. */
+function _vspPerfIsNA(v){
+  if(v == null) return false;
+  var s = String(v).trim().toLowerCase();
+  return (s==='na'||s==='n/a');
+}
+function _vspRowAllowsNA(rowId){ return /^aa/.test(String(rowId||'')); }
 
 /* Weekly score - empty=0% per D-94, hard-fail overrides all.
    Monthly-cadence rows are excluded from the weekly denominator (they don't
    score weekly; they roll up on the Monthly cadence view). */
 function _vspPerfWeekScore(person, weekIso, std){
   if(!std || !std.length) return { pct: 0, hardFail: false, hasData: false };
+  // Before this person's tracking start (explicit start date, or their first
+  // real entry) the week is not their responsibility: excluded from the score
+  // and from any rollup, not counted as 0% (Dave, 2026-08-07 merge-113).
+  // Keyed by the P&D id (merge-114 fix): tracking-start and the huddle store
+  // are P&D-keyed, but person.id here is the VSP directory id (Terry is p2 in
+  // VSP, p3 in P&D). Checking the raw VSP id found no data and blanked the whole
+  // scorecard. Map first.
+  var _tpid = (typeof _vspPerfPndPersonId==='function' && person) ? _vspPerfPndPersonId(person.id) : (person && person.id);
+  if(typeof isWeekTracked==='function' && _tpid && weekIso && !isWeekTracked(_tpid, weekIso)){
+    return { pct: 0, hardFail: false, hasData: false };
+  }
   var weekly = std.filter(function(r){ return r.cadence !== 'monthly' && !r.noScore; });
   if(!weekly.length) return { pct: 0, hardFail: false, hasData: false };
-  var yes = 0, hardFailed = false, hasAny = false;
+  var yes = 0, denom = 0, hardFailed = false, hasAny = false;
   weekly.forEach(function(row){
     var ans = _vspPerfAnswer(person.id, weekIso, row.id);
     if(ans != null) hasAny = true;
+    if(_vspPerfIsNA(ans)) return;            // N/A: out of numerator and denominator
+    denom++;
     if(_vspPerfIsYes(ans)) yes++;
     else if(row.hard && ans != null) hardFailed = true;
   });
   if(!hasAny) return { pct: 0, hardFail: false, hasData: false };
   if(hardFailed) return { pct: 0, hardFail: true, hasData: true };
-  return { pct: Math.round(yes/weekly.length*100), hardFail: false, hasData: true };
+  return { pct: denom>0 ? Math.round(yes/denom*100) : 100, hardFail: false, hasData: true };
 }
 
 /* Cell-cycle handler: null -> yes -> no -> null. Editable only if not locked
@@ -12949,7 +13012,7 @@ function _vspPerfBuildSection(person, weeks){
       var rec = all[personId+'__'+iso];
       if(!rec || !rec.answers) return null;
       var v = rec.answers[rowId];
-      return v==='yes' ? 'Yes' : (v==='no' ? 'No' : null);
+      return v==='yes' ? 'Yes' : (v==='no' ? 'No' : ((v==='na'||v==='n/a') ? 'N/A' : null));
     });
   }
   var metrics = stds.map(function(row, idx){
@@ -13101,11 +13164,13 @@ function _vspPerfInstallCellAdapter(){
     }
     var cur = m.readings[weekIdx];
     var t = cur==null ? null : String(cur).toLowerCase();
-    var next = (t==='yes') ? 'No' : ((t==='no') ? null : 'Yes');
+    var next = _vspRowAllowsNA(m._rowId)
+      ? ((t==='yes') ? 'No' : ((t==='no') ? 'N/A' : ((t==='na'||t==='n/a') ? null : 'Yes')))
+      : ((t==='yes') ? 'No' : ((t==='no') ? null : 'Yes'));
     m.readings[weekIdx] = next;
     var iso = st.weeks[weekIdx];
     if(iso && st.personId && m._rowId){
-      _vspPndWriteHuddle(st.personId, iso, m._rowId, next===null ? null : (next==='Yes' ? 'yes' : 'no'));
+      _vspPndWriteHuddle(st.personId, iso, m._rowId, next===null ? null : (next==='Yes' ? 'yes' : (next==='No' ? 'no' : 'na')));
     }
     renderPage();
   };
@@ -16026,7 +16091,7 @@ function _vspRenderHuddleScorecard(){
       var rec = all[personId+'__'+iso];
       if(!rec || !rec.answers) return null;
       var v = rec.answers[rowId];
-      return v==='yes' ? 'Yes' : (v==='no' ? 'No' : null);
+      return v==='yes' ? 'Yes' : (v==='no' ? 'No' : ((v==='na'||v==='n/a') ? 'N/A' : null));
     });
   }
   var metrics = stds.map(function(row, idx){
@@ -16193,6 +16258,8 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     var _wSum=0,_wN=0;
     colIdxs.forEach(function(wi){
       var iso=st.weeks[wi];
+      // Untracked (before this person's start week) weeks are away: not averaged.
+      if(typeof isWeekTracked==='function' && st.personId && !isWeekTracked(st.personId, iso)) return;
       var wPct=null, wHave=false;
       if(bridgePerson && bridgePerson.weeks && bridgePerson.weeks[iso]){
         var _bw2=bridgePerson.weeks[iso];
@@ -16206,7 +16273,7 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
         if(rec2 && rec2.away){ wPct=null; }
         else {
           var y2=0,t2=(section.metrics||[]).length,hf2=false,any2=false;
-          (section.metrics||[]).forEach(function(m){ var v=m.readings[wi]; if(v==null||v==='')return; any2=true; if(_vspHuddleIsYes(v))y2++; else if(m._hard)hf2=true; });
+          (section.metrics||[]).forEach(function(m){ var v=m.readings[wi]; if(v==null||v==='')return; if(_vspPerfIsNA(v)){t2--;return;} any2=true; if(_vspHuddleIsYes(v))y2++; else if(m._hard)hf2=true; });
           wPct = any2 ? (hf2?0:(t2?Math.round(y2/t2*100):0)) : null;
         }
       }
@@ -16259,7 +16326,7 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     } else {
       // Fallback only when P&D is not mounted: local recompute.
       var yes=0, total=mets.length, hardFail=false;
-      mets.forEach(function(m){ var v=m.readings[wi]; if(_vspHuddleIsYes(v)) yes++; else if(m._hard) hardFail=true; });
+      mets.forEach(function(m){ var v=m.readings[wi]; if(_vspPerfIsNA(v)){total--;return;} if(_vspHuddleIsYes(v)) yes++; else if(m._hard) hardFail=true; });
       var raw = total ? Math.round(yes/total*100) : 0;
       var pct = hardFail ? 0 : raw;
       c = hardFail ? '#dc2626' : (pct>=90?'#16a34a':(pct>=75?'#d97706':'#dc2626'));
@@ -16458,11 +16525,13 @@ function _vspInstallHuddleCellAdapter(){
     if(!m || m.unit!=='YN') return orig(ownerId, metricId, weekIdx);
     var cur = m.readings[weekIdx];
     var t = cur==null ? null : String(cur).toLowerCase();
-    var next = (t==='yes') ? 'No' : ((t==='no') ? null : 'Yes');
+    var next = _vspRowAllowsNA(m._rowId)
+      ? ((t==='yes') ? 'No' : ((t==='no') ? 'N/A' : ((t==='na'||t==='n/a') ? null : 'Yes')))
+      : ((t==='yes') ? 'No' : ((t==='no') ? null : 'Yes'));
     m.readings[weekIdx] = next;
     var iso = st.weeks[weekIdx];
     if(iso && st.personId && m._rowId){
-      _vspPndWriteHuddle(st.personId, iso, m._rowId, next===null ? null : (next==='Yes' ? 'yes' : 'no'));
+      _vspPndWriteHuddle(st.personId, iso, m._rowId, next===null ? null : (next==='Yes' ? 'yes' : (next==='No' ? 'no' : 'na')));
     }
     renderPage();
   };
@@ -17881,13 +17950,20 @@ function renderMeetings(){
       var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
       var tc=typeColors[m.type]||"#64748b";
       var st=_meetStatus(m);
+      // A row shows a specific occurrence (occIso). The status must describe THAT
+      // occurrence, not the series' last one. A future occurrence can never be
+      // Done/Not Done - those describe the past. Force Upcoming (Dave, merge-115).
+      var _occShown = occIso || _vspNextOccur(m.date, m.recurEvery);
+      if(st && _occShown && _todayIso && _occShown > _todayIso && (st.key==='done' || st.key==='notdone')){
+        st = {key:'upcoming', cls:'c-blu', txt:'Upcoming'};
+      }
       var comp=_meetComplianceFor(m, m.date, _todayIso);
       var r='<div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:'+(last?'none':'1px solid var(--brd)')+'">';
       r+='<div style="width:42px;height:42px;border-radius:8px;background:'+tc+'12;border:1.5px solid '+tc+'40;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
       r+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
       r+='<div style="flex:1">';
       r+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
-      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
+      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(m.name || _meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
       r+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span>';
       if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
       r+='</div>';
@@ -23594,23 +23670,24 @@ ROLE_STANDARDS['Client Experience & Interior Design Manager'] = [
 ];
 ROLE_STANDARDS['Accounting Administrator'] = [
   _wlRow('aa'),
-  /* Fixed weekly card, replacing the four rotating weekOfMonth phases
-     (decided 2026-07-23). Seven of the ten phase rows were identical every
-     week; the month-anchored work (payroll, mid-month rec, pre-close rec,
-     month-end close) collapses into row aa2 against the accounting calendar.
-     This removes the fifth-week problem entirely: no phases, nothing to clamp.
-     A/R and A/P reports move from three-per-month to weekly per Dave.
-     No migration needed: Venessa had zero recorded weeks at the switch. */
-  {id:'aa1', sec:'Admin & Time Discipline',      hard:true,  std:'Time clock complete and correct.', due:'Every day, by 9:00am next day.'},
-  {id:'aa2', sec:'Accounting Cycle',             hard:true,  std:'This week\'s scheduled cycle tasks completed on time (payroll, mid-month reconciliation, pre-close reconciliation, or month-end close, per the accounting calendar).', due:'Per the accounting calendar.'},
-  {id:'aa3', sec:'Invoicing Processing',         hard:false, std:'All client invoices generated and sent.', due:'Friday by 6:00pm.'},
-  {id:'aa4', sec:'Invoicing Processing',         hard:false, std:'All bills and expenses entered, cost-coded, and filed.', due:'Friday by 6:00pm.'},
-  {id:'aa5', sec:'Reporting',                    hard:false, std:'A/R report updated and sent to VP.', due:'Friday by 6:00pm.'},
-  {id:'aa6', sec:'Reporting',                    hard:false, std:'A/P report updated and sent to VP.', due:'Friday by 6:00pm.'},
-  {id:'aa7', sec:'Invoicing Processing',         hard:false, std:'All expense reports processed.', due:'Friday by 6:00pm.'},
-  {id:'aa8', sec:'Systems & Administrative Discipline', hard:false, std:'All accounting documents filed, named correctly, and organized.', due:'Friday by 6:00pm.'},
-  {id:'aa9', sec:'Systems & Administrative Discipline', hard:false, std:'No unfiled, uncoded, or unreconciled items left in the system.', due:'Friday by 6:00pm.'},
-  {id:'aa10',sec:'Leadership & Escalation',      hard:false, std:'Any risks or issues flagged to VP.', due:'Immediately when discovered.'}
+  /* Rebuilt weekly card (Dave, 2026-08-07 merge-112). Every row a clean weekly
+     binary: Done / Not Done / N/A. N/A (aa-prefixed rows only) drops that row
+     from the week's denominator, so on weeks a task is not scheduled she marks
+     N/A and is not penalised. Two hard fails only: Payment run (aa4) and Payroll
+     (aa7) - money out on time and people paid; a miss there zeroes the week.
+     Venessa has zero recorded weeks, so no migration is needed. */
+  {id:'aa1', sec:'Admin & Time Discipline',            hard:false, std:'Time clock complete and correct.', due:'Every day, by 9:00am next day.'},
+  {id:'aa2', sec:'Invoicing Processing',               hard:false, std:'All vendor invoices processed.', due:'Friday by 6:00pm.'},
+  {id:'aa3', sec:'Invoicing Processing',               hard:false, std:'All client billings generated and distributed.', due:'Friday by 6:00pm.'},
+  {id:'aa4', sec:'Accounting Cycle',                   hard:true,  std:'Payment run completed on time.', due:'Per the accounting calendar. Hard fail if not done.'},
+  {id:'aa5', sec:'Accounting Cycle',                   hard:false, std:'Reconciliations completed.', due:'Per the accounting calendar.'},
+  {id:'aa6', sec:'Rentals',                            hard:false, std:'All tenant payments recorded.', due:'Friday by 6:00pm.'},
+  {id:'aa7', sec:'Payroll',                            hard:true,  std:'Payroll processed and unbillable report distributed.', due:'Per the accounting calendar. Hard fail if not done.'},
+  {id:'aa8', sec:'Reporting',                          hard:false, std:'A/P and A/R report generated and distributed to VP.', due:'Friday by 6:00pm.'},
+  {id:'aa9', sec:'Reporting',                          hard:false, std:'Job budget reports generated and saved.', due:'Friday by 6:00pm.'},
+  {id:'aa10',sec:'Systems & Administrative Discipline', hard:false, std:'All bills and expenses cost-coded and filed.', due:'Friday by 6:00pm.'},
+  {id:'aa11',sec:'Invoicing Processing',               hard:false, std:'All expense reports processed.', due:'Friday by 6:00pm.'},
+  {id:'aa12',sec:'Leadership & Escalation',            hard:false, std:'Any risks or issues flagged to VP.', due:'Immediately when discovered.'}
 ];
 
 /* ============================================================
@@ -23859,6 +23936,37 @@ function setTrackingStartFor(personId, iso){
   if(iso) cfg.byPerson[personId] = iso; else delete cfg.byPerson[personId];
   _pndSaveTrackingStart(cfg);
   _pndInvalidateTrackingCache();
+}
+/* Onboarding controls (Dave, 2026-08-07 merge-113): turn a scorecard live from a
+   chosen week. Weeks before the start are away (excluded, not 0%). Resolve an
+   owner's initials to a person id, then set/clear the tracking start. */
+function _vspResolvePersonId(ownerId){
+  // Must return the P&D id (merge-114 fix): tracking-start and the huddle store
+  // are P&D-keyed. Terry is p2 in VSP but p3 in P&D; writing the start under the
+  // VSP id would never match the scorer's lookup.
+  if(typeof _vspPerfPndPersonId==='function'){ try{ return _vspPerfPndPersonId(ownerId); }catch(e){} }
+  var p = (typeof ppl!=='undefined' && ppl) ? ppl.find(function(x){ return x.initials===ownerId || x.id===ownerId; }) : null;
+  return p ? p.id : ownerId;
+}
+function _vspMondayIso(d){ d=d||new Date(); d=new Date(d); d.setHours(0,0,0,0); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d.toISOString().slice(0,10); }
+function vspSetStartWeek(ownerId){
+  var pid=_vspResolvePersonId(ownerId);
+  var cur=(typeof trackingStartFor==='function' ? trackingStartFor(pid) : '')||'';
+  var v=window.prompt('Turn this scorecard live from which Monday? Enter a date (YYYY-MM-DD). Every week before it is marked away and not scored. Leave blank to clear and score from their first entry.', cur);
+  if(v===null) return;
+  v=v.trim();
+  if(v && !/^\d{4}-\d{2}-\d{2}$/.test(v)){ try{ showToast('Use YYYY-MM-DD'); }catch(e){} return; }
+  setTrackingStartFor(pid, v||null);
+  try{ showToast(v?('Live from '+v+' - earlier weeks are away'):'Start week cleared'); }catch(e){}
+  renderPage();
+}
+function vspMarkHistoryAway(ownerId){
+  var pid=_vspResolvePersonId(ownerId);
+  var iso=_vspMondayIso(new Date());
+  if(!window.confirm('Mark every week before '+iso+' as away for this person? They will be scored only from this week forward.')) return;
+  setTrackingStartFor(pid, iso);
+  try{ showToast('History marked away - live from '+iso); }catch(e){}
+  renderPage();
 }
 /* Is this week inside the person's tracked period?
    An explicit start date always wins. Otherwise tracking begins at their
@@ -27353,7 +27461,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-110';
+window.VSP_BUILD = 'v186-merge-116';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -28646,6 +28754,7 @@ try {
    loaded, the rows would never lock. Setting auto to the same value is a no-op,
    so this is safe to run each time and guarantees the padlock shows. */
 try { _vspWireWorkloadAuto(); } catch(e){ console.warn('[VSP] workload wire-ensure:', e.message); }  // merge-105: wire all teams, not just teamsRegistry.lt
+try { _vspSyncVenessaStandards(); } catch(e){ console.warn('[VSP] venessa standards sync:', e.message); }
 try { _vspAutoFillWorkload(); } catch(e){ console.warn(e); }  // 2026-08-06: LT workload rows average from individuals
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
@@ -29848,6 +29957,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     try { pullPerfAnswers(); } catch(e){}
     try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}
     try { if(typeof _vspWireWorkloadAuto === 'function') _vspWireWorkloadAuto(); } catch(e){}
+    try { if(typeof _vspSyncVenessaStandards === 'function') _vspSyncVenessaStandards(); } catch(e){}
     try { if(typeof _vspAutoFillWorkload === 'function') _vspAutoFillWorkload(); } catch(e){}
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
@@ -30764,6 +30874,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     try { pullPerfAnswers(); } catch(e){}
     try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}
     try { if(typeof _vspWireWorkloadAuto === 'function') _vspWireWorkloadAuto(); } catch(e){}
+    try { if(typeof _vspSyncVenessaStandards === 'function') _vspSyncVenessaStandards(); } catch(e){}
     try { if(typeof _vspAutoFillWorkload === 'function') _vspAutoFillWorkload(); } catch(e){}
     try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
     try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
