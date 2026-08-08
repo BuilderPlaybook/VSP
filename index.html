@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-119</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-120</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14417,7 +14417,7 @@ function _vspEmailReminderData(id){
   var toList=isClient
     ? (m.clientEmails||[]).slice()
     : (m.attendees||[]).map(function(a){ var p=ppl.find(function(x){return x.initials===a;}); return p&&p.email?p.email:''; }).filter(Boolean);
-  var subject='Reminder: '+_meetTypeLabel(m.type, m.teamName)+' \u2013 '+(m.date||'');
+  var subject='Reminder: '+_meetTypeLabel(m.type, m.teamName, m)+' \u2013 '+(m.date||'');
   var bodyObj=_msInviteBody(m);
   var htmlBody=(bodyObj&&bodyObj.contentType==='HTML')?bodyObj.content:('<p>'+_scEsc(String(bodyObj&&bodyObj.content||'').replace(/\n/g,'<br>'))+'</p>');
   return { m:m, toList:toList, subject:subject, htmlBody:htmlBody, isClient:isClient };
@@ -17298,7 +17298,7 @@ function _mcTone(st){
 }
 function _mcLabel(e){
   var att=(e.m.attendees||[]).join(', ');
-  return _meetTypeLabel(e.m.type, e.teamName)+(att?(' \u00b7 '+att):'');
+  return _meetTypeLabel(e.m.type, e.teamName, e.m)+(att?(' \u00b7 '+att):'');
 }
 function _mcMatch(e, f){
   if(f.team && e.teamId!==f.team) return false;
@@ -17418,7 +17418,12 @@ function _mcRender(){
   h+=_mcMoveOverlay();
   return h;
 }
-function _meetTypeLabel(t, teamName){
+function _meetTypeLabel(t, teamName, m){
+  // Explicit name wins (Dave, 2026-08-08, merge-120): a meeting may carry its
+  // own display name (e.g. "Executive Meeting"); when set it is the title
+  // everywhere. Type/team stay the fallback so unnamed meetings read exactly
+  // as before and agendas/history/replacement keep keying on m.type.
+  if(m&&typeof m.name==='string'&&m.name.trim()!==''){ return m.name.trim(); }
   // Say what it is (Dave, 2026-07-31): "Weekly Leadership Meeting",
   // "Quarterly Field Operations Meeting". Stored values stay as-is so
   // agendas, history, and the replacement rule keep working.
@@ -17495,9 +17500,9 @@ function _mcMonthGrid(series, r, f){
       var mv=it.e.real?(' onclick="_mcOpenMove('+it.e.m.id+',\''+_clickIso+'\')" '):'';
       var _lbl;
       if(it.dayIdx){
-        _lbl='\u2192 '+_meetTypeLabel(it.e.m.type, it.e.teamName);
+        _lbl='\u2192 '+_meetTypeLabel(it.e.m.type, it.e.teamName, it.e.m);
       } else {
-        _lbl=((it.e.m.time||'')+' '+_meetTypeLabel(it.e.m.type, it.e.teamName)).trim();
+        _lbl=((it.e.m.time||'')+' '+_meetTypeLabel(it.e.m.type, it.e.teamName, it.e.m)).trim();
       }
       if(_mcChipCtx(it.e)&&['Weekly','Quarterly','Annual'].indexOf(it.e.m.type)===-1){
         _lbl+=' \u00b7 '+_mcChipCtx(it.e);
@@ -17560,7 +17565,7 @@ function _mcMatrix(series, r, f, fromIso, toIso){
       var held=occs.filter(function(o){return o.status==='held';}).length;
       var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
       h+='<tr style="border-top:1px solid var(--brd)">';
-      h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(R.type, R.team))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(R.att.join(', '))+'</div></td>';
+      h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(R.type, R.team, R.m||R))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(R.att.join(', '))+'</div></td>';
       cols.forEach(function(c){
         var sts=byCol[c.key]||[];
         h+='<td style="padding:4px;text-align:center">';
@@ -17618,7 +17623,7 @@ function _mcMoveOverlay(){
   var h='<div onclick="state.mcMove=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
   h+='<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:460px;max-height:88vh;overflow-y:auto;background:var(--sur);border:1px solid var(--brd);border-radius:10px;z-index:201;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.18)">';
   h+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:2px">Edit meeting</div>';
-  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:14px">'+_scEsc(_meetTypeLabel(m.type, m.teamName)+' \u00b7 '+(m.attendees||[]).join(', '))+'</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:14px">'+_scEsc(_meetTypeLabel(m.type, m.teamName, m)+' \u00b7 '+(m.attendees||[]).join(', '))+'</div>';
   var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);margin-bottom:10px';
   var lbl='font-size:var(--fz-body);font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;display:block';
   var isRec=!!m.recurEvery;
@@ -17802,8 +17807,8 @@ function _mcMoveSave(){
   } else if(_msConnected()){
     (m.attendees||[]).forEach(function(ini){
       var p=ppl.find(function(x){ return x.initials===ini; });
-      if(p&&p.email) _msSendMail(p.email, _meetTypeLabel(m.type, m.teamName)+' moved to '+nice+(m.time?(' at '+m.time):''),
-        '<p>The '+_scEsc(_meetTypeLabel(m.type, m.teamName))+' previously on '+_scEsc(od||'')+(ot?(' at '+_scEsc(ot)):'')+' has moved to <b>'+nice+(m.time?(' at '+_scEsc(m.time)):'')+'</b>.</p><p>Sent automatically by Self-Managing Builder.</p>');
+      if(p&&p.email) _msSendMail(p.email, _meetTypeLabel(m.type, m.teamName, m)+' moved to '+nice+(m.time?(' at '+m.time):''),
+        '<p>The '+_scEsc(_meetTypeLabel(m.type, m.teamName, m))+' previously on '+_scEsc(od||'')+(ot?(' at '+_scEsc(ot)):'')+' has moved to <b>'+nice+(m.time?(' at '+_scEsc(m.time)):'')+'</b>.</p><p>Sent automatically by Self-Managing Builder.</p>');
     });
     try{ showToast('Meeting moved - attendees emailed.'); }catch(e){}
   } else {
@@ -17890,7 +17895,7 @@ function renderMeetings(){
       var _more=_secs.length-_shown.length;
       h+='<div class="card" style="border-top:3px solid '+mt.c+'">';
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
-      h+='<div style="font-size:var(--fz-body);font-weight:600">'+_scEsc(_meetTypeLabel(mt.type, (teamsRegistry[state.currentTeam]||{}).name))+'</div>';
+      h+='<div style="font-size:var(--fz-body);font-weight:600">'+_scEsc(_meetTypeLabel(mt.type, (teamsRegistry[state.currentTeam]||{}).name, mt))+'</div>';
       if(mt.cat==='supervisor') h+='<span style="background:#f3e8ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:10px;padding:1px 7px">\ud83d\udd12 Private</span>';
       if(mt.cat==='client') h+='<span style="background:#cffafe;color:#0891b2;border:1px solid #67e8f9;border-radius:10px;padding:1px 7px">Client</span>';
       h+='</div>';
@@ -18898,7 +18903,7 @@ function renderMeetings(){
         var _hp=ppl.find(function(x){ return x && x.initials===m.huddleReport; });
         _hrName = _hp ? (_hp.first+' '+_hp.last) : m.huddleReport;
       }
-      h+='<span style="font-size:var(--fz-body);font-weight:500">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
+      h+='<span style="font-size:var(--fz-body);font-weight:500">'+_scEsc(_meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name), m))+'</span>';
       if(_hrName) h+='<span style="font-size:var(--fz-body);font-weight:600;color:'+tc+'">'+_scEsc(_hrName)+'</span>';
       h+='<span style="font-size:var(--fz-base);color:'+tc+';background:'+tc+'12;border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.date+'</span></div>';
       h+='<div style="font-size:var(--fz-body);color:var(--txm)">'+m.highlights+'</div>';
@@ -21174,7 +21179,7 @@ function _msInviteBody(m){
     var ag=null;
     try{ ag=agendaFor(m.teamId||state.currentTeam, t); }catch(e){}
     var secs=(ag&&ag.sections)?ag.sections.filter(function(x){return x.visible!==false;}):[];
-    var hh='<p>This is the recurring <b>'+_scEsc(_meetTypeLabel(t, m.teamName))+'</b>'+(m.location?(' at '+_scEsc(m.location)):'')+'.</p>';
+    var hh='<p>This is the recurring <b>'+_scEsc(_meetTypeLabel(t, m.teamName, m))+'</b>'+(m.location?(' at '+_scEsc(m.location)):'')+'.</p>';
     if(ag&&ag.desc) hh+='<p>'+_scEsc(ag.desc)+'</p>';
     if(secs.length){
       hh+='<p><b>Agenda:</b></p><ol>';
@@ -21242,7 +21247,7 @@ function _msEventPayload(m){
       // so "Weekly" in a busy calendar is never ambiguous.
       var names=(m.attendees||[]).map(function(ini){var p=ppl.find(function(x){return x.initials===ini;});return p?p.first:ini;});
       var isTeam=['Weekly','Quarterly','Annual'].indexOf(m.type)>-1;
-      var base=_meetTypeLabel(m.type, m.teamName);
+      var base=_meetTypeLabel(m.type, m.teamName, m);
       return isTeam ? base : (base + (names.length ? (' \u00b7 '+names.join(' / ')) : ''));
     })(),
     body: _msInviteBody(m),
@@ -27489,7 +27494,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-119';
+window.VSP_BUILD = 'v186-merge-120';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -28783,6 +28788,37 @@ try {
    so this is safe to run each time and guarantees the padlock shows. */
 try { _vspWireWorkloadAuto(); } catch(e){ console.warn('[VSP] workload wire-ensure:', e.message); }  // merge-105: wire all teams, not just teamsRegistry.lt
 try { _vspSyncVenessaStandards(); } catch(e){ console.warn('[VSP] venessa standards sync:', e.message); }
+/* Meeting-name heal (Dave, 2026-08-08, merge-120): the label engine now honors an
+   explicit m.name (see _meetTypeLabel). Two corrections that heal on every load
+   carrying the signature, so a cloud re-pull cannot un-fix them:
+   (1) The Dave+Terry meeting (id 1785254909475, type "Weekly") shared the LT
+       label because it had no name; name it "Executive Meeting". The real LT
+       meeting (id 1) keeps its correct 5-person data and its own label.
+   (2) Delete the Dave-only stray test meeting (id 1785463075886).
+   Idempotent: only writes when the signature is present; runs across every team. */
+try {
+  var _mnHealed=false;
+  if(typeof teamsRegistry!=='undefined' && teamsRegistry){
+    Object.keys(teamsRegistry).forEach(function(_tk){
+      var _t=teamsRegistry[_tk];
+      if(!_t || !Array.isArray(_t.scheduledMeetings)) return;
+      var _before=_t.scheduledMeetings.length;
+      _t.scheduledMeetings=_t.scheduledMeetings.filter(function(_m){
+        return !(_m && String(_m.id)==='1785463075886');
+      });
+      if(_t.scheduledMeetings.length!==_before) _mnHealed=true;
+      _t.scheduledMeetings.forEach(function(_m){
+        if(_m && String(_m.id)==='1785254909475' && _m.name!=='Executive Meeting'){
+          _m.name='Executive Meeting'; _mnHealed=true;
+        }
+      });
+    });
+  }
+  if(_mnHealed){
+    try{ if(typeof _vspSaveVsp==='function') _vspSaveVsp(); }catch(e){}
+    console.log('[VSP] meeting-name heal: Executive Meeting named, stray removed.');
+  }
+} catch(e){ console.warn('[VSP] meeting-name heal:', e.message); }
 try { _vspAutoFillWorkload(); } catch(e){ console.warn(e); }  // 2026-08-06: LT workload rows average from individuals
 try { scApplyFeed(); } catch(e){ console.warn(e); }
 try { _recalcAll(); } catch(e){ console.warn(e); }
