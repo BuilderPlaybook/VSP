@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-117</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-119</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -16263,24 +16263,36 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     // (pct null) stay out of the denominator; hard-fail zeros count. Source
     // order per week matches the cells below: bridge -> live P&D -> recompute.
     var _wSum=0,_wN=0;
+    var _curWkS = (typeof scCurrentWeekIdx==='function') ? scCurrentWeekIdx() : -1;
     colIdxs.forEach(function(wi){
+      // Current in-progress week: shown as a live column but not counted in the
+      // total (Dave, merge-118 - the merge-117 exclusion was in the monthly path).
+      if(wi===_curWkS) return;
       var iso=st.weeks[wi];
       // Untracked (before this person's start week) weeks are away: not averaged.
       if(typeof isWeekTracked==='function' && st.personId && !isWeekTracked(st.personId, iso)) return;
       var wPct=null, wHave=false;
       if(bridgePerson && bridgePerson.weeks && bridgePerson.weeks[iso]){
         var _bw2=bridgePerson.weeks[iso];
-        if(_bw2.status!=='away'){ wPct=(_bw2.pct==null?null:_bw2.pct); wHave=true; }
-        else { wHave=true; wPct=null; }
+        if(_bw2.status==='away'){ wHave=true; wPct=null; }
+        else if(_bw2.pct!=null){ wHave=true; wPct=_bw2.pct; }
+        // else: bridge says "not-started" -> leave wHave=false so we recompute
+        // from the real answers below (a stale bridge must not drop a filled week).
       } else if(pnd && st.personId){
-        try{ var _s2=pnd.statusFor(st.personId, iso); if(_s2){ wHave=true; wPct=(_s2.status==='away')?null:_s2.pct; } }catch(e){}
+        try{ var _s2=pnd.statusFor(st.personId, iso); if(_s2 && (_s2.status==='away' || _s2.pct!=null)){ wHave=true; wPct=(_s2.status==='away')?null:_s2.pct; } }catch(e){}
       }
       if(!wHave){
         var rec2=all[st.personId+'__'+iso];
         if(rec2 && rec2.away){ wPct=null; }
         else {
-          var y2=0,t2=(section.metrics||[]).length,hf2=false,any2=false;
-          (section.metrics||[]).forEach(function(m){ var v=m.readings[wi]; if(v==null||v==='')return; if(_vspPerfIsNA(v)){t2--;return;} any2=true; if(_vspHuddleIsYes(v))y2++; else if(m._hard)hf2=true; });
+          var y2=0,t2=0,hf2=false,any2=false;
+          (section.metrics||[]).forEach(function(m){
+            if(m._noScore || m.unit!=='YN') return;
+            var v=m.readings[wi];
+            if(_vspPerfIsNA(v)) return;
+            t2++;
+            if(v!=null && v!==''){ any2=true; if(_vspHuddleIsYes(v))y2++; else if(m._hard)hf2=true; }
+          });
           wPct = any2 ? (hf2?0:(t2?Math.round(y2/t2*100):0)) : null;
         }
       }
@@ -16325,20 +16337,29 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     }
     var c, bg, txt;
     if(away || pndAway){ c='var(--txm)'; bg='var(--sur2)'; txt='Away'; }
-    else if(havePnd){
-      if(pndPct==null){ c='var(--txm)'; bg='var(--sur2)'; txt='\u2013'; }        // open week => dash, mirrors P&D
-      else { c = pndHard ? '#dc2626' : (pndPct>=90?'#16a34a':(pndPct>=75?'#d97706':'#dc2626'));
-             bg = pndHard ? '#fee2e2' : (pndPct>=90?'#d1fae5':(pndPct>=75?'#fef3c7':'#fee2e2'));
-             txt = pndPct+'%'; }
+    else if(havePnd && pndPct!=null){
+      c = pndHard ? '#dc2626' : (pndPct>=90?'#16a34a':(pndPct>=75?'#d97706':'#dc2626'));
+      bg = pndHard ? '#fee2e2' : (pndPct>=90?'#d1fae5':(pndPct>=75?'#fef3c7':'#fee2e2'));
+      txt = pndPct+'%';
     } else {
-      // Fallback only when P&D is not mounted: local recompute.
-      var yes=0, total=mets.length, hardFail=false;
-      mets.forEach(function(m){ var v=m.readings[wi]; if(_vspPerfIsNA(v)){total--;return;} if(_vspHuddleIsYes(v)) yes++; else if(m._hard) hardFail=true; });
-      var raw = total ? Math.round(yes/total*100) : 0;
-      var pct = hardFail ? 0 : raw;
-      c = hardFail ? '#dc2626' : (pct>=90?'#16a34a':(pct>=75?'#d97706':'#dc2626'));
-      bg = hardFail ? '#fee2e2' : (pct>=90?'#d1fae5':(pct>=75?'#fef3c7':'#fee2e2'));
-      txt = pct+'%';
+      // Bridge absent, or bridge says "not-started" (pct null). Trust the actual
+      // answers and recompute from readings (Dave, merge-118): a stale bridge
+      // must never blank a week the person has filled. Genuinely empty -> dash.
+      var yes=0, total=0, hardFail=false, anyData=false;
+      mets.forEach(function(m){
+        if(m._noScore || m.unit!=='YN') return;   // workload / non-scored rows are not counted
+        var v=m.readings[wi];
+        if(_vspPerfIsNA(v)) return;                // N/A: out of the denominator
+        total++;
+        if(v!=null && v!==''){ anyData=true; if(_vspHuddleIsYes(v)) yes++; else if(m._hard) hardFail=true; }
+      });
+      if(!anyData){ c='var(--txm)'; bg='var(--sur2)'; txt='\u2013'; }
+      else {
+        var pct = hardFail?0:(total?Math.round(yes/total*100):0);
+        c = hardFail ? '#dc2626' : (pct>=90?'#16a34a':(pct>=75?'#d97706':'#dc2626'));
+        bg = hardFail ? '#fee2e2' : (pct>=90?'#d1fae5':(pct>=75?'#fef3c7':'#fee2e2'));
+        txt = pct+'%';
+      }
     }
     h+='<td style="text-align:center;padding:10px 6px;background:'+bg+';border-top:2px solid var(--brd);border-right:0.5px solid var(--brd);vertical-align:top">';
     h+='<div style="'+valLine+';color:'+c+'">'+txt+'</div>';
@@ -27468,7 +27489,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-117';
+window.VSP_BUILD = 'v186-merge-119';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -30687,701 +30708,6 @@ try{ _vspMigrateJobNotes(); }catch(e){}
 </script>
 
 
-<script>
-/* SMB VSP STAGING ADAPTER v3 - shared cloud persistence over Firebase RTDB.
-   MERGED for the P&D->VSP merge build (D-123 step 1).
 
-   Sourced verbatim from:
-     - SMB VSP STAGING ADAPTER v2.5 (single-string sync at vsp/lida-001/data)
-     - SMB P&D STAGING ADAPTER v2   (envelope sync at pd/lida-001/data,
-                                     14 keys, record-level merge on huddles)
-
-   TWO SYNCED ROOTS (parallel-run per D-123 Ruling 5, no data migration per Ruling 3):
-     Root A (VSP): vsp/lida-001/data   - single-string value, __v = VSP_STORAGE_VERSION = 4
-     Root B (P&D): pd/lida-001/data    - envelope {__v, keys:{...}}, __v = PD_STORAGE_VERSION = 1
-                                          14 keys byte-identical to P&D adapter v2 KEYS:
-                                            smb_perf_huddles_v1
-                                            smb_perf_quarterly_v1
-                                            smb_perf_annual_v1
-                                            smb_perf_role_standards_v1
-                                            smb_perf_role_order_v1
-                                            smb_pnd_cadence_v1
-                                            smb_pnd_review_dates_v1
-                                            smb_pnd_tracking_start_v1
-                                            smb_pnd_compliance_groups_v1
-                                            smb_pnd_lock_tier_v1
-                                            smb_pnd_compliance_bridge_v1
-                                            smb_pnd_monthly_v1
-                                            smb_pnd_huddle_scores_v1   (D-120 bridge, load-bearing per D-124)
-                                            smb_pnd_people_map_v1      (D-122 shim, load-bearing per D-124)
-
-   PERSON-ID CANONICALIZATION (D-123 Ruling 4).
-     P&D IDs are canonical. The P root sync pulls smb_pnd_people_map_v1 into
-     localStorage as part of every load; the existing VSP module shim
-     _vspPndPersonId(vspPerson) reads the map at call time, so every VSP call
-     site that goes through the shim resolves to the P&D canonical id
-     automatically. Heal-on-apply runs after every successful pull of either
-     root: it re-triggers the module render so any surface that resolved
-     before the map arrived re-resolves against fresh data. No data-level
-     mutation of VSP's blob in step 1; step 2+ can add write-back walkers if
-     needed.
-
-   SIMPLE, SAFE MODEL (both roots):
-     1. ON LOAD: pull BOTH roots in parallel; each root sets its own ready flag
-        after its own load-time reconcile. Combined gate blocks all pushes
-        until BOTH roots are ready.
-     2. AS YOU WORK: each save is routed to the correct root (by key name)
-        and pushed debounced.
-     3. TO SEE TEAMMATES' CHANGES: tap the badge to refresh both roots.
-        No background auto-refresh (the pre-v2.x polling model erased data
-        while it was being typed; removed).
-
-   DEPLOY SAFETY (inherited from both adapter v2.x lines):
-     - Server treated as empty ONLY when literally empty; anything else is
-       adopted, never overwritten.
-     - Cross-version data (server __v differs from this build's storage
-       version) refuses to load OR push; badge shows the mismatch.
-     - Nothing is pushed until the load-time pull has reconciled.
-     - Deletion preservation: VSP root preserves this browser's deletedTodoIds
-       across an adopt. P&D root merges record-by-record on huddles by savedAt.
-
-   This block is STAGING ONLY. It is not part of the shipped module and does
-   not go through the audit. To return this file to pure local behavior,
-   delete this entire script block. Nothing above it was changed. */
-(function(){
-  var FB_URL = 'https://smb-staging-666a3-default-rtdb.firebaseio.com';
-  var REST = 'Synced - tap to refresh';
-
-  // ============================================================
-  // Shared state and helpers
-  // ============================================================
-  var lastInputTs = 0;
-  var origSet = null;  // set BEFORE the setItem interceptor installs, so apply
-                       // paths can call it to bypass the wrapper cleanly
-
-  function _parse(v){ try { return JSON.parse(v); } catch(e){ return null; } }
-  function _recTime(r){
-    try { return r && r.savedAt ? new Date(r.savedAt).getTime() : 0; }
-    catch(e){ return 0; }
-  }
-
-  function setBadge(kind, text){
-    var el = document.getElementById('smb-stage-badge');
-    if(!el) return;
-    var dot = el.querySelector('.smb-stage-dot');
-    var lbl = el.querySelector('.smb-stage-lbl');
-    var col = kind === 'ok' ? 'rgba(46,160,67,1)'
-            : kind === 'sync' ? 'rgba(240,180,40,1)'
-            : 'rgba(200,60,60,1)';
-    if(dot) dot.style.background = col;
-    if(lbl && text) lbl.textContent = text;
-  }
-  function rest(){ setBadge('ok', REST); }
-  function flash(kind, text, back){
-    setBadge(kind, text);
-    setTimeout(function(){ rest(); }, back || 1500);
-  }
-
-  // True while the user is mid-entry, so a manual refresh will not wipe it.
-  // Union of the v2.5 (VSP) checks and the v2 (P&D) checks.
-  function isEditing(){
-    try{
-      var ae = document.activeElement;
-      if(ae){
-        var tag = (ae.tagName || '').toUpperCase();
-        if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-        if(ae.isContentEditable) return true;
-      }
-    }catch(e){}
-    if(Date.now() - lastInputTs < 4000) return true;
-    try{
-      if(typeof state !== 'undefined' && state){
-        // v2.5 (VSP) panels
-        if(state.editingCell || state.scNoteEdit) return true;
-        if(state.newMeasurablePanel && state.newMeasurablePanel.open) return true;
-        if(state.editMeasurablePanel && state.editMeasurablePanel.open) return true;
-        if(state.createPanel || state.editPanel || state.headlinePanel) return true;
-        if(state.orgPanel || state.schedulePanel || state.cascadePreview) return true;
-        if(state.todoDetail || state.issueDetail) return true;
-        // v2 (P&D) panels
-        if(state.historyOpen || state.qMoreOpen) return true;
-      }
-    }catch(e){}
-    return false;
-  }
-
-  // ============================================================
-  // Root A (VSP) - single-string sync at vsp/lida-001/data
-  // Preserved byte-for-byte from SMB VSP STAGING ADAPTER v2.5.
-  // ============================================================
-  var V_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/vsp/lida-001/data.json';
-  var V_VOLATILE = ['savedAt','currentTeam','planEditUnlocked','stratLastReviewed'];
-
-  var V_lastSyncedRaw = null;
-  var V_pendingLocal  = null;
-  var V_pushTimer     = null;
-  var V_pulling       = false;
-  var V_ready         = false;
-
-  function V_keyName(){
-    try { return (typeof vspStorageKey === 'function') ? vspStorageKey() : 'vsp.lida-001.data'; }
-    catch(e){ return 'vsp.lida-001.data'; }
-  }
-  function V_sig(s){
-    if(s == null) return s;
-    try{
-      var o = JSON.parse(s);
-      if(o && typeof o === 'object'){ for(var i=0;i<V_VOLATILE.length;i++) delete o[V_VOLATILE[i]]; }
-      return JSON.stringify(o);
-    }catch(e){ return s; }
-  }
-
-  // Re-apply a raw snapshot string into the live module and re-render in place.
-  function V_applyRaw(raw){
-    var keepTeam = null;
-    try { keepTeam = (typeof state !== 'undefined' && state) ? state.currentTeam : null; } catch(e){}
-    // Preserve this browser's deletions across an adopt.
-    try {
-      var _lr = localStorage.getItem(V_keyName());
-      if(_lr){
-        var _ls = JSON.parse(_lr), _rs = JSON.parse(raw), _u = {};
-        (_ls.deletedTodoIds||[]).concat(_rs.deletedTodoIds||[]).forEach(function(x){ _u[x]=true; });
-        var _keys = Object.keys(_u);
-        if(_keys.length){
-          _rs.deletedTodoIds = _keys;
-          var _drop = function(arr){ return Array.isArray(arr) ? arr.filter(function(t){ return !(t && _u[t.id]); }) : arr; };
-          if(_rs.teams){ for(var _k in _rs.teams){ var _t=_rs.teams[_k]; if(_t){ _t.todos=_drop(_t.todos); _t.privateTodos=_drop(_t.privateTodos); } } }
-          raw = JSON.stringify(_rs);
-        }
-        try{
-          var _um={};
-          (_ls.deletedMeetingIds||[]).concat(_rs.deletedMeetingIds||[]).forEach(function(x){ _um[x]=true; });
-          var _mk=Object.keys(_um);
-          if(_mk.length){
-            _rs.deletedMeetingIds=_mk;
-            var _dropM=function(arr){ return Array.isArray(arr) ? arr.filter(function(t){ return !(t && _um[t.id]); }) : arr; };
-            if(_rs.teams){ for(var _k2 in _rs.teams){ var _t2=_rs.teams[_k2]; if(_t2){ _t2.pastMeetings=_dropM(_t2.pastMeetings); _t2.scheduledMeetings=_dropM(_t2.scheduledMeetings); } } }
-            raw = JSON.stringify(_rs);
-          }
-        }catch(e){}
-      }
-    } catch(e){}
-    try { origSet(V_keyName(), raw); } catch(e){}
-    try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){} try{ if(window._vspMigrateYearGoalIds) window._vspMigrateYearGoalIds(); }catch(e){}
-    // Keep this user on the team they are viewing, not the team the saver was on.
-    try { if(keepTeam && typeof state !== 'undefined' && state){ state.currentTeam = keepTeam; if(typeof syncTeamData === 'function') syncTeamData(); } } catch(e){}
-    try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
-    try { if(typeof scExtendYear === 'function') scExtendYear(); } catch(e){}
-    try { if(typeof scNormalize === 'function') scNormalize(); } catch(e){}
-    // v141 D-120 bridge helpers - kept intact for parallel-run compatibility per D-124.
-    // The P root sync (below) also lands smb_perf_huddles_v1 in localStorage, so
-    // these calls become no-op-ish after the P root reconciles; they stay as
-    // fallback the still-deployed P&D relies on. Delete at cutover per D-123
-    // retirement inventory.
-    try { pullPerfAnswers(); } catch(e){}
-    try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}
-    try { if(typeof _vspWireWorkloadAuto === 'function') _vspWireWorkloadAuto(); } catch(e){}
-    try { if(typeof _vspSyncVenessaStandards === 'function') _vspSyncVenessaStandards(); } catch(e){}
-    try { if(typeof _vspAutoFillWorkload === 'function') _vspAutoFillWorkload(); } catch(e){}
-    try { if(typeof scApplyFeed === 'function') scApplyFeed(); } catch(e){}
-    try { if(typeof _recalcAll === 'function') _recalcAll(); } catch(e){}
-    try { if(typeof renderTopbarV2 === 'function') renderTopbarV2(); } catch(e){}
-    try { if(typeof renderNav === 'function') renderNav(); } catch(e){}
-    try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
-  }
-
-  /* v141 D-120 bridge (VSP<->P&D huddle answers).
-     Load-bearing until cutover per D-124: the still-deployed P&D writes to
-     pd/lida-001/data/smb_perf_huddles_v1 and this bridge kept the VSP module
-     in sync before the P root sync existed. The P root sync now also carries
-     that key, so these helpers effectively duplicate work; kept in place so
-     any browser still on the old-VSP deploy continues to function during
-     parallel-run. Retire at cutover. */
-  var PD_HUDDLE_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/pd/lida-001/data.json';
-  var PERF_KEY = 'smb_perf_huddles_v1';
-  var lastPerfPushed = null;
-  function pushPerfAnswers(){
-    if(typeof fetch !== 'function') return;
-    var raw = null;
-    try { raw = localStorage.getItem(PERF_KEY); } catch(e){}
-    if(!raw || raw === lastPerfPushed) return;
-    var body = {}; body[PERF_KEY] = raw;
-    fetch(PD_HUDDLE_ENDPOINT, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    }).then(function(){ lastPerfPushed = raw; }).catch(function(){});
-  }
-  function pullPerfAnswers(){
-    if(typeof fetch !== 'function') return;
-    fetch(FB_URL.replace(/\/+$/,'') + '/pd/lida-001/data/' + PERF_KEY + '.json?_=' + Date.now())
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(remote){
-        if(typeof remote !== 'string' || !remote) return;
-        var local = null; try { local = localStorage.getItem(PERF_KEY); } catch(e){}
-        if(remote === local) { lastPerfPushed = remote; return; }
-        try {
-          var R = JSON.parse(remote) || {};
-          var L = local ? (JSON.parse(local) || {}) : {};
-          Object.keys(R).forEach(function(k){
-            if(!L[k]) { L[k] = R[k]; return; }
-            var lr = L[k], rr = R[k];
-            var la = (lr && lr.updatedAt) || '', ra = (rr && rr.updatedAt) || '';
-            if(ra > la){
-              rr.answers = Object.assign({}, lr.answers || {}, rr.answers || {});
-              L[k] = rr;
-            } else {
-              lr.answers = Object.assign({}, rr.answers || {}, lr.answers || {});
-            }
-          });
-          var merged = JSON.stringify(L);
-          try { origSet(PERF_KEY, merged); } catch(e){}
-          lastPerfPushed = merged;
-        } catch(e){}
-      }).catch(function(){});
-  }
-
-  // Send the local VSP value up.
-  function V_pushUp(raw){
-    if(typeof fetch !== 'function') return;
-    setBadge('sync', 'Saving...');
-    fetch(V_ENDPOINT, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(raw)
-    }).then(function(){
-      V_lastSyncedRaw = raw;
-      if(V_pendingLocal === raw) V_pendingLocal = null;
-      try { pushPerfAnswers(); } catch(e){}
-      flash('ok', 'Saved', 1200);
-    }).catch(function(){
-      setBadge('off', 'Offline - will retry on next save');
-    });
-  }
-
-  // Pull the VSP root once and reconcile.
-  function V_pull(){
-    if(typeof fetch !== 'function') return;
-    if(V_pulling) return;
-    V_pulling = true;
-    fetch(V_ENDPOINT, { cache: 'no-store' }).then(function(r){
-      return r.text();
-    }).then(function(txt){
-      V_pulling = false;
-
-      var serverEmpty = (txt == null || txt === '' || txt === 'null');
-      var remote = null, unreadable = false;
-      if(!serverEmpty){
-        try {
-          var parsed = JSON.parse(txt);
-          if(typeof parsed === 'string') remote = parsed;
-          else if(parsed && typeof parsed === 'object') remote = JSON.stringify(parsed);
-          else unreadable = true;
-        } catch(e){ unreadable = true; }
-      }
-
-      var local = null;
-      try { local = localStorage.getItem(V_keyName()); } catch(e){}
-
-      if(unreadable){
-        V_ready = false;
-        setBadge('off', 'Server data not recognized - not overwriting. Tap to retry');
-        return;
-      }
-
-      if(!serverEmpty){
-        var remoteVer = null, myVer = null;
-        try { remoteVer = JSON.parse(remote).version; } catch(e){}
-        try { myVer = (typeof VSP_STORAGE_VERSION !== 'undefined') ? VSP_STORAGE_VERSION : null; } catch(e){}
-        if(remoteVer != null && myVer != null && String(remoteVer) !== String(myVer)){
-          V_ready = false;
-          setBadge('off', 'Server data v' + remoteVer + ' differs from app v' + myVer + ' - not loading/overwriting');
-          return;
-        }
-      }
-
-      if(serverEmpty){
-        if(!local){
-          try { if(typeof vspSaveNow === 'function') vspSaveNow(); } catch(e){}
-          try { local = localStorage.getItem(V_keyName()); } catch(e){}
-        }
-        if(local){ V_pushUp(local); } else { rest(); }
-        V_ready = true;
-        healOnApply();
-        return;
-      }
-
-      if(V_pendingLocal !== null){
-        if(!V_pushTimer){ V_pushUp(V_pendingLocal); }
-        V_ready = true; rest();
-        return;
-      }
-      if(V_sig(remote) === V_sig(V_lastSyncedRaw)){ V_lastSyncedRaw = remote; V_ready = true; flash('ok', 'Up to date', 1200); healOnApply(); return; }
-      if(V_sig(remote) === V_sig(local)){ V_lastSyncedRaw = remote; V_ready = true; flash('ok', 'Up to date', 1200); healOnApply(); return; }
-
-      var _rp = null; try { _rp = localStorage.getItem('vsp.restore.pending'); } catch(e){}
-      if(_rp && local){
-        try { localStorage.removeItem('vsp.restore.pending'); } catch(e){}
-        V_lastSyncedRaw = local; V_pushUp(local); V_ready = true;
-        flash('ok', 'Restored data pushed to team', 2000);
-        return;
-      }
-      // Adopt cloud copy.
-      V_lastSyncedRaw = remote;
-      V_applyRaw(remote);
-      V_ready = true;
-      healOnApply();
-      flash('ok', 'Loaded team data', 1500);
-    }).catch(function(){
-      V_pulling = false;
-      setBadge('off', 'Offline - tap to retry');
-    });
-  }
-
-  // ============================================================
-  // Root B (P&D) - envelope sync at pd/lida-001/data
-  // Preserved byte-for-byte from SMB P&D STAGING ADAPTER v2.
-  // ============================================================
-  var P_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/pd/lida-001/data.json';
-
-  var P_KEYS = [
-    'smb_perf_huddles_v1',
-    'smb_perf_quarterly_v1',
-    'smb_perf_annual_v1',
-    'smb_perf_role_standards_v1',
-    'smb_perf_role_order_v1',
-    'smb_pnd_cadence_v1',
-    'smb_pnd_review_dates_v1',
-    'smb_pnd_tracking_start_v1',
-    'smb_pnd_compliance_groups_v1',
-    'smb_pnd_lock_tier_v1',
-    'smb_pnd_compliance_bridge_v1',
-    'smb_pnd_monthly_v1',
-    'smb_pnd_huddle_scores_v1',
-    'smb_pnd_people_map_v1'
-  ];
-  var P_KEYS_SET = {};
-  P_KEYS.forEach(function(k){ P_KEYS_SET[k] = true; });
-
-  // Keys whose value is a flat object of {recordId: record} and must be merged
-  // record-by-record on push, so two people editing different records do not
-  // overwrite each other. Everything else is last-write-wins on its whole value.
-  var P_MERGE_KEYS = { 'smb_perf_huddles_v1': true };
-
-  var P_lastSyncedSig = null;
-  var P_pendingPush   = false;
-  var P_pushTimer     = null;
-  var P_pulling       = false;
-  var P_ready         = false;
-
-  function P_myVersion(){
-    try { return (typeof PD_STORAGE_VERSION !== 'undefined') ? PD_STORAGE_VERSION : 1; }
-    catch(e){ return 1; }
-  }
-
-  function P_mergeHuddles(serverObj, mineObj){
-    var out = {};
-    var k;
-    if(serverObj) for(k in serverObj){ if(serverObj.hasOwnProperty(k)) out[k] = serverObj[k]; }
-    if(mineObj) for(k in mineObj){
-      if(!mineObj.hasOwnProperty(k)) continue;
-      var mine = mineObj[k], theirs = out[k];
-      if(theirs === undefined){ out[k] = mine; continue; }
-      out[k] = (_recTime(mine) >= _recTime(theirs)) ? mine : theirs;
-    }
-    return out;
-  }
-
-  function P_localSnapshot(){
-    var keys = {};
-    P_KEYS.forEach(function(k){
-      try { var v = localStorage.getItem(k); if(v != null) keys[k] = v; } catch(e){}
-    });
-    return { __v: P_myVersion(), keys: keys };
-  }
-
-  function P_sigOf(snap){
-    if(!snap || !snap.keys) return 'empty';
-    var parts = [];
-    P_KEYS.forEach(function(k){ parts.push(k + '=' + (snap.keys[k] == null ? '' : snap.keys[k])); });
-    return parts.join('\u0001');
-  }
-
-  // Adopt a cloud snapshot into localStorage and re-render in place.
-  function P_applySnapshot(snap){
-    P_KEYS.forEach(function(k){
-      var v = snap.keys ? snap.keys[k] : null;
-      if(v == null) return;
-      try { origSet(k, v); } catch(e){}
-    });
-    try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
-    try { if(typeof emitPndSignals === 'function') emitPndSignals(); } catch(e){}
-  }
-
-  // Send local P&D changes up, merging record-level keys against the server.
-  function P_pushUp(attempt){
-    if(typeof fetch !== 'function') return;
-    attempt = attempt || 0;
-    var mine = P_localSnapshot();
-    var mineHuddles = _parse(mine.keys['smb_perf_huddles_v1']);
-    setBadge('sync', 'Saving...');
-
-    if(!mineHuddles){
-      fetch(P_ENDPOINT, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(mine) })
-        .then(function(){ P_lastSyncedSig = P_sigOf(mine); P_pendingPush = false; flash('ok','Saved',1200); })
-        .catch(function(){ setBadge('off','Offline - will retry on next save'); });
-      return;
-    }
-
-    fetch(P_ENDPOINT, { cache:'no-store' }).then(function(r){ return r.text(); }).then(function(txt){
-      var server = (txt==null||txt===''||txt==='null') ? null : _parse(txt);
-      var merged;
-      if(server && server.keys){
-        if(server.__v != null && String(server.__v) !== String(mine.__v)){
-          setBadge('off','Server data v'+server.__v+' differs - not overwriting'); P_pendingPush = false; return;
-        }
-        var serverHuddles = _parse(server.keys['smb_perf_huddles_v1']);
-        var mergedHuddles = P_mergeHuddles(serverHuddles, mineHuddles);
-        merged = { __v: mine.__v, keys: {} };
-        var kk;
-        for(kk in server.keys){ if(server.keys.hasOwnProperty(kk)) merged.keys[kk] = server.keys[kk]; }
-        P_KEYS.forEach(function(k){
-          if(P_MERGE_KEYS[k]) return;
-          if(mine.keys[k] != null) merged.keys[k] = mine.keys[k];
-        });
-        merged.keys['smb_perf_huddles_v1'] = JSON.stringify(mergedHuddles);
-        try { origSet('smb_perf_huddles_v1', merged.keys['smb_perf_huddles_v1']); } catch(e){}
-        try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
-      } else {
-        merged = mine;
-      }
-      fetch(P_ENDPOINT, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(merged) })
-        .then(function(){
-          P_lastSyncedSig = P_sigOf(P_localSnapshot());
-          P_pendingPush = false;
-          flash('ok','Saved',1200);
-        })
-        .catch(function(){
-          if(attempt < 1){ P_pushUp(attempt+1); return; }
-          setBadge('off','Offline - will retry on next save');
-        });
-    }).catch(function(){
-      if(attempt < 1){ P_pushUp(attempt+1); return; }
-      fetch(P_ENDPOINT, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(mine) })
-        .then(function(){ P_lastSyncedSig = P_sigOf(mine); P_pendingPush = false; flash('ok','Saved',1200); })
-        .catch(function(){ setBadge('off','Offline - will retry on next save'); });
-    });
-  }
-
-  // Pull the P&D root once and reconcile.
-  function P_pull(){
-    if(typeof fetch !== 'function') return;
-    if(P_pulling) return;
-    P_pulling = true;
-    fetch(P_ENDPOINT, { cache: 'no-store' }).then(function(r){
-      return r.text();
-    }).then(function(txt){
-      P_pulling = false;
-
-      var serverEmpty = (txt == null || txt === '' || txt === 'null');
-      var remote = null, unreadable = false;
-      if(!serverEmpty){
-        try {
-          var parsed = JSON.parse(txt);
-          if(parsed && typeof parsed === 'object' && parsed.keys && typeof parsed.keys === 'object') remote = parsed;
-          else if(parsed && typeof parsed === 'object'){
-            // v1-adapter migration: recognize the first deployed shape strictly.
-            var props = Object.keys(parsed);
-            var isV1 = props.length > 0 && props.every(function(k){
-              return P_KEYS.indexOf(k) !== -1 && parsed[k] && typeof parsed[k].v === 'string';
-            });
-            if(isV1){
-              var mig = {};
-              props.forEach(function(k){ mig[k] = parsed[k].v; });
-              remote = { __v: P_myVersion(), keys: mig, __migratedFromV1: true };
-            } else unreadable = true;
-          }
-          else unreadable = true;
-        } catch(e){ unreadable = true; }
-      }
-
-      if(unreadable){
-        P_ready = false;
-        setBadge('off', 'Server data not recognized - not overwriting. Tap to retry');
-        return;
-      }
-
-      if(!serverEmpty){
-        var remoteVer = (remote.__v != null) ? remote.__v : null;
-        var mv = P_myVersion();
-        if(remoteVer != null && String(remoteVer) !== String(mv)){
-          P_ready = false;
-          setBadge('off', 'Server data v' + remoteVer + ' differs from app v' + mv + ' - not loading/overwriting');
-          return;
-        }
-      }
-
-      if(serverEmpty){
-        var snap = P_localSnapshot();
-        if(Object.keys(snap.keys).length){ P_ready = true; P_pushUp(); }
-        else { P_ready = true; rest(); }
-        healOnApply();
-        return;
-      }
-
-      if(P_pendingPush){
-        if(!P_pushTimer){ P_pushUp(); }
-        P_ready = true; rest();
-        return;
-      }
-      var remoteSig = P_sigOf(remote);
-      var localSig  = P_sigOf(P_localSnapshot());
-      if(remoteSig === P_lastSyncedSig){ P_ready = true; flash('ok', 'Up to date', 1200); healOnApply(); return; }
-      if(remoteSig === localSig){ P_lastSyncedSig = remoteSig; P_ready = true; flash('ok', 'Up to date', 1200); healOnApply(); return; }
-
-      // Cloud differs. Merge huddles first, then adopt.
-      try {
-        var localHuddles = _parse(localStorage.getItem('smb_perf_huddles_v1'));
-        var remoteHuddles = remote.keys ? _parse(remote.keys['smb_perf_huddles_v1']) : null;
-        if(localHuddles && remoteHuddles){
-          var merged = P_mergeHuddles(remoteHuddles, localHuddles);
-          remote.keys['smb_perf_huddles_v1'] = JSON.stringify(merged);
-          if(remote.keys['smb_perf_huddles_v1'] !== (txt && _parse(txt) && _parse(txt).keys ? _parse(txt).keys['smb_perf_huddles_v1'] : null)){
-            P_pendingPush = true;
-          }
-        }
-      } catch(e){}
-      P_lastSyncedSig = P_sigOf(remote);
-      P_applySnapshot(remote);
-      P_ready = true;
-      healOnApply();
-      if(P_pendingPush){ P_pushUp(); }
-      if(remote.__migratedFromV1){
-        P_pushUp();
-        flash('ok', 'Loaded team data (upgraded)', 1500);
-      } else {
-        flash('ok', 'Loaded team data', 1500);
-      }
-    }).catch(function(){
-      P_pulling = false;
-      setBadge('off', 'Offline - tap to retry');
-    });
-  }
-
-  // ============================================================
-  // Person-ID canonicalization heal-on-apply (D-123 Ruling 4)
-  //
-  // Step-1 heal: ensure smb_pnd_people_map_v1 (populated by the P root sync)
-  // is live in localStorage after every apply of either root, then re-render
-  // so any surface that resolved through _vspPndPersonId before the map
-  // arrived resolves fresh. The existing shim reads the map at call time, so
-  // no VSP data-blob mutation is required in this step. Runs on EVERY apply
-  // (per the seed-migration-rule discipline: saved/synced snapshots shadow
-  // code seeds, so a one-shot boot heal misses data that arrives via a
-  // subsequent pull).
-  // ============================================================
-  function healOnApply(){
-    try {
-      // Presence-only check so the log surfaces a missing map early.
-      var mapRaw = null;
-      try { mapRaw = localStorage.getItem('smb_pnd_people_map_v1'); } catch(e){}
-      if(!mapRaw){ /* map not yet arrived; shim falls back to VSP id */ }
-    } catch(e){}
-    // Post-apply render triggers - guarded so a missing function is a no-op.
-    try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
-    try { if(typeof emitPndSignals === 'function') emitPndSignals(); } catch(e){}
-  }
-
-  // ============================================================
-  // Combined setItem router
-  // ============================================================
-  // Bind original setItem BEFORE replacing it, so apply paths can bypass the
-  // wrapper cleanly by calling origSet directly.
-  origSet = localStorage.setItem.bind(localStorage);
-  localStorage.setItem = function(k, v){
-    origSet(k, v);
-    // Route to VSP root
-    if(k === V_keyName()){
-      if(!V_ready) return;
-      if(V_sig(v) === V_sig(V_lastSyncedRaw)) return;
-      V_pendingLocal = v;
-      if(V_pushTimer) clearTimeout(V_pushTimer);
-      V_pushTimer = setTimeout(function(){ V_pushTimer = null; V_pushUp(V_pendingLocal); }, 600);
-      return;
-    }
-    // Route to P&D root
-    if(P_KEYS_SET[k]){
-      if(!P_ready) return;
-      if(P_sigOf(P_localSnapshot()) === P_lastSyncedSig) return;
-      P_pendingPush = true;
-      if(P_pushTimer) clearTimeout(P_pushTimer);
-      P_pushTimer = setTimeout(function(){ P_pushTimer = null; P_pushUp(); }, 600);
-      return;
-    }
-    // Any other key: browser-local only.
-  };
-
-  // ============================================================
-  // Boot, badge, manual refresh
-  // ============================================================
-  function bothReady(){ return V_ready && P_ready; }
-
-  function manualRefresh(){
-    if(!bothReady()){
-      if(!V_ready) V_pull();
-      if(!P_ready) P_pull();
-      return;
-    }
-    if(isEditing()){ flash('sync', 'Finish your entry, then tap', 2000); return; }
-    setBadge('sync', 'Checking for updates...');
-    V_pull(); P_pull();
-  }
-
-  function mountBadge(){
-    if(document.getElementById('smb-stage-badge')) return;
-    var b = document.createElement('div');
-    b.id = 'smb-stage-badge';
-    b.setAttribute('title', 'Staging: your saves go to the shared cloud. Tap to load your team\'s latest.');
-    b.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:99999;'
-      + 'display:flex;align-items:center;gap:7px;'
-      + 'background:rgba(20,28,46,.92);color:#fff;'
-      + 'font:600 12px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;'
-      + 'padding:8px 11px;border-radius:999px;'
-      + 'box-shadow:0 2px 10px rgba(0,0,0,.25);cursor:pointer;user-select:none;';
-    b.innerHTML = '<span class="smb-stage-dot" style="width:9px;height:9px;'
-      + 'border-radius:50%;background:rgba(240,180,40,1);'
-      + 'box-shadow:0 0 0 3px rgba(255,255,255,.12)"></span>'
-      + '<span class="smb-stage-lbl">Connecting...</span>';
-    // Pin bottom-LEFT past the 240px sidebar on desktop, edge on mobile.
-    if(!document.getElementById('smb-stage-badge-css')){
-      var st = document.createElement('style');
-      st.id = 'smb-stage-badge-css';
-      st.textContent = '#smb-stage-badge{left:256px !important;right:auto !important;bottom:14px !important;}'
-        + '@media (max-width:768px){#smb-stage-badge{left:14px !important;}}';
-      (document.head||document.documentElement).appendChild(st);
-    }
-    b.addEventListener('click', manualRefresh);
-    document.body.appendChild(b);
-  }
-
-  function start(){
-    mountBadge();
-    try{
-      document.addEventListener('keydown', function(){ lastInputTs = Date.now(); }, true);
-      document.addEventListener('input',   function(){ lastInputTs = Date.now(); }, true);
-    }catch(e){}
-    if(typeof fetch !== 'function'){ setBadge('off', 'Sync unsupported here'); return; }
-    // Parallel pulls: each root sets its own ready flag on completion.
-    V_pull();
-    P_pull();
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
-})();
-</script>
 </body>
 </html>
