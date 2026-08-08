@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-120</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-122</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -17424,12 +17424,19 @@ function _meetTypeLabel(t, teamName, m){
   // everywhere. Type/team stay the fallback so unnamed meetings read exactly
   // as before and agendas/history/replacement keep keying on m.type.
   if(m&&typeof m.name==='string'&&m.name.trim()!==''){ return m.name.trim(); }
-  // Say what it is (Dave, 2026-07-31): "Weekly Leadership Meeting",
-  // "Quarterly Field Operations Meeting". Stored values stay as-is so
-  // agendas, history, and the replacement rule keep working.
-  if(t==='Weekly'||t==='Quarterly'||t==='Annual'){
-    return t+' '+(teamName||'Team')+' Meeting';
-  }
+  // Display-name convention (Dave, 2026-08-08, merge-121): the user-facing
+  // names are decoupled from the internal type keys. Keys stay unchanged so
+  // agendas, review links, and history keep working; only what people READ
+  // changes. Team meetings read "<Team> Team Meeting"; huddles read plain
+  // "Huddle" / "Quarterly Huddle" / "Annual Huddle" (frequency comes from the
+  // Repeats setting, not the name); client reads "Client Meeting".
+  if(t==='Weekly')  return (teamName?teamName+' ':'')+'Team Meeting';
+  if(t==='Quarterly') return 'Quarterly '+(teamName?teamName+' ':'')+'Team Meeting';
+  if(t==='Annual')    return 'Annual '+(teamName?teamName+' ':'')+'Team Meeting';
+  if(t==='Weekly Performance Huddle')    return 'Huddle';
+  if(t==='Quarterly Performance Huddle') return 'Quarterly Huddle';
+  if(t==='Annual Performance Huddle')    return 'Annual Huddle';
+  if(t==='Monthly Client Meeting')       return 'Client Meeting';
   return t||'Meeting';
 }
 function _mcChipCtx(e){
@@ -17963,6 +17970,30 @@ function renderMeetings(){
     });
     h+='</div>';
 
+    // Person filter (Dave, 2026-08-08, merge-120): show only meetings a chosen
+    // person is on, so a manager can audit who has their huddles and client
+    // meetings booked. Builds its list from the people actually on the visible
+    // meetings, so the dropdown never offers a person with no meetings.
+    (function(){
+      var _pf=state.meetPerson||'';
+      var _peopleSet={};
+      _visibleScheduled().forEach(function(m){ (m.attendees||[]).forEach(function(a){ if(a) _peopleSet[a]=1; }); });
+      var _pOpts=Object.keys(_peopleSet).map(function(ini){
+        var p=(typeof ppl!=='undefined'&&ppl)?ppl.find(function(x){return x.initials===ini;}):null;
+        return { ini:ini, name:p?(p.first+' '+p.last):ini };
+      }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">';
+      h+='<span style="font-size:var(--fz-base);color:var(--txm)">Person:</span>';
+      h+='<select onchange="state.meetPerson=this.value;renderPage()" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-family:inherit;cursor:pointer">';
+      h+='<option value=""'+(_pf===''?' selected':'')+'>Everyone</option>';
+      _pOpts.forEach(function(o){
+        h+='<option value="'+_scEsc(o.ini)+'"'+(_pf===o.ini?' selected':'')+'>'+_scEsc(o.name)+'</option>';
+      });
+      h+='</select>';
+      if(_pf){ h+='<button onclick="state.meetPerson=\'\';renderPage()" style="padding:4px 12px;border-radius:14px;font-size:var(--fz-base);border:1.5px solid var(--brd2);background:var(--sur);color:var(--txm);cursor:pointer;font-family:inherit">Clear</button>'; }
+      h+='</div>';
+    })();
+
     // Status per meeting, mapped to plain-language states. The chip helper
     // already computes the four states; relabel to Upcoming / Due soon / Done /
     // Not Done and split into Needs attention (Not Done + Due soon) and On track
@@ -18020,8 +18051,14 @@ function renderMeetings(){
       return r;
     }
     var _allSched=_visibleScheduled();
+    // Apply the person filter (merge-120): keep only meetings the chosen person
+    // attends. Empty selection keeps everyone.
+    if(state.meetPerson){ _allSched=_allSched.filter(function(m){ return (m.attendees||[]).indexOf(state.meetPerson)>-1; }); }
     if(!_allSched.length){
-      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.</div>';
+      var _emptyMsg=state.meetPerson
+        ? 'No meetings for this person in this range. Try a wider range, or choose Everyone.'
+        : 'No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.';
+      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">'+_emptyMsg+'</div>';
     } else {
       // Partition. Needs attention = Not Done + Due Soon. On track = Done +
       // Upcoming within the range horizon. Upcoming past the horizon is hidden.
@@ -27494,7 +27531,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-120';
+window.VSP_BUILD = 'v186-merge-122';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -29427,21 +29464,32 @@ function modalErr(msg){ var e=document.getElementById('smb-modal-err'); if(e){ e
 /* Book Meeting modal - BD-parity popup. Renders the same fields as the former
    inline panel, into the BD modal shell, and saves via addScheduledMeeting(). */
 function vspBookMeetingModal(){
-  var typeOpts=['Weekly','Quarterly','Annual','Weekly Performance Huddle','Quarterly Performance Huddle','Annual Performance Huddle','Monthly Client Meeting'];
-  // Team picker (Dave, 2026-07-31): book any team's meeting from one popup
-  // instead of switching the topbar team first. Defaults to the current team.
+  // Type-first redesign (Dave, 2026-08-08, merge-122). Meeting type is chosen
+  // at the top. A single context block below builds ONLY the fields that type
+  // needs (team picker for team meetings, direct-report picker for huddles,
+  // client fields for client meetings), so nothing appears or vanishes
+  // unexpectedly. Shared scheduling fields sit below and are always relevant.
   state.smTeam=state.smTeam||state.currentTeam;
   var curType=state.smType||'Weekly';
-  var _bmTeamName=(teamsRegistry[state.smTeam]||{}).name||'Team';
-  var teamOpts=Object.keys(teamsRegistry).map(function(tid){
-    var tn=(teamsRegistry[tid]||{}).name||tid;
-    return '<option value="'+tid+'"'+(state.smTeam===tid?' selected':'')+'>'+_vspDlgEsc(tn)+'</option>';
-  }).join('');
+  // Fresh open: clear any attendee roster left from a previous booking so the
+  // context block seeds cleanly from the current type/team.
+  state.smAtt=null;
   var body=''+
     (_msConnected() ? '' : '<div style="background:var(--gpb,#fdf6e3);border:1px solid var(--gpd,#b8860b);border-radius:6px;padding:10px 12px;margin-bottom:14px;color:var(--gpd,#7a5b00);font-size:var(--fz-body);line-height:1.5"><strong>Outlook not connected.</strong> The meeting is saved and tracked here. Click <b>Connect Outlook</b> on the Meetings page top-right to send real calendar invites from this browser.</div>')+
+    // 1. Meeting type first.
+    '<div class="smb-fld" style="margin-bottom:14px"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="_smTypeChange(this.value)">'+(function(){
+      var teamGroup=[['Weekly','Team Meeting'],['Quarterly','Quarterly Team Meeting'],['Annual','Annual Team Meeting']];
+      var huddleGroup=[['Weekly Performance Huddle','Huddle'],['Quarterly Performance Huddle','Quarterly Huddle'],['Annual Performance Huddle','Annual Huddle']];
+      var clientGroup=[['Monthly Client Meeting','Client Meeting']];
+      function opts(list){ return list.map(function(o){ return '<option value="'+o[0]+'"'+(curType===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join(''); }
+      return '<optgroup label="Team meetings">'+opts(teamGroup)+'</optgroup>'
+           + '<optgroup label="One-on-one huddles">'+opts(huddleGroup)+'</optgroup>'
+           + '<optgroup label="Client">'+opts(clientGroup)+'</optgroup>';
+    })()+'</select></div>'+
+    // 2. Type-driven context block: team picker OR report picker OR client fields.
+    '<div id="sm-context" style="margin-bottom:4px">'+_vspBookMeetingContextHtml()+'</div>'+
+    // 3. Shared scheduling fields, always relevant.
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
-      '<div class="smb-fld" id="sm-team-wrap"'+(curType==='Monthly Client Meeting'?' style="display:none"':'')+'><label for="sm-team">Team</label><select id="sm-team" onchange="_smTeamChange(this.value)">'+teamOpts+'</select></div>'+
-      '<div class="smb-fld"><label for="sm-type">Meeting type</label><select id="sm-type" onchange="_smTypeChange(this.value)">'+typeOpts.map(function(t){return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+_meetTypeLabel(t, _bmTeamName)+'</option>';}).join('')+'</select></div>'+
       '<div class="smb-fld"><label for="sm-recurring">Repeats</label><select id="sm-recurring"><option value="0">One-time</option><option value="7">Weekly</option><option value="14">Every 2 weeks</option><option value="28">Every 4 weeks</option><option value="30">Monthly</option><option value="91">Quarterly</option><option value="365">Annually</option></select></div>'+
       '<div class="smb-fld"><label for="sm-until">Ends on (optional, for repeats)</label><input type="date" id="sm-until"></div>'+
       '<div class="smb-fld"><label for="sm-date">Start date</label><input type="date" id="sm-date"></div>'+
@@ -29457,7 +29505,6 @@ function vspBookMeetingModal(){
         : '<div class="smb-fld" style="font-size:var(--fz-base);color:var(--txm)">Connect Outlook on the Meetings page to send real calendar invites from here.</div>')+
     '</div>'+
     '<div class="smb-fld" style="margin-top:12px"><label for="sm-location">Location</label><input type="text" id="sm-location" placeholder="Address, office, or job site"></div>'+
-    '<div class="smb-fld" style="margin-top:12px"><label>Attendees</label><div id="sm-att-host" style="display:flex;flex-wrap:wrap;gap:10px 16px;padding:4px 0">'+_vspBookMeetingAttHtml()+'</div></div>'+
     '<div class="smb-fld" style="margin-top:12px"><label for="sm-notes">Notes / agenda</label><textarea id="sm-notes" rows="3" placeholder="What is this meeting about?"></textarea></div>';
   openModal({
     title:'Book Meeting',
@@ -29466,29 +29513,46 @@ function vspBookMeetingModal(){
     onSave:function(){ addScheduledMeeting(); }
   });
 }
-function _vspBookMeetingAttHtml(){
+// The type-driven context block: exactly the fields the chosen type needs.
+// Team meeting -> Team picker. Huddle -> Direct report picker. Client -> client
+// name/email + attendees. Rebuilt by _smTypeChange when the type changes, so no
+// field ever silently appears or disappears from an unrelated part of the form.
+function _vspBookMeetingContextHtml(){
   var ty=state.smType||'Weekly';
+  // Huddle: pick the direct report; supervisor auto-pairs on save. No team, no
+  // attendee list.
   if(ty.indexOf('Performance Huddle')>-1){
-    // huddle: pick the direct report; supervisor auto-pairs on save
-    var opts=ppl.filter(function(p){return (p.status||'active')==='active';}).map(function(p){return '<option value="'+p.initials+'"'+((state.smReport===p.initials)?' selected':'')+'>'+_vspDlgEsc(p.first+' '+p.last)+'</option>';}).join('');
-    return '<div class="smb-fld" style="min-width:260px"><label for="sm-report">Direct report</label><select id="sm-report" onchange="state.smReport=this.value">'+'<option value="">Select a person</option>'+opts+'</select><div style="font-size:var(--fz-base);color:var(--txm);margin-top:3px">Their supervisor is added automatically.</div></div>';
+    var hopts=ppl.filter(function(p){return (p.status||'active')==='active';}).map(function(p){return '<option value="'+p.initials+'"'+((state.smReport===p.initials)?' selected':'')+'>'+_vspDlgEsc(p.first+' '+p.last)+'</option>';}).join('');
+    return '<div class="smb-fld"><label for="sm-report">Direct report</label><select id="sm-report" onchange="state.smReport=this.value"><option value="">Select a person</option>'+hopts+'</select><div style="font-size:var(--fz-base);color:var(--txm);margin-top:3px">This is a one-on-one. Their supervisor is added automatically.</div></div>';
   }
-  var h='';
+  // Client meeting: client fields + attendees (PM and Interior Designer). No team.
   if(ty==='Monthly Client Meeting'){
-    // Client fields (Dave, 2026-07-31): the client is a real invitee. Name
-    // opens the invite greeting; emails go on the Outlook event as attendees.
-    h+='<div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">';
-    h+='<div class="smb-fld"><label for="sm-client-name">Client name(s)</label><input type="text" id="sm-client-name" value="'+_vspDlgEsc(state.smClientName||'')+'" oninput="state.smClientName=this.value" placeholder="e.g. Ray and Jaya"></div>';
-    h+='<div class="smb-fld"><label for="sm-client-emails">Client email(s)</label><input type="text" id="sm-client-emails" value="'+_vspDlgEsc(state.smClientEmails||'')+'" oninput="state.smClientEmails=this.value" placeholder="one or more, comma-separated"></div>';
-    h+='</div>';
-    h+='<div style="width:100%;font-size:var(--fz-base);color:var(--txm);margin-bottom:6px">LIDA attendees - add the PM and the Interior Designer:</div>';
+    var ch='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">';
+    ch+='<div class="smb-fld"><label for="sm-client-name">Client name(s)</label><input type="text" id="sm-client-name" value="'+_vspDlgEsc(state.smClientName||'')+'" oninput="state.smClientName=this.value" placeholder="e.g. Ray and Jaya"></div>';
+    ch+='<div class="smb-fld"><label for="sm-client-emails">Client email(s)</label><input type="text" id="sm-client-emails" value="'+_vspDlgEsc(state.smClientEmails||'')+'" oninput="state.smClientEmails=this.value" placeholder="one or more, comma-separated"></div>';
+    ch+='</div>';
+    ch+='<div style="font-size:var(--fz-base);color:var(--txm);margin-bottom:6px">A client meeting belongs to a project, not a team. Add the LIDA attendees - the PM and the Interior Designer:</div>';
+    ch+=_smAttendeePickerHtml();
+    return ch;
   }
-  // Dropdown + chips (Dave, 2026-07-31): scales past a checkbox wall.
-  // Defaults: current team's members. Chips remove on click.
+  // Team meeting: team picker + that team's attendees.
+  var teamOpts=Object.keys(teamsRegistry).map(function(tid){
+    var tn=(teamsRegistry[tid]||{}).name||tid;
+    return '<option value="'+tid+'"'+(state.smTeam===tid?' selected':'')+'>'+_vspDlgEsc(tn)+'</option>';
+  }).join('');
+  var th='<div class="smb-fld" style="margin-bottom:10px"><label for="sm-team">Team</label><select id="sm-team" onchange="_smTeamChange(this.value)">'+teamOpts+'</select></div>';
+  th+='<div class="smb-fld"><label>Attendees</label>'+_smAttendeePickerHtml()+'</div>';
+  return th;
+}
+// The attendee chip+dropdown control, shared by team and client meetings.
+function _smAttendeePickerHtml(){
   if(!Array.isArray(state.smAtt)){
-    state.smAtt=((teamsRegistry[state.smTeam||state.currentTeam]||{}).members||[]).slice();
+    // Client meetings start empty (PM and ID added by hand); team meetings
+    // default to the team's members.
+    if((state.smType||'')==='Monthly Client Meeting'){ state.smAtt=[]; }
+    else { state.smAtt=((teamsRegistry[state.smTeam||state.currentTeam]||{}).members||[]).slice(); }
   }
-  h+='<div style="width:100%">';
+  var h='<div id="sm-att-host" style="width:100%">';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
   state.smAtt.forEach(function(ini){
     var p=ppl.find(function(x){return x.initials===ini;});
@@ -29504,37 +29568,42 @@ function _vspBookMeetingAttHtml(){
   h+='</select></div>';
   return h;
 }
+function _vspBookMeetingAttHtml(){
+  // Back-compat shim: earlier code path called this. It now returns the full
+  // context block so any remaining caller stays correct.
+  return _vspBookMeetingContextHtml();
+}
 function _smAttAdd(ini){ if(!ini) return; if(!Array.isArray(state.smAtt)) state.smAtt=[]; if(state.smAtt.indexOf(ini)===-1) state.smAtt.push(ini); _vspBookMeetingRefreshAtt(); }
 function _smTeamChange(tid){
-  // Booking team switched: relabel the type options for the new team and
-  // re-default attendees to that team's members.
+  // Team switched on a team meeting: re-default attendees to the new team's
+  // members and rebuild the context block.
   state.smTeam=tid;
   state.smAtt=null;
-  var tn=(teamsRegistry[tid]||{}).name||'Team';
-  var sel=document.getElementById('sm-type');
-  if(sel){ for(var i=0;i<sel.options.length;i++){ sel.options[i].text=_meetTypeLabel(sel.options[i].value, tn); } }
-  _vspBookMeetingRefreshAtt();
+  _smRefreshContext();
 }
 function _smTypeChange(t){
-  // Meeting type switched. A Monthly Client Meeting belongs to a project, not
-  // a team (Dave, 2026-07-31): hide the Team field, start with NO preloaded
-  // attendees (PM and ID get added by hand), and show the client name/email
-  // fields. Switching back restores the team default.
+  // Type switched: rebuild the context block so it shows exactly the fields the
+  // new type needs. No field silently appears or disappears from an unrelated
+  // part of the form; the whole context region is what changes, right under the
+  // type selector where the user is looking.
   var was=state.smType;
   state.smType=t;
   state.smReport='';
-  var wrap=document.getElementById('sm-team-wrap');
-  if(t==='Monthly Client Meeting'){
-    if(wrap) wrap.style.display='none';
-    if(was!=='Monthly Client Meeting') state.smAtt=[];
-  } else {
-    if(wrap) wrap.style.display='';
-    if(was==='Monthly Client Meeting') state.smAtt=null;
-  }
-  _vspBookMeetingRefreshAtt();
+  // Reset attendees when crossing between team and client, so a stale team
+  // roster does not carry into a client meeting or vice versa.
+  var wasClient=(was==='Monthly Client Meeting'), isClient=(t==='Monthly Client Meeting');
+  if(wasClient!==isClient){ state.smAtt=null; }
+  _smRefreshContext();
 }
+function _smRefreshContext(){ var host=document.getElementById('sm-context'); if(host) host.innerHTML=_vspBookMeetingContextHtml(); }
 function _smAttRemove(ini){ if(!Array.isArray(state.smAtt)) return; var i=state.smAtt.indexOf(ini); if(i>-1) state.smAtt.splice(i,1); _vspBookMeetingRefreshAtt(); }
-function _vspBookMeetingRefreshAtt(){ var host=document.getElementById('sm-att-host'); if(host) host.innerHTML=_vspBookMeetingAttHtml(); }
+function _vspBookMeetingRefreshAtt(){
+  // Refresh just the attendee sub-control when present; else rebuild the whole
+  // context block.
+  var host=document.getElementById('sm-att-host');
+  if(host && host.parentNode){ host.outerHTML=_smAttendeePickerHtml(); return; }
+  _smRefreshContext();
+}
 
 function vspAlert(msg, title){
   var text=String(msg==null?'':msg);
