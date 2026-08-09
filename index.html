@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-127</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-128</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14776,7 +14776,19 @@ function _vspPndPersonId(vspPerson){
     var vid = (typeof vspPerson==='string') ? null : (vspPerson && vspPerson.id);
     if(!ini) return vid || null;
     var raw = localStorage.getItem('smb_pnd_people_map_v1');
-    if(raw){ var m=JSON.parse(raw); if(m && m.idByIni && m.idByIni[ini]) return m.idByIni[ini]; }
+    if(raw){
+      var m=JSON.parse(raw);
+      if(m && m.idByIni){
+        // Initials-alias heal (Dave, 2026-08-09, merge-128): Venessa is VC in
+        // the VSP roster but VA in the P&D map, so her huddle writes fell back
+        // to the VSP id (p6) while every P&D record keys p12 - the same
+        // divergence class that hit Terry. Alias the missing spelling to the
+        // present one, both directions, so both rosters land on the P&D id.
+        if(m.idByIni['VA'] && !m.idByIni['VC']) m.idByIni['VC']=m.idByIni['VA'];
+        if(m.idByIni['VC'] && !m.idByIni['VA']) m.idByIni['VA']=m.idByIni['VC'];
+        if(m.idByIni[ini]) return m.idByIni[ini];
+      }
+    }
     return vid || null;
   }catch(e){ return (typeof vspPerson==='string') ? null : (vspPerson && vspPerson.id) || null; }
 }
@@ -16336,9 +16348,9 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
       // stale bridge must not outvote filled cells (the 91%-under-all-Yes bug).
       var y2=0,t2=0,hf2=false,any2=false;
       (section.metrics||[]).forEach(function(m){
-        if(m._noScore || m.unit!=='YN') return;
+        if(m._noScore || m.unit!=='YN' || m.cadence==='monthly') return;
         var v=m.readings[wi];
-        if(_vspPerfIsNA(v)) return;
+        if(_vspPerfIsNA(v) && _vspRowAllowsNA(m._rowId)) return;
         t2++;
         if(v!=null && v!==''){ any2=true; if(_vspHuddleIsYes(v))y2++; else if(m._hard)hf2=true; }
       });
@@ -16400,9 +16412,9 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     // genuine away week from a stale-bridge false away.
     var _anyAns=false;
     mets.forEach(function(m){
-      if(m._noScore || m.unit!=='YN') return;
+      if(m._noScore || m.unit!=='YN' || m.cadence==='monthly') return;
       var v=m.readings[wi];
-      if(_vspPerfIsNA(v)) return;
+      if(_vspPerfIsNA(v) && _vspRowAllowsNA(m._rowId)) return;
       if(v!=null && v!==''){ _anyAns=true; }
     });
     var c, bg, txt;
@@ -16428,9 +16440,14 @@ function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
       // must never blank a week the person has filled. Genuinely empty -> dash.
       var yes=0, total=0, hardFail=false, anyData=false;
       mets.forEach(function(m){
-        if(m._noScore || m.unit!=='YN') return;   // workload / non-scored rows are not counted
+        // Denominator parity with _vspPerfWeekScore (Dave, 2026-08-09,
+        // merge-128): exclude noScore, non-YN, AND monthly-cadence rows.
+        // Counting the monthly row every week was the uniform 91%-under-
+        // all-Yes bug (10 of 11 instead of 10 of 10). N/A excludes only on
+        // rows that allow it (Finding 1 guard), matching the engine.
+        if(m._noScore || m.unit!=='YN' || m.cadence==='monthly') return;
         var v=m.readings[wi];
-        if(_vspPerfIsNA(v)) return;                // N/A: out of the denominator
+        if(_vspPerfIsNA(v) && _vspRowAllowsNA(m._rowId)) return;   // N/A: out of the denominator (aa rows only)
         total++;
         if(v!=null && v!==''){ anyData=true; if(_vspHuddleIsYes(v)) yes++; else if(m._hard) hardFail=true; }
       });
@@ -27689,7 +27706,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-127';
+window.VSP_BUILD = 'v186-merge-128';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
