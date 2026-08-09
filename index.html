@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-129</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-134</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5541,7 +5541,7 @@ function submitCreateForm(){
 function renderTeamSelector(){
   var el=document.getElementById('team-selector');
   if(!el) return;
-  var teamList=Object.values(teamsRegistry);
+  var teamList=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   var active=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
   var h='';
   h+='<button onclick="state.showTeamMenu=!state.showTeamMenu;renderTeamSelector()" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:var(--txt)">';
@@ -6217,6 +6217,12 @@ function syncTeamData(){
 }
 
 function switchTeam(teamId){
+  // Visibility gate (merge-134): only members, supervisors of a member, and
+  // admins may enter a team's workspace.
+  if(typeof _vspCanSeeTeamScorecard==='function' && !_vspCanSeeTeamScorecard(teamId)){
+    try{ showToast('That team\'s workspace is limited to its members.'); }catch(e){}
+    return;
+  }
   // Save any scorecard/state changes back to current team before switching
   var cur=teamsRegistry[state.currentTeam];
   if(cur){
@@ -7283,8 +7289,9 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   // Two-sided target - not on-track/off-track - so it overrides the default.
   if(m._numeric && hasVal){
     var _wn=Number(val);
-    if(_wn>=9){ bg='#fee2e2'; color='#991b1b'; }
-    else if(_wn>=8){ bg='#d1fae5'; color='#065f46'; }
+    var _wg=(m.goal!=null&&!isNaN(Number(m.goal)))?Number(m.goal):8;
+    if(_wn>=_wg+1){ bg='#fee2e2'; color='#991b1b'; }
+    else if(_wn>=_wg){ bg='#d1fae5'; color='#065f46'; }
     else { bg='#fef3c7'; color='#92400e'; }
   }
   var display = hasVal ? (_isNA ? 'N/A' : fmtVal(val, m.unit)) : '-';
@@ -8168,7 +8175,7 @@ function renderTeamMenu(menuKey){
   h+='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>';
   if(open){
     h+='<div style="position:absolute;top:36px;left:0;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.15);z-index:300;min-width:230px;padding:4px 0">';
-    Object.keys(teamsRegistry).forEach(function(tid){
+    Object.keys(teamsRegistry).filter(function(tid){ return _vspCanSeeTeamScorecard(tid); }).forEach(function(tid){
       var tm=teamsRegistry[tid]; var isA=tid===state.currentTeam;
       h+='<button onclick="state.'+menuKey+'=false;switchTeam(\''+tid+'\')" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isA?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isA?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">'+tm.name+'</button>';
     });
@@ -8916,6 +8923,58 @@ function _vspAutoIsAdmin(){
     return false;
   }catch(e){ return false; }
 }
+function _vspSupervisesPerson(supId, personId){
+  // True when supId sits anywhere above personId in the reportsTo chain.
+  try{
+    var seen={}, cur=ppl.find(function(x){ return x.id===personId; });
+    while(cur && cur.reportsTo && !seen[cur.id]){
+      seen[cur.id]=1;
+      if(cur.reportsTo===supId) return true;
+      cur=ppl.find(function(x){ return x.id===cur.reportsTo; });
+    }
+  }catch(e){}
+  return false;
+}
+function _vspCanSeeTeamScorecard(tid){
+  // Scorecard visibility rule (Dave, 2026-08-09, merge-132): a team's
+  // scorecard is visible only to members of that team, someone who supervises
+  // a member, or an admin. Everyone always keeps their own My Performance.
+  try{
+    if(typeof _vspAutoIsAdmin==='function' && _vspAutoIsAdmin()) return true;
+    var me=(typeof currentUser!=='undefined'&&currentUser)?currentUser:null;
+    if(!me) return false;
+    var t=teamsRegistry[tid]; if(!t) return false;
+    var mem=t.members||[];
+    if(mem.indexOf(me.initials)>-1) return true;
+    for(var i=0;i<mem.length;i++){
+      var p=ppl.find(function(x){ return x.initials===mem[i]; });
+      if(p && _vspSupervisesPerson(me.id, p.id)) return true;
+    }
+  }catch(e){}
+  return false;
+}
+function _vspVisibleTeams(){
+  // Teams the current user may work in (merge-134): own teams, teams with a
+  // supervised member, all teams for admins. Same predicate app-wide.
+  try{ return Object.keys(teamsRegistry).filter(function(tid){ return _vspCanSeeTeamScorecard(tid); }); }catch(e){ return Object.keys(teamsRegistry||{}); }
+}
+function _vspEnforceTeamAccess(){
+  // App-wide team visibility (Dave, 2026-08-09, merge-134): if the signed-in
+  // user cannot see the current team, snap them to their own team. Runs at
+  // the top of every render, so user switches and boot are both covered.
+  try{
+    if(typeof currentUser==='undefined' || !currentUser) return;
+    if(_vspCanSeeTeamScorecard(state.currentTeam)) return;
+    var vis=_vspVisibleTeams();
+    if(!vis.length) return;
+    var own=vis.find(function(tid){ return ((teamsRegistry[tid]||{}).members||[]).indexOf(currentUser.initials)>-1; });
+    var target=own||vis[0];
+    var cur=teamsRegistry[state.currentTeam];
+    if(cur){ cur.goals=goals; cur.todos=todos; cur.issues=issues; cur.scorecard=scorecard; cur.headlines=headlines; }
+    state.currentTeam=target;
+    syncTeamData();
+  }catch(e){}
+}
 function _vspAutoMetricGroup(m){
   if(m.pndGroup) return m.pndGroup;
   var a=_vspAutoParse(m.auto||m._autoKey);
@@ -9386,9 +9445,17 @@ function renderEditStandardOverlay(){
   h+='<option value="weekly"'+((row&&row.cadence)==='monthly'?'':' selected')+'>Weekly</option>';
   h+='<option value="monthly"'+((row&&row.cadence)==='monthly'?' selected':'')+'>Monthly</option>';
   h+='</select></div>';
-  h+='<div style="margin-bottom:12px"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:var(--fz-body)">';
-  h+='<input type="checkbox" id="es-hard"'+((row&&row.hard)?' checked':'')+dis+' style="width:16px;height:16px">';
-  h+='<span>Priority Rule (hard fail): answered No forces the week to 0%</span></label></div>';
+  if(row&&row.numeric){
+    // Workload rating goal (Dave, 2026-08-09, merge-130): the one numeric row
+    // gets a simple goal box. Green at the goal, amber below, red above.
+    h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Workload goal (1-10)</label>';
+    h+='<input id="es-goal" type="number" min="1" max="10" step="1" value="'+_scEsc(String((row.goal!=null&&!isNaN(Number(row.goal)))?row.goal:8))+'"'+dis+' style="'+inp+'">';
+    h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">Green at the goal, amber below it, red above it.</div></div>';
+  } else {
+    h+='<div style="margin-bottom:12px"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:var(--fz-body)">';
+    h+='<input type="checkbox" id="es-hard"'+((row&&row.hard)?' checked':'')+dis+' style="width:16px;height:16px">';
+    h+='<span>Priority Rule (hard fail): answered No forces the week to 0%</span></label></div>';
+  }
   h+='</div>';
   h+='<div style="padding:14px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--sur)">';
   if(admin){
@@ -9418,7 +9485,13 @@ function saveEditStandard(){
   row.std=stdEl.value.trim();
   row.due=(document.getElementById('es-due')||{}).value||'';
   row.cadence=(document.getElementById('es-cad')||{}).value==='monthly'?'monthly':'weekly';
-  row.hard=!!(document.getElementById('es-hard')||{}).checked;
+  if(row.numeric){
+    var _gEl=document.getElementById('es-goal');
+    var _gv=_gEl?Math.round(Number(_gEl.value)):NaN;
+    row.goal=(isNaN(_gv)||_gv<1||_gv>10)?8:_gv;
+  } else {
+    row.hard=!!(document.getElementById('es-hard')||{}).checked;
+  }
   _vspStdSave(store);
   state.editStandardPanel={open:false};
   try{ showToast('Standard saved.'); }catch(e){}
@@ -10414,7 +10487,49 @@ function renderDashboard(){
   return h;
 }
 
+function _vspPlanVisibility(){
+  try{
+    planData.visibility = planData.visibility || { mode:'all', teams:[] };
+    if(planData.visibility.mode!=='selected') planData.visibility.mode='all';
+    if(!Array.isArray(planData.visibility.teams)) planData.visibility.teams=[];
+    return planData.visibility;
+  }catch(e){ return { mode:'all', teams:[] }; }
+}
+function vspPlanVisMode(v){
+  if(!_vspAutoIsAdmin()) return;
+  _vspPlanVisibility().mode=(v==='selected')?'selected':'all';
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  renderPage();
+}
+function vspPlanVisTeam(tid){
+  if(!_vspAutoIsAdmin()) return;
+  var vv=_vspPlanVisibility();
+  var i=vv.teams.indexOf(tid);
+  if(i>-1) vv.teams.splice(i,1); else vv.teams.push(tid);
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  renderPage();
+}
+function _vspCanSeePlan(){
+  var vv=_vspPlanVisibility();
+  if(vv.mode!=='selected') return true;
+  if(_vspAutoIsAdmin()) return true;
+  var vis=_vspVisibleTeams();
+  for(var i=0;i<vis.length;i++){ if(vv.teams.indexOf(vis[i])>-1) return true; }
+  return false;
+}
 function renderStrategic(){
+  // Strategic Plan visibility (Dave, 2026-08-09, merge-134): company-wide by
+  // default; when restricted to selected teams, only those teams' members
+  // (plus supervisors of a member, and admins) see the plan.
+  if(!_vspCanSeePlan()){
+    var hP='<div>';
+    hP+='<div class="pg-title">Strategic Plan</div>';
+    hP+='<div style="max-width:560px;margin-top:18px;background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:22px">';
+    hP+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:6px">The Strategic Plan is limited to selected teams</div>';
+    hP+='<div style="font-size:var(--fz-body);color:var(--txm);line-height:1.6">An admin has restricted the plan to specific teams. Ask your admin if you need access.</div>';
+    hP+='</div></div>';
+    return hP;
+  }
   // v61: the standalone plan page must respect the lock. A prior in-meeting
   // auto-unlock (entering the plan step during a meeting) could leave
   // planEditUnlocked true; when viewing the plan page directly, re-lock unless
@@ -11599,6 +11714,17 @@ function renderScorecardInline(opts){ _recalcAll();
     h+='<span style="font-size:var(--fz-lg);font-weight:500">'+_scName+'</span>';
     h+='<span style="font-size:var(--fz-body);color:var(--txm)">'+section.seat+'</span>';
     h+='<span style="font-size:var(--fz-body);font-weight:500;color:'+(onTrack===_mets.length?'#16a34a':'#d97706')+'">'+onTrack+'/'+_mets.length+' on track</span>';
+    // Onboarding controls (Dave, 2026-08-09, merge-131): the Set-start-week and
+    // Mark-history-away buttons existed only on the measurables-style renderer,
+    // not on THIS perf grid - the surface people actually use - so a mid-year
+    // add like Venessa had no way to exclude pre-start weeks. Admin-gated: the
+    // person themselves does not see them.
+    if(typeof _vspAutoIsAdmin==='function' && _vspAutoIsAdmin()){
+      var _obIso=(typeof trackingStartFor==='function' && typeof _vspResolvePersonId==='function')?trackingStartFor(_vspResolvePersonId(section.ownerId)):null;
+      var _obLbl=_obIso?('Live from '+_pndFormatDateShort(_obIso)):'Set start week';
+      h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspSetStartWeek(\''+section.ownerId+'\')" title="Turn this scorecard live from a chosen week; earlier weeks are away and not scored">'+_obLbl+'</button>';
+      h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspMarkHistoryAway(\''+section.ownerId+'\')" title="Mark all past weeks away; score only from this week forward">Mark history away</button>';
+    }
     h+='</div>';
 
     // Table - frozen left columns (Trend/Title/Goal/Avg/Total) pinned via
@@ -11746,6 +11872,21 @@ function renderScorecard(){
   // under the fourth scope 'metrics'. Default 'mine'. Unauthorized scopes
   // (Team without supervisor, Company without supervisor/hr) fall back to My.
   var _scope = state.scorecardScope || 'mine';
+  // Visibility gate (merge-132): any scope beyond My Performance requires
+  // access to the current team's scorecard. Members, supervisors of members,
+  // and admins pass; everyone else sees their own performance and a notice.
+  if(_scope!=='mine' && !(typeof _vspCanSeeTeamScorecard==='function' && _vspCanSeeTeamScorecard(state.currentTeam))){
+    var _tnm=(teamsRegistry[state.currentTeam]||{}).name||'this team';
+    var hRestricted='<div>';
+    hRestricted+='<div class="pg-title">Scorecard</div>';
+    hRestricted+='<div class="pg-sub">Team performance scorecards</div>';
+    hRestricted+='<div style="max-width:560px;margin-top:18px;background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:22px">';
+    hRestricted+='<div style="font-size:var(--fz-lg);font-weight:600;margin-bottom:6px">'+_scEsc(_tnm)+'\u2019s scorecard is limited to its team</div>';
+    hRestricted+='<div style="font-size:var(--fz-body);color:var(--txm);line-height:1.6">Team scorecards are visible to the members of that team, their supervisor, and admins. You can view your own performance any time.</div>';
+    hRestricted+='<div style="margin-top:14px"><button class="btn btn-primary" onclick="state.scorecardScope=\'mine\';renderPage()">Open My Performance</button></div>';
+    hRestricted+='</div></div>';
+    return hRestricted;
+  }
   var _allowed = _vspPerfAllowedScopes().map(function(s){ return s[0]; });
   if(_allowed.indexOf(_scope) === -1){ _scope = 'mine'; state.scorecardScope = 'mine'; }
   if(_scope !== 'metrics'){
@@ -11919,7 +12060,7 @@ function renderScorecard(){
     return a+s.metrics.filter(function(m){return _scScored(m)&&isOnTrack(m,_metricLatest(m));}).length;
   },0);
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
-  var allTeams=Object.values(teamsRegistry);
+  var allTeams=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   // Membership visibility: non-supervisors see only teams they belong to
   // (teamsRegistry members list). Keith is not on Leadership, so the LT
   // scorecard does not render for him. Supervisors and HR see every team.
@@ -12885,10 +13026,12 @@ function _vspPerfRangeWeeks(range){
    on the Dashboard / Owner surface, not a scorecard tab. */
 function _vspPerfAllowedScopes(){
   var me = (typeof currentUser!=='undefined' && currentUser) ? currentUser : null;
-  var sup = !!(me && me.supervisor);
   var out = [['mine','My Performance']];
-  if(sup) out.push(['team','Team Performance']);
-  out.push(['metrics','Team Measurables']);
+  // Team scopes follow the merge-132 visibility rule: member of the current
+  // team, supervisor of a member, or admin.
+  var _canTeam = (typeof _vspCanSeeTeamScorecard==='function') && _vspCanSeeTeamScorecard(state.currentTeam);
+  if(_canTeam && me && me.supervisor) out.push(['team','Team Performance']);
+  if(_canTeam) out.push(['metrics','Team Measurables']);
   return out;
 }
 
@@ -12909,7 +13052,7 @@ function _vspPerfScopeToggle(current){
    share one team-picker UI. Rendered for Team scope; My/Company suppress it. */
 function _vspPerfTeamDropdown(){
   var activeT = teamsRegistry[state.currentTeam] || teamsRegistry.lt;
-  var allTeams = Object.values(teamsRegistry);
+  var allTeams = Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   var h = '<div style="position:relative">';
   h += '<button onclick="state.scorecardTeamMenu=!state.scorecardTeamMenu;renderPage()" style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1.5px solid var(--brd2);background:var(--sur);cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:var(--txt)">';
   h += '<div style="width:9px;height:9px;border-radius:50%;background:'+activeT.color+';flex-shrink:0"></div><span>Team: <strong>'+activeT.name+'</strong></span>';
@@ -13043,7 +13186,7 @@ function _vspPerfBuildSection(person, weeks){
         description: row.due,
         unit: '#',
         goalType: 'band',
-        goal: 8,
+        goal: (row.goal!=null && !isNaN(Number(row.goal))) ? Number(row.goal) : 8,
         rollupAs: 'Average',
         cadence: 'weekly',
         readings: weeks.map(function(iso){
@@ -13176,7 +13319,8 @@ function _vspPerfInstallCellAdapter(){
         return;
       }
       var _nCur = m.readings[weekIdx];
-      var _nIn = window.prompt('Weekly Workload Rating (1-10)\n\n8 is a healthy load. Below 8 is light. 9-10 means overloaded.\n\nEnter a number 1-10, or leave blank to clear:', (_nCur==null?'':_nCur));
+      var _ng=(m.goal!=null&&!isNaN(Number(m.goal)))?Number(m.goal):8;
+      var _nIn = window.prompt('Weekly Workload Rating (1-10)\n\n'+_ng+' is a healthy load. Below '+_ng+' is light. '+(_ng+1)+'+ means overloaded.\n\nEnter a number 1-10, or leave blank to clear:', (_nCur==null?'':_nCur));
       if(_nIn===null) return;
       var _nVal = String(_nIn).trim();
       if(_nVal===''){
@@ -13897,7 +14041,7 @@ function renderTodos(){
   // ── PAGE TOOLBAR ──────────────────────────────────────────
   // Team selector + Owner filter + Archive + Search + Export
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
-  var teamList=Object.values(teamsRegistry);
+  var teamList=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">';
 
   // Team selector dropdown
@@ -14238,7 +14382,7 @@ function renderIssues(){
 
   // Team selector row
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
-  var teamList=Object.values(teamsRegistry);
+  var teamList=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
   h+='<div style="position:relative">';
   h+='<button onclick="state.issueTeamMenu=!state.issueTeamMenu;renderPage()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:var(--txt)">';
@@ -14881,7 +15025,13 @@ function _vspHuddleCellClick(personId, iso, rowId){
     var all0=_vspPndReadHuddles();
     var rec0=all0[personId+'__'+iso];
     var cur0=rec0 && rec0.answers ? rec0.answers[rowId] : '';
-    var input=window.prompt('Weekly Workload Rating (1-10)\n\n8 is a healthy load. Below 8 is light. 9-10 means overloaded.\n\nEnter a number 1-10, or leave blank to clear:', (cur0==null?'':cur0));
+    // Goal comes from the role-standards row (merge-130); default 8.
+    var _g0=8;
+    try{
+      var _st0=_vspPerfLoadRoleStandards();
+      Object.keys(_st0).forEach(function(rk){ (_st0[rk]||[]).forEach(function(r){ if(r&&String(r.id)===String(rowId)&&r.goal!=null&&!isNaN(Number(r.goal))){ _g0=Number(r.goal); } }); });
+    }catch(e){}
+    var input=window.prompt('Weekly Workload Rating (1-10)\n\n'+_g0+' is a healthy load. Below '+_g0+' is light. '+(_g0+1)+'+ means overloaded.\n\nEnter a number 1-10, or leave blank to clear:', (cur0==null?'':cur0));
     if(input===null) return; // cancelled
     var val=String(input).trim();
     if(val===''){ _vspPndWriteHuddle(personId, iso, rowId, null); }
@@ -16192,7 +16342,7 @@ function _vspRenderHuddleScorecard(){
         description: row.due,
         unit: '#',
         goalType: 'band',
-        goal: 8,
+        goal: (row.goal!=null && !isNaN(Number(row.goal))) ? Number(row.goal) : 8,
         rollupAs: 'Average',
         cadence: 'weekly',
         readings: weeks.map(function(iso){
@@ -16662,7 +16812,8 @@ function _vspInstallHuddleCellAdapter(){
     if(m && m._numeric && m._rowId){
       var _nIso = st.weeks[weekIdx];
       var _nCur = m.readings[weekIdx];
-      var _nIn = window.prompt('Weekly Workload Rating (1-10)\n\n8 is a healthy load. Below 8 is light. 9-10 means overloaded.\n\nEnter a number 1-10, or leave blank to clear:', (_nCur==null?'':_nCur));
+      var _ng=(m.goal!=null&&!isNaN(Number(m.goal)))?Number(m.goal):8;
+      var _nIn = window.prompt('Weekly Workload Rating (1-10)\n\n'+_ng+' is a healthy load. Below '+_ng+' is light. '+(_ng+1)+'+ means overloaded.\n\nEnter a number 1-10, or leave blank to clear:', (_nCur==null?'':_nCur));
       if(_nIn===null) return;
       var _nVal = String(_nIn).trim();
       if(_nVal===''){
@@ -18118,7 +18269,28 @@ function renderMeetings(){
         h+='<option value="'+_scEsc(o.ini)+'"'+(_pf===o.ini?' selected':'')+'>'+_scEsc(o.name)+'</option>';
       });
       h+='</select>';
-      if(_pf){ h+='<button onclick="state.meetPerson=\'\';renderPage()" style="padding:4px 12px;border-radius:14px;font-size:var(--fz-base);border:1.5px solid var(--brd2);background:var(--sur);color:var(--txm);cursor:pointer;font-family:inherit">Clear</button>'; }
+      // Meeting-type filter (Dave, 2026-08-09, merge-133): third leg of the
+      // Person + Type + Show range filter. Values are the internal type keys;
+      // labels are the merge-121 display names. NOTE: state.meetType is already
+      // used by agendas, so this filter uses its own key state.meetTypeFilter.
+      var _tf=state.meetTypeFilter||'';
+      var _tOpts=[
+        ['Weekly','Team Meeting'],
+        ['Quarterly','Quarterly Team Meeting'],
+        ['Annual','Annual Team Meeting'],
+        ['Weekly Performance Huddle','Huddle'],
+        ['Quarterly Performance Huddle','Quarterly Huddle'],
+        ['Annual Performance Huddle','Annual Huddle'],
+        ['Monthly Client Meeting','Client Meeting']
+      ];
+      h+='<span style="font-size:var(--fz-base);color:var(--txm);margin-left:8px">Type:</span>';
+      h+='<select onchange="state.meetTypeFilter=this.value;renderPage()" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-family:inherit;cursor:pointer">';
+      h+='<option value=""'+(_tf===''?' selected':'')+'>All types</option>';
+      _tOpts.forEach(function(o){
+        h+='<option value="'+_scEsc(o[0])+'"'+(_tf===o[0]?' selected':'')+'>'+_scEsc(o[1])+'</option>';
+      });
+      h+='</select>';
+      if(_pf||_tf){ h+='<button onclick="state.meetPerson=\'\';state.meetTypeFilter=\'\';renderPage()" style="padding:4px 12px;border-radius:14px;font-size:var(--fz-base);border:1.5px solid var(--brd2);background:var(--sur);color:var(--txm);cursor:pointer;font-family:inherit">Clear</button>'; }
       h+='</div>';
     })();
 
@@ -18182,9 +18354,10 @@ function renderMeetings(){
     // Apply the person filter (merge-120): keep only meetings the chosen person
     // attends. Empty selection keeps everyone.
     if(state.meetPerson){ _allSched=_allSched.filter(function(m){ return (m.attendees||[]).indexOf(state.meetPerson)>-1; }); }
+    if(state.meetTypeFilter){ _allSched=_allSched.filter(function(m){ return m.type===state.meetTypeFilter; }); }
     if(!_allSched.length){
-      var _emptyMsg=state.meetPerson
-        ? 'No meetings for this person in this range. Try a wider range, or choose Everyone.'
+      var _emptyMsg=(state.meetPerson||state.meetTypeFilter)
+        ? 'No meetings match these filters in this range. Try a wider range, another type, or Everyone.'
         : 'No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.';
       h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">'+_emptyMsg+'</div>';
     } else {
@@ -26911,7 +27084,7 @@ function printOrgChart(){
 function renderHeadlines(){
   var allHeadlines=headlines.filter(function(h){return !_delHL()[h.id] && _ownerSelHas('hlOwner',h.owner) && (state.hlShowArchive?(h.status==='archived'):(h.status!=='archived'));}); // owner-filtered; active vs archived; tombstoned removed
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
-  var teamList=Object.values(teamsRegistry);
+  var teamList=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   var teamMembers=["DS","TP","WL","MN","LS","VC","DT"];
 
   var html='<div class="pg-title">Headlines</div><div class="pg-sub">Good news only  -  team and client wins \u00b7 No discussion, just celebration</div>';
@@ -27019,7 +27192,7 @@ function renderHeadlines(){
   return html;
 }
 function renderCascades(){
-  var allTeams=Object.values(teamsRegistry);
+  var allTeams=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
   var activeT=teamsRegistry[state.currentTeam]||teamsRegistry["lt"];
   // For view, use a separate "viewing team" state so you can browse other teams' cascades
   var viewTeamId=state.cascadeViewTeam||state.currentTeam;
@@ -27232,6 +27405,7 @@ function _showViewTools(){
   document.body.appendChild(el);
 }
 function renderPage(){
+  try{ _vspEnforceTeamAccess(); }catch(e){}
   syncTeamData();
   if(window._vspReady){ _vspAutosaveQueue(); }
   var p=state.page;
@@ -27246,7 +27420,27 @@ function renderPage(){
 
   var h='';
   if(p==="dashboard") h=renderDashboard();
-  else if(p==="strategic") h=renderStrategic();
+  else if(p==="strategic"){
+    h=renderStrategic();
+    // Admin-only visibility control (merge-134): who can see the plan.
+    if(typeof _vspAutoIsAdmin==='function' && _vspAutoIsAdmin() && typeof _vspCanSeePlan==='function' && _vspCanSeePlan()){
+      var _vv=_vspPlanVisibility();
+      var _pv='<div style="margin:0 0 14px;background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
+      _pv+='<span style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">Plan visibility</span>';
+      _pv+='<select onchange="vspPlanVisMode(this.value)" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-family:inherit;cursor:pointer">';
+      _pv+='<option value="all"'+(_vv.mode!=='selected'?' selected':'')+'>All teams</option>';
+      _pv+='<option value="selected"'+(_vv.mode==='selected'?' selected':'')+'>Selected teams</option>';
+      _pv+='</select>';
+      if(_vv.mode==='selected'){
+        Object.keys(teamsRegistry).forEach(function(tid){
+          var _on=_vv.teams.indexOf(tid)>-1;
+          _pv+='<label style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fz-base);cursor:pointer"><input type="checkbox" '+(_on?'checked':'')+' onchange="vspPlanVisTeam(\''+tid+'\')" style="width:14px;height:14px">'+_scEsc((teamsRegistry[tid]||{}).name||tid)+'</label>';
+        });
+      }
+      _pv+='</div>';
+      h=_pv+h;
+    }
+  }
   else if(p==="scorecard") h=renderScorecard();
   else if(p==="goals") h=renderGoals();
   else if(p==="jobhealth") h=renderJobHealth();
@@ -27509,7 +27703,7 @@ function renderPage(){
     cfEl.id='create-form-modal';
     cfEl.style.cssText='position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center';
     var teamMembers=['DS','TP','WL','MN','LS','VC','DT'];
-    var allTeams=Object.values(teamsRegistry);
+    var allTeams=Object.values(teamsRegistry).filter(function(t){ return _vspCanSeeTeamScorecard(t.id); });
 
     var ownerOpts=_vspOwnerOptions('');
 
@@ -27714,7 +27908,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-129';
+window.VSP_BUILD = 'v186-merge-134';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
