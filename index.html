@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-124</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-127</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -12800,7 +12800,11 @@ function _vspPerfWeekScore(person, weekIso, std){
   weekly.forEach(function(row){
     var ans = _vspPerfAnswer(person.id, weekIso, row.id);
     if(ans != null) hasAny = true;
-    if(_vspPerfIsNA(ans)) return;            // N/A: out of numerator and denominator
+    // N/A excludes from numerator and denominator ONLY on rows that allow the
+    // N/A state (aa rows). On any other row a stray 'na' counts in the
+    // denominator as not-Yes instead of silently vanishing (Finding 1,
+    // Dave, 2026-08-09, merge-125).
+    if(_vspPerfIsNA(ans) && _vspRowAllowsNA(row.id)) return;
     denom++;
     if(_vspPerfIsYes(ans)) yes++;
     else if(row.hard && ans != null) hardFailed = true;
@@ -14776,8 +14780,33 @@ function _vspPndPersonId(vspPerson){
     return vid || null;
   }catch(e){ return (typeof vspPerson==='string') ? null : (vspPerson && vspPerson.id) || null; }
 }
+function _vspPerfMapReady(){
+  // First-sync guard (Dave, 2026-08-09, merge-126, Finding 2): scorecard
+  // entries key on the P&D people map. On a synced build, a device that has
+  // not completed its first cloud pull has no map yet, and writes would file
+  // under wrong ids and diverge across devices. Ready when the map is present,
+  // or when this build has no sync adapter (local test copy: fallback ids are
+  // consistent on-device, no cross-device divergence possible).
+  try{
+    var raw = localStorage.getItem('smb_pnd_people_map_v1');
+    if(raw){ var m=JSON.parse(raw); if(m && m.idByIni) return true; }
+  }catch(e){}
+  if(window.__vspHasSyncAdapter === undefined){
+    // Marker built in parts so this module code does not itself contain the
+    // adapter's host literal (LOCAL_TEST strips blocks containing the literal;
+    // the check must only match the real adapter block).
+    var _mk = ['smb-staging','666a3'].join('-');
+    try{ window.__vspHasSyncAdapter = document.documentElement.innerHTML.indexOf(_mk) > -1; }
+    catch(e){ window.__vspHasSyncAdapter = false; }
+  }
+  return !window.__vspHasSyncAdapter;
+}
+function _vspPerfSyncToast(){
+  try{ showToast('This device has not finished its first sync. Wait for the green Synced badge, refresh, then enter scores.'); }catch(e){}
+}
 function _vspPndWriteHuddle(personId, iso, rowId, answer){
   // answer: 'yes' | 'no' | null (clear). Preserves neighbouring answers.
+  if(!_vspPerfMapReady()){ _vspPerfSyncToast(); return; }
   try{
     var all=_vspPndReadHuddles();
     var key=personId+'__'+iso;
@@ -16239,6 +16268,7 @@ function _vspHuddleIsYes(v){
 }
 function vspHuddleToggleAway(iso){
   var st=window._vspHuddleSc; if(!st) return;
+  if(!_vspPerfMapReady()){ _vspPerfSyncToast(); return; }
   try{
     var all=_vspPndReadHuddles();
     var k=st.personId+'__'+iso;
@@ -21179,7 +21209,18 @@ function _msSendMail(to, subject, htmlBody){
       method:'POST', headers:{ Authorization:'Bearer '+tok, 'Content-Type':'application/json' },
       body: JSON.stringify({ message:{ subject:subject, body:{contentType:'HTML', content:htmlBody},
         toRecipients:_rcpts }, saveToSentItems:true })
-    }).then(function(r){ return r.ok; })
+    }).then(function(r){
+        // Mail log (Dave, 2026-08-09, merge-127): every mail sent from VSP is
+        // recorded in-app (timestamp, recipients, subject, ok) so there is an
+        // audit trail of invites and sign-off notifications. Capped at 300.
+        try{
+          var _log=JSON.parse(localStorage.getItem('smb.vsp.maillog.v1')||'[]');
+          _log.unshift({ ts:new Date().toISOString(), to:(Array.isArray(to)?to:[to]).filter(Boolean), subject:String(subject||''), ok:!!r.ok });
+          if(_log.length>300) _log.length=300;
+          localStorage.setItem('smb.vsp.maillog.v1', JSON.stringify(_log));
+        }catch(e){}
+        return r.ok;
+      })
       .catch(function(){ return null; });
   });
 }
@@ -23186,7 +23227,7 @@ function renderAnnual(){
     });
     h += '</tbody></table>';
   }
-  h += '<div style="margin-top:14px"><label class="q-cul-lbl">Comments:</label><textarea class="q-ta" onchange="aSetField(\'respComments\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.respComments||'')+'</textarea></div>';
+  h += '<div style="margin-top:14px"><label class="q-cul-lbl">Comments:</label><textarea class="q-ta" oninput="aSetField(\'respComments\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.respComments||'')+'</textarea></div>';
   h += '</div></div>';
 
   // Section 9: Performance Points
@@ -23205,7 +23246,7 @@ function renderAnnual(){
   h += '<tr style="background:var(--sur2)"><td class="first" style="text-align:left;font-weight:700">Average:</td><td style="text-align:right;font-weight:700">'+(annualAvg==null?'-':annualAvg+'%')+'</td></tr>';
   h += '<tr><td class="first" style="text-align:left">Are your performance points on track?</td><td style="text-align:right">'+_aYN('perfPointsOnTrack', rec.perfPointsOnTrack)+'</td></tr>';
   h += '</tbody></table>';
-  h += '<div style="margin-top:14px"><label class="q-cul-lbl">Comments:</label><textarea class="q-ta" onchange="aSetField(\'perfPointsComment\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.perfPointsComment||'')+'</textarea></div>';
+  h += '<div style="margin-top:14px"><label class="q-cul-lbl">Comments:</label><textarea class="q-ta" oninput="aSetField(\'perfPointsComment\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.perfPointsComment||'')+'</textarea></div>';
   h += '</div></div>';
 
   // Section 10: Measurables (VSP mirror, read-only) - NEW to match Quarterly
@@ -23265,7 +23306,7 @@ function renderAnnual(){
       '<td>'+(archived?'':'<button class="q-ref-btn" style="margin-right:4px" onclick="aMoveMotivator('+mi+',-1)" '+(mi===0?'disabled':'')+'>&uarr;</button><button class="q-ref-btn" onclick="aMoveMotivator('+mi+',1)" '+(mi===rec.motivators.length-1?'disabled':'')+'>&darr;</button>')+'</td></tr>';
   });
   h += '</tbody></table>';
-  h += '<div style="margin-top:14px"><label class="q-cul-lbl">Feel free to share additional thoughts on why these motivators matter to you:</label><textarea class="q-ta" onchange="aSetField(\'motivatorsNote\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.motivatorsNote||'')+'</textarea></div>';
+  h += '<div style="margin-top:14px"><label class="q-cul-lbl">Feel free to share additional thoughts on why these motivators matter to you:</label><textarea class="q-ta" oninput="aSetField(\'motivatorsNote\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.motivatorsNote||'')+'</textarea></div>';
   h += '</div></div>';
 
   // Section 13: Annual Performance Review (8 prompts)
@@ -23281,7 +23322,7 @@ function renderAnnual(){
     ['empComments',    '13.8. Employee comments:']
   ];
   revPrompts.forEach(function(p){
-    h += '<div style="margin-bottom:12px"><label class="q-cul-lbl">'+esc(p[1])+'</label><textarea class="q-ta" onchange="aSetReview(\''+p[0]+'\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.review[p[0]]||'')+'</textarea></div>';
+    h += '<div style="margin-bottom:12px"><label class="q-cul-lbl">'+esc(p[1])+'</label><textarea class="q-ta" oninput="aSetReview(\''+p[0]+'\',this.value)"'+(archived?' readonly':'')+'>'+esc(rec.review[p[0]]||'')+'</textarea></div>';
   });
   h += '</div></div>';
 
@@ -23331,8 +23372,8 @@ function renderAnnual(){
   var de = rec.delegate;
   h += '<div class="q-card"><div class="q-card-hd"><div class="q-t">15. Delegate &amp; Elevate Exercise</div><div class="q-m">Find your unique Abilities. Complete the Delegate and Elevate exercise at the start of every year.</div></div><div class="q-card-bd">';
   h += '<div class="q-de-grid">';
-  h += '<div class="q-de-item"><label>Love / Great at</label><textarea class="q-ta" onchange="aSetDelegate(\'love\',this.value)"'+(archived?' readonly':'')+'>'+esc(de.love||'')+'</textarea></div>';
-  h += '<div class="q-de-item"><label>Like / Good at</label><textarea class="q-ta" onchange="aSetDelegate(\'like\',this.value)"'+(archived?' readonly':'')+'>'+esc(de.like||'')+'</textarea></div>';
+  h += '<div class="q-de-item"><label>Love / Great at</label><textarea class="q-ta" oninput="aSetDelegate(\'love\',this.value)"'+(archived?' readonly':'')+'>'+esc(de.love||'')+'</textarea></div>';
+  h += '<div class="q-de-item"><label>Like / Good at</label><textarea class="q-ta" oninput="aSetDelegate(\'like\',this.value)"'+(archived?' readonly':'')+'>'+esc(de.like||'')+'</textarea></div>';
   h += "<div class=\"q-de-item\"><label>Don't like / Good at</label><textarea class=\"q-ta\" onchange=\"aSetDelegate('dislikeGood',this.value)\""+(archived?' readonly':'')+'>'+esc(de.dislikeGood||'')+'</textarea></div>';
   h += "<div class=\"q-de-item\"><label>Don't like / Not good at</label><textarea class=\"q-ta\" onchange=\"aSetDelegate('dislikeNot',this.value)\""+(archived?' readonly':'')+'>'+esc(de.dislikeNot||'')+'</textarea></div>';
   h += '</div>';
@@ -23454,6 +23495,17 @@ function _pndRenderFramework(fw, rec, archived){
   return h;
 }
 
+function _pndMailLogLine(subjectPerson){
+  // Last VSP-sent email mentioning this person, from the merge-127 mail log.
+  try{
+    var log=JSON.parse(localStorage.getItem('smb.vsp.maillog.v1')||'[]');
+    var nm=subjectPerson?fullName(subjectPerson):'';
+    var hit=null;
+    for(var i=0;i<log.length;i++){ if(!nm || (log[i].subject||'').indexOf(nm)>-1){ hit=log[i]; break; } }
+    if(!hit) return '';
+    return '<div style="font-size:var(--fz-base);color:var(--txm);margin:4px 0 10px">Last email sent from VSP: '+esc(hit.subject)+' \u00b7 '+esc(String(hit.ts).substring(0,10))+(hit.ok?'':' (send failed)')+'</div>';
+  }catch(e){ return ''; }
+}
 function _pndRenderAnnualApprovals(person, rec, archived){
   var chain = _pndBuildApprovalChain(state.reportId);
   var cu = pdCurrentUser();
@@ -23462,6 +23514,7 @@ function _pndRenderAnnualApprovals(person, rec, archived){
        (!archived ? '<div class="q-actions"><button type="button" class="q-mbtn" onclick="pndEmailSignReminder(\''+state.reportId+'\',\'annual\')" title="Opens Outlook drafted to whoever is next in the chain">Email a reminder</button></div>' : '')+
        '</div><div class="q-card-bd">';
   h += '<div class="q-appr-lead">Sequential approval. A step unlocks when the prior step is signed.</div>';
+  h += _pndMailLogLine(person);
   var priorSigned = true;
   chain.forEach(function(step, i){
     var appr = rec.approvals[step.key] || { notes:'', signedAt:null, signedBy:null };
@@ -23476,7 +23529,7 @@ function _pndRenderAnnualApprovals(person, rec, archived){
          '<div class="q-appr-titles"><div class="q-appr-role">'+esc(step.label)+'</div>'+
          '<div class="q-appr-person">'+esc(fullName(step.person))+(step.person.roleLabel?' &middot; <span style="color:var(--txm);font-weight:400">'+esc(step.person.roleLabel)+'</span>':'')+'</div></div></div>';
     var placeholder = canEdit ? 'Add your notes before signing (optional)' : (signed ? '' : 'Notes will appear once '+step.person.first+' completes this step');
-    h += '<textarea class="q-appr-notes" '+(canEdit?'':'readonly')+' onchange="aSetApprovalNotes(\''+step.key+'\',this.value)" placeholder="'+escAttr(placeholder)+'">'+esc(appr.notes||'')+'</textarea>';
+    h += '<textarea class="q-appr-notes" '+(canEdit?'':'readonly')+' oninput="aSetApprovalNotes(\''+step.key+'\',this.value)" placeholder="'+escAttr(placeholder)+'">'+esc(appr.notes||'')+'</textarea>';
     h += '<div class="q-appr-foot">';
     if(signed){
       var signerName = appr.signedBy ? (personById(appr.signedBy)?fullName(personById(appr.signedBy)):fullName(step.person)) : fullName(step.person);
@@ -23625,7 +23678,38 @@ function aSignApproval(slotKey){
   r.approvals[slotKey].signedBy = cu ? cu.id : null;
   putAnnual(r);
   _pndAutoArchiveAnnual();
+  // Auto-notify (Dave, 2026-08-09, merge-127): when a step is signed and the
+  // chain is not complete, email the NEXT unsigned signer automatically, the
+  // same behaviour the quarterly chain already has. No-op when mail is down.
+  try{
+    var _r2=getAnnual();
+    if(!_r2.archivedAt){
+      var _chain=_pndBuildApprovalChain(state.reportId);
+      for(var _i=0;_i<_chain.length;_i++){
+        var _s=_chain[_i];
+        if(!_r2.approvals[_s.key] || !_r2.approvals[_s.key].signedAt){
+          _pndSendAnnualApprovalEmail(_s, state.reportId, state.annualYear);
+          break;
+        }
+      }
+    }
+  }catch(e){}
   renderPage();
+}
+function _pndSendAnnualApprovalEmail(step, subjectPersonId, year){
+  // Annual twin of _pndSendApprovalEmail: deep link opens the annual review.
+  if(typeof _msSendMail!=='function' || !_msConnected()) return;
+  try{
+    var _subj=personById(subjectPersonId), _sg=step.person;
+    if(!_subj || !_sg || !_sg.email) return;
+    var _u='https://builderplaybook.github.io/VSP/';
+    _msSendMail(_sg.email,
+      fullName(_subj)+"'s "+year+' annual review - awaiting your sign-off',
+      '<p>Hi '+_scEsc(_sg.first)+',</p>'+
+      '<p><b>'+_scEsc(fullName(_subj))+'</b>\'s '+year+' annual review has reached your step in the sign-off chain.</p>'+
+      '<p><b>What to do:</b> review each section, complete your part, and sign.</p>'+
+      '<p><a href="'+_u+'?open=annual&pid='+subjectPersonId+'&year='+year+'">Open '+_scEsc(_subj.first)+"'s annual review</a> (takes you straight to it)</p><p>Sent automatically by Self-Managing Builder.</p>");
+  }catch(e){}
 }
 
 
@@ -24999,9 +25083,9 @@ function renderQuarterly(){
   // ================== SECTION 1: Personal & Professional Check-in ==================
   h += '<div class="q-card"><div class="q-card-hd"><div class="q-t">Personal &amp; Professional Check-in</div><div class="q-m">Open the conversation. Two questions before rocks, scores, or feedback.</div></div><div class="q-card-bd">'+
        '<div style="margin-bottom:14px"><label class="q-cul-lbl">How are you doing personally?</label>'+
-       '<textarea class="q-ta" onchange="qSetCheckIn(\'personal\',this.value)" placeholder="Share what you want, at the depth you want - health, energy, anything on your mind"'+(archived?' readonly':'')+'>'+esc((rec.checkIn||{}).personal||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetCheckIn(\'personal\',this.value)" placeholder="Share what you want, at the depth you want - health, energy, anything on your mind"'+(archived?' readonly':'')+'>'+esc((rec.checkIn||{}).personal||'')+'</textarea></div>'+
        '<div><label class="q-cul-lbl">How are you doing professionally?</label>'+
-       '<textarea class="q-ta" onchange="qSetCheckIn(\'professional\',this.value)" placeholder="Work energy, engagement, growth, anything on your mind"'+(archived?' readonly':'')+'>'+esc((rec.checkIn||{}).professional||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetCheckIn(\'professional\',this.value)" placeholder="Work energy, engagement, growth, anything on your mind"'+(archived?' readonly':'')+'>'+esc((rec.checkIn||{}).professional||'')+'</textarea></div>'+
        '</div></div>';
 
   // ================== SECTION 2: What's Working / What's Not Working ==================
@@ -25009,9 +25093,9 @@ function renderQuarterly(){
      "what's not working" flow naturally into the Issues & Actions section below. */
   h += '<div class="q-card"><div class="q-card-hd"><div class="q-t">What\'s Working / What\'s Not Working</div><div class="q-m">The heart of the conversation. Issues that surface here land in Issues &amp; Actions below.</div></div><div class="q-card-bd">'+
        '<div style="margin-bottom:14px"><label class="q-cul-lbl">What\'s working?</label>'+
-       '<textarea class="q-ta" onchange="qSetWorking(\'working\',this.value)" placeholder="What is going well this quarter - keep doing it"'+(archived?' readonly':'')+'>'+esc((rec.workingNotWorking||{}).working||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetWorking(\'working\',this.value)" placeholder="What is going well this quarter - keep doing it"'+(archived?' readonly':'')+'>'+esc((rec.workingNotWorking||{}).working||'')+'</textarea></div>'+
        '<div><label class="q-cul-lbl">What\'s not working?</label>'+
-       '<textarea class="q-ta" onchange="qSetWorking(\'notWorking\',this.value)" placeholder="What is getting in the way - candid, specific"'+(archived?' readonly':'')+'>'+esc((rec.workingNotWorking||{}).notWorking||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetWorking(\'notWorking\',this.value)" placeholder="What is getting in the way - candid, specific"'+(archived?' readonly':'')+'>'+esc((rec.workingNotWorking||{}).notWorking||'')+'</textarea></div>'+
        '</div></div>';
 
 
@@ -25182,11 +25266,11 @@ function renderQuarterly(){
   var iss = rec.issues || {topIssues:'',decisions:'',actions:''};
   h += '<div class="q-card"><div class="q-card-hd"><div class="q-t">Issues &amp; Actions</div><div class="q-m">Long-cycle issues surfaced this quarter. Decisions made. Actions assigned with an owner and a date.</div></div><div class="q-card-bd">'+
        '<div style="margin-bottom:14px"><label class="q-cul-lbl">Top issues raised</label>'+
-       '<textarea class="q-ta" onchange="qSetIssue(\'topIssues\',this.value)" placeholder="What blockers, patterns, or long-cycle items came up this quarter?"'+(archived?' readonly':'')+'>'+esc(iss.topIssues||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetIssue(\'topIssues\',this.value)" placeholder="What blockers, patterns, or long-cycle items came up this quarter?"'+(archived?' readonly':'')+'>'+esc(iss.topIssues||'')+'</textarea></div>'+
        '<div style="margin-bottom:14px"><label class="q-cul-lbl">Decisions made</label>'+
-       '<textarea class="q-ta" onchange="qSetIssue(\'decisions\',this.value)" placeholder="Agreements reached during this conversation"'+(archived?' readonly':'')+'>'+esc(iss.decisions||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetIssue(\'decisions\',this.value)" placeholder="Agreements reached during this conversation"'+(archived?' readonly':'')+'>'+esc(iss.decisions||'')+'</textarea></div>'+
        '<div><label class="q-cul-lbl">Actions assigned</label>'+
-       '<textarea class="q-ta" onchange="qSetIssue(\'actions\',this.value)" placeholder="Who / what / by when - one per line"'+(archived?' readonly':'')+'>'+esc(iss.actions||'')+'</textarea></div>'+
+       '<textarea class="q-ta" oninput="qSetIssue(\'actions\',this.value)" placeholder="Who / what / by when - one per line"'+(archived?' readonly':'')+'>'+esc(iss.actions||'')+'</textarea></div>'+
        '</div></div>';
 
 
@@ -25234,6 +25318,7 @@ function renderQuarterly(){
        (!archived ? '<div class="q-actions"><button type="button" class="q-mbtn" onclick="pndEmailSignReminder(\''+state.reportId+'\',\'quarterly\')" title="Opens Outlook drafted to whoever is next in the chain">Email a reminder</button></div>' : '')+
        '</div><div class="q-card-bd">';
   h += '<div class="q-appr-lead">Sequential approval. A step unlocks when the prior step is signed.</div>';
+  h += _pndMailLogLine(person);
   var priorSigned = true;                                    /* first step always unlocked */
   chain.forEach(function(step, i){
     var appr = rec.approvals[step.key] || { notes:'', signedAt:null, signedBy:null };
@@ -25255,7 +25340,7 @@ function renderQuarterly(){
     h += '</div>';
     /* Notes: editable only when it's this user's turn and not yet signed. Others see it read-only. */
     var placeholder = canEdit ? 'Add your notes before signing (optional)' : (signed ? '' : 'Notes will appear once '+step.person.first+' completes this step');
-    h += '<textarea class="q-appr-notes" '+(canEdit?'':'readonly')+' onchange="qSetApprovalNotes(\''+step.key+'\',this.value)" placeholder="'+escAttr(placeholder)+'">'+esc(appr.notes||'')+'</textarea>';
+    h += '<textarea class="q-appr-notes" '+(canEdit?'':'readonly')+' oninput="qSetApprovalNotes(\''+step.key+'\',this.value)" placeholder="'+escAttr(placeholder)+'">'+esc(appr.notes||'')+'</textarea>';
     h += '<div class="q-appr-foot">';
     if(signed){
       var signerName = appr.signedBy ? (personById(appr.signedBy)?fullName(personById(appr.signedBy)):fullName(step.person)) : fullName(step.person);
@@ -27604,7 +27689,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-124';
+window.VSP_BUILD = 'v186-merge-127';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
