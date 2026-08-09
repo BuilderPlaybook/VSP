@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-134</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-137</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -6878,38 +6878,76 @@ function computePlanCompleteness(){
   function st(filled,total){ return (filled>=total&&total>0)?'complete':(filled>0?'partial':'empty'); }
   var secs=[];
   var cv=p.cv||[]; var cvF=cv.filter(function(x){return ne(x.title);}).length;
-  secs.push({label:'Core Values',tab:'vision',state:st(cvF,cv.length||1),detail:cvF+'/'+(cv.length||0)});
-  var cfF=[p.cfTagline,p.cfDesc,p.cfNiche].filter(ne).length;
-  secs.push({label:'Company Focus',tab:'vision',state:st(cfF,3),detail:cfF+'/3'});
-  secs.push({label:'10-Year Goal',tab:'vision',state:ne(p.target10yr)?'complete':'empty',detail:''});
-  var gF=[p.gtmTagline,p.gtmTarget].filter(ne).length;
-  secs.push({label:'Go-To-Market',tab:'vision',state:st(gF,2),detail:gF+'/2'});
+  secs.push({label:'Core Values',tab:'vision',state:st(cvF,cv.length||1),detail:cvF+'/'+(cv.length||0),
+    todo:(cvF>=(cv.length||1))?'':((cv.length?((cv.length-cvF)+' core value'+((cv.length-cvF)===1?'':'s')+' still need a title.'):'Add your core values.'))});
+  var _cfMiss=[['tagline',p.cfTagline],['description',p.cfDesc],['niche',p.cfNiche]].filter(function(x){return !ne(x[1]);}).map(function(x){return x[0];});
+  var cfF=3-_cfMiss.length;
+  secs.push({label:'Company Focus',tab:'vision',state:st(cfF,3),detail:cfF+'/3',
+    todo:_cfMiss.length?('Fill in the '+_cfMiss.join(' and ')+'.'):''});
+  secs.push({label:'10-Year Goal',tab:'vision',state:ne(p.target10yr)?'complete':'empty',detail:'',
+    todo:ne(p.target10yr)?'':'Write the 10-year goal.'});
+  var _gMiss=[['tagline',p.gtmTagline],['target market',p.gtmTarget]].filter(function(x){return !ne(x[1]);}).map(function(x){return x[0];});
+  var gF=2-_gMiss.length;
+  secs.push({label:'Go-To-Market',tab:'vision',state:st(gF,2),detail:gF+'/2',
+    todo:_gMiss.length?('Fill in the '+_gMiss.join(' and ')+'.'):''});
   var t3=p.pic3yr||{}; var n3=['grossSales','grossProfit','expenses','netProfit'].filter(function(k){return ne(t3[k]);}).length; var i3=(p.pic3yrItems||[]).length;
-  secs.push({label:'3-Year Goal',tab:'vision',state:st(n3+(i3?1:0),5),detail:n3+'/4 nums'});
+  secs.push({label:'3-Year Goal',tab:'vision',state:st(n3+(i3?1:0),5),detail:n3+'/4 nums',
+    todo:(n3+(i3?1:0)>=5)?'':(((4-n3)>0?('Enter '+(4-n3)+' more financial number'+((4-n3)===1?'':'s')+'. '):'')+(i3?'':'Add at least one 3-year measurable.'))});
   var o=p.oneyr||{}; var n1=['grossSales','grossProfit','expenses','netProfit'].filter(function(k){return ne(o[k]);}).length; var g1=(o.goals||[]).length;
-  secs.push({label:'1-Year Plan',tab:'operating',state:st(n1+(g1?1:0),5),detail:g1+' goals'});
+  secs.push({label:'1-Year Plan',tab:'operating',state:st(n1+(g1?1:0),5),detail:g1+' goals',
+    todo:(n1+(g1?1:0)>=5)?'':(((4-n1)>0?('Enter '+(4-n1)+' more financial number'+((4-n1)===1?'':'s')+'. '):'')+(g1?'':'Add at least one 1-year goal.'))});
   var q=p.q1||{}; var nq=['grossSales','grossProfit','expenses','netProfit'].filter(function(k){return ne(q[k]);}).length; var gq=(q.goals||[]).length;
-  secs.push({label:'Quarterly Plan',tab:'operating',state:st(nq+(gq?1:0),5),detail:gq+' goals'});
+  // Live goals count (Dave, 2026-08-09, merge-136): the company's quarterly
+  // goals live on the Goals boards, not only in the plan document. If the
+  // plan-doc list is empty but teams have live goals this quarter, the goals
+  // component is satisfied - the meter must not claim 0 goals when the Goals
+  // page is full.
+  var gqLive=0; try{ Object.keys(teamsRegistry).forEach(function(tid){ gqLive+=((teamsRegistry[tid]||{}).goals||[]).length; }); }catch(e){}
+  var gqEff=gq||gqLive;
+  secs.push({label:'Quarterly Plan',tab:'operating',state:st(nq+(gqEff?1:0),5),detail:gqEff+' goals',
+    todo:(nq+(gqEff?1:0)>=5)?'':(((4-nq)>0?('Enter '+(4-nq)+' more financial number'+((4-nq)===1?'':'s')+'. '):'')+(gqEff?'':'Add this quarter\'s goals.'))});
   var sw=p.swot||[]; var swF=sw.filter(function(x){return (x.items||[]).length;}).length;
-  secs.push({label:'SWOT',tab:'swot',state:st(swF,4),detail:swF+'/4'});
+  secs.push({label:'SWOT',tab:'swot',state:st(swF,4),detail:swF+'/4',
+    todo:(swF>=4)?'':('Fill the remaining '+(4-swF)+' SWOT quadrant'+((4-swF)===1?'':'s')+'.')});
   var score=secs.reduce(function(a,s){return a+(s.state==='complete'?1:(s.state==='partial'?0.5:0));},0);
   return {pct:Math.round(score/secs.length*100), sections:secs};
 }
 function renderPlanCompleteness(){
+  // Rebuilt (Dave, 2026-08-09, merge-135): the meter explains itself. Click
+  // the score or any chip to see why the score is what it is and exactly what
+  // is still needed per section. Below 80% the score reads red.
   var v=computePlanCompleteness();
   var col=function(s){return s==='complete'?'var(--grn)':(s==='partial'?'var(--amb)':'var(--red)');};
-  var ring=v.pct>=80?'var(--grn)':(v.pct>=50?'var(--amb)':'var(--red)');
+  var ring=v.pct>=80?'var(--grn)':'var(--red)';
+  var openWhy=!!state.planWhyOpen;
   var h='<div class="card" style="margin-bottom:14px">';
   h+='<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">';
-  h+='<div style="text-align:center;min-width:88px"><div style="font-size:34px;font-weight:700;line-height:1;color:'+ring+'">'+v.pct+'%</div><div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-top:3px">Plan complete</div></div>';
+  h+='<div onclick="state.planWhyOpen=!state.planWhyOpen;renderPage()" title="Why this score?" style="text-align:center;min-width:88px;cursor:pointer"><div style="font-size:34px;font-weight:700;line-height:1;color:'+ring+'">'+v.pct+'%</div><div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-top:3px">Plan complete</div><div style="font-size:var(--fz-xs);color:var(--blu);margin-top:2px">'+(openWhy?'Hide details':'Why?')+'</div></div>';
   h+='<div style="flex:1;min-width:260px;display:flex;flex-wrap:wrap;gap:7px">';
   v.sections.forEach(function(s){
-    h+='<button onclick="state.stratTab=\''+s.tab+'\';renderPage()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--brd);border-radius:16px;background:var(--sur);cursor:pointer;font-family:inherit;font-size:var(--fz-body);color:var(--txt)">';
+    h+='<button onclick="state.planWhyOpen=true;state.stratTab=\''+s.tab+'\';renderPage()" title="'+(s.todo?_scEsc(s.todo):'Complete')+'" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--brd);border-radius:16px;background:var(--sur);cursor:pointer;font-family:inherit;font-size:var(--fz-body);color:var(--txt)">';
     h+='<span style="width:8px;height:8px;border-radius:50%;background:'+col(s.state)+';flex-shrink:0"></span>'+s.label;
     if(s.detail) h+='<span style="color:var(--txm);font-size:var(--fz-xs)">'+s.detail+'</span>';
     h+='</button>';
   });
-  h+='</div></div></div>';
+  h+='</div></div>';
+  if(openWhy){
+    var doneN=v.sections.filter(function(s){return s.state==='complete';}).length;
+    var partN=v.sections.filter(function(s){return s.state==='partial';}).length;
+    h+='<div style="margin-top:12px;border-top:1px solid var(--brd);padding-top:12px">';
+    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:10px">Each of the '+v.sections.length+' sections counts equally. Complete = full credit, partially filled = half credit. Right now: '+doneN+' complete, '+partN+' partial. Finish the items below to reach 100%.</div>';
+    v.sections.forEach(function(s){
+      h+='<div style="display:flex;align-items:flex-start;gap:9px;padding:6px 0">';
+      h+='<span style="width:8px;height:8px;border-radius:50%;background:'+col(s.state)+';flex-shrink:0;margin-top:5px"></span>';
+      h+='<div style="flex:1"><span style="font-weight:600">'+s.label+'</span>'+(s.detail?' <span style="color:var(--txm);font-size:var(--fz-base)">'+s.detail+'</span>':'');
+      h+=s.todo?('<div style="color:var(--txm);font-size:var(--fz-base);margin-top:1px">'+s.todo+'</div>'):('<span style="color:var(--grn);font-size:var(--fz-base);margin-left:6px">\u2713 Complete</span>');
+      h+='</div>';
+      if(s.todo) h+='<button class="btn btn-sm" onclick="state.stratTab=\''+s.tab+'\';state.planWhyOpen=false;renderPage()">Go</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
   return h;
 }
 function renderOwnerDependency(){
@@ -12940,6 +12978,15 @@ function _vspPerfWeekScore(person, weekIso, std){
   // VSP, p3 in P&D). Checking the raw VSP id found no data and blanked the whole
   // scorecard. Map first.
   var _tpid = (typeof _vspPerfPndPersonId==='function' && person) ? _vspPerfPndPersonId(person.id) : (person && person.id);
+  // Away weeks are excluded from score and every rollup (Dave, 2026-08-09,
+  // merge-137). The missed-week 0 rule below must never fire on an away week,
+  // and _vspPerfWeekScore did not previously read the away flag, so check it
+  // here at the source rather than relying on each caller.
+  try{
+    var _awAll=_vspPndReadHuddles();
+    var _awRec=_awAll[_tpid+'__'+weekIso];
+    if(_awRec && _awRec.away){ return { pct: 0, hardFail: false, hasData: false, away: true }; }
+  }catch(e){}
   if(typeof isWeekTracked==='function' && _tpid && weekIso && !isWeekTracked(_tpid, weekIso)){
     return { pct: 0, hardFail: false, hasData: false };
   }
@@ -12958,7 +13005,18 @@ function _vspPerfWeekScore(person, weekIso, std){
     if(_vspPerfIsYes(ans)) yes++;
     else if(row.hard && ans != null) hardFailed = true;
   });
-  if(!hasAny) return { pct: 0, hardFail: false, hasData: false };
+  if(!hasAny){
+    // Missed-week rule (Dave, 2026-08-09, merge-137): an empty week that has
+    // passed its lock time (individual Mon / division Tue / company Wed tiers)
+    // counts as 0% and IS data - so it drags down the person, their team, and
+    // the companywide rollup. Before the lock it is still "not entered yet"
+    // (hasData false, skipped). Away and pre-start weeks never reach here
+    // (handled above / by the away flag in the caller).
+    if(_vspPerfIsWeekLocked(_tpid, weekIso)){
+      return { pct: 0, hardFail: false, hasData: true, missed: true };
+    }
+    return { pct: 0, hardFail: false, hasData: false };
+  }
   if(hardFailed) return { pct: 0, hardFail: true, hasData: true };
   return { pct: denom>0 ? Math.round(yes/denom*100) : 100, hardFail: false, hasData: true };
 }
@@ -27908,7 +27966,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-134';
+window.VSP_BUILD = 'v186-merge-137';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
