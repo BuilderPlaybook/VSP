@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-137</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-147</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8921,7 +8921,7 @@ function _vspEnsureWorkloadRows(){
     if(!raw) return false;
     var store=JSON.parse(raw);
     if(!store || typeof store!=='object') return false;
-    var pfxByRole={'Project Manager':'pm','Sr. PM':'srpm','Foreman':'fm','VP Construction':'vp','Client Experience & Interior Design Manager':'cx','Accounting Administrator':'aa'};
+    var pfxByRole={'Project Manager':'pm','Sr. PM':'srpm','Foreman':'fm','VP Construction':'vp','Client Experience & Interior Design Manager':'cx','Accounting Administrator':'aa','Controller':'fc'};
     var changed=false;
     Object.keys(store).forEach(function(role){
       var rows=store[role]; if(!Array.isArray(rows)) return;
@@ -9111,11 +9111,67 @@ function _vspAutoFeedEditorBlock(m){
   h+='</div>';
   return h;
 }
+/* Group membership picker (Dave, 2026-08-09, merge-147). Tenant-generic:
+   membership is driven entirely by the tenant's own people roster (ppl), no
+   hardcoded names or roles. Default is AUTOMATIC membership (everyone active
+   with a weekly scorecard). Ticking people writes an explicit member list for
+   the group to smb_pnd_compliance_groups_v1 (already in the synced key set);
+   "Automatic" clears the override and returns to the auto rule. */
+function _vspGroupExplicit(groupId){
+  try{ var g=JSON.parse(localStorage.getItem('smb_pnd_compliance_groups_v1')||'{}');
+       return (Array.isArray(g[groupId]) && g[groupId].length) ? g[groupId].slice() : null; }catch(e){ return null; }
+}
+function _vspGroupMembersUiHtml(groupId){
+  var explicit=_vspGroupExplicit(groupId);
+  var isAuto=!explicit;
+  var eff=_vspAutoGroupMembers(groupId);            // effective members (explicit wins inside)
+  var autoSet={}; if(isAuto) eff.forEach(function(p){autoSet[p]=1;});
+  var expSet={}; (explicit||eff).forEach(function(p){expSet[p]=1;});
+  var people=(typeof ppl!=='undefined'&&Array.isArray(ppl))?ppl.filter(function(p){return p.status==='active';}):[];
+  var h='<div style="margin-bottom:8px;padding:10px;border:1px solid var(--brd);border-radius:6px;background:var(--sur)">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+  h+='<span style="font-size:var(--fz-body);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">Group Members</span>';
+  h+='<label style="display:flex;align-items:center;gap:6px;font-size:var(--fz-base);color:var(--txm);cursor:pointer"><input type="checkbox" id="em-mem-auto" '+(isAuto?'checked':'')+' onchange="_vspGroupMembersToggleAuto(this)"> Automatic (everyone with a scorecard)</label>';
+  h+='</div>';
+  h+='<div id="em-mem-list" style="max-height:220px;overflow:auto;'+(isAuto?'opacity:.55;pointer-events:none;':'')+'">';
+  if(!people.length){ h+='<div style="color:var(--txm);font-size:var(--fz-base);padding:4px">No active people found.</div>'; }
+  people.forEach(function(p){
+    var pid=_vspPndPersonId(p); if(!pid) return;
+    var hasStd=_vspAutoStandardsFor(p).length>0;
+    var on = isAuto ? !!autoSet[pid] : !!expSet[pid];
+    h+='<label style="display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:var(--fz-base);cursor:pointer">';
+    h+='<input type="checkbox" class="em-mem-person" value="'+pid+'" '+(on?'checked':'')+'>';
+    h+='<span>'+_scEsc((p.first||'')+' '+(p.last||''))+'</span>';
+    h+='<span style="color:var(--txm);font-size:var(--fz-xs)">'+_scEsc(p.roleLabel||p.role||'')+'</span>';
+    if(!hasStd) h+='<span style="color:var(--amb);font-size:var(--fz-xs)" title="This person has no weekly scorecard yet, so they contribute no data until one is built.">(no scorecard yet)</span>';
+    h+='</label>';
+  });
+  h+='</div>';
+  h+='<div style="font-size:var(--fz-xs);color:var(--txd);margin-top:6px">Automatic includes every active person who has a weekly scorecard. Untick Automatic to choose members by hand; the list saves with this measurable.</div>';
+  h+='</div>';
+  return h;
+}
+function _vspGroupMembersToggleAuto(cb){
+  var list=document.getElementById('em-mem-list');
+  if(list){ list.style.opacity=cb.checked?'.55':'1'; list.style.pointerEvents=cb.checked?'none':'auto'; }
+}
+function _vspGroupMembersSave(groupId){
+  var autoEl=document.getElementById('em-mem-auto');
+  if(!autoEl || !groupId) return;   // members UI absent: nothing to save
+  var g={}; try{ g=JSON.parse(localStorage.getItem('smb_pnd_compliance_groups_v1')||'{}'); }catch(e){}
+  if(autoEl.checked){ delete g[groupId]; }
+  else{
+    var picked=[].slice.call(document.querySelectorAll('.em-mem-person:checked')).map(function(c){return c.value;});
+    if(picked.length) g[groupId]=picked; else delete g[groupId];   // empty custom list = automatic
+  }
+  try{ localStorage.setItem('smb_pnd_compliance_groups_v1', JSON.stringify(g)); }catch(e){}
+}
 function _vspAutoDetailHtml(a){
   if(a.kind==='manual') return '';
   var h='<select id="em-auto-group" onchange="_vspAutoEditorRefresh()" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:8px">';
   _vspAutoGroups().forEach(function(g){ h+='<option value="'+g.id+'"'+(a.group===g.id?' selected':'')+'>'+g.label+'</option>'; });
   h+='</select>';
+  h+=_vspGroupMembersUiHtml(a.group||'companywide');
   if(a.kind==='rowcount'){
     var rows=_vspAutoAllStandardRows(a.group||'companywide');
     var sel=(a.rows||[]).map(String);
@@ -9884,6 +9940,10 @@ function saveEditMeasurable(){
   if(_autoVal!==undefined){
     if(_autoVal){ metric.auto=_autoVal; metric.autoSrc=(_autoVal.indexOf('pnd.compliance.')===0)?'P&D':'Scorecards'; }
     else { delete metric.auto; delete metric.autoSrc; }
+    // Group membership (merge-147): persist the member picker for the selected
+    // group alongside the formula. Automatic clears the override.
+    var _gmEl=document.getElementById('em-auto-group');
+    if(_gmEl) _vspGroupMembersSave(_gmEl.value);
   }
 
   var orientMap={
@@ -12036,12 +12096,25 @@ function renderScorecard(){
   var activeIdxs, colLabels;
   if(period==='monthly'){
     var _cmNow=new Date().getMonth();
-    var _lastM=0; scorecard.forEach(function(s){ s.metrics.forEach(function(m){ if(((m.cadence)||'')==='monthly'&&Array.isArray(m.readings)){ for(var _ri=0;_ri<m.readings.length&&_ri<12;_ri++){ if(m.readings[_ri]!=null) _lastM=Math.max(_lastM,_ri); } } }); });
-    // v88: the grid leads with the CURRENT month. Future months render only
-    // when they already hold data (so a misplaced entry stays visible and
-    // fixable), and their headers carry a FUTURE warning tag.
-    var _upto=Math.min(11, Math.max(_cmNow,_lastM));
-    activeIdxs=[]; for(var _mi=_upto;_mi>=0;_mi--) activeIdxs.push(_mi);
+    // Date Range filter, consistent with the weekly view (Dave, 2026-08-09,
+    // merge-146): the same dropdown keys apply, interpreted in months. Current
+    // month leads on the left, older to the right.
+    var _dr=(state.scorecardDateRange||'last13');
+    var _q0=Math.floor(_cmNow/3)*3;   // first month of the current quarter
+    activeIdxs=[];
+    if(_dr==='last4'){ for(var _m4=_cmNow;_m4>_cmNow-4&&_m4>=0;_m4--) activeIdxs.push(_m4); }
+    else if(_dr==='qtd'){ for(var _mq=_cmNow;_mq>=_q0;_mq--) activeIdxs.push(_mq); }
+    else if(_dr==='lastQuarter'){ var _lq0=_q0-3; if(_lq0<0)_lq0=0; var _lq1=_q0-1; if(_lq1<0)_lq1=0; for(var _ml=_lq1;_ml>=_lq0;_ml--) activeIdxs.push(_ml); }
+    else if(_dr==='yearToDate'){ for(var _my=_cmNow;_my>=0;_my--) activeIdxs.push(_my); }
+    else { for(var _md=_cmNow;_md>=0;_md--) activeIdxs.push(_md); }   // last13/default: current year to date, current-left
+    colLabels=activeIdxs.map(function(i){return SC_MONTHS[i];});
+  }
+  else if(false){
+    var _futWithData={};
+    scorecard.forEach(function(s){ s.metrics.forEach(function(m){ if(((m.cadence)||'')==='monthly'&&Array.isArray(m.readings)){ for(var _ri=_cmNow+1;_ri<m.readings.length&&_ri<12;_ri++){ if(m.readings[_ri]!=null) _futWithData[_ri]=true; } } }); });
+    activeIdxs=[];
+    Object.keys(_futWithData).map(Number).sort(function(a,b){return b-a;}).forEach(function(i){ activeIdxs.push(i); }); // future-with-data, newest first, leftmost
+    for(var _mi=_cmNow;_mi>=0;_mi--) activeIdxs.push(_mi);                                                             // current month, then older to the right
     colLabels=activeIdxs.map(function(i){return SC_MONTHS[i]+(i>_cmNow?' <span style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;border-radius:6px;padding:0 5px;font-size:9px;vertical-align:middle" title="This month is ahead of today. Numbers here are probably misplaced.">FUTURE</span>':'');});
   }
   else if(period==='quarterly'){
@@ -12055,14 +12128,30 @@ function renderScorecard(){
     // joins the day it ends. Future/current quarters render only if they
     // already hold (misplaced) data, flagged so they stay findable.
     var _doneQ=_cq-1; // last completed quarter index (-1 in Q1)
-    // Completed quarters always; the CURRENT quarter never (it lives on the
-    // weekly/monthly boards); FUTURE quarters only when they hold misplaced data.
+    // Completed quarters always; the CURRENT quarter now shows as an in-progress
+    // column (Dave, 2026-08-09, merge-146) so the quarter we are in is visible
+    // and current, not hidden until it closes. FUTURE quarters still render only
+    // when they hold misplaced data.
     activeIdxs=[];
     for(var _qx=3;_qx>=0;_qx--){
       if(_qx<=_doneQ) activeIdxs.push(_qx);
-      else if(_qx>_cq && _lastQ>=_qx) activeIdxs.push(_qx);
+      else if(_qx===_cq) activeIdxs.push(_qx);                       // current quarter, in progress
+      else if(_qx>_cq && _lastQ>=_qx) activeIdxs.push(_qx);          // future only if it holds data
     }
-    colLabels=activeIdxs.map(function(q){return 'Q'+(q+1)+' '+_qyr+(q>_doneQ?' <span style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;border-radius:6px;padding:0 5px;font-size:9px;vertical-align:middle" title="This quarter is not complete. Numbers here may be misplaced entries.">INCOMPLETE</span>':'');});
+    // Date Range filter on quarterly (merge-146): trim the completed-quarter
+    // list to the selected window. The current (in-progress) quarter always
+    // stays visible.
+    var _qdr=(state.scorecardDateRange||'last13');
+    if(_qdr==='last4'){ activeIdxs=activeIdxs.slice(0,4); }
+    else if(_qdr==='qtd'){ activeIdxs=activeIdxs.filter(function(q){return q===_cq;}); }
+    else if(_qdr==='lastQuarter'){ activeIdxs=activeIdxs.filter(function(q){return q===_cq || q===_cq-1;}); }
+    // yearToDate / last13: all quarters this year (the default set already is this year)
+    colLabels=activeIdxs.map(function(q){
+      var tag='';
+      if(q===_cq) tag=' <span style="background:#dbeafe;border:1px solid #3b82f6;color:#1e40af;border-radius:6px;padding:0 5px;font-size:9px;vertical-align:middle" title="This quarter is in progress. Numbers update as the quarter fills in.">IN PROGRESS</span>';
+      else if(q>_doneQ && q!==_cq) tag=' <span style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;border-radius:6px;padding:0 5px;font-size:9px;vertical-align:middle" title="This quarter is not complete. Numbers here may be misplaced entries.">INCOMPLETE</span>';
+      return 'Q'+(q+1)+' '+_qyr+tag;
+    });
     if(activeIdxs.length===0){ activeIdxs=[]; colLabels=[]; }
   }
   else if(period==='annual'){
@@ -12158,14 +12247,31 @@ function renderScorecard(){
   h+='<div style="display:inline-flex;border:1.5px solid var(--brd2);border-radius:7px;overflow:hidden">';
   [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly'],['annual','Annual']].forEach(function(pp){ var on=(state.scorecardPeriod||'weekly')===pp[0]; h+='<button onclick="state.scorecardPeriod=\''+pp[0]+'\';renderPage()" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+pp[1]+'</button>'; });
   h+='</div>';
-  // Date Range (weekly only; monthly/quarterly show all periods)
-  if(period==='weekly'){
+  // Date Range dropdown (Dave, 2026-08-09, merge-146): now shown on Weekly,
+  // Monthly, and Quarterly for consistency. Labels adapt to the period so the
+  // one control the user knows from Weekly works everywhere. Annual shows years
+  // and does not need a range control.
+  if(period==='weekly' || period==='monthly' || period==='quarterly'){
+  var _unitWord = (period==='monthly') ? 'months' : (period==='quarterly' ? 'quarters' : 'weeks');
+  var _rangeLabel=function(k){
+    if(period==='weekly') return dateRanges[k].label;
+    var map = {
+      last4:  (period==='monthly'?'Last 4 Months':'Last 4 Quarters'),
+      last13: (period==='monthly'?'This Year':'This Year'),
+      qtd:    (period==='monthly'?'This Quarter':'This Quarter'),
+      lastQuarter: 'Last Quarter',
+      yearToDate: 'Year to Date',
+      custom: 'Custom'
+    };
+    return map[k]||dateRanges[k].label;
+  };
+  var _rangeKeys = (period==='weekly') ? ['last4','last13','qtd','lastQuarter','yearToDate','custom'] : ['last4','last13','qtd','lastQuarter','yearToDate'];
   h+='<select onchange="state.scorecardDateRange=this.value;renderPage()" style="font-size:var(--fz-lg);padding:6px 10px;border:1.5px solid var(--brd2);border-radius:7px;background:var(--sur);color:var(--txt);font-family:inherit;cursor:pointer">';
-  ['last4','last13','qtd','lastQuarter','yearToDate','custom'].forEach(function(_drk){
-    h+='<option value="'+_drk+'"'+(((state.scorecardDateRange||'last13')===_drk)?' selected':'')+'>Date Range: '+dateRanges[_drk].label+'</option>';
+  _rangeKeys.forEach(function(_drk){
+    h+='<option value="'+_drk+'"'+(((state.scorecardDateRange||'last13')===_drk)?' selected':'')+'>Date Range: '+_rangeLabel(_drk)+'</option>';
   });
   h+='</select>';
-  if(state.scorecardDateRange==='custom'){
+  if(period==='weekly' && state.scorecardDateRange==='custom'){
     var _iso=function(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);};
     if(!state.scCustomStart) state.scCustomStart=(new Date().getFullYear())+'-01-01';
     if(!state.scCustomEnd) state.scCustomEnd=_iso(new Date());
@@ -13005,6 +13111,26 @@ function _vspPerfWeekScore(person, weekIso, std){
     if(_vspPerfIsYes(ans)) yes++;
     else if(row.hard && ans != null) hardFailed = true;
   });
+  // Monthly fold-in (Dave, 2026-08-09, merge-145): on the FIRST reportable week
+  // of a month, the prior month's monthly rows are added into this week's
+  // score as equal-weight rows. Yes adds to numerator+denominator, No adds to
+  // the denominator only, and a monthly HARD-FAIL No zeros the week just like a
+  // weekly hard fail. So a 100-point week + two 10-point monthly rows behaves
+  // as 12 equal rows (the 100/120 model). This is what feeds the first
+  // reportable weekly scorecard of the next month.
+  var monthlyStd = std.filter(function(r){ return r.cadence==='monthly' && !r.noScore; });
+  if(monthlyStd.length && _vspPerfIsFirstReportableWeekOfMonth(weekIso)){
+    var _mMon=_vspPerfMondayOf(new Date(weekIso+'T00:00:00'));
+    var _pm=new Date(_mMon.getFullYear(), _mMon.getMonth()-1, 1);   // the month that just closed
+    var _py=_pm.getFullYear(), _pmi=_pm.getMonth();
+    monthlyStd.forEach(function(row){
+      var mans=_vspPerfReadMonthly(_tpid, row.id, _py, _pmi);
+      if(mans==null || mans==='') return;   // not answered for that month: not folded in
+      hasAny=true; denom++;
+      if(_vspPerfIsYes(mans)) yes++;
+      else if(row.hard) hardFailed=true;
+    });
+  }
   if(!hasAny){
     // Missed-week rule (Dave, 2026-08-09, merge-137): an empty week that has
     // passed its lock time (individual Mon / division Tue / company Wed tiers)
@@ -13184,6 +13310,20 @@ function _vspPerfHeader(subtitle){
    12 slots for the current year. Months have no lock (week-only concept per P&D). */
 var VSP_PERF_MONTHLY_KEY = 'smb_pnd_monthly_v1';
 function _vspPerfLoadMonthly(){ try{ var v=localStorage.getItem(VSP_PERF_MONTHLY_KEY); return v?JSON.parse(v):{}; }catch(e){ return {}; } }
+function _vspPerfReadMonthly(pndPersonId, rowId, year, monthIdx){
+  // Read a stored monthly answer ('Yes'|'No'|undefined) for a person/row/month.
+  try{ var s=_vspPerfLoadMonthly(); var k=pndPersonId+'__'+rowId; return s[k] ? s[k][year+'-'+monthIdx] : undefined; }catch(e){ return undefined; }
+}
+function _vspPerfIsFirstReportableWeekOfMonth(weekIso){
+  // The first reportable week of a month is the first Monday-anchored week whose
+  // Monday falls in that calendar month. (Dave, 2026-08-09, merge-145: the two
+  // PM/Sr.PM monthly rows from the PRIOR month fold into this week.)
+  try{
+    var d=new Date(weekIso+'T00:00:00'); var mon=_vspPerfMondayOf(d);
+    var prevMon=new Date(mon.getFullYear(), mon.getMonth(), mon.getDate()-7);
+    return mon.getMonth()!==prevMon.getMonth();   // this week's Monday is in a new month vs a week earlier
+  }catch(e){ return false; }
+}
 function _vspPerfSaveMonthly(m){ try{ localStorage.setItem(VSP_PERF_MONTHLY_KEY, JSON.stringify(m||{})); }catch(e){} }
 /* 24-slot monthly layout: index 0 = January of last year through index 23 =
    December of the current year. Storage stays keyed {yr}-{monthIdx 0-11}
@@ -24090,7 +24230,9 @@ var ROLE_STANDARDS = {
     {id:'pm7',  sec:'Financial Control',                    hard:false, std:'All invoices cost-coded and submitted.', due:'Friday by 6:00pm.'},
     {id:'pm8',  sec:'Quality & Work Standards',             hard:false, std:'Any error, rework, deficiency, or warranty issue reported to Sr. PM immediately.', due:'Immediately upon discovery.'},
     {id:'pm9',  sec:'Financial Control',                    hard:false, std:'Receivables reviewed and escalations sent (any invoice over 7 days flagged to Sr. PM; over 14 days must have documented action plan).', due:'Friday by 6:00pm.'},
-    {id:'pm10', sec:'Leadership, Accountability & Risk Management', hard:false, std:'Bi-weekly huddles attended prepared, with all performance points and project data current prior to the meeting.', due:'Pre-scheduled for the year.'}
+    {id:'pm10', sec:'Leadership, Accountability & Risk Management', hard:false, std:'Bi-weekly huddles attended prepared, with all performance points and project data current prior to the meeting.', due:'Pre-scheduled for the year.'},
+    {id:'pm11', sec:'Planning & Schedule Control',  hard:false, cadence:'monthly', std:'Construction schedule slippage under 1 month.', due:'Last day of the month by 6:00pm.'},
+    {id:'pm12', sec:'Client & Stakeholder Experience', hard:true, cadence:'monthly', std:'Monthly client meeting completed.', due:'Last day of the month by 6:00pm. Hard fail if not done.'}
   ]
 };
 ROLE_STANDARDS['Sr. PM'] = [
@@ -24104,7 +24246,9 @@ ROLE_STANDARDS['Sr. PM'] = [
   {id:'srpm7',  sec:'Financial Control',                    hard:false, std:'All invoices (own + PM jobs) cost-coded and submitted.', due:'Friday by 6:00pm.'},
   {id:'srpm8',  sec:'Quality & Work Standards',             hard:false, std:'Any error, rework, deficiency, or warranty issue reported to the VP immediately.', due:'Immediately upon discovery.'},
   {id:'srpm9',  sec:'Financial Control',                    hard:false, std:'Receivables reviewed and escalations sent (any invoice over 7 days flagged; over 14 days must have documented action plan).', due:'Monday by 6:00pm.'},
-  {id:'srpm10', sec:'Leadership, Accountability & Risk Management', hard:false, std:'Bi-weekly huddles held with every PM, including complete review of all PM projects, scorecards, and performance points completed before the PM huddle.', due:'Pre-scheduled for the year.'}
+  {id:'srpm10', sec:'Leadership, Accountability & Risk Management', hard:false, std:'Bi-weekly huddles held with every PM, including complete review of all PM projects, scorecards, and performance points completed before the PM huddle.', due:'Pre-scheduled for the year.'},
+  {id:'srpm11', sec:'Planning & Schedule Control',  hard:false, cadence:'monthly', std:'Construction schedule slippage under 1 month.', due:'Last day of the month by 6:00pm.'},
+  {id:'srpm12', sec:'Client & Stakeholder Experience', hard:true, cadence:'monthly', std:'Monthly client meeting completed.', due:'Last day of the month by 6:00pm. Hard fail if not done.'}
 ];
 ROLE_STANDARDS['Foreman'] = [
   _wlRow('fm'),
@@ -24159,18 +24303,40 @@ ROLE_STANDARDS['Accounting Administrator'] = [
      N/A and is not penalised. Two hard fails only: Payment run (aa4) and Payroll
      (aa7) - money out on time and people paid; a miss there zeroes the week.
      Venessa has zero recorded weeks, so no migration is needed. */
-  {id:'aa1', sec:'Admin & Time Discipline',            hard:false, std:'Time clock complete and correct.', due:'Every day, by 9:00am next day.'},
-  {id:'aa2', sec:'Invoicing Processing',               hard:false, std:'All vendor invoices processed.', due:'Friday by 6:00pm.'},
-  {id:'aa3', sec:'Invoicing Processing',               hard:false, std:'All client billings generated and distributed.', due:'Friday by 6:00pm.'},
-  {id:'aa4', sec:'Accounting Cycle',                   hard:true,  std:'Payment run completed on time.', due:'Per the accounting calendar. Hard fail if not done.'},
-  {id:'aa5', sec:'Accounting Cycle',                   hard:false, std:'Reconciliations completed.', due:'Per the accounting calendar.'},
-  {id:'aa6', sec:'Rentals',                            hard:false, std:'All tenant payments recorded.', due:'Friday by 6:00pm.'},
-  {id:'aa7', sec:'Payroll',                            hard:true,  std:'Payroll processed and unbillable report distributed.', due:'Per the accounting calendar. Hard fail if not done.'},
-  {id:'aa8', sec:'Reporting',                          hard:false, std:'A/P and A/R report generated and distributed to VP.', due:'Friday by 6:00pm.'},
-  {id:'aa9', sec:'Reporting',                          hard:false, std:'Job budget reports generated and saved.', due:'Friday by 6:00pm.'},
-  {id:'aa10',sec:'Systems & Administrative Discipline', hard:false, std:'All bills and expenses cost-coded and filed.', due:'Friday by 6:00pm.'},
-  {id:'aa11',sec:'Invoicing Processing',               hard:false, std:'All expense reports processed.', due:'Friday by 6:00pm.'},
-  {id:'aa12',sec:'Leadership & Escalation',            hard:false, std:'Any risks or issues flagged to VP.', due:'Immediately when discovered.'}
+  {id:'aa1', sec:'Systems & Administrative Discipline',        hard:false, std:'Time clock complete and correct.', due:'Every day, by 9:00am next day.'},
+  {id:'aa2', sec:'Financial Control',                          hard:false, std:'All vendor invoices processed.', due:'Friday by 6:00pm.'},
+  {id:'aa3', sec:'Financial Control',                          hard:false, std:'All client billings generated and distributed.', due:'Friday by 6:00pm.'},
+  {id:'aa4', sec:'Financial Control',                          hard:true,  std:'Payment run completed on time.', due:'15th and 30th of each month by 6:00pm. Hard fail if not done.'},
+  {id:'aa5', sec:'Financial Control',                          hard:false, std:'Credit card reconciliations completed.', due:'Friday by 6:00pm.'},
+  {id:'aa6', sec:'Financial Control',                          hard:false, std:'All tenant payments recorded.', due:'Friday by 6:00pm.'},
+  {id:'aa7', sec:'Financial Control',                          hard:true,  std:'Payroll processed and unbillable report distributed.', due:'Friday by 6:00pm. Hard fail if not done.'},
+  {id:'aa8', sec:'Financial Control',                          hard:false, std:'A/P and A/R report generated and distributed to VP.', due:'Friday by 6:00pm.'},
+  {id:'aa13',sec:'Financial Control',                          hard:false, std:'Daily outstanding receivables sent out to PMs and VP.', due:'Daily.'},
+  {id:'aa9', sec:'Financial Control',                          hard:false, std:'Job budget reports generated and saved.', due:'Friday by 6:00pm.'},
+  {id:'aa10',sec:'Systems & Administrative Discipline',        hard:false, std:'All bills and expenses cost-coded and filed.', due:'Friday by 6:00pm.'},
+  {id:'aa11',sec:'Systems & Administrative Discipline',        hard:false, std:'All expense reports processed.', due:'Friday by 6:00pm.'},
+  {id:'aa12',sec:'Leadership, Accountability & Risk Management', hard:false, std:'Any risks or issues flagged to VP.', due:'Immediately when discovered.'}
+];
+
+/* Financial Controller (Lisa Stephens) - split by true cadence (Dave,
+   2026-08-09, merge-140). Weekly/biweekly/daily duties carry cadence 'weekly'
+   and score on the Weekly card; once-a-month duties carry cadence 'monthly'
+   and score on the Monthly card. Payroll runs biweekly so it stays weekly and
+   remains the weekly hard fail; statutory remittances are monthly and are the
+   monthly hard fail. Role label 'Controller' matches Lisa's P&D record. */
+ROLE_STANDARDS['Controller'] = [
+  _wlRow('fc'),
+  {id:'fc1',  sec:'Financial Control',                          hard:true,  cadence:'weekly',  std:'Payroll completed and processed on time (biweekly).', due:'Friday by 6:00pm. Hard fail if not done.'},
+  {id:'fc3',  sec:'Team, Trade & Resource Coordination',        hard:false, cadence:'weekly',  std:'Direct report time clocks approved every day before 6:00pm with notes.', due:'Daily by 6:00pm.'},
+  {id:'fc13', sec:'Leadership, Accountability & Risk Management', hard:false, cadence:'weekly',  std:'Any financial risk or exposure escalated to the VP or President immediately.', due:'Same day. No exceptions.'},
+  {id:'fc2',  sec:'Financial Control',                          hard:true,  cadence:'monthly', std:'All statutory remittances filed on time (payroll deductions, tax, GST).', due:'15th of each month by 6:00pm. Hard fail if not done.'},
+  {id:'fc7',  sec:'Financial Control',                          hard:false, cadence:'monthly', std:'PM P&L and Billable vs Unbillable time uploaded to Workfiles.', due:'3rd and 19th of each month.'},
+  {id:'fc8',  sec:'Financial Control',                          hard:false, cadence:'monthly', std:'WIP Report prepared (LIDA Homes Inc.).', due:'30th of each month.'},
+  {id:'fc9',  sec:'Financial Control',                   hard:false, cadence:'monthly', std:'Bank reconciliations current (LIDA Group of Companies).', due:'25th of each month.'},
+  {id:'fc14', sec:'Financial Control',                   hard:false, cadence:'monthly', std:'Month-end reconciliations completed (LIDA Group of Companies).', due:'30th of each month.'},
+  {id:'fc10', sec:'Financial Control',                   hard:false, cadence:'monthly', std:'A/R and A/P up to date (LIDA Group of Companies).', due:'25th of each month.'},
+  {id:'fc11', sec:'Financial Control',                   hard:false, cadence:'monthly', std:'A/P verified before cheque runs.', due:'2 days before cheque runs.'},
+  {id:'fc12', sec:'Financial Control',                          hard:false, cadence:'monthly', std:'Monthly, quarterly, and yearly financial tasks due completed.', due:'30th of each month by 6:00pm.'}
 ];
 
 /* ============================================================
@@ -27966,7 +28132,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-137';
+window.VSP_BUILD = 'v186-merge-147';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
