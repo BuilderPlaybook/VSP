@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-176</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-177</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5556,7 +5556,7 @@ function renderTeamSelector(){
   h+='<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
   h+='</button>';
   if(state.showTeamMenu){
-    h+='<div style="position:absolute;top:100%;right:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:300;min-width:240px;padding:4px 0">';
+    h+='<div style="position:absolute;top:100%;right:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:400;min-width:240px;padding:4px 0">';
     h+='<div style="padding:8px 10px 4px;border-bottom:1px solid var(--brd)">';
     h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--sur2);border-radius:5px;border:1px solid var(--brd)">';
     h+='<svg width="11" height="11" fill="none" stroke="var(--txm)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>';
@@ -5567,14 +5567,14 @@ function renderTeamSelector(){
     var filtered=teamList.filter(function(t){return String((t&&t.name)||'').toLowerCase().includes(q);});
     filtered.forEach(function(t){
       var isActive=t.id===state.currentTeam;
-      h+='<button onclick="switchTeam(\''+t.id+'\')" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
+      h+='<button onclick="switchTeam(\''+t.id+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+t.color+';flex-shrink:0"></div>';
       h+=String((t&&t.name)||'(unnamed team)');
       if(isActive) h+='<svg style="margin-left:auto" width="11" height="11" fill="none" stroke="var(--blu)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
       h+='</button>';
     });
     h+='<div style="border-top:1px solid var(--brd);padding:4px 0;margin-top:4px">';
-    h+='<button onclick="state.showTeamMenu=false;state.newTeamPanel=true;renderPage()" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--blu);font-size:var(--fz-lg)">';
+    h+='<button onclick="state.showTeamMenu=false;state.newTeamPanel=true;renderPage()" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--blu);font-size:var(--fz-lg)">';
     h+='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Create Team</button>';
     h+='</div>';
     h+='</div>';
@@ -8248,7 +8248,7 @@ function renderTeamMenu(menuKey){
     h+='<div style="position:absolute;top:36px;left:0;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.15);z-index:300;min-width:230px;padding:4px 0">';
     Object.keys(teamsRegistry).filter(function(tid){ return _vspCanSeeTeamScorecard(tid); }).forEach(function(tid){
       var tm=teamsRegistry[tid]; var isA=tid===state.currentTeam;
-      h+='<button onclick="state.'+menuKey+'=false;switchTeam(\''+tid+'\')" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isA?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isA?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">'+tm.name+'</button>';
+      h+='<button onclick="state.'+menuKey+'=false;switchTeam(\''+tid+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isA?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isA?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">'+tm.name+'</button>';
     });
     h+='</div>';
     h+='<div onclick="state.'+menuKey+'=false;renderPage()" style="position:fixed;inset:0;z-index:99"></div>';
@@ -14613,7 +14613,7 @@ function renderTodos(){
     var filtered=teamList.filter(function(t){return String((t&&t.name)||'').toLowerCase().includes(q);});
     filtered.forEach(function(t){
       var isActive=t.id===state.currentTeam;
-      h+='<button onclick="state.todoTeamMenu=false;switchTeam(\''+t.id+'\')" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
+      h+='<button onclick="state.todoTeamMenu=false;switchTeam(\''+t.id+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+t.color+';flex-shrink:0"></div>';
       h+=String((t&&t.name)||'(unnamed team)');
       if(isActive) h+='<svg style="margin-left:auto" width="11" height="11" fill="none" stroke="var(--blu)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -14948,7 +14948,7 @@ function renderIssues(){
     h+='<span style="font-size:var(--fz-body);color:var(--txm)">Search for teams...</span></div></div>';
     teamList.forEach(function(t){
       var isActive=t.id===state.currentTeam;
-      h+='<button onclick="state.issueTeamMenu=false;switchTeam(\''+t.id+'\')" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
+      h+='<button onclick="state.issueTeamMenu=false;switchTeam(\''+t.id+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+t.color+';flex-shrink:0"></div>';
       h+=String((t&&t.name)||'(unnamed team)');
       if(isActive) h+='<svg style="margin-left:auto" width="11" height="11" fill="none" stroke="var(--blu)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -18159,25 +18159,24 @@ function _mcTone(st){
        : {bg:'#dbeafe',c:'#1d4ed8',b:'#93c5fd',l:'Upcoming'};
 }
 function _mcTypeChip(m){
-  // merge-173 (Dave, 2026-08-10): each meeting TYPE gets its own full chip colour
-  // so every meeting reads as distinct at a glance. Returns {bg, brd, ink} from
-  // the category palette tokens (parallel-grouping palette; no raw hex, no
-  // Section R drift). Status still reads from the leading glyph added at render
-  // (checkmark held / cross missed / dot upcoming), so type-colour and status
-  // never collide. The named Executive meeting is matched by name so it does not
-  // share the generic Weekly-team colour.
+  // merge-177 (Dave, 2026-08-10): every meeting TYPE gets a GENUINELY distinct
+  // colour - no two types share a hue. Each pulls a unique light-background token
+  // from the category palette (9 distinct tokens), so Leadership, Executive, and
+  // every huddle read as clearly different. Status still reads from the leading
+  // glyph at render, so type-colour and status never collide. The named Executive
+  // meeting matches by name first so it never shares the generic Weekly colour.
   var t=String((m&&m.type)||'');
   var nm=String((m&&m.name)||'').toLowerCase();
-  function pk(base,bgTok,inkTok){ return {bg:'var(--'+bgTok+')', brd:'var(--'+base+')', ink:'var(--'+inkTok+')'}; }
-  if(nm.indexOf('executive')>-1) return pk('cat-bro','ambb','ambt');              // Executive - warm
-  if(t==='Weekly')  return pk('cat-blu','cat-blub','cat-blu');                    // team Weekly - blue
-  if(t==='Quarterly') return pk('cat-vio','cat-viob','cat-vio');                  // team Quarterly - violet
-  if(t==='Annual')  return pk('cat-ind','cat-indb','cat-ind');                    // team Annual - indigo
-  if(t==='Weekly Performance Huddle')    return pk('cat-tea','cat-teab','cat-tea');   // huddle - teal
-  if(t==='Quarterly Performance Huddle') return pk('cat-cyn','cat-cynb','cat-cyn');   // quarterly huddle - cyan
-  if(t==='Annual Performance Huddle')    return pk('cat-pnk','cat-pnkb','cat-pnk');   // annual huddle - pink
-  if(t==='Monthly Client Meeting')       return {bg:'var(--grnb)', brd:'var(--grn)', ink:'var(--grnt)'};  // client - green
-  return {bg:'var(--sur2)', brd:'var(--brd2)', ink:'var(--txt)'};                 // fallback - neutral
+  function pk(bgTok,brdTok,inkTok){ return {bg:'var(--'+bgTok+')', brd:'var(--'+brdTok+')', ink:'var(--'+inkTok+')'}; }
+  if(nm.indexOf('executive')>-1)         return pk('cat-brzb','cat-bro','cat-brz');   // Executive - amber/brown
+  if(t==='Weekly')                       return pk('cat-blub','cat-blu','cat-blu');   // team Weekly - blue
+  if(t==='Quarterly')                    return pk('cat-viob','cat-vio','cat-vio');   // team Quarterly - violet
+  if(t==='Annual')                       return pk('cat-indb','cat-ind','cat-ind');   // team Annual - indigo
+  if(t==='Weekly Performance Huddle')    return pk('cat-teab','cat-tea','cat-tea');   // weekly huddle - teal
+  if(t==='Quarterly Performance Huddle') return pk('cat-cynb','cat-cyn','cat-cyn');   // quarterly huddle - cyan
+  if(t==='Annual Performance Huddle')    return pk('cat-pnkb','cat-pnk','cat-pnk');   // annual huddle - pink
+  if(t==='Monthly Client Meeting')       return pk('cat-rsb','cat-pnk','cat-pnk');    // client - rose
+  return pk('cat-sltb','cat-slt','cat-slt');                                          // fallback - slate
 }
 function _mcLabel(e){
   var att=(e.m.attendees||[]).join(', ');
@@ -27856,7 +27855,7 @@ function renderHeadlines(){
     html+='<div onclick="event.stopPropagation()" style="position:absolute;top:100%;left:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:100;min-width:240px;padding:4px 0">';
     teamList.forEach(function(t){
       var isActive=t.id===state.currentTeam;
-      html+='<button onclick="state.headlineTeamMenu=false;switchTeam(\''+t.id+'\')" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
+      html+='<button onclick="state.headlineTeamMenu=false;switchTeam(\''+t.id+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
       html+='<div style="width:8px;height:8px;border-radius:50%;background:'+t.color+';flex-shrink:0"></div>'+t.name;
       if(isActive) html+='<svg style="margin-left:auto" width="11" height="11" fill="none" stroke="var(--blu)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
       html+='</button>';
@@ -27982,7 +27981,7 @@ function renderCascades(){
     h+='<div onclick="event.stopPropagation()" style="position:absolute;top:100%;left:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:100;min-width:240px;padding:4px 0">';
     allTeams.forEach(function(t){
       var isActive=t.id===viewTeamId;
-      h+='<button onclick="state.cascadeViewTeam=\''+t.id+'\';state.cascadeTeamMenu=false;renderPage()" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
+      h+='<button onclick="state.cascadeViewTeam=\''+t.id+'\';state.cascadeTeamMenu=false;renderPage()" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+t.color+';flex-shrink:0"></div>';
       h+=t.name;
       // Show unread count per team
@@ -28664,7 +28663,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-176';
+window.VSP_BUILD = 'v186-merge-177';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
