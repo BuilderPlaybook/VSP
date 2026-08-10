@@ -3757,7 +3757,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-172</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-174</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -13586,12 +13586,42 @@ function _vspPerfToggleCNA(ownerId, metricId, slotIdx){
     renderPage();
     return;
   }
+  // merge-173 (Dave, 2026-08-10): open an in-surface reason box instead of a
+  // native window.prompt. Native prompt() is silently suppressed on iPad, so the
+  // right-click did nothing there and CNA could never be set (No-Native-Dialogs
+  // Rule v1). The box carries the required two-part wording and only sets CNA on
+  // Save with a non-empty reason.
   var existing=_vspPerfMonthlyReasonGet(pid, m._rowId, slotIdx);
-  var reason=window.prompt('Why did the monthly client meeting not happen, and what did you do to reschedule it?', existing||'');
-  if(reason===null || String(reason).trim()===''){ return; }   // no reason, no CNA
-  m.readings[slotIdx]='CNA';
-  _vspPerfMonthlyReasonSet(pid, m._rowId, slotIdx, String(reason).trim());
-  _vspPerfMonthlySetNA(pid, m._rowId, slotIdx, true);
+  state.cnaBox={ ownerId:ownerId, metricId:metricId, slotIdx:slotIdx, pid:pid, rowId:m._rowId, reason:existing||'' };
+  renderPage();
+}
+function _vspCnaBoxOverlay(){
+  var b=state.cnaBox; if(!b) return '';
+  var esc=function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var h='<div onclick="state.cnaBox=null;renderPage()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
+  h+='<div onkeydown="event.stopPropagation()" onclick="event.stopPropagation()" class="smb-modal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(520px,92vw);background:var(--sur);border:1px solid var(--brd);border-radius:12px;z-index:201;padding:22px">';
+  h+='<div class="smb-modal-title" style="margin-bottom:4px">Client meeting not held</div>';
+  h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:14px">Why did the monthly client meeting not happen, and what did you do to reschedule it? A reason is required to mark this month Client Not Available.</div>';
+  h+='<textarea id="cna-reason" style="width:100%;box-sizing:border-box;min-height:110px;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-body);background:var(--sur);color:var(--txt);resize:vertical" placeholder="e.g. Client rescheduled; I emailed three new dates and booked the 22nd.">'+esc(b.reason)+'</textarea>';
+  h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">';
+  h+='<button type="button" class="btn" onclick="state.cnaBox=null;renderPage()">Cancel</button>';
+  h+='<button type="button" class="btn btn-primary" onclick="_vspCnaBoxSave()">Save</button>';
+  h+='</div></div>';
+  return h;
+}
+function _vspCnaBoxSave(){
+  var b=state.cnaBox; if(!b) return;
+  var el=document.getElementById('cna-reason');
+  var reason=el?String(el.value).trim():'';
+  if(reason===''){ try{ showToast('A reason is required to mark Client Not Available.'); }catch(e){} return; }
+  var map=window._vspPerfScMap; var st=(map&&map[b.ownerId])?map[b.ownerId]:null;
+  if(st){
+    var m=st.scorecard.metrics.find(function(x){ return x.id===b.metricId; });
+    if(m){ m.readings[b.slotIdx]='CNA'; }
+  }
+  _vspPerfMonthlyReasonSet(b.pid, b.rowId, b.slotIdx, reason);
+  _vspPerfMonthlySetNA(b.pid, b.rowId, b.slotIdx, true);
+  state.cnaBox=null;
   renderPage();
 }
 function _vspPerfMonthlyReasonKey(slotIdx){
@@ -14003,9 +14033,11 @@ function _vspPerfRenderTeam(){
 
 /* Dispatcher used by renderScorecard for non-metrics scopes. */
 function renderPerfScorecard(scope){
-  if(scope === 'mine') return _vspPerfRenderMine();
-  if(scope === 'team') return _vspPerfRenderTeam();
-  return '';
+  var _ph = (scope === 'mine') ? _vspPerfRenderMine() : (scope === 'team') ? _vspPerfRenderTeam() : '';
+  // merge-173: the CNA reason box renders on the scorecard page too, since the
+  // right-click that opens it lives on the monthly client-meeting cell here.
+  if(_ph) _ph += _vspCnaBoxOverlay();
+  return _ph;
 }
 
 
@@ -18121,23 +18153,26 @@ function _mcTone(st){
        : st==='absorbed'?{bg:'var(--sur2)',c:'var(--txm)',b:'var(--brd)',l:'Absorbed'}
        : {bg:'#dbeafe',c:'#1d4ed8',b:'#93c5fd',l:'Upcoming'};
 }
-function _mcTypeColor(m){
-  // merge-172 (Dave, 2026-08-10): a per-type colour stripe on calendar chips so
-  // meeting types are distinguishable at a glance. TYPE cue only; status
-  // (held/missed/upcoming) stays the chip fill via _mcTone, so the two signals
-  // never collide. Uses the category palette tokens (--cat-*), the sanctioned
-  // source for parallel groupings, so no raw hex is added to the Section R debt.
+function _mcTypeChip(m){
+  // merge-173 (Dave, 2026-08-10): each meeting TYPE gets its own full chip colour
+  // so every meeting reads as distinct at a glance. Returns {bg, brd, ink} from
+  // the category palette tokens (parallel-grouping palette; no raw hex, no
+  // Section R drift). Status still reads from the leading glyph added at render
+  // (checkmark held / cross missed / dot upcoming), so type-colour and status
+  // never collide. The named Executive meeting is matched by name so it does not
+  // share the generic Weekly-team colour.
   var t=String((m&&m.type)||'');
   var nm=String((m&&m.name)||'').toLowerCase();
-  if(nm.indexOf('executive')>-1) return 'var(--cat-bro)';   // Executive Meeting
-  if(t==='Weekly')  return 'var(--cat-blu)';                // team Weekly
-  if(t==='Quarterly') return 'var(--cat-vio)';              // team Quarterly
-  if(t==='Annual')  return 'var(--cat-slate)';              // team Annual
-  if(t==='Weekly Performance Huddle')    return 'var(--cat-tea)';  // huddle
-  if(t==='Quarterly Performance Huddle') return 'var(--cat-cyn)';  // quarterly huddle
-  if(t==='Annual Performance Huddle')    return 'var(--cat-ind)';  // annual huddle
-  if(t==='Monthly Client Meeting')       return 'var(--cat-pnk)';  // client
-  return 'var(--cat-slt)';                                  // fallback
+  function pk(base,bgTok,inkTok){ return {bg:'var(--'+bgTok+')', brd:'var(--'+base+')', ink:'var(--'+inkTok+')'}; }
+  if(nm.indexOf('executive')>-1) return pk('cat-bro','ambb','ambt');              // Executive - warm
+  if(t==='Weekly')  return pk('cat-blu','cat-blub','cat-blu');                    // team Weekly - blue
+  if(t==='Quarterly') return pk('cat-vio','cat-viob','cat-vio');                  // team Quarterly - violet
+  if(t==='Annual')  return pk('cat-ind','cat-indb','cat-ind');                    // team Annual - indigo
+  if(t==='Weekly Performance Huddle')    return pk('cat-tea','cat-teab','cat-tea');   // huddle - teal
+  if(t==='Quarterly Performance Huddle') return pk('cat-cyn','cat-cynb','cat-cyn');   // quarterly huddle - cyan
+  if(t==='Annual Performance Huddle')    return pk('cat-pnk','cat-pnkb','cat-pnk');   // annual huddle - pink
+  if(t==='Monthly Client Meeting')       return {bg:'var(--grnb)', brd:'var(--grn)', ink:'var(--grnt)'};  // client - green
+  return {bg:'var(--sur2)', brd:'var(--brd2)', ink:'var(--txt)'};                 // fallback - neutral
 }
 function _mcLabel(e){
   var att=(e.m.attendees||[]).join(', ');
@@ -18259,6 +18294,7 @@ function _mcRender(){
   if(f.view==='month') h+=_mcMonthGrid(series, r, f);
   else h+=_mcMatrix(series, r, f, fromIso, toIso);
   h+=_mcMoveOverlay();
+  h+=_vspCnaBoxOverlay();
   return h;
 }
 function _meetTypeLabel(t, teamName, m){
@@ -18377,8 +18413,10 @@ function _mcMonthGrid(series, r, f){
         _lbl+=' \u00b7 '+_mcChipCtx(it.e);
       }
       var _titleExtra=it.dayIdx?(' \u00b7 day '+(it.dayIdx+1)+' of '+it.daySpan):'';
-      var _tyc=_mcTypeColor(it.e.m);
-      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+_titleExtra+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-base);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-left:3px solid '+_tyc+';border-radius:4px;padding:1px 4px 1px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(_lbl)+'</div>';
+      var _tc=_mcTypeChip(it.e.m);
+      // Status glyph keeps held/missed/upcoming legible on a type-coloured chip.
+      var _sg=it.status==='held'?'\u2713 ':it.status==='missed'?'\u2717 ':it.status==='absorbed'?'\u25b2 ':it.status==='today'?'\u25cf ':'';
+      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+_titleExtra+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-base);background:'+_tc.bg+';color:'+_tc.ink+';border:1px solid '+_tc.brd+';border-left:3px solid '+_tc.brd+';border-radius:4px;padding:1px 4px 1px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_sg+_scEsc(_lbl)+'</div>';
     });
     if(items.length>3) h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
     h+='</div>';
@@ -18435,7 +18473,13 @@ function _mcMatrix(series, r, f, fromIso, toIso){
       var held=occs.filter(function(o){return o.status==='held';}).length;
       var due=occs.filter(function(o){return o.status==='held'||o.status==='missed';}).length;
       h+='<tr style="border-top:1px solid var(--brd)">';
-      h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:var(--sur)"><b>'+_scEsc(_meetTypeLabel(R.type, R.team, R.m||R))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(R.att.join(', '))+'</div></td>';
+      // merge-174 (Dave, 2026-08-10): tint the meeting-row label by type so the
+      // Quarter/Year matrix colour-codes meetings the same way the Month grid
+      // does. Uses the same _mcTypeChip palette; the row keeps its structure,
+      // only the sticky label cell gains the type colour + left bar.
+      var _mRowM=(R.entries&&R.entries[0]&&R.entries[0].m)?R.entries[0].m:{type:R.type, name:(R.m&&R.m.name)||''};
+      var _mtc=_mcTypeChip(_mRowM);
+      h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:'+_mtc.bg+';border-left:3px solid '+_mtc.brd+'"><b style="color:'+_mtc.ink+'">'+_scEsc(_meetTypeLabel(R.type, R.team, R.m||R))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(R.att.join(', '))+'</div></td>';
       cols.forEach(function(c){
         var sts=byCol[c.key]||[];
         h+='<td style="padding:4px;text-align:center">';
@@ -28615,7 +28659,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-172';
+window.VSP_BUILD = 'v186-merge-174';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
