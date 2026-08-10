@@ -3195,6 +3195,20 @@ summary:focus-visible,
 }
 /* === SHELL CHROME v1 END === */
 
+/* merge-170 (Dave, 2026-08-10): page-width horizontal scrollbar fix.
+   Root cause (from the live console overflow listing): .tb-r held enough
+   buttons that at ~1148px viewport the right cluster ran to right=1518 and,
+   being flex-shrink:0, refused to compress and pushed the whole topbar past
+   the viewport. Module-level override after the chrome END marker (same path
+   CRM used for its overflow fixes; the locked chrome block is untouched, so
+   Section G SHA stays valid). Candidate for folding into the next chrome bump
+   alongside the three recorded overflow candidates. Fix: let the right cluster
+   shrink and keep a search floor, and belt-and-suspenders clip any residual
+   overflow at the topbar so it never reaches the page. */
+.tb{min-width:0;overflow:hidden}
+.tb-r{flex-shrink:1;min-width:0;flex-wrap:nowrap}
+.tb-c{min-width:80px}
+
 /* v113: module-level runtime tokens declared outside the locked chrome block. */
 :root{
   --pnd-ax: 50%; /* runtime-set by _pndPositionTip in JS */
@@ -3743,7 +3757,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-169</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-172</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5260,24 +5274,10 @@ function addMilestone(goalId){
   setTimeout(function(){openEditItem('goal',goalId);},10);
 }
 
-function toggleMilestone(goalId,msId){
-  var g=_findGoal(goalId);
-  if(!g||!g.milestones)return;
-  var m=g.milestones.find(function(x){return x.id===msId;});
-  if(m)m.done=!m.done;
-  _syncGoalProgress(g);
-  setTimeout(function(){openEditItem('goal',goalId);},10);
-  renderPage();
-}
-
-function deleteMilestone(goalId,msId){
-  var g=_findGoal(goalId);
-  if(!g||!g.milestones)return;
-  g.milestones=g.milestones.filter(function(x){return x.id!==msId;});
-  _syncGoalProgress(g);
-  setTimeout(function(){openEditItem('goal',goalId);},10);
-  renderPage();
-}
+// merge-171 (Dave, 2026-08-10): removed the dead early toggleMilestone /
+// deleteMilestone pair. Both were redefined later (the live versions call
+// vspSaveNow to persist and guard missing milestones); these earlier copies
+// were silently overridden and never saved. Single definition each now.
 
 function updateMilestoneText(goalId,msId,val){
   var g=_findGoal(goalId);
@@ -18121,6 +18121,24 @@ function _mcTone(st){
        : st==='absorbed'?{bg:'var(--sur2)',c:'var(--txm)',b:'var(--brd)',l:'Absorbed'}
        : {bg:'#dbeafe',c:'#1d4ed8',b:'#93c5fd',l:'Upcoming'};
 }
+function _mcTypeColor(m){
+  // merge-172 (Dave, 2026-08-10): a per-type colour stripe on calendar chips so
+  // meeting types are distinguishable at a glance. TYPE cue only; status
+  // (held/missed/upcoming) stays the chip fill via _mcTone, so the two signals
+  // never collide. Uses the category palette tokens (--cat-*), the sanctioned
+  // source for parallel groupings, so no raw hex is added to the Section R debt.
+  var t=String((m&&m.type)||'');
+  var nm=String((m&&m.name)||'').toLowerCase();
+  if(nm.indexOf('executive')>-1) return 'var(--cat-bro)';   // Executive Meeting
+  if(t==='Weekly')  return 'var(--cat-blu)';                // team Weekly
+  if(t==='Quarterly') return 'var(--cat-vio)';              // team Quarterly
+  if(t==='Annual')  return 'var(--cat-slate)';              // team Annual
+  if(t==='Weekly Performance Huddle')    return 'var(--cat-tea)';  // huddle
+  if(t==='Quarterly Performance Huddle') return 'var(--cat-cyn)';  // quarterly huddle
+  if(t==='Annual Performance Huddle')    return 'var(--cat-ind)';  // annual huddle
+  if(t==='Monthly Client Meeting')       return 'var(--cat-pnk)';  // client
+  return 'var(--cat-slt)';                                  // fallback
+}
 function _mcLabel(e){
   var att=(e.m.attendees||[]).join(', ');
   return _meetTypeLabel(e.m.type, e.teamName, e.m)+(att?(' \u00b7 '+att):'');
@@ -18359,7 +18377,8 @@ function _mcMonthGrid(series, r, f){
         _lbl+=' \u00b7 '+_mcChipCtx(it.e);
       }
       var _titleExtra=it.dayIdx?(' \u00b7 day '+(it.dayIdx+1)+' of '+it.daySpan):'';
-      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+_titleExtra+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-base);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(_lbl)+'</div>';
+      var _tyc=_mcTypeColor(it.e.m);
+      h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+_titleExtra+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-base);background:'+t.bg+';color:'+t.c+';border:1px solid '+t.b+';border-left:3px solid '+_tyc+';border-radius:4px;padding:1px 4px 1px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_scEsc(_lbl)+'</div>';
     });
     if(items.length>3) h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:2px">+'+(items.length-3)+' more</div>';
     h+='</div>';
@@ -28596,7 +28615,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-169';
+window.VSP_BUILD = 'v186-merge-172';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
