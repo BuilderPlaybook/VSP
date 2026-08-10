@@ -3743,7 +3743,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-162</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-164</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7467,7 +7467,15 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       }
     }catch(e){ cellTitle = 'Client Not Available (excluded from the month).'; }
   }
-  return '<td onclick="'+clickHandler+'" oncontextmenu="event.preventDefault();scOpenNote('+m.id+','+weekIdx+');return false"'+ariaLbl
+  // Right-click behavior (merge-164): on the monthly client meeting cell,
+  // right-click sets or clears CNA (Client Not Available) with a required reason,
+  // so CNA is a deliberate action and never traps the tap cycle. Every other
+  // cell keeps the note contextmenu.
+  var _isClientMonthly = (m.cadence==='monthly') && /^(pm12|srpm12)$/.test(String(m._rowId||''));
+  var _ctxMenu = _isClientMonthly
+    ? "event.preventDefault();_vspPerfToggleCNA('"+ownerId+"',"+m.id+","+weekIdx+");return false"
+    : "event.preventDefault();scOpenNote("+m.id+","+weekIdx+");return false";
+  return '<td onclick="'+clickHandler+'" oncontextmenu="'+_ctxMenu+'"'+ariaLbl
     + (_pndTipHtml ? ' class="pnd-cell" tabindex="0"' : '')+' '
     + (cellTitle ? 'title="'+cellTitle+'" ' : '')
     + 'style="position:relative;text-align:center;background:'+bg+';color:'+color+';font-size:var(--fz-body);padding:8px 6px;cursor:pointer;border-right:0.5px solid var(--brd);font-variant-numeric:tabular-nums;min-width:92px;white-space:nowrap'+cellWeight+'">'
@@ -8682,6 +8690,40 @@ function scMDrop(ev,targetMid){
   var below=window._scDropBelow; _scClearDropInd();
   var src=state.scDragMid; state.scDragMid=null;
   if(src===targetMid){ renderPage(); return; }
+  // Perf-grid path (Dave, 2026-08-09, merge-163): the My Performance / Team perf
+  // scopes build their sections into window._vspPerfScMap, NOT the global
+  // `scorecard` array, so the original scorecard.find() below returned undefined
+  // and the drop silently did nothing (drag-drop dead on the perf grid, weekly
+  // and monthly). When the perf map is active, reorder within the owning perf
+  // section and persist the per-role row order.
+  if(window._vspPerfScMap){
+    var pmap=window._vspPerfScMap;
+    var pSrc=null,pTgt=null;
+    Object.keys(pmap).forEach(function(ini){
+      var sec=pmap[ini]&&pmap[ini].scorecard; if(!sec||!sec.metrics) return;
+      if(sec.metrics.some(function(m){return m.id===src;})) pSrc=sec;
+      if(sec.metrics.some(function(m){return m.id===targetMid;})) pTgt=sec;
+    });
+    if(pSrc&&pTgt){
+      var psi=pSrc.metrics.findIndex(function(m){return m.id===src;});
+      var pmetric=pSrc.metrics[psi];
+      pSrc.metrics.splice(psi,1);
+      var pti=pTgt.metrics.findIndex(function(m){return m.id===targetMid;}); if(pti<0) pti=pTgt.metrics.length;
+      pTgt.metrics.splice(below?pti+1:pti,0,pmetric);
+      // Persist the target section's row-id order per role.
+      try{
+        if(pTgt.seat){
+          var ids=pTgt.metrics.map(function(mm){return mm._rowId;}).filter(Boolean);
+          if(ids.length) _vspPerfSetRowOrder(pTgt.seat, ids);
+        }
+      }catch(e){}
+      state.scorecardSort='manual';
+      try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+      renderPage();
+      return;
+    }
+    // fall through if the ids were not found in the perf map
+  }
   var srcSec=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===src;});});
   var tgtSec=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===targetMid;});});
   if(!srcSec||!tgtSec){ renderPage(); return; }
@@ -13516,14 +13558,40 @@ function _vspPerfMonthlyCycle(pndPersonId, rowId, slotIdx){
   store[k] = store[k] || {};
   var key = yr+'-'+m;
   var cur = store[k][key];
-  // Client-meeting rows cycle Yes -> No -> N/A -> empty so "Client Not
-  // Available" is one extra tap; other monthly rows keep Yes -> No -> empty.
-  var allowsNA = /^(pm12|srpm12)$/.test(String(rowId));
-  var next;
-  if(allowsNA){ next = (cur==null||cur==='') ? 'Yes' : (cur==='Yes' ? 'No' : (cur==='No' ? 'NA' : null)); }
-  else { next = (cur==null||cur==='') ? 'Yes' : (cur==='Yes' ? 'No' : null); }
+  // All monthly rows cycle Yes -> No -> empty (Dave, 2026-08-09, merge-164).
+  // CNA (Client Not Available) is no longer in the tap cycle - it is a
+  // deliberate right-click on the client meeting cell. A CNA value tapped here
+  // is treated as a fresh start (-> Yes) by the tap handler before this runs.
+  var next = (cur==null||cur==='') ? 'Yes' : (cur==='Yes' ? 'No' : null);
   if(next==null) delete store[k][key]; else store[k][key] = next;
   _vspPerfSaveMonthly(store);
+  renderPage();
+}
+function _vspPerfToggleCNA(ownerId, metricId, slotIdx){
+  // Deliberate CNA action from the client meeting cell right-click (merge-164).
+  // Resolves the person from the perf map, then: if the month is already CNA,
+  // clear it (and its reason); otherwise prompt for the required reason and set
+  // CNA. Blank/cancel does nothing (no CNA without a reason).
+  var map=window._vspPerfScMap; var st=(map&&map[ownerId])?map[ownerId]:null;
+  if(!st){ return; }
+  var m=st.scorecard.metrics.find(function(x){ return x.id===metricId; });
+  if(!m || !/^(pm12|srpm12)$/.test(String(m._rowId||''))) return;
+  var pid=st.personId;
+  var cur=(m.readings&&m.readings[slotIdx])?String(m.readings[slotIdx]).toUpperCase():'';
+  if(cur==='CNA'||cur==='NA'||cur==='N/A'){
+    // clear CNA
+    m.readings[slotIdx]=null;
+    _vspPerfMonthlySetNA(pid, m._rowId, slotIdx, false);
+    _vspPerfMonthlyReasonSet(pid, m._rowId, slotIdx, '');
+    renderPage();
+    return;
+  }
+  var existing=_vspPerfMonthlyReasonGet(pid, m._rowId, slotIdx);
+  var reason=window.prompt('Why did the monthly client meeting not happen, and what did you do to reschedule it?', existing||'');
+  if(reason===null || String(reason).trim()===''){ return; }   // no reason, no CNA
+  m.readings[slotIdx]='CNA';
+  _vspPerfMonthlyReasonSet(pid, m._rowId, slotIdx, String(reason).trim());
+  _vspPerfMonthlySetNA(pid, m._rowId, slotIdx, true);
   renderPage();
 }
 function _vspPerfMonthlyReasonKey(slotIdx){
@@ -13767,40 +13835,27 @@ function _vspPerfInstallCellAdapter(){
     // Monthly-cadence rows write to the monthly store (P&D pndMonthlyCycle);
     // months carry no lock - week-only concept per P&D.
     if(m.cadence==='monthly'){
+      // Simple tap cycle (Dave, 2026-08-09, merge-164): Yes -> No -> empty -> Yes
+      // for every monthly row, including the client meeting. Empty counts as 0
+      // (a miss), never excluded. CNA (Client Not Available) is no longer in the
+      // tap cycle - it was trapping the user in the reason prompt when cycling
+      // back to Yes. CNA is now a deliberate right-click on the client meeting
+      // cell (see the contextmenu handler on the cell) that asks for the reason.
       var _curM = m.readings[weekIdx];
-      var _tM = _curM==null ? null : String(_curM).toLowerCase().replace('/','');   // 'n/a' -> 'na'
-      var _allowsNA = /^(pm12|srpm12)$/.test(String(m._rowId));
-      if(_allowsNA){
-        // Yes -> No -> CNA -> empty. Entering CNA (Client Not Available) REQUIRES
-        // a written reason (Dave, 2026-08-09, merge-155): why the monthly client
-        // meeting did not happen and what was done to reschedule. No reason, no
-        // CNA - a blank/cancel skips CNA straight to empty so it can't be used as
-        // a silent escape from the hard fail.
-        if(_tM==='no'){
-          var _existing = _vspPerfMonthlyReasonGet(st.personId, m._rowId, weekIdx);
-          var _reason = window.prompt('Why did the monthly client meeting not happen, and what did you do to reschedule it?', _existing||'');
-          if(_reason===null || String(_reason).trim()===''){
-            // cancelled or blank: do NOT set CNA; clear the cell
-            m.readings[weekIdx]=null;
-            _vspPerfMonthlySetNA(st.personId, m._rowId, weekIdx, false);
-            return;
-          }
-          m.readings[weekIdx]='CNA';
-          _vspPerfMonthlyReasonSet(st.personId, m._rowId, weekIdx, String(_reason).trim());
-          _vspPerfMonthlySetNA(st.personId, m._rowId, weekIdx, true);
-          return;
-        }
-        // leaving CNA -> empty also clears the stored reason
-        if(_tM==='cna'||_tM==='na'){
-          m.readings[weekIdx]=null;
-          _vspPerfMonthlyReasonSet(st.personId, m._rowId, weekIdx, '');
-          _vspPerfMonthlyCycle(st.personId, m._rowId, weekIdx);
-          return;
-        }
-        m.readings[weekIdx] = (_tM==='yes') ? 'No' : 'Yes';
-      } else {
-        m.readings[weekIdx] = (_tM==='yes') ? 'No' : ((_tM==='no') ? null : 'Yes');
+      var _tM = _curM==null ? null : String(_curM).toLowerCase().replace('/','');
+      // If the cell is currently CNA and the user taps it, clear CNA + reason and
+      // set Yes (a tap means they are entering a real result again).
+      if(_tM==='cna'||_tM==='na'){
+        m.readings[weekIdx]='Yes';
+        _vspPerfMonthlyReasonSet(st.personId, m._rowId, weekIdx, '');
+        var _st=_vspPerfLoadMonthly(); var _k=st.personId+'__'+m._rowId; _st[_k]=_st[_k]||{};
+        var _yr=(new Date().getFullYear()-1)+Math.floor(weekIdx/12), _mo=weekIdx%12;
+        _st[_k][_yr+'-'+_mo]='Yes';
+        _vspPerfSaveMonthly(_st);
+        renderPage();
+        return;
       }
+      m.readings[weekIdx] = (_tM==='yes') ? 'No' : ((_tM==='no') ? null : 'Yes');
       _vspPerfMonthlyCycle(st.personId, m._rowId, weekIdx);
       return;
     }
@@ -28479,7 +28534,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-162';
+window.VSP_BUILD = 'v186-merge-164';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
