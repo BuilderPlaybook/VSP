@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-177</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-183</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -6237,6 +6237,14 @@ function switchTeam(teamId){
   }
   state.currentTeam=teamId;
   state.showTeamMenu=false;
+  // merge-180 (Dave, 2026-08-10): the Meetings calendar follows the topbar team
+  // switch. The merge-179 version only set the filter IF state.meetCal already
+  // existed - switching from the Dashboard before visiting Meetings skipped it,
+  // so the calendar still opened on All teams. Now the filter state is created
+  // with full defaults when absent, then scoped to the switched team. The
+  // calendar's All-teams dropdown still widens it back afterwards.
+  state.meetCal = state.meetCal || { view:'month', anchor:new Date().toISOString().slice(0,10), person:'', type:'', status:'', team:'' };
+  state.meetCal.team = teamId;
   // Reset per-page state that is team-specific
   state.goalsFilter="all";
   state.todoOwnerFilter="all";
@@ -6246,6 +6254,12 @@ function switchTeam(teamId){
   state.expandedIssues={};
   syncTeamData();
   renderPage();
+  // merge-181 (Dave, 2026-08-10): THE all-day illusion. renderPage() redraws the
+  // page content but never re-renders the topbar team selector, so the open
+  // dropdown menu stayed frozen on screen after every switch - the data changed
+  // underneath while the stuck menu made each switch LOOK like it failed.
+  // Re-render the selector so the menu closes on selection.
+  try{ renderTeamSelector(); }catch(e){}
 }
 
 function createTeam(){
@@ -15383,6 +15397,13 @@ function _meetSupervisorOf(m){
   for(var j=0;j<att.length;j++){ var q=ppl.find(function(x){return x.initials===att[j];}); if(q&&q.supervisor) return att[j]; }
   return att.length?att[0]:'';
 }
+function _vspSlotColor(slot){
+  // Shared 7-slot person palette (merge-183): single source for the topbar
+  // avatar and the per-person huddle chips, so a person's colour matches
+  // everywhere and the hex lives in exactly one place.
+  var slotColors=[['#fef3c7','#92400e'],['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fce7f3','#9d174d'],['#e0e7ff','#3730a3'],['#ccfbf1','#115e59'],['#ffe4e6','#9f1239']];
+  return slotColors[(Number(slot)||0)%7];
+}
 function _meetReportOf(m){
   // The direct report a performance huddle is about (the non-supervisor side).
   if(String(m.type||'').indexOf('Performance Huddle')===-1) return '';
@@ -18158,23 +18179,45 @@ function _mcTone(st){
        : st==='absorbed'?{bg:'var(--sur2)',c:'var(--txm)',b:'var(--brd)',l:'Absorbed'}
        : {bg:'#dbeafe',c:'#1d4ed8',b:'#93c5fd',l:'Upcoming'};
 }
-function _mcTypeChip(m){
-  // merge-177 (Dave, 2026-08-10): every meeting TYPE gets a GENUINELY distinct
-  // colour - no two types share a hue. Each pulls a unique light-background token
-  // from the category palette (9 distinct tokens), so Leadership, Executive, and
-  // every huddle read as clearly different. Status still reads from the leading
-  // glyph at render, so type-colour and status never collide. The named Executive
-  // meeting matches by name first so it never shares the generic Weekly colour.
+function _mcTypeChip(m, teamId){
+  // merge-178 (Dave, 2026-08-10): ROOT CAUSE of "Leadership and Executive both
+  // blue": the label text "Executive Team Meeting" is generated from the team
+  // name, but m.type is "Weekly" and m.name is empty - so a name-based test
+  // could never tell Leadership from Executive; both are type Weekly on different
+  // teams. Fix: colour team meetings (Weekly/Quarterly/Annual) by their TEAM's
+  // own colour - the same colour shown as the dot in the team dropdown - so every
+  // team's meetings are distinct. Huddles and client meetings keep their own
+  // type tint (huddles are cross-team by person, so team colour would not
+  // separate them). Returns {bg, brd, ink}; status still reads from the glyph.
   var t=String((m&&m.type)||'');
-  var nm=String((m&&m.name)||'').toLowerCase();
   function pk(bgTok,brdTok,inkTok){ return {bg:'var(--'+bgTok+')', brd:'var(--'+brdTok+')', ink:'var(--'+inkTok+')'}; }
-  if(nm.indexOf('executive')>-1)         return pk('cat-brzb','cat-bro','cat-brz');   // Executive - amber/brown
-  if(t==='Weekly')                       return pk('cat-blub','cat-blu','cat-blu');   // team Weekly - blue
-  if(t==='Quarterly')                    return pk('cat-viob','cat-vio','cat-vio');   // team Quarterly - violet
-  if(t==='Annual')                       return pk('cat-indb','cat-ind','cat-ind');   // team Annual - indigo
-  if(t==='Weekly Performance Huddle')    return pk('cat-teab','cat-tea','cat-tea');   // weekly huddle - teal
-  if(t==='Quarterly Performance Huddle') return pk('cat-cynb','cat-cyn','cat-cyn');   // quarterly huddle - cyan
-  if(t==='Annual Performance Huddle')    return pk('cat-pnkb','cat-pnk','cat-pnk');   // annual huddle - pink
+  // Team meetings: use the team's assigned colour for border/ink, on a soft
+  // neutral surface so text stays readable. Distinct per team automatically.
+  if(t==='Weekly' || t==='Quarterly' || t==='Annual'){
+    var tc=(teamId && typeof teamsRegistry!=='undefined' && teamsRegistry[teamId] && teamsRegistry[teamId].color) ? teamsRegistry[teamId].color : null;
+    if(tc){ return {bg:'var(--sur2)', brd:tc, ink:tc}; }
+    return pk('cat-blub','cat-blu','cat-blu');
+  }
+  if(t==='Weekly Performance Huddle' || t==='Quarterly Performance Huddle' || t==='Annual Performance Huddle'){
+    // merge-183 (Dave, 2026-08-10): each huddle is coloured by ITS PERSON - the
+    // report the huddle is about - using the same 7-slot palette as that
+    // person's avatar, so Will's huddles, Keith's, and Mika's each stand out
+    // and match the person's colour everywhere else in the app. Type tints stay
+    // as the fallback when the person cannot be resolved.
+    try{
+      var _rep=(typeof _meetReportOf==='function')?_meetReportOf(m):'';
+      if(_rep){
+        var _rp=(typeof ppl!=='undefined')?ppl.find(function(x){return x.initials===_rep;}):null;
+        if(_rp && _rp.colorSlot!==undefined && typeof _vspSlotColor==='function'){
+          var _sc=_vspSlotColor(_rp.colorSlot);
+          return {bg:_sc[0], brd:_sc[1], ink:_sc[1]};
+        }
+      }
+    }catch(e){}
+    if(t==='Weekly Performance Huddle')    return pk('cat-teab','cat-tea','cat-tea');
+    if(t==='Quarterly Performance Huddle') return pk('cat-cynb','cat-cyn','cat-cyn');
+    return pk('cat-pnkb','cat-pnk','cat-pnk');
+  }
   if(t==='Monthly Client Meeting')       return pk('cat-rsb','cat-pnk','cat-pnk');    // client - rose
   return pk('cat-sltb','cat-slt','cat-slt');                                          // fallback - slate
 }
@@ -18183,7 +18226,13 @@ function _mcLabel(e){
   return _meetTypeLabel(e.m.type, e.teamName, e.m)+(att?(' \u00b7 '+att):'');
 }
 function _mcMatch(e, f){
-  if(f.team && e.teamId!==f.team) return false;
+  // merge-182 (Dave, 2026-08-10): the team filter scopes TEAM meetings only.
+  // Huddles and client meetings are person-based, not team-based, so they stay
+  // visible whatever team the calendar is scoped to (switching the topbar team
+  // was hiding every huddle). Derived review entries (teamId '') pass for the
+  // same reason.
+  var _isTeamMeeting = ['Weekly','Quarterly','Annual'].indexOf(String((e.m&&e.m.type)||''))>-1;
+  if(f.team && _isTeamMeeting && e.teamId!==f.team) return false;
   if(f.type && (e.m.type||'')!==f.type) return false;
   if(f.person && (e.m.attendees||[]).indexOf(f.person)===-1) return false;
   return true;
@@ -18417,7 +18466,7 @@ function _mcMonthGrid(series, r, f){
         _lbl+=' \u00b7 '+_mcChipCtx(it.e);
       }
       var _titleExtra=it.dayIdx?(' \u00b7 day '+(it.dayIdx+1)+' of '+it.daySpan):'';
-      var _tc=_mcTypeChip(it.e.m);
+      var _tc=_mcTypeChip(it.e.m, it.e.teamId);
       // Status glyph keeps held/missed/upcoming legible on a type-coloured chip.
       var _sg=it.status==='held'?'\u2713 ':it.status==='missed'?'\u2717 ':it.status==='absorbed'?'\u25b2 ':it.status==='today'?'\u25cf ':'';
       h+='<div'+mv+' title="'+_scEsc(_mcLabel(it.e)+' \u00b7 '+t.l+_titleExtra+(it.e.real?' \u00b7 click to move':''))+'" style="cursor:'+(it.e.real?'pointer':'default')+';font-size:var(--fz-base);background:'+_tc.bg+';color:'+_tc.ink+';border:1px solid '+_tc.brd+';border-left:3px solid '+_tc.brd+';border-radius:4px;padding:1px 4px 1px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_sg+_scEsc(_lbl)+'</div>';
@@ -18482,7 +18531,7 @@ function _mcMatrix(series, r, f, fromIso, toIso){
       // does. Uses the same _mcTypeChip palette; the row keeps its structure,
       // only the sticky label cell gains the type colour + left bar.
       var _mRowM=(R.entries&&R.entries[0]&&R.entries[0].m)?R.entries[0].m:{type:R.type, name:(R.m&&R.m.name)||''};
-      var _mtc=_mcTypeChip(_mRowM);
+      var _mtc=_mcTypeChip(_mRowM, (R.entries&&R.entries[0]&&R.entries[0].teamId)||'');
       h+='<td style="padding:6px 8px;font-size:var(--fz-lg);white-space:nowrap;position:sticky;left:0;background:'+_mtc.bg+';border-left:3px solid '+_mtc.brd+'"><b style="color:'+_mtc.ink+'">'+_scEsc(_meetTypeLabel(R.type, R.team, R.m||R))+'</b><div style="font-size:var(--fz-base);color:var(--txm)">'+_scEsc(R.att.join(', '))+'</div></td>';
       cols.forEach(function(c){
         var sts=byCol[c.key]||[];
@@ -28652,8 +28701,7 @@ function renderTopbarV2(){
       var p=window.SMBPeople.getPersonById(u.personId);
       if(p && p.colorSlot!==undefined) slot=p.colorSlot;
     }
-    var slotColors=[['#fef3c7','#92400e'],['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fce7f3','#9d174d'],['#e0e7ff','#3730a3'],['#ccfbf1','#115e59'],['#ffe4e6','#9f1239']];
-    var c=slotColors[slot%7];
+    var c=_vspSlotColor(slot);
     userEl.innerHTML='<div class="tb-user-av" style="background:'+c[0]+';color:'+c[1]+'">'+ini+'</div><span class="tb-user-name">'+name+'</span>';
   }
 }
@@ -28663,7 +28711,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-177';
+window.VSP_BUILD = 'v186-merge-183';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
