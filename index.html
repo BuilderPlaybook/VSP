@@ -3742,7 +3742,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-147</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-149</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8940,6 +8940,45 @@ function _vspEnsureWorkloadRows(){
   }catch(e){ return false; }
 }
 _vspEnsureWorkloadRows();
+/* Seed-row healer (Dave, 2026-08-09, merge-148). Stored standards override the
+   code seed, so rows added to ROLE_STANDARDS after a device stored its copy
+   never appear. TARGETED and idempotent: (a) roles missing entirely from the
+   store are added whole from the seed (e.g. Controller, merge-138); (b) a
+   named list of new row ids is injected into stored roles that lack them
+   (the PM / Sr. PM monthly rows, merge-144). Deliberately NOT a blanket
+   resync, so rows a tenant deleted on purpose stay deleted. */
+function _vspEnsureSeedRows(){
+  try{
+    var raw=localStorage.getItem('smb_perf_role_standards_v1');
+    if(!raw) return false;
+    var store=JSON.parse(raw);
+    if(!store || typeof store!=='object') return false;
+    var changed=false;
+    Object.keys(ROLE_STANDARDS).forEach(function(role){
+      if(!Array.isArray(store[role]) || !store[role].length){
+        store[role]=JSON.parse(JSON.stringify(ROLE_STANDARDS[role]));
+        changed=true;
+      }
+    });
+    var injectIds=['pm11','pm12','srpm11','srpm12'];
+    Object.keys(ROLE_STANDARDS).forEach(function(role){
+      var seedRows=ROLE_STANDARDS[role]||[];
+      var rows=store[role]; if(!Array.isArray(rows)) return;
+      seedRows.forEach(function(sr){
+        if(injectIds.indexOf(sr.id)===-1) return;
+        if(rows.some(function(r){ return r && r.id===sr.id; })) return;
+        rows.push(JSON.parse(JSON.stringify(sr)));
+        changed=true;
+      });
+    });
+    if(changed){
+      localStorage.setItem('smb_perf_role_standards_v1', JSON.stringify(store));
+      console.log('[VSP] seed-row healer: stored standards updated from seed.');
+    }
+    return changed;
+  }catch(e){ return false; }
+}
+_vspEnsureSeedRows();
 /* Automation admin (Dave, 2026-07-30): only the President/Owner can edit,
    wire, unwire, or override automated measurables. Everyone else gets a
    read-only view of the formula and locked cells stay locked. */
@@ -9264,7 +9303,91 @@ function _vspAutoWeekClosedForGroup(groupId, weekIso){
    week only counts once it is closed for the whole group. Runs after the
    bridge pull so live source overrides a stale snapshot; the bridge remains
    the fallback for weeks with no raw coverage (pre-feed history). */
+/* Monthly Client Meeting auto-record (Dave, 2026-08-09, merge-148).
+   Tenant-generic: applies to any role standard row with cadence 'monthly'
+   whose title mentions the client meeting (or carries autoFill:'clientMeetings').
+   Source of truth is the VSP meeting store:
+   - Denominator: Monthly Client Meeting series scheduled that month where the
+     person is an attendee (one occurrence per series per month, minus skips).
+   - Numerator: concluded Monthly Client Meetings that month with the person
+     in the room.
+   All-or-nothing: Yes only when every scheduled meeting was concluded.
+   ZERO scheduled = No (they should have booked them) per Dave 2026-08-09.
+   Writes the month's value into the monthly store; the fold-in and LT monthly
+   rollups then consume it like any monthly answer. */
+function _vspClientMeetRowFor(stds){
+  return (stds||[]).filter(function(r){
+    if(r.noScore) return false;
+    if((r.cadence||'weekly')!=='monthly') return false;
+    if(r.autoFill==='clientMeetings') return true;
+    return /client meeting/i.test(String(r.std||''));
+  });
+}
+function _vspClientMeetStatsFor(personIni, year, monthIdx){
+  var sched=0, done=0;
+  try{
+    Object.keys(teamsRegistry).forEach(function(tid){
+      var t=teamsRegistry[tid]||{};
+      (t.scheduledMeetings||[]).forEach(function(m){
+        var ty=String(m.type||'');
+        if(!(/monthly-client/i.test(ty)||/Monthly Client/i.test(ty))) return;
+        if((m.attendees||[]).indexOf(personIni)===-1) return;
+        var start=m.date?new Date(m.date+'T00:00:00'):null;
+        var monthEnd=new Date(year, monthIdx+1, 0);
+        var monthStart=new Date(year, monthIdx, 1);
+        if(start && start>monthEnd) return;                                  // series starts after this month
+        if(m.recurUntil){ var ru=new Date(m.recurUntil+'T00:00:00'); if(ru<monthStart) return; }
+        var skipsInMonth=0;
+        (Array.isArray(m.skipDates)?m.skipDates:[]).forEach(function(sd){
+          var d=new Date(sd+'T00:00:00');
+          if(d.getFullYear()===year && d.getMonth()===monthIdx) skipsInMonth++;
+        });
+        if(skipsInMonth===0) sched++;                                        // one occurrence per series per month
+      });
+      (t.pastMeetings||[]).forEach(function(pm){
+        var ty=String(pm.type||'');
+        if(!(/monthly-client/i.test(ty)||/Monthly Client/i.test(ty))) return;
+        var who=pm.attended||pm.attendees||[];
+        if(who.indexOf(personIni)===-1) return;
+        var pd=new Date(pm.date);
+        if(isNaN(pd)) return;
+        if(pd.getFullYear()===year && pd.getMonth()===monthIdx) done++;
+      });
+    });
+  }catch(e){}
+  return {sched:sched, done:done};
+}
+function _vspAutoFillClientMeetings(){
+  try{
+    var now=new Date();
+    var months=[[now.getFullYear(), now.getMonth()]];
+    var prev=new Date(now.getFullYear(), now.getMonth()-1, 1);
+    months.push([prev.getFullYear(), prev.getMonth()]);
+    var store=_vspPerfLoadMonthly(); var dirty=false;
+    (ppl||[]).forEach(function(p){
+      if(p.status!=='active') return;
+      var _rl=p.roleLabel||p.role||'';
+      var rows=_vspClientMeetRowFor(_vspPndReadStandards(_rl) || ROLE_STANDARDS[_rl] || []);
+      if(!rows.length) return;
+      var pid=_vspPndPersonId(p); if(!pid) return;
+      months.forEach(function(ym){
+        var st=_vspClientMeetStatsFor(p.initials, ym[0], ym[1]);
+        var val=(st.sched>0 && st.done>=st.sched) ? 'Yes' : 'No';
+        rows.forEach(function(row){
+          var k=pid+'__'+row.id, key=ym[0]+'-'+ym[1];
+          store[k]=store[k]||{};
+          if(store[k][key]!==val){ store[k][key]=val; dirty=true; }
+          var nk=key+'_note';
+          var note=st.done+' of '+st.sched+' client meetings concluded';
+          if(store[k][nk]!==note){ store[k][nk]=note; dirty=true; }
+        });
+      });
+    });
+    if(dirty) _vspPerfSaveMonthly(store);
+  }catch(e){}
+}
 function _vspAutoFillCompliance(){
+  try{ _vspAutoFillClientMeetings(); }catch(e){}
   try{
     var weeks=_vspHuddleWeeksIsos52();
     scorecard.forEach(function(sec){
@@ -14696,10 +14819,32 @@ function _visibleScheduled(){
   var out=(typeof scheduledMeetings!=='undefined'?scheduledMeetings.slice():[]);
   var seen={}; out.forEach(function(m){seen[m.id]=1;});
   var ini=currentUser?currentUser.initials:'';
+  // Huddle visibility (Dave, 2026-08-09, merge-149): a performance huddle from
+  // another team is pulled in when the signed-in user should see it -
+  //   (a) they are an attendee, OR
+  //   (b) they are an admin (President/Owner/HR - sees all huddles), OR
+  //   (c) they supervise a huddle attendee (sees huddles of people below them).
+  // Before this fix only (a) applied, so an owner viewing a different team
+  // never saw a report's huddles even though they oversee them.
+  var _isAdmin=false; try{ _isAdmin=_vspAutoIsAdmin(); }catch(e){}
+  function _canSeeHuddle(m){
+    if((m.attendees||[]).indexOf(ini)>-1) return true;      // (a) in the room
+    if(_isAdmin) return true;                                // (b) admin sees all
+    try{                                                     // (c) supervises an attendee
+      var me=ppl.find(function(x){return x.initials===ini;});
+      if(me){
+        return (m.attendees||[]).some(function(a){
+          var pa=ppl.find(function(x){return x.initials===a;});
+          return pa && typeof _vspSupervisesPerson==='function' && _vspSupervisesPerson(me.id, pa.id);
+        });
+      }
+    }catch(e){}
+    return false;
+  }
   Object.keys(teamsRegistry).forEach(function(tid){
     if(tid===state.currentTeam) return;
     ((teamsRegistry[tid]&&teamsRegistry[tid].scheduledMeetings)||[]).forEach(function(m){
-      if((m.type||'').indexOf('Performance Huddle')>-1 && (m.attendees||[]).indexOf(ini)>-1 && !seen[m.id] && !_meetHasArchivedAttendee(m)){ out.push(m); seen[m.id]=1; }
+      if((m.type||'').indexOf('Performance Huddle')>-1 && _canSeeHuddle(m) && !seen[m.id] && !_meetHasArchivedAttendee(m)){ out.push(m); seen[m.id]=1; }
     });
   });
   return out;
@@ -22079,6 +22224,7 @@ function endMeeting(){
     else if(runType.includes("performance")&&runType.includes("annual")) runType="Annual Performance Huddle";
     else if(runType.includes("property")) runType="Property Meeting";
     else if(runType.includes("development")) runType="Development Meeting";
+    else if(runType.includes("monthly-client")||runType.includes("Monthly Client")) runType="Monthly Client Meeting";
   var agData=agendaFor(state.currentTeam,runType)||meetingAgendas[0];
   var team=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   var sections=agData.days?agData.days.reduce(function(a,d){return a.concat(d.sections);},[]):agData.sections;
@@ -22203,6 +22349,9 @@ function endMeeting(){
     try{ if(typeof headlines!=='undefined') headlines.forEach(function(hl){ if(hl.status!=='archived') hl.status='archived'; }); }catch(e){}
   }
   pastMeetings.unshift(record);
+  // Monthly Client Meeting auto-record (merge-148): concluding the agenda is
+  // what records the meeting, so refresh the monthly scorecard cells now.
+  try{ _vspAutoFillClientMeetings(); }catch(e){}
   try{ if(state.meetScheduledId){ var _sf=_findScheduledById(state.meetScheduledId); if(_sf&&_sf.m){ var _td=new Date().toISOString().slice(0,10); _sf.m.lastHeld=_td; if(!Array.isArray(_sf.m.heldLog)) _sf.m.heldLog=[]; if(_sf.m.heldLog.indexOf(_td)===-1) _sf.m.heldLog.push(_td); } state.meetScheduledId=null; } }catch(e){}
   // Compose recap + dispatch event for the future Email module (Postmark backend).
   try{
@@ -24232,7 +24381,7 @@ var ROLE_STANDARDS = {
     {id:'pm9',  sec:'Financial Control',                    hard:false, std:'Receivables reviewed and escalations sent (any invoice over 7 days flagged to Sr. PM; over 14 days must have documented action plan).', due:'Friday by 6:00pm.'},
     {id:'pm10', sec:'Leadership, Accountability & Risk Management', hard:false, std:'Bi-weekly huddles attended prepared, with all performance points and project data current prior to the meeting.', due:'Pre-scheduled for the year.'},
     {id:'pm11', sec:'Planning & Schedule Control',  hard:false, cadence:'monthly', std:'Construction schedule slippage under 1 month.', due:'Last day of the month by 6:00pm.'},
-    {id:'pm12', sec:'Client & Stakeholder Experience', hard:true, cadence:'monthly', std:'Monthly client meeting completed.', due:'Last day of the month by 6:00pm. Hard fail if not done.'}
+    {id:'pm12', sec:'Client & Stakeholder Experience', hard:true, cadence:'monthly', autoFill:'clientMeetings', std:'Monthly client meeting completed.', due:'Last day of the month by 6:00pm. Hard fail if not done.'}
   ]
 };
 ROLE_STANDARDS['Sr. PM'] = [
@@ -24248,7 +24397,7 @@ ROLE_STANDARDS['Sr. PM'] = [
   {id:'srpm9',  sec:'Financial Control',                    hard:false, std:'Receivables reviewed and escalations sent (any invoice over 7 days flagged; over 14 days must have documented action plan).', due:'Monday by 6:00pm.'},
   {id:'srpm10', sec:'Leadership, Accountability & Risk Management', hard:false, std:'Bi-weekly huddles held with every PM, including complete review of all PM projects, scorecards, and performance points completed before the PM huddle.', due:'Pre-scheduled for the year.'},
   {id:'srpm11', sec:'Planning & Schedule Control',  hard:false, cadence:'monthly', std:'Construction schedule slippage under 1 month.', due:'Last day of the month by 6:00pm.'},
-  {id:'srpm12', sec:'Client & Stakeholder Experience', hard:true, cadence:'monthly', std:'Monthly client meeting completed.', due:'Last day of the month by 6:00pm. Hard fail if not done.'}
+  {id:'srpm12', sec:'Client & Stakeholder Experience', hard:true, cadence:'monthly', autoFill:'clientMeetings', std:'Monthly client meeting completed.', due:'Last day of the month by 6:00pm. Hard fail if not done.'}
 ];
 ROLE_STANDARDS['Foreman'] = [
   _wlRow('fm'),
@@ -28132,7 +28281,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-147';
+window.VSP_BUILD = 'v186-merge-149';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
