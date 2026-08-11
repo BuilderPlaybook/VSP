@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-191</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-192</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7481,10 +7481,37 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       if(_cnaPnd){
         var _cnaReason = _vspPerfMonthlyReasonGet(_cnaPnd, m._rowId, weekIdx);
         cellTitle = 'Client Not Available. '+(_cnaReason ? ('Reason: '+_scEsc(String(_cnaReason))) : 'No reason recorded.');
+        // merge-192: also surface the reason in the LT floating tooltip so it
+        // reads the same as the LT scorecard hovers (not just the native title).
+        if(_cnaReason){
+          _pndTipHtml = '<span class="pnd-tip"><span class="pnd-tt">Client Not Available</span>'
+            + '<span class="pnd-note">'+_scEsc(String(_cnaReason))+'</span></span>';
+        }
       } else {
         cellTitle = 'Client Not Available (excluded from the month).';
       }
     }catch(e){ cellTitle = 'Client Not Available (excluded from the month).'; }
+  }
+  // merge-192: schedule row 'No' - surface the count + explanation in the LT
+  // floating tooltip on hover. Detect the schedule row and a 'No' value.
+  var _isSchedRow = /^(pm11|srpm11)$/.test(String(m._rowId||'')) || /schedule slippage/i.test(String((m.std||m.title||'')));
+  if(_isSchedRow && hasVal && /^no$/i.test(String(val))){
+    try{
+      var _sP = ppl.find(function(x){ return x.initials===ownerId; });
+      var _sPnd = _sP ? _vspPndPersonId(_sP) : null;
+      if(_sPnd){
+        var _sNum = _vspSchedNumGet(_sPnd, m._rowId, weekIdx);
+        var _sReason = _vspPerfMonthlyReasonGet(_sPnd, m._rowId, weekIdx);
+        var _sBody = '';
+        if(_sNum!=='') _sBody += '<span class="pnd-row"><span>Jobs over 1 month</span><span>'+_scEsc(String(_sNum))+'</span></span>';
+        if(_sReason) _sBody += '<span class="pnd-note">'+_scEsc(String(_sReason))+'</span>';
+        if(_sBody){
+          _pndTipHtml = '<span class="pnd-tip"><span class="pnd-tt">Schedule slippage</span>'
+            + '<span class="pnd-body">'+_sBody+'</span></span>';
+          cellTitle = 'Schedule slippage: '+(_sNum!==''?_sNum+' job(s) over 1 month. ':'')+(_sReason?_scEsc(String(_sReason)):'');
+        }
+      }
+    }catch(e){}
   }
   // Right-click behavior (merge-164): on the monthly client meeting cell,
   // right-click sets or clears CNA (Client Not Available) with a required reason,
@@ -13608,12 +13635,14 @@ function _vspPerfMonthlyCycle(pndPersonId, rowId, slotIdx, metric){
   // 'client meeting' title) - the old hardcoded pm12/srpm12 id test missed
   // custom row ids (r...), which is why CNA never appeared in the cycle on
   // edited standards. Other monthly rows keep empty -> Yes -> No.
-  var isClient = false;
+  var isClient = false, isSchedule = false;
   try{
     isClient = !!(metric && (metric.autoFill==='clientMeetings'
       || /client meeting/i.test(String(metric.title||metric.std||metric.name||''))))
       || /^(pm12|srpm12)$/.test(String(rowId||''));
-  }catch(e){ isClient=/^(pm12|srpm12)$/.test(String(rowId||'')); }
+    isSchedule = /^(pm11|srpm11)$/.test(String(rowId||''))
+      || /schedule slippage/i.test(String((metric&&(metric.title||metric.std||metric.name))||''));
+  }catch(e){ isClient=/^(pm12|srpm12)$/.test(String(rowId||'')); isSchedule=/^(pm11|srpm11)$/.test(String(rowId||'')); }
   var next;
   if(isClient){
     next = (cur==null||cur==='') ? 'Yes' : (cur==='Yes' ? 'No' : (cur==='No' ? 'CNA' : null));
@@ -13645,7 +13674,18 @@ function _vspPerfMonthlyCycle(pndPersonId, rowId, slotIdx, metric){
     // dismissing with no reason saved) advances the cell to empty.
     var _exist='';
     try{ _exist=_vspPerfMonthlyReasonGet(pndPersonId, rowId, slotIdx); }catch(e){}
-    state.cnaBox={ ownerId:null, metricId:null, slotIdx:slotIdx, pid:pndPersonId, rowId:rowId, reason:_exist||'', fromCycle:true };
+    state.cnaBox={ mode:'cna', ownerId:null, metricId:null, slotIdx:slotIdx, pid:pndPersonId, rowId:rowId, reason:_exist||'', fromCycle:true };
+  }
+  if(isSchedule && next==='No'){
+    // merge-192 (Dave, 2026-08-11): schedule row 'No' opens a box for the number
+    // of jobs over the 1-month grace plus an explanation. The cell still shows
+    // 'No' and scores as a normal No; the number and explanation surface on
+    // hover via the LT floating tooltip. Cancel with nothing entered rolls the
+    // cell back to empty so a bare No without detail is not left behind.
+    var _exReason='', _exNum='';
+    try{ _exReason=_vspPerfMonthlyReasonGet(pndPersonId, rowId, slotIdx); }catch(e){}
+    try{ _exNum=_vspSchedNumGet(pndPersonId, rowId, slotIdx); }catch(e){}
+    state.cnaBox={ mode:'schedule', ownerId:null, metricId:null, slotIdx:slotIdx, pid:pndPersonId, rowId:rowId, reason:_exReason||'', num:_exNum||'', fromCycle:true };
   }
   renderPage();
 }
@@ -13680,11 +13720,21 @@ function _vspPerfToggleCNA(ownerId, metricId, slotIdx){
 function _vspCnaBoxOverlay(){
   var b=state.cnaBox; if(!b) return '';
   var esc=function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var isSched=(b.mode==='schedule');
   var h='<div onclick="_vspCnaBoxCancel()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200"></div>';
   h+='<div onkeydown="event.stopPropagation()" onclick="event.stopPropagation()" class="smb-modal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(520px,92vw);background:var(--sur);border:1px solid var(--brd);border-radius:12px;z-index:201;padding:22px">';
-  h+='<div class="smb-modal-title" style="margin-bottom:4px">Client meeting not held</div>';
-  h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:14px">Why did the monthly client meeting not happen, and what did you do to reschedule it? A reason is required to mark this month Client Not Available.</div>';
-  h+='<textarea id="cna-reason" style="width:100%;box-sizing:border-box;min-height:110px;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-body);background:var(--sur);color:var(--txt);resize:vertical" placeholder="e.g. Client rescheduled; I emailed three new dates and booked the 22nd.">'+esc(b.reason)+'</textarea>';
+  if(isSched){
+    h+='<div class="smb-modal-title" style="margin-bottom:4px">Schedule slippage this month</div>';
+    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:14px">How many jobs are more than 1 month over the baseline schedule, and what is happening with them? A grace of 1 month is already built in.</div>';
+    h+='<label style="display:block;font-size:var(--fz-body);color:var(--txt);font-weight:600;margin-bottom:4px">Number of jobs over 1 month</label>';
+    h+='<input id="sched-num" type="number" min="0" step="1" value="'+esc(b.num)+'" style="width:120px;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-body);background:var(--sur);color:var(--txt);margin-bottom:12px">';
+    h+='<label style="display:block;font-size:var(--fz-body);color:var(--txt);font-weight:600;margin-bottom:4px">Explanation</label>';
+    h+='<textarea id="cna-reason" style="width:100%;box-sizing:border-box;min-height:90px;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-body);background:var(--sur);color:var(--txt);resize:vertical" placeholder="e.g. Two jobs held on permit revisions; recovery plans in place.">'+esc(b.reason)+'</textarea>';
+  } else {
+    h+='<div class="smb-modal-title" style="margin-bottom:4px">Client meeting not held</div>';
+    h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:14px">Why did the monthly client meeting not happen, and what did you do to reschedule it? A reason is required to mark this month Client Not Available.</div>';
+    h+='<textarea id="cna-reason" style="width:100%;box-sizing:border-box;min-height:110px;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-body);background:var(--sur);color:var(--txt);resize:vertical" placeholder="e.g. Client rescheduled; I emailed three new dates and booked the 22nd.">'+esc(b.reason)+'</textarea>';
+  }
   h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">';
   h+='<button type="button" class="btn" onclick="_vspCnaBoxCancel()">Cancel</button>';
   h+='<button type="button" class="btn btn-primary" onclick="_vspCnaBoxSave()">Save</button>';
@@ -13694,6 +13744,23 @@ function _vspCnaBoxOverlay(){
 function _vspCnaBoxCancel(){
   var b=state.cnaBox;
   state.cnaBox=null;
+  if(b && b.mode==='schedule'){
+    // Schedule 'No' needs a number to be meaningful. If none was ever saved,
+    // roll the cell back to empty so a bare No with no detail is not left.
+    var hadN='';
+    try{ hadN=_vspSchedNumGet(b.pid, b.rowId, b.slotIdx); }catch(e){}
+    if(hadN===''){
+      try{
+        var store=_vspPerfLoadMonthly();
+        var baseYr=new Date().getFullYear()-1;
+        var yr=baseYr+Math.floor(b.slotIdx/12), mo=b.slotIdx%12;
+        var kk=b.pid+'__'+b.rowId; if(store[kk]){ delete store[kk][yr+'-'+mo]; }
+        _vspPerfSaveMonthly(store);
+      }catch(e){}
+    }
+    renderPage();
+    return;
+  }
   // A CNA needs a reason to be valid. If the box is dismissed with no saved
   // reason, roll the cell back to empty so we never store a reasonless CNA.
   if(b){
@@ -13716,6 +13783,19 @@ function _vspCnaBoxSave(){
   var b=state.cnaBox; if(!b) return;
   var el=document.getElementById('cna-reason');
   var reason=el?String(el.value).trim():'';
+  if(b.mode==='schedule'){
+    // Schedule 'No': store the count + explanation. Both optional-but-encouraged;
+    // require at least the number so the hover has something to show. The cell
+    // stays 'No' (already set by the cycle) and scores as a normal No.
+    var nEl=document.getElementById('sched-num');
+    var num=nEl?String(nEl.value).trim():'';
+    if(num===''){ try{ showToast('Enter the number of jobs over 1 month.'); }catch(e){} return; }
+    _vspSchedNumSet(b.pid, b.rowId, b.slotIdx, num);
+    _vspPerfMonthlyReasonSet(b.pid, b.rowId, b.slotIdx, reason);
+    state.cnaBox=null;
+    renderPage();
+    return;
+  }
   if(reason===''){ try{ showToast('A reason is required to mark Client Not Available.'); }catch(e){} return; }
   // The monthly cell is already set to CNA by the tap cycle; persist the reason
   // and NA flag. (Right-click path sets CNA here via the store as well.)
@@ -13730,6 +13810,20 @@ function _vspCnaBoxSave(){
   _vspPerfMonthlySetNA(b.pid, b.rowId, b.slotIdx, true);
   state.cnaBox=null;
   renderPage();
+}
+function _vspSchedNumKey(slotIdx){
+  var baseYr=new Date().getFullYear()-1;
+  var yr=baseYr+Math.floor(slotIdx/12), m=slotIdx%12;
+  return yr+'-'+m+'_schednum';
+}
+function _vspSchedNumGet(pndPersonId, rowId, slotIdx){
+  try{ var s=_vspPerfLoadMonthly(); var k=pndPersonId+'__'+rowId; return (s[k]&&s[k][_vspSchedNumKey(slotIdx)])||''; }catch(e){ return ''; }
+}
+function _vspSchedNumSet(pndPersonId, rowId, slotIdx, num){
+  var store=_vspPerfLoadMonthly(); var k=pndPersonId+'__'+rowId; store[k]=store[k]||{};
+  var nk=_vspSchedNumKey(slotIdx);
+  if(num!==''&&num!=null){ store[k][nk]=String(num); } else { delete store[k][nk]; }
+  _vspPerfSaveMonthly(store);
 }
 function _vspPerfMonthlyReasonKey(slotIdx){
   var baseYr = new Date().getFullYear() - 1;
@@ -28830,7 +28924,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-191';
+window.VSP_BUILD = 'v186-merge-192';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
