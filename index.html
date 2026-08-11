@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-197</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-199</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5309,6 +5309,22 @@ function _refreshMilestoneList(goalId){
   // No-op - panel is rebuilt on renderPage
 }
 
+function _commitGoalParent(goalId, raw){
+  // merge-199 (Dave, 2026-08-11): commit the Supports (parent) choice to the goal
+  // the instant it changes, not only on Save. The Edit Goal modal re-renders when
+  // a milestone is added (openEditItem is reopened), which discarded an unsaved
+  // Supports change - so it "did not save the first time" (Terry, 2026-08-11).
+  // Writing on change makes it stick regardless of later re-renders.
+  try{
+    var id=parseInt(goalId,10)||goalId;
+    var it=goals.find(function(x){return x.id===id;})||archivedGoals.find(function(x){return x.id===id;});
+    if(!it) return;
+    if(!raw){ it.parentId=null; }
+    else if(String(raw).indexOf('y1')===0){ it.parentId=raw; }
+    else { var pv=parseInt(raw,10); it.parentId=(pv && pv!==it.id && !goalDescendantIds(it.id)[pv])?pv:null; }
+    if(typeof vspSaveNow==='function') vspSaveNow();
+  }catch(e){}
+}
 function saveEditItem(){
   var type=state.editItemType;
   var id=state.editItemId;
@@ -15627,7 +15643,27 @@ function _meetSupervisorOf(m){
   // the team lead / first supervisor attendee.
   var att=(m.attendees||[]).slice();
   if(String(m.type||'').indexOf('Performance Huddle')>-1){
-    for(var i=0;i<att.length;i++){ var p=ppl.find(function(x){return x.initials===att[i];}); if(p&&p.supervisor) return att[i]; }
+    // merge-198 (Dave, 2026-08-11): a huddle's supervisor is decided by the
+    // REPORTING RELATIONSHIP between the two attendees, not the global
+    // 'supervisor' flag. Both people in a huddle can be supervisors (e.g. Will
+    // manages foremen AND reports to Terry), so the flag alone picked the wrong
+    // one and blocked Terry from booking Will's/Mika's huddle. Whoever the other
+    // attendee reports up to (directly or indirectly) is the supervisor here.
+    function _walksUpTo(fromP, targetId){
+      var cur=fromP, guard=0;
+      while(cur && guard<20){ if(cur.reportsTo===targetId) return true; cur=ppl.find(function(x){return x.id===cur.reportsTo;}); guard++; }
+      return false;
+    }
+    var people=att.map(function(a){ return ppl.find(function(x){return x.initials===a;}); });
+    for(var i=0;i<att.length;i++){
+      var meP=people[i]; if(!meP) continue;
+      for(var k=0;k<att.length;k++){
+        if(k===i) continue; var otherP=people[k]; if(!otherP) continue;
+        if(_walksUpTo(otherP, meP.id)) return att[i];   // the other reports up to att[i] -> att[i] is the supervisor
+      }
+    }
+    // Fallback (attendee data incomplete): first flagged supervisor, then first.
+    for(var f=0;f<att.length;f++){ var pf=people[f]; if(pf&&pf.supervisor) return att[f]; }
     return att.length?att[0]:'';
   }
   for(var j=0;j<att.length;j++){ var q=ppl.find(function(x){return x.initials===att[j];}); if(q&&q.supervisor) return att[j]; }
@@ -28659,7 +28695,7 @@ function renderPage(){
       if(emType==='goal'){
         var _elig=eligibleGoalParents(emId);
         emH+='<div style="margin-bottom:14px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Supports (optional)</label>';
-        emH+='<select id="edit-parent" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
+        emH+='<select id="edit-parent" onchange="_commitGoalParent(\''+emId+'\',this.value)" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
         emH+='<option value="">- None -</option>';
         var _y1=oneYearPlanItems();
         if(_y1.length){ ['Goals','Measurables','Financial Targets'].forEach(function(gr){ var grp=_y1.filter(function(x){return x.grp===gr;}); if(!grp.length) return; emH+='<optgroup label="1-Year Plan \u00b7 '+gr+'">'; grp.forEach(function(it){ emH+='<option value="'+it.ref+'"'+(emItem.parentId===it.ref?' selected':'')+'>'+_escOpt(it.text)+'</option>'; }); emH+='</optgroup>'; }); }
@@ -29006,7 +29042,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-197';
+window.VSP_BUILD = 'v186-merge-199';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
