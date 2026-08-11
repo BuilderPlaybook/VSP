@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-193</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-194</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -12066,6 +12066,15 @@ function renderScorecardInline(opts){ _recalcAll();
   var _IGW=_iColPx(_iwG,66),_IAW=_iColPx(_iwA,58),_ITW=_iColPx(_iwT,66);
   scorecard.forEach(function(section, sIdx){
     var _mets=section.metrics.filter(_inCad);
+    // merge-194 (Dave, 2026-08-11): hard-fail rows are always pinned to the top
+    // of the scorecard. Stable partition - hard-fails keep their relative order,
+    // the rest keep theirs - so drag-reordering (below) works within each group
+    // but can never move a normal row above a hard-fail or vice-versa.
+    (function(){
+      var _hf=[], _rest=[];
+      _mets.forEach(function(mm){ if(mm && mm._hard) _hf.push(mm); else _rest.push(mm); });
+      _mets=_hf.concat(_rest);
+    })();
     if(!_mets.length) return;
     var onTrack=_mets.filter(function(m){return !m._noScore && isOnTrack(m,_metricLatest(m));}).length;
 
@@ -12163,10 +12172,18 @@ function renderScorecardInline(opts){ _recalcAll();
       }
       var rowBg=mi%2===0?'var(--sur)':'#fafbfc';
 
-      h+='<tr>';
+      // merge-194: drag-and-drop on the monthly grid (was missing - this grid is
+      // a separate renderer from the weekly table that already had it). Manual
+      // sort only; reuses the existing scMDrag* handlers, which merge-163 already
+      // taught to reorder the perf map. Hard-fail rows are draggable among
+      // themselves but the top-pin above keeps them above the rest.
+      var _mScManual=(state.scorecardSort||'manual')==='manual';
+      h+='<tr'+(_mScManual?' ondragover="scMDragOver(event)" ondrop="scMDrop(event,'+m.id+')"':'')+'>';
       h+='<td style="'+scStkB(SC_OFF.trend,SC_W.trend,rowBg,'text-align:center;padding:0 2px')+'" title="'+(trend==="good"?"Trending right":"Trend wrong way")+'">'+trendIconInline(trend)+'</td>';
       if(_hasRD) h+='<td style="'+scStkB(SC_OFF.rd,SC_W.rd,rowBg,'text-align:left;padding:10px 12px;font-size:var(--fz-body);color:var(--txb);border-right:1px solid var(--brd);vertical-align:top;line-height:1.3;white-space:normal')+'">'+_scEsc(String(m.deliverable||''))+'</td>';
-      h+='<td onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:pointer')+'"><div style="display:flex;align-items:flex-start;gap:7px">'+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
+      var _mGrip=_mScManual?('<svg width="8" height="13" viewBox="0 0 8 13" style="display:inline-block;vertical-align:middle;margin-right:2px;opacity:.35;flex-shrink:0" fill="currentColor"><circle cx="2" cy="2" r="1"/><circle cx="6" cy="2" r="1"/><circle cx="2" cy="6.5" r="1"/><circle cx="6" cy="6.5" r="1"/><circle cx="2" cy="11" r="1"/><circle cx="6" cy="11" r="1"/></svg>'):'';
+      var _mDrag=_mScManual?(' draggable="true" ondragstart="scMDragStart(event,'+m.id+')" ondragend="scMDragEnd()"'):'';
+      h+='<td'+_mDrag+' onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:'+(_mScManual?'move':'pointer'))+'"><div style="display:flex;align-items:flex-start;gap:7px">'+_mGrip+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       if(_hasDL) h+='<td style="'+scStkB(SC_OFF.deadline,SC_W.deadline,rowBg,'text-align:left;padding:10px 12px;font-size:var(--fz-body);color:var(--txm);vertical-align:top;line-height:1.3;white-space:normal')+'">'+_scEsc(String(m.deadline||''))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':_goalLabel(m))+'</td>';
       var _cnpVals = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
@@ -28932,7 +28949,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-193';
+window.VSP_BUILD = 'v186-merge-194';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
