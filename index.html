@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-194</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-195</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7344,8 +7344,13 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var _isNA = hasVal && (_isCNA || /^(na|n\/a)$/i.test(String(val)));
   var _gm = (goalOverride!==null && goalOverride!==undefined) ? {goalType:m.goalType,goal:goalOverride,unit:m.unit,goalMin:m.goalMin,goalMax:m.goalMax} : m;
   var ok = hasVal && !_isNA && isOnTrack(_gm, val);
-  var bg = !hasVal ? bgRow : (_isCNA ? '#e0e7ff' : (_isNA ? '#f1f5f9' : (ok ? '#d1fae5' : '#fee2e2')));
-  var color = !hasVal ? 'var(--txd)' : (_isCNA ? '#3730a3' : (_isNA ? 'var(--txm)' : (ok ? '#065f46' : '#991b1b')));
+  // merge-195 (Dave, 2026-08-11): CNA now scores as a PASS, so it renders GREEN
+  // like a Yes (was neutral blue when it was an exclusion). The 'CNA' label still
+  // shows so the reason is visible; the green just makes the cell read honestly
+  // as a pass. Plain N/A stays neutral grey (genuinely excluded).
+  var _naOnly = _isNA && !_isCNA;
+  var bg = !hasVal ? bgRow : (_isCNA ? '#d1fae5' : (_naOnly ? '#f1f5f9' : (ok ? '#d1fae5' : '#fee2e2')));
+  var color = !hasVal ? 'var(--txd)' : (_isCNA ? '#065f46' : (_naOnly ? 'var(--txm)' : (ok ? '#065f46' : '#991b1b')));
   // Workload band (Dave, 2026-08-06): 8.0-8.9 green, below 8 amber, 9+ red.
   // Two-sided target - not on-track/off-track - so it overrides the default.
   if(m._numeric && hasVal){
@@ -14003,7 +14008,13 @@ function _vspPerfFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
     mets.forEach(function(m){
       var v=m.readings[ci];
       if(v==null||v==='') return;
-      if(v==='N/A'||v==='NA'||v==='CNA') return;   // Client Not Available (CNA): excluded from the month (merge-153/154)
+      // merge-195 (Dave, 2026-08-11): CNA (Client Not Available) now counts as a
+      // PASS (100%), not an exclusion. A PM who held the meetings they could and
+      // documented an effort on a client who was unavailable did their job, so
+      // the month should score as a pass - not drop out of scoring. Plain N/A
+      // (a metric that genuinely does not apply) is still excluded.
+      if(v==='N/A'||v==='NA'){ return; }            // N/A: genuinely not applicable, excluded
+      if(v==='CNA'){ any=true; t++; y++; return; }  // CNA: counts as a Yes (pass)
       any=true; t++;
       if(_isYesF(v)) y++; else if(m._hard) hf=true;
     });
@@ -28949,7 +28960,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-194';
+window.VSP_BUILD = 'v186-merge-195';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
