@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-189</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-191</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9482,6 +9482,7 @@ function _vspAutoFillClientMeetings(){
           var k=pid+'__'+row.id, key=ym[0]+'-'+ym[1];
           store[k]=store[k]||{};
           var curv=store[k][key];
+          if(store[k][key+'_ovr']) return;          // admin override: never auto-overwrite (merge-190)
           if(curv==='NA' || curv==='CNA') return;   // hand-set Client Not Available: never auto-overwrite
           if(_isCurrentMonth && val!=='Yes'){
             // Heal the premature stamps already stored: a current-month 'No'
@@ -13619,15 +13620,24 @@ function _vspPerfMonthlyCycle(pndPersonId, rowId, slotIdx, metric){
   } else {
     next = (cur==null||cur==='') ? 'Yes' : (cur==='Yes' ? 'No' : null);
   }
+  // merge-190 (Dave, 2026-08-10): admin override. When an admin sets a cell, mark
+  // it so the auto-derive never overwrites it - admins have final say on any
+  // month, finished or not. Non-admin taps do not set the flag, so history still
+  // governs finished months for everyone else.
+  var _isAdmin=false; try{ _isAdmin=(typeof _vspAutoIsAdmin==='function' && _vspAutoIsAdmin()); }catch(e){}
+  var _ovk=key+'_ovr';
   if(next==null){
     delete store[k][key];
+    delete store[k][_ovk];
     try{ _vspPerfMonthlySetNA(pndPersonId, rowId, slotIdx, false); }catch(e){}
     try{ _vspPerfMonthlyReasonSet(pndPersonId, rowId, slotIdx, ''); }catch(e){}
   } else if(next==='CNA'){
     store[k][key]='CNA';
+    if(_isAdmin) store[k][_ovk]=1;
     try{ _vspPerfMonthlySetNA(pndPersonId, rowId, slotIdx, true); }catch(e){}
   } else {
     store[k][key] = next;
+    if(_isAdmin) store[k][_ovk]=1;
   }
   _vspPerfSaveMonthly(store);
   if(next==='CNA'){
@@ -28820,7 +28830,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-189';
+window.VSP_BUILD = 'v186-merge-191';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -29903,11 +29913,47 @@ function _vspGuardedWrite(json){
         return false;
       }
       // Clean or single-metric save: keep a rolling lastGood of the outgoing state.
-      try{ localStorage.setItem(vspStorageKey()+'.guard.lastGood', JSON.stringify({at:new Date().toISOString(), tag:'lastGood', data:prevRaw})); }catch(e){}
+      // merge-191: only keep a lastGood copy when it is small enough not to
+      // risk the quota (the duplicate full-copy was a primary cause of the
+      // storage overflow). Large states rely on the sync backend + manual Backup.
+      try{ if(prevRaw && prevRaw.length < 1500000){ localStorage.setItem(vspStorageKey()+'.guard.lastGood', JSON.stringify({at:new Date().toISOString(), tag:'lastGood', data:prevRaw})); } else { localStorage.removeItem(vspStorageKey()+'.guard.lastGood'); } }catch(e){}
     }catch(e){ /* parse trouble: never block on guard failure */ }
   }
-  localStorage.setItem(vspStorageKey(), json);
-  return true;
+  // merge-191 (Dave, 2026-08-10): quota-aware write. localStorage was filling up
+  // (console: "exceeded the quota" on every save) because each save also wrote a
+  // full second copy to .guard.lastGood plus accumulated guard backups - so
+  // saves silently failed and taps did not persist. On a quota error, drop the
+  // expendable guard/backup keys to reclaim room and retry once; if it still
+  // fails, warn loudly instead of failing silently, and offer a backup+clear.
+  try{
+    localStorage.setItem(vspStorageKey(), json);
+    return true;
+  }catch(quotaErr){
+    if(String(quotaErr && quotaErr.name||'').indexOf('Quota')>-1 || /quota|exceeded/i.test(String(quotaErr&&quotaErr.message||''))){
+      try{
+        // Reclaim space: remove guard/backup copies and any stale sibling keys.
+        var kill=[];
+        for(var i=0;i<localStorage.length;i++){
+          var kk=localStorage.key(i);
+          if(!kk) continue;
+          if(kk.indexOf('.guard.')>-1 || kk.indexOf('.backup')>-1 || /guard|backup/i.test(kk)){ kill.push(kk); }
+        }
+        kill.forEach(function(kk){ try{ localStorage.removeItem(kk); }catch(e){} });
+      }catch(e){}
+      try{
+        localStorage.setItem(vspStorageKey(), json);
+        try{ _vspSetSaveStatus && _vspSetSaveStatus('saved'); }catch(e){}
+        return true;   // retry succeeded after reclaiming space
+      }catch(stillFull){
+        try{ console.warn('[VSP] Storage full even after cleanup. Data NOT saved.'); }catch(e){}
+        try{
+          vspAlert('Storage is full and this change could not be saved.\n\nYour existing data is safe. Click Back up to download a copy, then use Settings > Clear local data to reset this device. Your data will reload from sync.');
+        }catch(e){}
+        return false;
+      }
+    }
+    throw quotaErr;
+  }
 }
 function _vspGuardList(){
   var out=[], keys=['.guard.backup.1','.guard.backup.2','.guard.backup.3','.guard.lastGood'];
