@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-195</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-197</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9509,6 +9509,14 @@ function _vspAutoFillClientMeetings(){
         // month ends; (c) manual CNA is never overwritten - the old guard
         // checked the legacy 'NA' value only, so 'CNA' cells were flattened too.
         var _isCurrentMonth = (ym[0]===now.getFullYear() && ym[1]===now.getMonth());
+        // merge-196 (Dave, 2026-08-11): zero client meetings SCHEDULED that month
+        // -> leave the cell EMPTY (not 'No'). Requiring a recurring meeting to be
+        // booked in advance means "nothing scheduled" is an unset month, not an
+        // automatic fail. This fixes finished months (e.g. Will's July) that were
+        // being stamped 'No' purely because no series was booked. When meetings
+        // ARE scheduled: all held -> Yes; a shortfall -> No, which the PM/admin
+        // can upgrade to CNA with a reschedule note when a client cancelled.
+        var _noneScheduled = (st.sched===0);
         var val=(st.sched>0 && st.done>=st.sched) ? 'Yes' : 'No';
         rows.forEach(function(row){
           var k=pid+'__'+row.id, key=ym[0]+'-'+ym[1];
@@ -9516,6 +9524,16 @@ function _vspAutoFillClientMeetings(){
           var curv=store[k][key];
           if(store[k][key+'_ovr']) return;          // admin override: never auto-overwrite (merge-190)
           if(curv==='NA' || curv==='CNA') return;   // hand-set Client Not Available: never auto-overwrite
+          if(_noneScheduled){
+            // Nothing scheduled: cell stays empty. Heal any machine-stamped 'No'
+            // left from before this rule (identified by its auto note) so it
+            // clears; leave a real manual value alone.
+            var _nk0=key+'_note';
+            if(curv==='No' && /client meetings concluded$/.test(String(store[k][_nk0]||''))){
+              delete store[k][key]; delete store[k][_nk0]; dirty=true;
+            }
+            return;
+          }
           if(_isCurrentMonth && val!=='Yes'){
             // Heal the premature stamps already stored: a current-month 'No'
             // carrying the machine note was written by the old derive, not a
@@ -17903,11 +17921,33 @@ function facilSetBullet(i,v){ var sec=_facilCurSec(); if(!sec) return; var f=_fa
 function facilAddBullet(){ var sec=_facilCurSec(); if(!sec) return; _facilEnsure(sec).bullets.push(''); renderPage(); }
 function facilRemoveBullet(i){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); f.bullets.splice(i,1); renderPage(); }
 function facilMoveBullet(i,dir){ var sec=_facilCurSec(); if(!sec) return; var f=_facilEnsure(sec); var j=i+dir; if(j<0||j>=f.bullets.length) return; var t=f.bullets[i]; f.bullets[i]=f.bullets[j]; f.bullets[j]=t; renderPage(); }
+function _facilNoteReport(){
+  // The huddle subject (person) this note belongs to, or '' for team meetings
+  // (LT, Weekly team, Quarterly, Annual) which are not per-person.
+  try{
+    if((state.meetType||'').indexOf('performance')>-1 && state.meetHuddleReport){
+      return String(state.meetHuddleReport);
+    }
+  }catch(e){}
+  return '';
+}
 function _facilNoteText(sec){
   if(!sec) return '';
   var f=sec.facil;
-  if(f && typeof f.text==='string') return f.text;
-  if(f && Array.isArray(f.bullets) && f.bullets.length){
+  if(!f) return '';
+  // merge-197 (Dave, 2026-08-11): performance-huddle notes are per-report so
+  // Mika's huddle notes never bleed into Keith's (Terry, 2026-08-11). A huddle
+  // reads/writes sec.facil.byReport[reportId]; team meetings keep the shared
+  // sec.facil.text. One-time carry-forward: if a report has no per-report note
+  // yet but the shared text exists, seed from it so nothing already typed is lost.
+  var rep=_facilNoteReport();
+  if(rep){
+    if(f.byReport && typeof f.byReport==="object" && typeof f.byReport[rep]==="string") return f.byReport[rep];
+    if(typeof f.text==="string" && f.text) return f.text;   // legacy shared note, shown until this report saves its own
+    return '';
+  }
+  if(typeof f.text==='string') return f.text;
+  if(Array.isArray(f.bullets) && f.bullets.length){
     return f.bullets.map(function(b){return String(b||'').trim();}).filter(Boolean).join('\n');
   }
   return '';
@@ -17915,7 +17955,13 @@ function _facilNoteText(sec){
 function facilNoteSet(v){
   var sec=_facilCurSec(); if(!sec) return;
   if(!sec.facil || typeof sec.facil!=='object') sec.facil={};
-  sec.facil.text=v;
+  var rep=_facilNoteReport();
+  if(rep){
+    if(!sec.facil.byReport || typeof sec.facil.byReport!=='object') sec.facil.byReport={};
+    sec.facil.byReport[rep]=v;
+  } else {
+    sec.facil.text=v;
+  }
   _vspAutosaveQueue();
 }
 function _facilCard(sec,fallbackTitle,accent){
@@ -28960,7 +29006,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-195';
+window.VSP_BUILD = 'v186-merge-197';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
