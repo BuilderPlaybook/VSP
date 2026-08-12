@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-222</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-224</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -15493,6 +15493,14 @@ function _findScheduledById(id){
 function _visibleScheduled(){
   var out=(typeof scheduledMeetings!=='undefined'?scheduledMeetings.slice():[]);
   var seen={}; out.forEach(function(m){seen[m.id]=1;});
+  // merge-223 (Dave, 2026-08-12): the team picker now scopes the meetings list.
+  // Default 'team' returns only the selected team's meetings, so the picker
+  // means what its label says. The meetings-local "All teams" toggle sets
+  // state.meetScope='all' to restore the cross-team pull-in below (an admin or
+  // supervisor seeing every meeting they oversee) as an explicit choice, not a
+  // silent override of the picker. Supersedes the always-on pull-in from
+  // merge-149 / merge-166 for the default view.
+  if(state.meetScope!=='all'){ return out; }
   var ini=currentUser?currentUser.initials:'';
   // Huddle visibility (Dave, 2026-08-09, merge-149): a performance huddle from
   // another team is pulled in when the signed-in user should see it -
@@ -19450,6 +19458,14 @@ function renderMeetings(){
     // Category filter bar
     h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">';
     h+=renderTeamMenu('meetTeamMenu');
+    // merge-223: All-teams scope toggle. Off (default) = only the selected
+    // team's meetings; On = every team's meetings the signed-in person can see.
+    // Lives here, not in the team picker, because that picker is global (it
+    // also drives the scorecard and goals, which need a single team).
+    var _msAll=(state.meetScope==='all');
+    h+='<button onclick="state.meetScope=(state.meetScope===\'all\'?\'team\':\'all\');renderPage()" title="'+(_msAll?'Showing meetings from every team. Click to show only the selected team.':'Showing only the selected team. Click to show meetings from every team.')+'" style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:16px;font-size:var(--fz-base);font-weight:'+(_msAll?'600':'400')+';border:1.5px solid '+(_msAll?'var(--blu)':'var(--brd2)')+';background:'+(_msAll?'var(--blub)':'var(--sur)')+';color:'+(_msAll?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'
+      +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="18" cy="7" r="2.2"/><path d="M22 21v-1.6a3.2 3.2 0 0 0-2.6-3.1"/></svg>'
+      +'All teams</button>';
     [{id:'team',l:'Team Meetings'},{id:'supervisor',l:'Supervisor'},{id:'client',l:'Client'}].forEach(function(ct){
       var isA=cat===ct.id;
       h+='<button onclick="state.meetingCategory=\''+ct.id+'\';renderPage()" style="padding:5px 14px;border-radius:16px;font-size:var(--fz-base);font-weight:'+(isA?'600':'400')+';border:1.5px solid '+(isA?'var(--blu)':'var(--brd2)')+';background:'+(isA?'var(--blub)':'var(--sur)')+';color:'+(isA?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'+ct.l+'</button>';
@@ -19473,6 +19489,14 @@ function renderMeetings(){
       (state.currentTeam!=='ltsync')&&{type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
       (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
       mtIsLT&&{type:"Annual",cat:"team",desc:"Full strategic planning. Update vision, set annual goals.",c:"#7c3aed"},
+      // merge-224 (Dave, 2026-08-12): the Executive team meets as the Executive
+      // Huddle - a huddle, not a team meeting. Its card sits under Team Meetings
+      // for that team so the box is present like every other team has, but it
+      // carries type "Weekly Performance Huddle" so it runs the weekly
+      // performance huddle agenda (never the team-meeting Goals agenda that
+      // merge-218 rightly hid). name "Executive Huddle" is what it reads as;
+      // the type key drives the agenda, Start Meeting, and history.
+      mtIsSync&&{type:"Weekly Performance Huddle",name:"Executive Huddle",cat:"team",desc:"Individual KPI review, headlines, to-dos, job review, and issues. Runs the weekly performance huddle agenda.",c:"#0891b2"},
       {type:"Weekly Performance Huddle",cat:"supervisor",desc:"Individual KPI review, headlines, to-dos, job review, and issues. Supervisor to direct report.",c:"#0891b2"},
       {type:"Quarterly Performance Huddle",cat:"supervisor",desc:"Quarter review, performance feedback, strengths, and next quarter goals.",c:"#0891b2"},
       {type:"Annual Performance Huddle",cat:"supervisor",desc:"Full year review, career conversation, development plan, and annual goals.",c:"#0891b2"},
@@ -29408,7 +29432,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-222';
+window.VSP_BUILD = 'v186-merge-224';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
