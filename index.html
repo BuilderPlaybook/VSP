@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-211</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-212</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -29195,7 +29195,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-211';
+window.VSP_BUILD = 'v186-merge-212';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -32622,18 +32622,59 @@ try{ _vspMigrateJobNotes(); }catch(e){}
    only when the user clicks Update. Data autosaves continuously, so a reload is
    safe. Guarded so any failure is silent and never blocks the app. */
 (function(){
+  // merge-212 (Dave, 2026-08-12): FORCE auto-update. The team-testing model
+  // (5 people on GitHub Pages) broke whenever devices ran different builds -
+  // old builds fought new ones through sync, causing the data-loss and "it came
+  // back" churn. Chasing everyone to refresh does not scale. So when a newer
+  // deployed build is detected, this now reloads the page to match automatically
+  // - but ONLY when it is safe: never while typing in a field, never while a
+  // meeting is actively running, never while a modal is open. It waits for an
+  // idle moment, shows a brief 4-second "Updating" notice (with a Wait button to
+  // defer one cycle), then reloads. Data autosaves continuously, so the reload
+  // is safe. This is NOT the old every-second refresh - it acts once, only when
+  // a genuinely newer build exists, and only when idle.
   try{
     var RUNNING = (window.VSP_BUILD||'');
     if(!RUNNING) return;
-    var MIN_GAP = 5*60*1000;   // no more than one network check per 5 minutes
+    var MIN_GAP = 90*1000;      // check at most every 90s (faster than the old 5 min so lockstep happens quickly)
     var last = 0;
-    var shown = false;
-    var dismissedFor = '';
+    var pendingBuild = null;    // a newer build we are waiting to apply
+    var deferUntil = 0;         // user pressed Wait: hold off until this time
+    var reloading = false;
 
-    function showBanner(newBuild){
-      if(shown || dismissedFor===newBuild) return;
-      shown = true;
-      var bar = document.createElement('div');
+    function _isTyping(){
+      try{
+        var a = document.activeElement;
+        if(!a) return false;
+        var tag = (a.tagName||'').toUpperCase();
+        if(tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT') return true;
+        if(a.isContentEditable) return true;
+      }catch(e){}
+      return false;
+    }
+    function _meetingRunning(){
+      try{ return !!(window.state && state.meetTab==='running'); }catch(e){ return false; }
+    }
+    function _modalOpen(){
+      try{
+        // Any visible overlay/modal on screen means the user is mid-task.
+        if(window.state){
+          if(state.cnaBox || state.mcMove || state.editStandardPanel && state.editStandardPanel.open) return true;
+          if(state.newMeasurablePanel && state.newMeasurablePanel.open) return true;
+        }
+        if(document.querySelector('.smb-modal')) return true;
+      }catch(e){}
+      return false;
+    }
+    function _safeToReload(){
+      return !_isTyping() && !_meetingRunning() && !_modalOpen();
+    }
+
+    function showUpdating(newBuild){
+      if(reloading) return;
+      var bar = document.getElementById('vsp-update-bar');
+      if(bar) return;
+      bar = document.createElement('div');
       bar.id = 'vsp-update-bar';
       bar.setAttribute('style',
         'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'+
@@ -32641,38 +32682,45 @@ try{ _vspMigrateJobNotes(); }catch(e){}
         'background:var(--sb);color:white;padding:9px 14px;border-radius:10px;'+
         'box-shadow:0 8px 28px rgba(0,0,0,.28);font-family:inherit;font-size:14px;max-width:92vw');
       var msg = document.createElement('span');
-      msg.textContent = 'A new version is available.';
-      var btn = document.createElement('button');
-      btn.textContent = 'Update';
-      btn.setAttribute('style','background:var(--gp);color:var(--sb);border:none;border-radius:7px;padding:6px 14px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer');
-      btn.onclick = function(){ location.reload(true); };
-      var x = document.createElement('button');
-      x.textContent = 'Later';
-      x.setAttribute('style','background:transparent;color:var(--sur);border:1px solid var(--txd);border-radius:7px;padding:6px 12px;font-family:inherit;font-size:14px;cursor:pointer');
-      x.onclick = function(){ dismissedFor = newBuild; shown=false; if(bar.parentNode) bar.parentNode.removeChild(bar); };
-      bar.appendChild(msg); bar.appendChild(btn); bar.appendChild(x);
+      msg.textContent = 'Updating to the latest version...';
+      var wait = document.createElement('button');
+      wait.textContent = 'Wait';
+      wait.setAttribute('style','background:transparent;color:var(--sur);border:1px solid var(--txd);border-radius:7px;padding:6px 12px;font-family:inherit;font-size:14px;cursor:pointer');
+      var t = setTimeout(function(){ reloading = true; try{ location.reload(true); }catch(e){} }, 4000);
+      wait.onclick = function(){
+        clearTimeout(t);
+        deferUntil = Date.now() + 3*60*1000;   // hold off 3 minutes
+        if(bar.parentNode) bar.parentNode.removeChild(bar);
+      };
+      bar.appendChild(msg); bar.appendChild(wait);
       document.body.appendChild(bar);
+    }
+
+    // Try to apply a pending update when it becomes safe.
+    function tryApply(){
+      if(reloading || !pendingBuild) return;
+      if(Date.now() < deferUntil) return;
+      if(_safeToReload()){ showUpdating(pendingBuild); }
     }
 
     function check(){
       var now = Date.now();
       if(now - last < MIN_GAP) return;
       last = now;
-      // Cache-bust so we read the freshly deployed file, not a cached copy.
       fetch('index.html?_v='+now, {cache:'no-store'}).then(function(r){
         if(!r.ok) return; return r.text();
       }).then(function(html){
         if(!html) return;
         var m = html.match(/window\.VSP_BUILD\s*=\s*['"]([^'"]+)['"]/);
-        if(m && m[1] && m[1]!==RUNNING){ showBanner(m[1]); }
+        if(m && m[1] && m[1]!==RUNNING){ pendingBuild = m[1]; tryApply(); }
       }).catch(function(){ /* offline or blocked: stay silent */ });
     }
 
-    // Periodic check (every 5 min) and a throttled check when the tab regains focus.
     setInterval(check, MIN_GAP);
-    document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
-    // First check a bit after load so it never competes with startup.
-    setTimeout(check, 30000);
+    // Re-attempt applying a known pending update every 20s (waits out typing/meetings).
+    setInterval(tryApply, 20000);
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden){ check(); tryApply(); } });
+    setTimeout(check, 20000);
   }catch(e){ /* never let the update checker affect the app */ }
 })();
 </script>
