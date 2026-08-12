@@ -31735,8 +31735,15 @@ try{ _vspMigrateJobNotes(); }catch(e){}
 
   function _parse(v){ try { return JSON.parse(v); } catch(e){ return null; } }
   function _recTime(r){
-    try { return r && r.savedAt ? new Date(r.savedAt).getTime() : 0; }
-    catch(e){ return 0; }
+    // merge-211 (Dave, 2026-08-12): read updatedAt (the field weekly answer
+    // records actually carry) first, savedAt as a fallback. Reading only savedAt
+    // returned 0 for every record, so the merge tie-broke as last-writer-wins
+    // and clobbered other devices' answers.
+    try {
+      if(!r) return 0;
+      var t = r.updatedAt || r.savedAt || null;
+      return t ? new Date(t).getTime() : 0;
+    } catch(e){ return 0; }
   }
 
   function setBadge(kind, text){
@@ -32268,14 +32275,39 @@ try{ _vspMigrateJobNotes(); }catch(e){}
   }
 
   function P_mergeHuddles(serverObj, mineObj){
+    // merge-211 (Dave, 2026-08-12): merge ANSWER-BY-ANSWER within each week, not
+    // whole-week-wins. The old logic picked one entire week record and discarded
+    // the other, so a fresh entry on one device (Keith's last week) was thrown
+    // away wholesale when another device's copy of that week won. Now both
+    // devices' answers are unioned; when the same row exists on both, the answer
+    // from the more recently-updated record is kept. This makes score entry
+    // non-destructive across devices.
     var out = {};
     var k;
     if(serverObj) for(k in serverObj){ if(serverObj.hasOwnProperty(k)) out[k] = serverObj[k]; }
     if(mineObj) for(k in mineObj){
       if(!mineObj.hasOwnProperty(k)) continue;
       var mine = mineObj[k], theirs = out[k];
-      if(theirs === undefined){ out[k] = mine; continue; }
-      out[k] = (_recTime(mine) >= _recTime(theirs)) ? mine : theirs;
+      if(theirs === undefined || mine === undefined){ out[k] = (mine===undefined?theirs:mine); continue; }
+      var mineNewer = _recTime(mine) >= _recTime(theirs);
+      var base = mineNewer ? theirs : mine;   // older record is the base
+      var top  = mineNewer ? mine   : theirs; // newer record wins ties per row
+      var merged = {};
+      // Start from both records' non-answer fields (newer wins).
+      var kk;
+      for(kk in base){ if(base.hasOwnProperty(kk)) merged[kk] = base[kk]; }
+      for(kk in top){ if(top.hasOwnProperty(kk)) merged[kk] = top[kk]; }
+      // Union the answers: base first, then newer overrides per row.
+      var ans = {};
+      var ba = (base && base.answers) || {}, ta = (top && top.answers) || {};
+      for(kk in ba){ if(ba.hasOwnProperty(kk)) ans[kk] = ba[kk]; }
+      for(kk in ta){ if(ta.hasOwnProperty(kk)) ans[kk] = ta[kk]; }
+      merged.answers = ans;
+      // 'away' is sticky if either side marked it away (an away week is a
+      // deliberate exclusion; do not let a stale non-away copy revive scoring).
+      if((base && base.away) || (top && top.away)) merged.away = true;
+      merged.updatedAt = (top && (top.updatedAt||top.savedAt)) || (base && (base.updatedAt||base.savedAt)) || new Date().toISOString();
+      out[k] = merged;
     }
     return out;
   }
