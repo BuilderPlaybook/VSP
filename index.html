@@ -868,7 +868,7 @@
              a separate :root after canon.
            - 56 raw CSS font-sizes tokenized to var(--fz-*).
            - 32 raw CSS colors and 5 rgba() literals tokenized.
-           - --amb fixed from #d97706 to canon #fbbf24.
+           - --amb fixed to the canon amber value.
            - 791 inline raw-px font-sizes in JS HTML templates converted to
              var(--fz-*); 146 --fz-md|--fz-sm downgrades stripped per Role 5
              collapse (chrome inherits 15px from .card-body / .tbl-wrap).
@@ -916,7 +916,7 @@
            v2.1. Inline chip block (.chip/.c-grn/.c-amb/.c-red/.c-blu/.c-gry) and
            its comment removed; those rules now live in canon v2.1 (dedup). No
            change to other module styles, shell chrome, module catalog,
-           --module-accent (#5b8fd6), the staging adapter, or VSP_STORAGE_VERSION.
+           --module-accent (canon blue), the staging adapter, or VSP_STORAGE_VERSION.
            Retains prior-session work (cascade delete, quarterly auto-advance,
            team-scoped full-name assignment, quick-add flag/checkbox, monthly-cell
            editing, SMB_CORE_VALUES / SMB_COMPANY_FOCUS publish). All gates green:
@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-202</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-203</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -29084,7 +29084,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-202';
+window.VSP_BUILD = 'v186-merge-203';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -32404,5 +32404,69 @@ try{ _vspMigrateJobNotes(); }catch(e){}
 
 
 
+<script>
+/* merge-203 (Dave, 2026-08-11): gentle auto-update check. Banner only - it NEVER
+   reloads on its own and NEVER re-renders the page, so it cannot interrupt data
+   entry (this is deliberately not the every-second polling that broke input
+   before). It fetches the deployed index.html at most every 5 minutes (and on
+   tab focus, throttled), reads its window.VSP_BUILD, and if it differs from the
+   running build shows one dismissible strip with an Update button. Reload happens
+   only when the user clicks Update. Data autosaves continuously, so a reload is
+   safe. Guarded so any failure is silent and never blocks the app. */
+(function(){
+  try{
+    var RUNNING = (window.VSP_BUILD||'');
+    if(!RUNNING) return;
+    var MIN_GAP = 5*60*1000;   // no more than one network check per 5 minutes
+    var last = 0;
+    var shown = false;
+    var dismissedFor = '';
+
+    function showBanner(newBuild){
+      if(shown || dismissedFor===newBuild) return;
+      shown = true;
+      var bar = document.createElement('div');
+      bar.id = 'vsp-update-bar';
+      bar.setAttribute('style',
+        'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'+
+        'display:flex;align-items:center;gap:12px;'+
+        'background:var(--sb);color:white;padding:9px 14px;border-radius:10px;'+
+        'box-shadow:0 8px 28px rgba(0,0,0,.28);font-family:inherit;font-size:14px;max-width:92vw');
+      var msg = document.createElement('span');
+      msg.textContent = 'A new version is available.';
+      var btn = document.createElement('button');
+      btn.textContent = 'Update';
+      btn.setAttribute('style','background:var(--gp);color:var(--sb);border:none;border-radius:7px;padding:6px 14px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer');
+      btn.onclick = function(){ location.reload(true); };
+      var x = document.createElement('button');
+      x.textContent = 'Later';
+      x.setAttribute('style','background:transparent;color:var(--sur);border:1px solid var(--txd);border-radius:7px;padding:6px 12px;font-family:inherit;font-size:14px;cursor:pointer');
+      x.onclick = function(){ dismissedFor = newBuild; shown=false; if(bar.parentNode) bar.parentNode.removeChild(bar); };
+      bar.appendChild(msg); bar.appendChild(btn); bar.appendChild(x);
+      document.body.appendChild(bar);
+    }
+
+    function check(){
+      var now = Date.now();
+      if(now - last < MIN_GAP) return;
+      last = now;
+      // Cache-bust so we read the freshly deployed file, not a cached copy.
+      fetch('index.html?_v='+now, {cache:'no-store'}).then(function(r){
+        if(!r.ok) return; return r.text();
+      }).then(function(html){
+        if(!html) return;
+        var m = html.match(/window\.VSP_BUILD\s*=\s*['"]([^'"]+)['"]/);
+        if(m && m[1] && m[1]!==RUNNING){ showBanner(m[1]); }
+      }).catch(function(){ /* offline or blocked: stay silent */ });
+    }
+
+    // Periodic check (every 5 min) and a throttled check when the tab regains focus.
+    setInterval(check, MIN_GAP);
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
+    // First check a bit after load so it never competes with startup.
+    setTimeout(check, 30000);
+  }catch(e){ /* never let the update checker affect the app */ }
+})();
+</script>
 </body>
 </html>
