@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-205</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-209</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5972,7 +5972,6 @@ var meetingAgendas=[
   {type:"Weekly Performance Huddle",title:"Weekly Performance Huddle",dur:"52 min",color:"#0891b2",role:"supervisor",sections:[
     {label:"Check-In",min:2,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
     {label:"Scorecard Review",min:20,detail:"Review the direct report's full Weekly Performance scorecard from P&D. Each row is answered Yes or No. Off-track items move to Issues.",visible:true,locked:true,bind:"scorecard"},
-    {label:"Goals Review",min:5,detail:"Each owner says On Track or Off Track. Off-track items move to Issues.",visible:true,locked:false},
     {label:"Headlines",min:2,detail:"Good news only  -  client wins and team wins. State it and move on. No discussion.",visible:true,locked:false},
     {label:"To-Do Review",min:5,detail:"Review last week\u2019s to-dos. Done or Not Done. Incomplete items are discussed briefly.",visible:true,locked:false},
     {label:"Job Review",min:10,detail:"Go job by job. Confirm what the performance scorecard claims is actually done, and record what was verified.",visible:true,locked:false},
@@ -19231,7 +19230,7 @@ function renderMeetings(){
       {type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
       (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
       mtIsLT&&{type:"Annual",cat:"team",desc:"Full strategic planning. Update vision, set annual goals.",c:"#7c3aed"},
-      {type:"Weekly Performance Huddle",cat:"supervisor",desc:"Individual KPI review, goals, headlines, to-dos, and issues. Supervisor to direct report.",c:"#0891b2"},
+      {type:"Weekly Performance Huddle",cat:"supervisor",desc:"Individual KPI review, headlines, to-dos, job review, and issues. Supervisor to direct report.",c:"#0891b2"},
       {type:"Quarterly Performance Huddle",cat:"supervisor",desc:"Quarter review, performance feedback, strengths, and next quarter goals.",c:"#0891b2"},
       {type:"Annual Performance Huddle",cat:"supervisor",desc:"Full year review, career conversation, development plan, and annual goals.",c:"#0891b2"},
       {type:"Monthly Client Meeting",cat:"client",desc:"Project progress, schedule, budget, change orders, selections, and upcoming milestones.",c:"#0891b2"},
@@ -19707,39 +19706,20 @@ function renderMeetings(){
           h+='</div>';
         }
       } else {
+        // merge-208 (Dave, 2026-08-12): personal scorecards belong ONLY in
+        // huddles, never in team meetings. This removes the merge-204 change that
+        // put each member's personal scorecard into every team meeting. Team
+        // meetings show the team scorecard; huddles show the person's personal
+        // scorecard. That is the point of a huddle.
         h+=_meetPndScorecardItem();
-        // merge-204 (Dave, 2026-08-11): a team meeting's Scorecard Review now
-        // shows each MEMBER's own My Performance scorecard (their role-standard
-        // Weekly Performance scorecard), exactly as it appears on My Performance
-        // and in that person's huddle - not the team's separate scorecard array
-        // (which for the Executive team was empty, so it read "0 of 0"). Same
-        // builder the Team Performance page uses, scoped to this meeting's team.
-        var _tmScored='';
-        try{
-          var _tmTeam=teamsRegistry[state.currentTeam]||{};
-          var _tmInits=Array.isArray(_tmTeam.members)?_tmTeam.members:[];
-          var _tmMembers=ppl.filter(function(p){ return p && p.status==='active' && _tmInits.indexOf(p.initials)>-1; });
-          if(_tmMembers.length){ _tmScored=_vspPerfRenderSections(_tmMembers, true); }
-        }catch(e){ _tmScored=''; }
-        if(_tmScored){
-          h+=_tmScored;
-          if(step+1 < runSections.length){
-            var _tmNSecs=(_nxtSec ? _nxtSec.min*60 : 300);
-            h+='<div style="display:flex;justify-content:flex-end;margin-top:10px">';
-            h+='<button type="button" onclick="state.meetStep='+(step+1)+';if(_recState===\'recording\')stopRecording(false);renderPage();autoStartTimer('+(step+1)+','+_tmNSecs+')" title="Go to the next section" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:1px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-body);font-weight:600;font-family:inherit;cursor:pointer">Next'+((_nxtSec&&_nxtSec.label)?': '+_nxtSec.label:'')+' <svg width=\'11\' height=\'11\' viewBox=\'0 0 24 24\' fill=\'currentColor\'><path d=\'M5 4l15 8-15 8V4z\'/><rect x=\'19\' y=\'4\' width=\'2\' height=\'16\'/></svg></button>';
-            h+='</div>';
-          }
-        } else {
-          // Fallback: no resolvable members - keep the prior team-array render.
-          h+=renderScorecardInline({
-            showFilters: true,
-            editable: true,
-            linkable: true,
-            nextStep: (step+1 < runSections.length ? step+1 : null),
-            nextSecs: (_nxtSec ? _nxtSec.min*60 : 300),
-            nextLabel: (_nxtSec ? _nxtSec.label : '')
-          });
-        }
+        h+=renderScorecardInline({
+          showFilters: true,
+          editable: true,
+          linkable: true,
+          nextStep: (step+1 < runSections.length ? step+1 : null),
+          nextSecs: (_nxtSec ? _nxtSec.min*60 : 300),
+          nextLabel: (_nxtSec ? _nxtSec.label : '')
+        });
       }
     }
     if(stepIs("goal")){
@@ -29114,7 +29094,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-205';
+window.VSP_BUILD = 'v186-merge-209';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -31425,13 +31405,20 @@ function _vspMigrateHuddleAgenda(){
     var canon = [
       { label:'Check-In',        min:2,  detail:'Everyone shares one personal best and one professional best from the past week. No problem-solving.', locked:false },
       { label:'Scorecard Review',min:20, detail:"Review the direct report's full Weekly Performance scorecard from P&D. Each row is answered Yes or No. Off-track items move to Issues.", locked:true, bind:'scorecard' },
-      { label:'Goals Review',    min:5,  detail:'Each owner says On Track or Off Track. Off-track items move to Issues.', locked:false },
       { label:'Headlines',       min:2,  detail:'Good news only  -  client wins and team wins. State it and move on. No discussion.', locked:false },
       { label:'To-Do Review',    min:5,  detail:'Review last week\u2019s to-dos. Done or Not Done. Incomplete items are discussed briefly.', locked:false },
       { label:'Job Review',      min:10, detail:'Go job by job. Confirm what the performance scorecard claims is actually done, and record what was verified.', locked:false },
       { label:'Issues',          min:5,  detail:'Work through the Issues list in priority order. Each issue gets a to-do or is resolved.', locked:false },
       { label:'Conclude',        min:3,  detail:'Confirm any new to-dos. Rate the huddle. Close strong.', locked:true }
     ];
+    // merge-209 (Dave, 2026-08-12): Goals Review was removed from the huddle
+    // (goal review belongs to the team meeting). Strip it from any saved agenda
+    // BEFORE the all-present bail, so existing tenants lose the stale step too.
+    var _hadGoals = a.sections.some(function(x){ return x && x.label==='Goals Review'; });
+    if(_hadGoals){
+      a.sections = a.sections.filter(function(x){ return !(x && x.label==='Goals Review'); });
+      try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    }
     // Already migrated? Bail if the canonical labels are all present.
     var have = a.sections.map(function(x){ return (x && x.label) || ''; });
     var allPresent = canon.every(function(c){ return have.indexOf(c.label) > -1; });
