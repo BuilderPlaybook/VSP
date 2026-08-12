@@ -23169,9 +23169,22 @@ function endMeeting(){
           return out;
         }
       }catch(e){}
-      // Team meeting: attendance is who was actually present (Dave, 2026-08-01)
-      // - the roster minus anyone marked absent at the Conclude step, not the
-      // whole team.
+      // merge-210 (Dave, 2026-08-12): for a meeting joined from a scheduled
+      // meeting, attendance derives from THAT MEETING'S OWN attendee list
+      // (minus anyone marked absent) - not the selected team's roster. The
+      // roster fallback stamped whole teams onto records of meetings they were
+      // never in (a phantom "Construction Operations Team Meeting" carried
+      // TP/WL/KT/VC purely because the dropdown sat on that team at conclude).
+      try{
+        if(state.meetScheduledId){
+          var _asf=_findScheduledById(state.meetScheduledId);
+          if(_asf && _asf.m && Array.isArray(_asf.m.attendees) && _asf.m.attendees.length){
+            return _asf.m.attendees.filter(function(ini){ return !(state.meetAbsent&&state.meetAbsent[ini]); });
+          }
+        }
+      }catch(e){}
+      // Ad-hoc team meeting (no scheduled source): roster minus anyone marked
+      // absent at the Conclude step (Dave, 2026-08-01).
       return (team.members||['DS']).filter(function(ini){ return !(state.meetAbsent&&state.meetAbsent[ini]); });
     })(),
     headlines:meetHeadlines,
