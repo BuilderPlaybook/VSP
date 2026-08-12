@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-209</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-210</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5909,9 +5909,12 @@ var annualAgenda=[
   {id:"wrapup",label:"Wrap-Up",min:30,desc:"Confirm all to-dos and goals. Rate the session. Celebrate the plan."},
 ];
 var pastMeetings=[];
-var scheduledMeetings=[
-  {id:1,type:"Weekly",date:"2026-05-21",time:"9:00 AM",attendees:["DS","TP","WL","MN","LS"],location:"LIDA Office - Boardroom",recurring:"Weekly Leadership"}
-];
+// merge-210 (Dave, 2026-08-12): seed meetings REMOVED. Hardcoded seed meetings
+// were the root resurrection source: the app re-created them from source on
+// every boot, so deleting them only held until the next load (and the two seeds
+// shared id:1 across teams, corrupting tombstones). Real meetings live in the
+// synced data; the app now seeds none.
+var scheduledMeetings=[];
 var meetingAgendas=[
   {type:"Weekly",title:"Weekly Meeting",dur:"90 min",color:"#2563eb",role:"all",sections:[
     {label:"Check-In",min:5,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
@@ -6111,7 +6114,7 @@ var teamsRegistry={
       {ownerId:"WL",seat:"Site Lead",metrics:[]}
     ],
     headlines:[],
-    scheduledMeetings:[{id:1,type:"Weekly",date:"2026-03-29",time:"8:00 AM",attendees:["TP","WL"],location:"LIDA Office  -  Site Office",recurring:"Every Saturday"}],
+    scheduledMeetings:[],
     pastMeetings:[]
   },
   "sales":{
@@ -23056,8 +23059,29 @@ function endMeeting(){
   // time from meetStartTime; fall back to summed section timers, then planned.
   var wallMins=state.meetStartTime?Math.max(1,Math.round((Date.now()-state.meetStartTime)/60000)):0;
   // Issues solved during this meeting
+  // merge-210 (Dave, 2026-08-12): resolve solved-issue ids across ALL teams,
+  // not just the currently selected team's resolvedIssues. Issues solved in a
+  // meeting often live in another team's arrays (cross-team huddle gather), so
+  // the current-team-only lookup missed and the recap printed raw "Issue #id"
+  // lines instead of the actual issue titles.
+  function _recapFindIssue(id){
+    var hit=null;
+    try{
+      Object.keys(teamsRegistry).forEach(function(tk){
+        if(hit) return;
+        var tt=teamsRegistry[tk]; if(!tt) return;
+        ['resolvedIssues','issues','longTermIssues'].forEach(function(fld){
+          if(hit) return;
+          var arr=tt[fld]; if(!Array.isArray(arr)) return;
+          var f=arr.find(function(i){return i && i.id===id;});
+          if(f) hit=f;
+        });
+      });
+    }catch(e){}
+    return hit;
+  }
   var solvedThisMeeting=state.meetSolvedIds.map(function(id){
-    return resolvedIssues.find(function(i){return i.id===id;})||{title:'Issue #'+id,owner:'DS'};
+    return _recapFindIssue(id)||resolvedIssues.find(function(i){return i.id===id;})||{title:'Issue #'+id,owner:'DS'};
   });
   // Items the team created DURING this meeting (per-meeting tracking arrays).
   // Each tracking array holds ids pushed when the user used the Quick add
@@ -23093,8 +23117,24 @@ function endMeeting(){
   var ratingVals=Object.values(indvRatings).filter(function(v){return v>0;});
   var avgRating=ratingVals.length?Math.round(ratingVals.reduce(function(a,b){return a+b;},0)/ratingVals.length):state.meetRating||0;
   // Per-meeting tracking already captured above (newHeadlinesThisMeeting / sentCascadesThisMeeting).
-  // Mirror to the legacy field names so any older consumer of record.headlines / record.cascades still works.
-  var meetHeadlines = newHeadlinesThisMeeting;
+  // merge-210 (Dave, 2026-08-12): the recap now records every headline that was
+  // OPEN at conclude - these are the headlines actually shared and reviewed in
+  // the Headlines step (conclude archives them immediately after, so this is
+  // exactly the set covered this meeting). Previously only headlines CREATED
+  // mid-meeting were captured, so the recap said "No headlines shared" even
+  // when the team spent the whole Headlines step reviewing them.
+  var openHeadlinesAtConclude=[];
+  try{
+    if(typeof headlines!=='undefined' && Array.isArray(headlines)){
+      openHeadlinesAtConclude=headlines.filter(function(h){ return h && h.status!=='archived'; })
+        .map(function(h){ return {id:h.id, text:h.text, type:h.type, owner:h.owner}; });
+    }
+  }catch(e){}
+  var _hlSeen={}; var _hlAll=[];
+  openHeadlinesAtConclude.concat(newHeadlinesThisMeeting).forEach(function(h){
+    if(!h || _hlSeen[h.id]) return; _hlSeen[h.id]=1; _hlAll.push(h);
+  });
+  var meetHeadlines = _hlAll;
   var meetCascades = sentCascadesThisMeeting;
   var record={
     id:Date.now(),
@@ -23162,7 +23202,28 @@ function endMeeting(){
     try{ if(typeof todos!=='undefined') todos.forEach(function(tt){ if(tt.done && tt.status!=='archived' && !_todoTiedToOpenIssue(tt)) tt.status='archived'; }); }catch(e){}
     try{ if(typeof headlines!=='undefined') headlines.forEach(function(hl){ if(hl.status!=='archived') hl.status='archived'; }); }catch(e){}
   }
-  pastMeetings.unshift(record);
+  // merge-210 (Dave, 2026-08-12): file the record under the MEETING'S OWN team,
+  // not the team currently selected in the dropdown. Records were landing in
+  // whatever team the runner happened to have selected (Will/Keith/Mika huddles
+  // filed under Leadership; the Executive Meeting record missing from the
+  // Executive past tab). Resolve the source team from the scheduled meeting
+  // that was joined; ad-hoc meetings (no scheduled source) keep the current
+  // team as before.
+  (function(){
+    var _fT=null;
+    try{
+      if(state.meetScheduledId){
+        var _sf0=_findScheduledById(state.meetScheduledId);
+        if(_sf0 && _sf0.teamId && teamsRegistry[_sf0.teamId]) _fT=teamsRegistry[_sf0.teamId];
+      }
+    }catch(e){}
+    if(_fT && _fT!==teamsRegistry[state.currentTeam]){
+      if(!Array.isArray(_fT.pastMeetings)) _fT.pastMeetings=[];
+      _fT.pastMeetings.unshift(record);
+    } else {
+      pastMeetings.unshift(record);
+    }
+  })();
   // Monthly Client Meeting auto-record (merge-148): concluding the agenda is
   // what records the meeting, so refresh the monthly scorecard cells now.
   try{ _vspAutoFillClientMeetings(); }catch(e){}
@@ -29094,7 +29155,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-209';
+window.VSP_BUILD = 'v186-merge-210';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -29536,6 +29597,17 @@ function vspSnapshot(){
   // is its own object tree.
   var teams = {};
   try { teams = JSON.parse(JSON.stringify(teamsRegistry)); } catch(e){ teams = {}; }
+  // merge-210 (Dave, 2026-08-12): push-time tombstone filter. Strip deleted
+  // meetings from the outgoing snapshot so no device can ever push a deleted
+  // meeting back to the shared store, regardless of adopt-order races.
+  try{
+    var _pdm=_delMeet();
+    Object.keys(teams).forEach(function(tk){
+      var tt=teams[tk]; if(!tt) return;
+      if(Array.isArray(tt.scheduledMeetings)) tt.scheduledMeetings=tt.scheduledMeetings.filter(function(x){ return !(x && _pdm[x.id]); });
+      if(Array.isArray(tt.pastMeetings)) tt.pastMeetings=tt.pastMeetings.filter(function(x){ return !(x && _pdm[x.id]); });
+    });
+  }catch(e){}
   return {
     version: VSP_STORAGE_VERSION,
     scLayout: SC_LAYOUT_TOKEN,
@@ -30337,6 +30409,20 @@ try {
 
 // Restore saved state before first render.
 try { vspLoadAll(); } catch(e){ console.warn(e); } try{ if(window._vspMigrateYearGoalIds) window._vspMigrateYearGoalIds(); }catch(e){}
+// merge-210 (Dave, 2026-08-12): boot-time tombstone sweep. Belt-and-braces with
+// the apply-time and push-time filters: any tombstoned meeting still sitting in
+// a team's arrays (stale local copy, interrupted sync) is removed on every load.
+try{
+  var _bdm=_delMeet();
+  if(Object.keys(_bdm).length){
+    Object.keys(teamsRegistry).forEach(function(tk){
+      var tt=teamsRegistry[tk]; if(!tt) return;
+      if(Array.isArray(tt.scheduledMeetings)) tt.scheduledMeetings=tt.scheduledMeetings.filter(function(x){ return !(x && _bdm[x.id]); });
+      if(Array.isArray(tt.pastMeetings)) tt.pastMeetings=tt.pastMeetings.filter(function(x){ return !(x && _bdm[x.id]); });
+    });
+    try{ var _bt=teamsRegistry[state.currentTeam]; if(_bt){ scheduledMeetings=_bt.scheduledMeetings||[]; pastMeetings=_bt.pastMeetings||pastMeetings; } }catch(e){}
+  }
+}catch(e){}
 try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } } catch(e){}
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
