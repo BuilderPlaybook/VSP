@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-216</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-220</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7417,31 +7417,68 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   }
   var _pndTipHtml = '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(String(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
-  /* v113: Performance Points Compliance cells carry their own arithmetic.
-     P&D sends the per-person percentages behind each combined number, so the
-     tooltip lists everyone in the group, marks anyone away, and shows the sum
-     and the division. The figure can be checked by hand from what is on
-     screen. Rendered in the Info-Icon Tooltip v1 visual language. */
-  var _pndBd = (m.pndBreakdown && m.pndBreakdown[weekIdx]) ? m.pndBreakdown[weekIdx] : null;
-  if(_pndBd && _pndBd.length){
-    var _sum = 0, _n = 0;
-    var _rows = _pndBd.map(function(x){
-      var away = (x && x.status === 'away') || x.pct === null || x.pct === undefined;
-      if(!away){ _sum += (Number(x.pct)||0); _n++; }
-      return '<span class="pnd-tip-r'+(away?' pnd-out':'')+'"><span>'+_scEsc(String(x.name||''))+'</span>'
-           + '<span>'+(away ? 'away' : ((Math.round((Number(x.pct)||0)*100)/100)+'%'))+'</span></span>';
-    }).join('');
-    var _mean = _n ? Math.round((_sum/_n)*100)/100 : 0;
-    var _wk = (typeof weekRanges!=='undefined' && weekRanges[weekIdx]) ? weekRanges[weekIdx] : ('week '+(weekIdx+1));
-    _pndTipHtml = '<span class="pnd-tip">'
-      + '<span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_wk))+'</span>'
-      + _rows
-      + '<span class="pnd-tip-sum"><span>'+(Math.round(_sum*100)/100)+'% over '+_n+' '+(_n===1?'person':'people')+'</span>'
-      + '<span>'+_mean+'%</span></span>'
-      + '<span class="pnd-tip-ft">Simple average, no weighting. Away weeks are left out of the division. '
-      + 'A Priority Rule answered No scores that person 0% for the whole week.</span>'
-      + '</span>';
-    cellTitle = '';
+  /* Performance Points Compliance tooltip (merge-220, Dave, 2026-08-12): made
+     consistent with the Count-of-No tooltip. The group is enumerated LIVE from
+     the raw huddle store, so EVERY member of the group is listed with the % they
+     scored that week, away/no-data greyed and left out of the division, and the
+     sum shown - instead of reading the P&D-published breakdown, which could omit
+     members the bridge had not published (recompute-from-source, D-140). For
+     weeks that predate the feed it falls back to the published breakdown, then a
+     hand-entered value, then a nothing-recorded note. Same per-person intent as
+     D-VSP-22; same visual language as the Count-of-No tooltip. */
+  var _cmpG = _vspAutoMetricGroup(m);
+  var _isCompliance = !!(m.pndGroup || String(m.auto||m._autoKey||'').indexOf('pnd.compliance')===0);
+  if(_isCompliance && _cmpG){
+    var _cWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+    var _cIso=''; try{ var _cD=scWeekDate(weekIdx); _cIso=_cD.getFullYear()+'-'+String(_cD.getMonth()+1).padStart(2,'0')+'-'+String(_cD.getDate()).padStart(2,'0'); }catch(e){}
+    var _cRows='', _cSum=0, _cCov=0;
+    _vspAutoGroupMembers(_cmpG).forEach(function(pid){
+      var pp=ppl.find(function(x){ return _vspPndPersonId(x)===pid; });
+      var nm=pp?(pp.first+' '+pp.last):String(pid);
+      var std=pp?_vspAutoStandardsFor(pp):[];
+      var sc=(pp&&std.length&&_cIso)?_vspPerfWeekScore(pp,_cIso,std):{hasData:false};
+      if(!sc.hasData){
+        _cRows+='<span class="pnd-tip-r pnd-out"><span>'+_scEsc(String(nm))+'</span><span>'+(sc.away?'away':'no data')+'</span></span>';
+      } else {
+        var _p=sc.hardFail?0:(Math.round((Number(sc.pct)||0)*100)/100);
+        _cCov++; _cSum+=_p;
+        _cRows+='<span class="pnd-tip-r"><span>'+_scEsc(String(nm))+'</span><span>'+_p+'%</span></span>';
+      }
+    });
+    if(_cCov>0){
+      var _cMean=Math.round((_cSum/_cCov)*100)/100;
+      _pndTipHtml='<span class="pnd-tip">'
+        +'<span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_cWk))+'</span>'
+        +_cRows
+        +'<span class="pnd-tip-sum"><span>'+(Math.round(_cSum*100)/100)+'% over '+_cCov+' '+(_cCov===1?'person':'people')+'</span><span>'+_cMean+'%</span></span>'
+        +'<span class="pnd-tip-ft">Simple average, no weighting. Away weeks are left out of the division. '
+        +'A Priority Rule answered No scores that person 0% for the whole week.</span>'
+        +'</span>';
+      cellTitle='';
+    } else {
+      var _cBd=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
+      if(_cBd&&_cBd.length){
+        var _bSum=0,_bN=0;
+        var _bRows=_cBd.map(function(x){
+          var away=(x&&x.status==='away')||x.pct===null||x.pct===undefined;
+          if(!away){ _bSum+=(Number(x.pct)||0); _bN++; }
+          return '<span class="pnd-tip-r'+(away?' pnd-out':'')+'"><span>'+_scEsc(String(x.name||''))+'</span><span>'+(away?'away':((Math.round((Number(x.pct)||0)*100)/100)+'%'))+'</span></span>';
+        }).join('');
+        var _bMean=_bN?Math.round((_bSum/_bN)*100)/100:0;
+        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_cWk))+'</span>'+_bRows
+          +'<span class="pnd-tip-sum"><span>'+(Math.round(_bSum*100)/100)+'% over '+_bN+' '+(_bN===1?'person':'people')+'</span><span>'+_bMean+'%</span></span>'
+          +'<span class="pnd-tip-ft">Simple average, no weighting. Away weeks are left out of the division. A Priority Rule answered No scores that person 0% for the whole week.</span></span>';
+        cellTitle='';
+      } else {
+        var _cHas=(val!==null&&val!==undefined&&val!=='');
+        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_cWk))+'</span>'
+          +(_cHas
+            ? '<span class="pnd-tip-r"><span>Entered by hand</span><span>'+_scEsc(String(val))+'%</span></span><span class="pnd-tip-ft">This week predates the P&amp;D feed, so there is no per-person working to show.</span>'
+            : '<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span><span class="pnd-tip-ft">The percentage fills once the week has closed for everyone in the group.</span>')
+          +'</span>';
+        cellTitle='';
+      }
+    }
   } else if(String(m.auto||'').indexOf('pnd.rowcount.') === 0){
     // Count-of-No cells show their working on hover, matching the compliance
     // tooltip: every group member, their misses that week, and the sum.
@@ -19332,7 +19369,12 @@ function renderMeetings(){
     // a different meeting than the one the Agendas tab held and the running
     // meeting ran. Only type / category / colour / blurb live here now.
     var allMeetingCards=[
-      {type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
+      // merge-218 (Dave, 2026-08-12): the Executive team (Dave + Terry) meets
+      // as the Executive Huddle, never as a team meeting - so the Weekly
+      // team-meeting card is hidden for that team (same pattern as Quarterly
+      // below). The "Executive Team Meeting" card with the Goals agenda kept
+      // reintroducing the wrong name and the wrong agenda for what is a huddle.
+      (state.currentTeam!=='ltsync')&&{type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
       (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
       mtIsLT&&{type:"Annual",cat:"team",desc:"Full strategic planning. Update vision, set annual goals.",c:"#7c3aed"},
       {type:"Weekly Performance Huddle",cat:"supervisor",desc:"Individual KPI review, headlines, to-dos, job review, and issues. Supervisor to direct report.",c:"#0891b2"},
@@ -29270,7 +29312,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-216';
+window.VSP_BUILD = 'v186-merge-220';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -30046,10 +30088,19 @@ function vspApplySnapshot(s){
       }
       var reg = teamsRegistry[tid];
       // mergeById for list-of-records fields (user edits + new seed records)
-      // Only the active team's lists use kb() because seedIds was captured against
-      // the active team at save time. Other teams use no known-seed-id list (so
-      // new seed records will be additive without false "deleted" detection).
-      var useKb = (tid === s.currentTeam);
+      // merge-219 (Dave, 2026-08-12): the known-seed-id guard now applies to
+      // EVERY team, not just the current one. Root cause of the Q2-goals-return
+      // bug: seedIds is captured once at init from the source seed (only the
+      // Leadership team carries seed records; its known list is exactly its seed
+      // ids), so when VSP loaded while another team was current - including when
+      // adopting a sync snapshot a teammate saved from another team - the guard
+      // was bypassed and mergeById re-added every archived seed goal to active.
+      // Applying kb() unconditionally holds the "user deleted this seed record,
+      // stay deleted" guard for Leadership regardless of which team is active,
+      // and is a no-op for the empty-seed teams. Proven headless against Dave's
+      // 2026-08-12 backup: lt-not-current re-added all 32 seed goals; with this
+      // guard, zero return.
+      var useKb = true;
       function tkb(n){ return useKb ? kb(n) : null; }
       if(!window.__VSP_FORCE_SEED_GOALS){
         if(Array.isArray(saved.goals)) mergeById(reg.goals||(reg.goals=[]), saved.goals, tkb('goals'));
@@ -30621,27 +30672,12 @@ try {
       Object.keys(_wlMap).forEach(function(rid){
         var m=_findM(Number(rid)); if(!m) return;
         var ini=_seedTo[rid];
-        var person=ppl.find(function(p){ return p.initials===ini; });
-        if(person && Array.isArray(m.readings)){
-          var pid=_vspPndPersonId(person);
-          var all=_vspPndReadHuddles();
-          var wlId=null;
-          try{ var std=JSON.parse(localStorage.getItem('smb_perf_role_standards_v1')||'{}'); var rows=std[person.roleLabel||person.role||'']||[]; var wr=rows.filter(function(r){return r.numeric||String(r.id).indexOf('_wl')>-1;})[0]; wlId=wr&&wr.id; }catch(e){}
-          if(wlId && pid){
-            var wrote=false;
-            for(var idx=0; idx<m.readings.length && idx<_wks.length; idx++){
-              var val=m.readings[idx];
-              if(val==null || isNaN(Number(val))) continue;
-              var iso; try{ var wd=scWeekDate(idx); iso=wd.getFullYear()+'-'+String(wd.getMonth()+1).padStart(2,'0')+'-'+String(wd.getDate()).padStart(2,'0'); }catch(e){ continue; }
-              var key=pid+'__'+iso;
-              var rec=all[key]||{answers:{},updatedAt:new Date().toISOString()};
-              rec.answers=rec.answers||{};
-              if(rec.answers[wlId]==null){ rec.answers[wlId]=Number(val); wrote=true; _seededAny=true; }
-              all[key]=rec;
-            }
-            if(wrote){ localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all)); }
-          }
-        }
+        // merge-217 (Dave, 2026-08-12): individual workload seeding REMOVED.
+        // Everyone types their own Weekly Workload Rating on My Performance;
+        // nothing auto-fills it. (This seed kept re-running whenever its guard
+        // flag was wiped, re-creating the 8s after Dave deleted them.) The LT
+        // team rollup wiring below stays - that is the team scorecard's
+        // computed rollup, not anyone's personal entry.
         m.auto='pnd.workloadavg.'+_wlMap[rid];
         m.autoSrc='P&D';
       });
