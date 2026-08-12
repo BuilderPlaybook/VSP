@@ -30436,6 +30436,39 @@ try{
     try{ var _bt=teamsRegistry[state.currentTeam]; if(_bt){ scheduledMeetings=_bt.scheduledMeetings||[]; pastMeetings=_bt.pastMeetings||pastMeetings; } }catch(e){}
   }
 }catch(e){}
+// merge-210 (Dave, 2026-08-12): ONE-TIME purge of the two hardcoded seed
+// meetings that got saved into the synced data over prior sessions. Removing
+// them from source (this build) stops re-creation, but copies already in
+// Firebase kept syncing back. This removes them from every team by their exact
+// signatures (recurring marker + date), tombstones the ids so the merge can
+// never re-add them, runs once, and saves. Signatures are specific enough that
+// no real user-created meeting matches.
+try{
+  if(localStorage.getItem('vsp.seedmeetpurge.v1')!=='done'){
+    var _purged=0;
+    var _isSeedMeet=function(m){
+      if(!m) return false;
+      var rec=String(m.recurring||''), dt=String(m.date||'');
+      // Seed A: LT weekly leadership, 2026-05-21.
+      if(rec==='Weekly Leadership' && dt==='2026-05-21') return true;
+      // Seed B: Construction Ops "Every Saturday", 2026-03-29.
+      if(rec==='Every Saturday' && dt==='2026-03-29') return true;
+      return false;
+    };
+    Object.keys(teamsRegistry).forEach(function(tk){
+      var t=teamsRegistry[tk]; if(!t||!Array.isArray(t.scheduledMeetings)) return;
+      var keep=[];
+      t.scheduledMeetings.forEach(function(m){
+        if(_isSeedMeet(m)){ try{ _delMeet()[m.id]=true; }catch(e){} _purged++; }
+        else keep.push(m);
+      });
+      t.scheduledMeetings=keep;
+    });
+    try{ var _pt=teamsRegistry[state.currentTeam]; if(_pt){ scheduledMeetings=_pt.scheduledMeetings||[]; } }catch(e){}
+    localStorage.setItem('vsp.seedmeetpurge.v1','done');
+    if(_purged>0){ try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} console.warn('[VSP] purged '+_purged+' seed meeting(s) from synced data.'); }
+  }
+}catch(e){ console.warn('[VSP] seed meeting purge:', e && e.message); }
 try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } } catch(e){}
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
