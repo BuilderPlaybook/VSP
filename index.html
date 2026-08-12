@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-220</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-222</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7448,7 +7448,7 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     if(_cCov>0){
       var _cMean=Math.round((_cSum/_cCov)*100)/100;
       _pndTipHtml='<span class="pnd-tip">'
-        +'<span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_cWk))+'</span>'
+        +'<span class="pnd-tip-hd">From Scorecards &middot; '+_scEsc(String(_cWk))+'</span>'
         +_cRows
         +'<span class="pnd-tip-sum"><span>'+(Math.round(_cSum*100)/100)+'% over '+_cCov+' '+(_cCov===1?'person':'people')+'</span><span>'+_cMean+'%</span></span>'
         +'<span class="pnd-tip-ft">Simple average, no weighting. Away weeks are left out of the division. '
@@ -9310,7 +9310,11 @@ function _vspAutoFormulaText(auto){
   return 'Manual entry';
 }
 function _vspAutoFeedEditorBlock(m){
-  var a=_vspAutoParse(m&&m.auto);
+  // merge-222 (Dave, 2026-08-12): rows fed through the P&D pndGroup marker
+  // (Performance Points rows 45/32/38/52) carry no explicit m.auto, so the
+  // editor misreported them as "Manual entry" while the fill code fed them.
+  // Parse the effective formula: explicit auto first, then the pndGroup marker.
+  var a=_vspAutoParse((m&&m.auto)||(m&&m.pndGroup?('pnd.compliance.'+m.pndGroup):''));
   if(!_vspAutoIsAdmin()){
     var locked=(m && (m.auto || m._autoKey || m.pndGroup));
     return '<div style="margin:16px 0 12px;padding:12px;border:1.5px solid var(--brd2);border-radius:8px;background:var(--sur2)">'
@@ -9822,6 +9826,7 @@ function openEditMeasurable(ownerId, metricId){
   }catch(e){}
   state.editMeasurablePanel={open:true,ownerId:ownerId,metricId:metricId};
   renderPage();
+  try{ _emRelevance(); }catch(e){}
 }
 /* ============================================================
    WEEKLY STANDARD EDITOR (2026-07-30, Dave). The performance-scorecard
@@ -9872,25 +9877,39 @@ function renderEditStandardOverlay(){
   if(!admin){
     h+='<div style="margin-bottom:14px;padding:10px 12px;background:var(--sur2);border:1px solid var(--brd);border-radius:8px;font-size:var(--fz-base);color:var(--txm)">Only Dave can change weekly standards. Shown read-only.</div>';
   }
-  var lbl='font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em';
-  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)';
-  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Role Deliverable (section)</label>';
+  /* merge-222 (Dave, 2026-08-12): restyled into the same numbered-section
+     sibling structure as the restructured Edit Measurable panel. Same field
+     set (these rows are Yes/No standards: no unit, no direction, no rollup,
+     no auto-feed - by design, nothing irrelevant is shown). Field ids and
+     the save handler are unchanged. */
+  var lbl='font-size:var(--fz-sm);font-weight:700;color:var(--txb);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em';
+  var inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;background:var(--sur);color:var(--txt)';
+  function _esHd(no,name,why,first){
+    return '<div style="display:flex;align-items:baseline;gap:9px;margin-bottom:3px;padding-top:'+(first?'0':'16px')+';border-top:'+(first?'none':'1px solid var(--brd)')+'">'
+      +'<span style="width:22px;height:22px;flex-shrink:0;border-radius:6px;background:var(--sb);color:var(--sur);font-size:var(--fz-sm);font-weight:700;display:flex;align-items:center;justify-content:center">'+no+'</span>'
+      +'<span style="font-size:var(--fz-lg);font-weight:700">'+name+'</span></div>'
+      +'<div style="font-size:var(--fz-base);color:var(--txm);margin:2px 0 12px 31px">'+why+'</div>';
+  }
+  h+=_esHd('1','Identity','What this standard is and where it files.',true);
+  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Role deliverable (section)</label>';
   h+='<input id="es-sec" value="'+_scEsc(row?String(row.sec||''):'')+'"'+dis+' style="'+inp+'" placeholder="e.g. Financial Control"></div>';
   h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Standard</label>';
   h+='<textarea id="es-std" rows="4"'+dis+' style="'+inp+';resize:vertical">'+_scEsc(row?String(row.std||''):'')+'</textarea></div>';
   h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Deadline</label>';
   h+='<input id="es-due" value="'+_scEsc(row?String(row.due||''):'')+'"'+dis+' style="'+inp+'" placeholder="e.g. Monday by 6:00pm"></div>';
-  h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Cadence</label>';
+  h+=_esHd('2','How often','Weekly rows score every week; Monthly rows fold into the first reportable week of the next month.');
+  h+='<div style="margin-bottom:12px">';
   h+='<select id="es-cad"'+dis+' style="'+inp+'">';
   h+='<option value="weekly"'+((row&&row.cadence)==='monthly'?'':' selected')+'>Weekly</option>';
   h+='<option value="monthly"'+((row&&row.cadence)==='monthly'?' selected':'')+'>Monthly</option>';
   h+='</select></div>';
+  h+=_esHd('3','Scoring','How this row affects the week&#39;s score.');
   if(row&&row.numeric){
     // Workload rating goal (Dave, 2026-08-09, merge-130): the one numeric row
     // gets a simple goal box. Green at the goal, amber below, red above.
     h+='<div style="margin-bottom:12px"><label style="'+lbl+'">Workload goal (1-10)</label>';
     h+='<input id="es-goal" type="number" min="1" max="10" step="1" value="'+_scEsc(String((row.goal!=null&&!isNaN(Number(row.goal)))?row.goal:8))+'"'+dis+' style="'+inp+'">';
-    h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">Green at the goal, amber below it, red above it.</div></div>';
+    h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">Green at the goal, amber below it, red above it. This row never counts in the pass-rate score.</div></div>';
   } else {
     h+='<div style="margin-bottom:12px"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:var(--fz-body)">';
     h+='<input type="checkbox" id="es-hard"'+((row&&row.hard)?' checked':'')+dis+' style="width:16px;height:16px">';
@@ -9994,75 +10013,140 @@ function renderEditMeasurableOverlay(){
       // Scrollable body
       h+='<div style="flex:1;overflow-y:auto;padding:20px">';
 
-      // Title
-      h+='<div style="margin-bottom:16px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Title <span style="color:#dc2626">*</span></label>';
-      h+='<input id="em-title" value="'+epMetric.title.replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" />';
+      // ==================================================================
+      // merge-222 (Dave, 2026-08-12): Edit Measurable restructured into five
+      // numbered sections (Identity, Target & scoring, How often, Where the
+      // number comes from, Display), per the approved preview. Every element
+      // id the save handler reads is preserved, so saveEditMeasurable() is
+      // untouched. Field visibility follows relevance: Yes/No hides the
+      // numeric goal fields; band orientations swap Value for Min/Max; the
+      // Calculation and Auto-Feed sections sit together under one "source"
+      // heading. Show Total / Show Average checkboxes are retired from the UI
+      // and driven by the single Rollup control (Total => showTotal, Average
+      // => showAverage), ending the duplicated total-vs-average setting.
+      // ==================================================================
+      var _sLbl='font-size:var(--fz-sm);font-weight:700;color:var(--txb);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em';
+      var _sInp='width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box;background:var(--sur);color:var(--txt)';
+      function _secHd(no,name,why){
+        return '<div style="display:flex;align-items:baseline;gap:9px;margin-bottom:3px;padding-top:16px;border-top:1px solid var(--brd)">'
+          +'<span style="width:22px;height:22px;flex-shrink:0;border-radius:6px;background:var(--sb);color:var(--sur);font-size:var(--fz-sm);font-weight:700;display:flex;align-items:center;justify-content:center">'+no+'</span>'
+          +'<span style="font-size:var(--fz-lg);font-weight:700">'+name+'</span></div>'
+          +'<div style="font-size:var(--fz-base);color:var(--txm);margin:2px 0 12px 31px">'+why+'</div>';
+      }
+      var _isYN=(currentUnit==='Yes/No');
+      var _isBand=(currentOrient==='Inside min and max'||currentOrient==='Outside min and max');
+
+      // ── 1. IDENTITY ──────────────────────────────────────────────
+      h+=_secHd('1','Identity','What this row is and who owns it.').replace('border-top:1px solid var(--brd)','border-top:none');
+      h+='<div style="margin-bottom:14px">';
+      h+='<label style="'+_sLbl+'">Title <span style="color:var(--red)">*</span></label>';
+      h+='<input id="em-title" value="'+epMetric.title.replace(/"/g,'&quot;')+'" style="'+_sInp+'" />';
       h+='</div>';
-
-      // Description
-      h+='<div style="margin-bottom:16px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Description <span style="color:var(--txd);font-weight:400">(Optional)</span></label>';
-      h+='<textarea id="em-desc" data-autogrow="1" oninput="_vspAutogrow(this)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;resize:none;overflow:hidden;min-height:64px;box-sizing:border-box">'+(epMetric.description||'')+'</textarea>';
+      h+='<div style="margin-bottom:14px">';
+      h+='<label style="'+_sLbl+'">Description <span style="color:var(--txm);font-weight:600;text-transform:none;letter-spacing:0">(optional)</span></label>';
+      h+='<textarea id="em-desc" data-autogrow="1" oninput="_vspAutogrow(this)" style="'+_sInp+';resize:none;overflow:hidden;min-height:60px">'+(epMetric.description||'')+'</textarea>';
       h+='</div>';
-
-      // Data entry is governed by the Auto-Feed Formula block below (single
-      // control since 2026-07-30; the old on/off toggle collided with it).
-
-      // Owner + Seat (resolves to a group; auto-creates one if none matches)
       var _emSec=scorecard[epIdx]||{}; var emOwner=_emSec.ownerId||''; var emSeat=_emSec.seat||'';
       var emPeople=(typeof ppl!=='undefined'&&Array.isArray(ppl))?ppl.filter(function(x){return x.status==='active';}):[];
-      h+='<div style="margin-bottom:16px">';
-      h+='<div style="display:flex;gap:10px">';
+      h+='<div style="display:flex;gap:10px;margin-bottom:14px">';
       h+='<div style="flex:1">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Owner</label>';
-      h+='<select id="em-person" onchange="_grpPersonPick(\'em\',this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">';
+      h+='<label style="'+_sLbl+'">Owner</label>';
+      h+='<select id="em-person" onchange="_grpPersonPick(\'em\',this.value)" style="'+_sInp+'">';
       h+='<option value="">(Unassigned)</option>';
       h+=_vspOwnerOptions(emOwner);
       h+='</select>';
       h+='</div>';
       h+='<div id="em-seat-wrap" style="flex:1;display:'+(emPeople.some(function(pp){return pp.initials===emOwner;})?'block':'none')+'">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Seat</label>';
-      h+='<select id="em-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);box-sizing:border-box">'+_grpSeatOptions(emOwner,emSeat)+'</select>';
-      h+='</div>';
+      h+='<label style="'+_sLbl+'">Seat</label>';
+      h+='<select id="em-seat" style="'+_sInp+'">'+_grpSeatOptions(emOwner,emSeat)+'</select>';
       h+='</div>';
       h+='</div>';
 
-      // Column toggles
-      h+='<div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--brd)">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Columns</label>';
-      [
-        {id:'em-showTotal',label:'Show Total',sub:'Sums all the data points for this row',val:epMetric.showTotal!==false},
-        {id:'em-showAvg',label:'Show Average',sub:'Shows the average across all data points',val:epMetric.showAverage!==false},
-        {id:'em-showGoal',label:'Show Goal',sub:'Displays the target goal for this measurable',val:epMetric.showGoal!==false}
-      ].forEach(function(col){
-        h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">';
-        h+='<div style="flex:1;padding-right:12px"><div style="font-size:var(--fz-lg);font-weight:500">'+col.label+'</div>';
-        h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-top:2px">'+col.sub+'</div></div>';
-        h+='<label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;margin-top:1px">';
-        h+='<input type="checkbox" id="'+col.id+'" '+(col.val?'checked':'')+' style="opacity:0;width:0;height:0;position:absolute">';
-        h+='<span onclick="event.preventDefault();_togVis(this)" data-on="#2563eb" style="position:absolute;cursor:pointer;inset:0;background:'+(col.val?'#2563eb':'#cbd5e1')+';border-radius:20px"><span style="position:absolute;height:14px;width:14px;left:'+(col.val?'19':'3')+'px;bottom:3px;background:white;border-radius:50%"></span></span>';
-        h+='</label></div>';
+      // ── 2. TARGET & SCORING ──────────────────────────────────────
+      h+=_secHd('2','Target &amp; scoring','The unit, the goal, and how pass / watch / fail are decided.');
+      h+='<div style="display:flex;gap:10px;margin-bottom:12px">';
+      h+='<div style="flex:1">';
+      h+='<label style="'+_sLbl+'">Unit</label>';
+      h+='<select id="em-unit" onchange="_emRelevance()" style="'+_sInp+'">';
+      ['Currency','Percentage','Number','Yes/No','Time'].forEach(function(u){
+        h+='<option'+(u===currentUnit?' selected':'')+'>'+u+'</option>';
+      });
+      h+='</select></div>';
+      h+='<div style="flex:1.4" id="em-orient-wrap">';
+      h+='<label style="'+_sLbl+'">Direction</label>';
+      h+='<select id="em-orient" onchange="_emRelevance()" style="'+_sInp+'">';
+      [['Less than or equal to goal','At or below the goal is good'],
+       ['Less than goal','Below the goal is good'],
+       ['Greater than or equal to goal','At or above the goal is good'],
+       ['Greater than goal','Above the goal is good'],
+       ['Equal to goal','Equal to the goal is good'],
+       ['Inside min and max','Inside a min-max band is good'],
+       ['Outside min and max','Outside a min-max band is good']].forEach(function(o){
+        h+='<option value="'+o[0]+'"'+(o[0]===currentOrient?' selected':'')+'>'+o[1]+'</option>';
+      });
+      h+='</select></div>';
+      h+='</div>';
+      // single goal value (non-band, non-YN)
+      h+='<div id="em-value-wrap" style="margin-bottom:12px">';
+      h+='<label style="'+_sLbl+'">Goal</label>';
+      h+='<input id="em-value" type="number" value="'+(epMetric.goal||0)+'" min="0" style="'+_sInp+'" />';
+      h+='</div>';
+      // band min/max
+      h+='<div id="em-band-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">';
+      h+='<div><label style="'+_sLbl+'">Min</label>';
+      h+='<input id="em-goalmin" type="number" value="'+(epMetric.goalMin!=null?epMetric.goalMin:'')+'" placeholder="lower bound" style="'+_sInp+'" /></div>';
+      h+='<div><label style="'+_sLbl+'">Max</label>';
+      h+='<input id="em-goalmax" type="number" value="'+(epMetric.goalMax!=null?epMetric.goalMax:'')+'" placeholder="upper bound" style="'+_sInp+'" /></div>';
+      h+='</div>';
+      // watch line
+      h+='<div id="em-watch-wrap" style="margin-bottom:12px">';
+      h+='<label style="'+_sLbl+'">Watch line <span style="color:var(--txm);font-weight:600;text-transform:none;letter-spacing:0">(optional)</span></label>';
+      h+='<input id="em-watch" type="number" value="'+(epMetric.watch!=null?epMetric.watch:'')+'" placeholder="Amber zone boundary" style="'+_sInp+'">';
+      h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">Between the goal and this line shows amber; past it shows red. Leave blank for a straight pass / fail.</div>';
+      h+='</div>';
+      // indicator
+      h+='<div style="margin-bottom:12px">';
+      h+='<label style="'+_sLbl+'">Indicator</label>';
+      var emIndDef=epMetric.indicator||'lagging';
+      h+='<select id="em-indicator" style="'+_sInp+'">';
+      h+='<option value="leading"'+(emIndDef==='leading'?' selected':'')+'>Leading - predicts future results</option>';
+      h+='<option value="lagging"'+(emIndDef==='lagging'?' selected':'')+'>Lagging - measures past results</option>';
+      h+='</select></div>';
+
+      // ── 3. HOW OFTEN ─────────────────────────────────────────────
+      h+=_secHd('3','How often','Weekly and Monthly keep your entered numbers (counts and dollars sum, percentages average). Quarterly clears entered values.');
+      h+='<div style="margin-bottom:12px">';
+      h+='<select id="em-cadence" style="'+_sInp+'">';
+      var _emCadCur=(function(){var ss=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===state.editMeasurablePanel.metricId;});}); var mm=ss&&ss.metrics.find(function(m){return m.id===state.editMeasurablePanel.metricId;}); return (mm&&mm.cadence)||'weekly';})();
+      [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly']].forEach(function(cc){ h+='<option value="'+cc[0]+'"'+(cc[0]===_emCadCur?' selected':'')+'>'+cc[1]+'</option>'; });
+      h+='</select></div>';
+
+      // ── 4. WHERE THE NUMBER COMES FROM ───────────────────────────
+      h+=_secHd('4','Where the number comes from','One choice: typed in, calculated from other rows, or filled from the performance scorecards.');
+      var emCalcOp=(epMetric.calc&&epMetric.calc.op)||'none';
+      var _srcAuto=!!(epMetric.auto||epMetric.pndGroup);
+      var _srcMode=_srcAuto?'auto':(emCalcOp!=='none'?'calc':'manual');
+      h+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">';
+      [['manual','Typed in by hand','Someone enters this number each period.'],
+       ['calc','Calculated from other rows','Add, average, or divide other measurables on this scorecard.'],
+       ['auto','Filled from the performance scorecards','Pulled in automatically each week from what people scored on their My Performance cards.']].forEach(function(s){
+        var on=(_srcMode===s[0]);
+        h+='<div class="em-src-card" data-src="'+s[0]+'" onclick="_emPickSource(\''+s[0]+'\')" style="border:1.5px solid '+(on?'var(--blu)':'var(--brd2)')+';border-radius:9px;padding:11px 13px;cursor:pointer;display:flex;gap:11px;align-items:flex-start;background:'+(on?'var(--blub)':'var(--sur)')+'">';
+        h+='<span style="width:16px;height:16px;border-radius:50%;border:2px solid '+(on?'var(--blu)':'var(--brd2)')+';flex-shrink:0;margin-top:2px;position:relative;display:inline-block">'+(on?'<span style="position:absolute;inset:3px;border-radius:50%;background:var(--blu)"></span>':'')+'</span>';
+        h+='<span><span style="font-weight:700;font-size:var(--fz-body);display:block">'+s[1]+'</span>';
+        h+='<span style="font-size:var(--fz-base);color:var(--txm);display:block;margin-top:1px">'+s[2]+'</span></span>';
+        h+='</div>';
       });
       h+='</div>';
 
-      // Cadence
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Cadence</label>';
-      h+='<select id="em-cadence" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      var _emCadCur=(function(){var ss=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===state.editMeasurablePanel.metricId;});}); var mm=ss&&ss.metrics.find(function(m){return m.id===state.editMeasurablePanel.metricId;}); return (mm&&mm.cadence)||'weekly';})();
-      [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly']].forEach(function(cc){ h+='<option value="'+cc[0]+'"'+(cc[0]===_emCadCur?' selected':'')+'>'+cc[1]+'</option>'; });
-      h+='</select><div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px">Weekly and Monthly keep your data (counts and dollars sum, percentages average). Quarterly clears entered values.</div></div>';
-
-      // Calculation
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Calculation (optional)</label>';
-      var emCalcOp=(epMetric.calc&&epMetric.calc.op)||'none';
-      h+='<select id="em-calcop" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      [['none','None (entered manually)'],['sum','Sum of measurables'],['avg','Average of measurables'],['ratio','Ratio A / B (as %)'],['divide','Divide A / B (e.g. cost per lead)']].forEach(function(o){ h+='<option value="'+o[0]+'"'+(o[0]===emCalcOp?' selected':'')+'>'+o[1]+'</option>'; });
+      // calc sub-panel (keeps em-calcop + .em-calcsrc for the save handler)
+      h+='<div id="em-src-calc" style="display:'+(_srcMode==='calc'?'block':'none')+';margin:0 0 12px 27px;padding:13px 15px;border:1px solid var(--brd);border-left:3px solid var(--blu);border-radius:0 9px 9px 0;background:var(--sur2)">';
+      h+='<label style="'+_sLbl+'">How to combine</label>';
+      h+='<select id="em-calcop" style="'+_sInp+';margin-bottom:10px">';
+      [['none','None (entered manually)'],['sum','Add them up (sum)'],['avg','Average them'],['ratio','Ratio A / B (shown as %)'],['divide','Divide A / B (e.g. cost per lead)']].forEach(function(o){ h+='<option value="'+o[0]+'"'+(o[0]===emCalcOp?' selected':'')+'>'+o[1]+'</option>'; });
       h+='</select>';
-      h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin:4px 0 6px">Choose source measurables. Calculated rows are read-only; for Ratio or Divide the first two checked are A then B.</div>';
-      h+='<div style="max-height:140px;overflow:auto;border:1px solid var(--brd);border-radius:6px;padding:6px">';
+      h+='<label style="'+_sLbl+'">Source rows</label>';
+      h+='<div style="max-height:140px;overflow:auto;border:1px solid var(--brd);border-radius:6px;padding:6px;background:var(--sur)">';
       var emCalcSrc=(epMetric.calc&&epMetric.calc.sources)||[];
       scorecard.forEach(function(_cs){(_cs.metrics||[]).forEach(function(_csm){
         if(_csm.id===epMetric.id) return;
@@ -10071,74 +10155,38 @@ function renderEditMeasurableOverlay(){
         h+='<label style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:var(--fz-body)"><input type="checkbox" class="em-calcsrc" value="'+_csm.id+'"'+(_cck?' checked':'')+'> '+_ct+'</label>';
       });});
       h+='</div>';
+      h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:6px">Calculated rows are read-only. For Ratio or Divide, the first two checked are A then B.</div>';
       h+='</div>';
 
-      // Goal section
-      h+='<div style="margin-bottom:20px">';
-      h+='<div style="font-size:var(--fz-body);font-weight:600;margin-bottom:14px">Goal</div>';
-
-      // Unit
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Unit</label>';
-      h+='<select id="em-unit" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      ['Currency','Percentage','Number','Yes/No','Time'].forEach(function(u){
-        h+='<option'+(u===currentUnit?' selected':'')+'>'+u+'</option>';
-      });
-      h+='</select></div>';
-
-      // Orientation rule
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Orientation Rule</label>';
-      h+='<select id="em-orient" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      ['Inside min and max','Outside min and max','Greater than or equal to goal','Greater than goal','Equal to goal','Less than goal','Less than or equal to goal'].forEach(function(o){
-        h+='<option'+(o===currentOrient?' selected':'')+'>'+o+'</option>';
-      });
-      h+='</select></div>';
-
-      // Indicator type (leading vs lagging)
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Indicator Type</label>';
-      h+='<select id="em-indicator" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      var emIndDef=epMetric.indicator||'lagging';
-      h+='<option value="leading"'+(emIndDef==='leading'?' selected':'')+'>Leading - predicts future results</option>';
-      h+='<option value="lagging"'+(emIndDef==='lagging'?' selected':'')+'>Lagging - measures past results</option>';
-      h+='</select></div>';
-
-      // Value
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Value</label>';
-      h+='<input id="em-value" type="number" value="'+(epMetric.goal||0)+'" min="0" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" />';
-      h+='</div>';
-      // Min / Max (used for Inside / Outside min-max orientations)
-      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">';
-      h+='<div><label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Min</label>';
-      h+='<input id="em-goalmin" type="number" value="'+(epMetric.goalMin!=null?epMetric.goalMin:'')+'" placeholder="lower bound" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" /></div>';
-      h+='<div><label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Max</label>';
-      h+='<input id="em-goalmax" type="number" value="'+(epMetric.goalMax!=null?epMetric.goalMax:'')+'" placeholder="upper bound" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" /></div>';
-      h+='</div>';
-      h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:-6px;margin-bottom:12px">Min and Max apply to the Inside / Outside min-max orientations. Value above applies to the other orientations.</div>';
-
-      // Watch line
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Watch Line (optional)</label>';
-      h+='<input id="em-watch" type="number" value="'+(epMetric.watch!=null?epMetric.watch:'')+'" placeholder="Amber-zone boundary" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px">Between the goal and this line shows amber; past it shows red. Leave blank for pass/fail.</div>';
-      h+='</div>';
-
-      // Rollup
-      h+='<div style="margin-bottom:12px">';
-      h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Show Rollup Data As</label>';
-      h+='<select id="em-rollup" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur)">';
-      h+='<option'+((!epMetric.rollupAs||epMetric.rollupAs==='Total')?' selected':'')+'>Total (default)</option>';
-      h+='<option'+(epMetric.rollupAs==='Average'?' selected':'')+'>Average</option>';
-      h+='</select></div>';
-
-      h+='</div>'; // goal section
-
-      // ---- Auto-Feed Formula (Dave, 2026-07-30): any measurable can be wired
-      // to fill itself from the weekly performance scorecards. Automated
-      // metrics lock their cells.
+      // auto sub-panel: the existing Auto-Feed editor block, unchanged inside
+      h+='<div id="em-src-auto" style="display:'+(_srcMode==='auto'?'block':'none')+';margin:0 0 12px 27px">';
       h+=_vspAutoFeedEditorBlock(epMetric);
+      h+='</div>';
+
+      // ── 5. DISPLAY ───────────────────────────────────────────────
+      h+=_secHd('5','Display','How the row&#39;s summary column reads.');
+      h+='<div style="margin-bottom:12px">';
+      h+='<label style="'+_sLbl+'">Roll the week columns up as</label>';
+      h+='<select id="em-rollup" onchange="_emRollupSync()" style="'+_sInp+'">';
+      h+='<option'+((!epMetric.rollupAs||String(epMetric.rollupAs).indexOf('Total')===0)?' selected':'')+'>Total (default)</option>';
+      h+='<option'+(epMetric.rollupAs==='Average'?' selected':'')+'>Average</option>';
+      h+='</select>';
+      h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">One control now: this also decides whether the Total or the Average summary column shows for this row.</div>';
+      h+='</div>';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+      h+='<div style="flex:1;padding-right:12px"><div style="font-size:var(--fz-body);font-weight:700">Show the goal column</div>';
+      h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:1px">Displays the target next to the row.</div></div>';
+      h+='<label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0">';
+      h+='<input type="checkbox" id="em-showGoal" '+(epMetric.showGoal!==false?'checked':'')+' style="opacity:0;width:0;height:0;position:absolute">';
+      h+='<span onclick="event.preventDefault();_togVis(this)" data-on="var(--blu)" style="position:absolute;cursor:pointer;inset:0;background:'+(epMetric.showGoal!==false?'var(--blu)':'var(--brd2)')+';border-radius:20px"><span style="position:absolute;height:14px;width:14px;left:'+(epMetric.showGoal!==false?'19':'3')+'px;bottom:3px;background:var(--sur);border-radius:50%"></span></span>';
+      h+='</label></div>';
+      // Hidden showTotal / showAverage checkboxes: the save handler still reads
+      // them; the rollup control drives them (Total => showTotal, Average =>
+      // showAverage) so the duplicated setting is gone from the UI but the
+      // stored fields stay coherent for every consumer.
+      var _rIsAvg=(epMetric.rollupAs==='Average');
+      h+='<input type="checkbox" id="em-showTotal" '+(!_rIsAvg?'checked':'')+' style="display:none">';
+      h+='<input type="checkbox" id="em-showAvg" '+(_rIsAvg?'checked':'')+' style="display:none">';
 
       h+='</div>'; // scrollable body
     }
@@ -10260,6 +10308,54 @@ function bulkMoveSelected(targetIdx){
   });
   state.selectedMetrics={};
   renderPage();
+}
+/* merge-222 helpers for the restructured Edit Measurable panel. */
+function _emRelevance(){
+  // Show only the goal fields the chosen unit + direction need.
+  try{
+    var u=(document.getElementById('em-unit')||{}).value||'Number';
+    var o=(document.getElementById('em-orient')||{}).value||'';
+    var yn=(u==='Yes/No');
+    var band=(o==='Inside min and max'||o==='Outside min and max');
+    var el;
+    if((el=document.getElementById('em-orient-wrap'))) el.style.display=yn?'none':'block';
+    if((el=document.getElementById('em-value-wrap'))) el.style.display=(yn||band)?'none':'block';
+    if((el=document.getElementById('em-band-wrap'))) el.style.display=(!yn&&band)?'grid':'none';
+    if((el=document.getElementById('em-watch-wrap'))) el.style.display=yn?'none':'block';
+  }catch(e){}
+}
+function _emPickSource(mode){
+  // Radio-card source switch. Only paints the panel; the stored fields are
+  // written at save time exactly as before (calc from em-calcop/.em-calcsrc,
+  // auto from the Auto-Feed block, manual clears both).
+  try{
+    var cards=document.querySelectorAll('.em-src-card');
+    [].forEach.call(cards,function(c){
+      var on=(c.getAttribute('data-src')===mode);
+      c.style.borderColor=on?'var(--blu)':'var(--brd2)';
+      c.style.background=on?'var(--blub)':'var(--sur)';
+      var dot=c.querySelector('span');
+      if(dot){ dot.style.borderColor=on?'var(--blu)':'var(--brd2)'; dot.innerHTML=on?'<span style="position:absolute;inset:3px;border-radius:50%;background:var(--blu)"></span>':''; }
+    });
+    var calcP=document.getElementById('em-src-calc');
+    var autoP=document.getElementById('em-src-auto');
+    if(calcP) calcP.style.display=(mode==='calc')?'block':'none';
+    if(autoP) autoP.style.display=(mode==='auto')?'block':'none';
+    // Leaving a mode resets its controls so the save handler stores what the
+    // visible choice says: manual/auto zero the calc op; manual/calc set the
+    // auto-feed kind back to manual so _vspAutoEditorRead() returns null.
+    if(mode!=='calc'){ var op=document.getElementById('em-calcop'); if(op) op.value='none'; }
+    if(mode!=='auto'){ var k=document.getElementById('em-auto-kind'); if(k){ k.value='manual'; if(typeof _vspAutoEditorRefresh==='function') _vspAutoEditorRefresh(); } }
+  }catch(e){}
+}
+function _emRollupSync(){
+  // One rollup control drives the stored showTotal/showAverage pair.
+  try{
+    var r=(document.getElementById('em-rollup')||{}).value||'Total (default)';
+    var avg=(r==='Average');
+    var t=document.getElementById('em-showTotal'); if(t) t.checked=!avg;
+    var a=document.getElementById('em-showAvg'); if(a) a.checked=avg;
+  }catch(e){}
 }
 function closeEditMeasurable(){
   state.editMeasurablePanel={open:false,metricId:null,ownerId:null};
@@ -29312,7 +29408,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-220';
+window.VSP_BUILD = 'v186-merge-222';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
