@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-234</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-237</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7491,6 +7491,39 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
         cellTitle='';
       }
     }
+  } else if(_vspAutoParse(m.auto||m._autoKey||'').kind==='workloadavg' && !m.manualOverride){
+    // merge-236 (Dave, 2026-08-12): the combined Workload Rating rows get the
+    // same per-person hover as the compliance and count rows, so you can see
+    // everyone's workload rating behind the average. Lists each group member
+    // and the 1-10 rating they logged that week, no-data greyed and left out of
+    // the average, with the simple average shown. Reads live from the raw
+    // scorecards via _vspAutoWorkloadForPersonWeek.
+    try{
+      var _wlA=_vspAutoParse(m.auto||m._autoKey||'');
+      var _wlWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+      var _wlIso=''; try{ var _wd=scWeekDate(weekIdx); _wlIso=_wd.getFullYear()+'-'+String(_wd.getMonth()+1).padStart(2,'0')+'-'+String(_wd.getDate()).padStart(2,'0'); }catch(e){}
+      var _wlRows='', _wlSum=0, _wlCov=0;
+      _vspAutoGroupMembers(_wlA.group).forEach(function(pid){
+        var pp=ppl.find(function(x){ return _vspPndPersonId(x)===pid; });
+        var nm=pp?(pp.first+' '+pp.last):String(pid);
+        var v=_wlIso?_vspAutoWorkloadForPersonWeek(pid,_wlIso):null;
+        if(v==null||isNaN(v)){
+          _wlRows+='<span class="pnd-tip-r pnd-out"><span>'+_scEsc(String(nm))+'</span><span>no data</span></span>';
+        } else {
+          _wlCov++; _wlSum+=Number(v);
+          _wlRows+='<span class="pnd-tip-r"><span>'+_scEsc(String(nm))+'</span><span>'+(Math.round(Number(v)*100)/100)+'</span></span>';
+        }
+      });
+      if(_wlCov>0){
+        var _wlMean=Math.round((_wlSum/_wlCov)*100)/100;
+        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Scorecards &middot; '+_scEsc(String(_wlWk))+'</span>'
+          +_wlRows
+          +'<span class="pnd-tip-sum"><span>average of '+_wlCov+' '+(_wlCov===1?'person':'people')+'</span><span>'+_wlMean+'</span></span>'
+          +'<span class="pnd-tip-ft">Simple average of each person\'s workload rating. Away or no-data people are left out.</span>'
+          +'</span>';
+        cellTitle='';
+      }
+    }catch(e){}
   } else if(String(m.auto||'').indexOf('pnd.rowcount.') === 0){
     // Count-of-No cells show their working on hover, matching the compliance
     // tooltip: every group member, their misses that week, and the sum.
@@ -7541,7 +7574,18 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       + '</span>';
     cellTitle = '';
   }
-  if(hasNote){ cellTitle = 'Note: '+_scEsc(String(m.notes[weekIdx]))+'   '+cellTitle; }
+  if(hasNote){
+    var _noteTxt = String(m.notes[weekIdx]);
+    cellTitle = 'Note: '+_scEsc(_noteTxt)+'   '+cellTitle;
+    // merge-235 (Dave, 2026-08-12): surface the note in the styled floating
+    // tooltip on hover, not only the slow native title. Reuses the same
+    // pnd-tt/pnd-note tooltip the CNA and schedule reasons use. Only set it
+    // when no richer tooltip already owns the cell (compliance/CNA/schedule).
+    if(!_pndTipHtml){
+      _pndTipHtml = '<span class="pnd-tip"><span class="pnd-tt">Note</span>'
+        + '<span class="pnd-note">'+_scEsc(_noteTxt)+'</span></span>';
+    }
+  }
   // CNA reason tooltip (merge-157): on a Client Not Available cell, surface the
   // written reason via the native title, the same hover pattern every other
   // scorecard cell uses. The reason is stored per person/row/month; the person
@@ -9289,9 +9333,17 @@ function _vspAutoGroups(){
   return out;
 }
 function _vspAutoGroupMembers(groupId){
+  // merge-236 (Dave, 2026-08-12): always return a DEDUPED member list. A stored
+  // group can contain the same id twice (a save hit the VSP-vs-P&D id collision),
+  // and the auto path can push a colliding id twice - either way the same person
+  // was counted twice in every average and listed twice in every tooltip. Dedupe
+  // here so one person counts once everywhere. (A member the group is missing
+  // entirely - e.g. Lisa dropped from companywide - is a data repair, not a
+  // dedupe, and is handled separately.)
+  function _dedupe(a){ var s={}, o=[]; for(var i=0;i<a.length;i++){ if(a[i]!=null && !s[a[i]]){ s[a[i]]=1; o.push(a[i]); } } return o; }
   try{
     var g=JSON.parse(localStorage.getItem('smb_pnd_compliance_groups_v1')||'{}');
-    if(Array.isArray(g[groupId]) && g[groupId].length) return g[groupId].slice();
+    if(Array.isArray(g[groupId]) && g[groupId].length) return _dedupe(g[groupId].slice());
   }catch(e){}
   var roleFilters={
     pm: function(rl){ return rl.indexOf('PM')>-1 || rl.indexOf('Project Manager')>-1; },
@@ -9307,7 +9359,7 @@ function _vspAutoGroupMembers(groupId){
     if(groupId==='companywide'){ out.push(pid); return; }
     if(roleFilters[groupId] && roleFilters[groupId](rl)) out.push(pid);
   });
-  return out;
+  return _dedupe(out);
 }
 function _vspAutoStandardsFor(p){
   try{
@@ -10544,6 +10596,15 @@ function deleteEditMeasurable(){
 // Replacing #page-content innerHTML destroys the per-section table wrappers,
 // resetting their horizontal scroll to 0. Capture and restore it so editing a
 // far-right week cell does not snap the user back to the left.
+// merge-237 (Dave, 2026-08-13): per-cell edit stamps. Every MANUAL scorecard
+// cell write records when the cell was edited (m._cellTs[weekIdx]=ms). The sync
+// adapter then merges cell-by-cell newest-wins on adopt, so a stale device
+// pushing its whole blob can never silently revert a cell entered after its
+// copy was taken (the June FSA 5,700,000 -> 4,500,000 revert). Auto-filled
+// rows are never stamped; their values recompute from source on every load.
+function _scStampCell(m, idx){
+  try{ if(!m) return; m._cellTs=m._cellTs||{}; m._cellTs[idx]=Date.now(); }catch(e){}
+}
 var _scHSyncing=false;
 function _scSyncHScroll(src){
   // merge-234 (Dave, 2026-08-12): scrolling one person scorecard card moves them
@@ -10655,6 +10716,7 @@ function openCellEdit(ownerId, metricId, weekIdx){
   if(_ynM&&_ynM.unit==='YN'){
     var _cv=_ynM.readings[weekIdx];
     _ynM.readings[weekIdx]=(_cv==null||_cv==='')?'Yes':(_cv==='Yes'?'No':null);
+    _scStampCell(_ynM, weekIdx);
     var _ynT=teamsRegistry[state.currentTeam]; if(_ynT)_ynT.scorecard=scorecard;
     rerenderKeepScroll();
     return;
@@ -10679,7 +10741,7 @@ function saveCellEdit(){
   var section=scorecard.find(function(s){return s.metrics.some(function(m){return m.id===c.metricId;});});
   if(section){
     var m=section.metrics.find(function(m){return m.id===c.metricId;});
-    if(m) m.readings[c.weekIdx]=val;
+    if(m){ m.readings[c.weekIdx]=val; _scStampCell(m, c.weekIdx); }
   }
   // Also sync back to teamsRegistry
   var team=teamsRegistry[state.currentTeam];
@@ -12076,6 +12138,7 @@ function scorecardCellEdit(sIdx, mIdx, wIdx){
   if(metric.unit==='YN'){
     var _cv=metric.readings[wIdx];
     metric.readings[wIdx]=(_cv==null||_cv==='')?'Yes':(_cv==='Yes'?'No':null);
+    _scStampCell(metric, wIdx);
     var _ynT=teamsRegistry[state.currentTeam]; if(_ynT)_ynT.scorecard=scorecard;
     renderPage();
     return;
@@ -12105,6 +12168,7 @@ function scorecardCellSave(sIdx, mIdx, wIdx){
     return;
   }
   metric.readings[wIdx] = newVal;
+  _scStampCell(metric, wIdx);
   renderPage();
 }
 
@@ -29590,7 +29654,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-234';
+window.VSP_BUILD = 'v186-merge-237';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -30501,6 +30565,26 @@ function vspApplySnapshot(s){
     // so she is not already live and nothing real is lost by starting Aug 10.
     // Guard: seed only if no start exists, so a later Turn-live-from change or a
     // synced value always wins. P&D ids: p2 = Lisa, p12 = Venessa.
+    // merge-237 (Dave, 2026-08-13): repair the companywide compliance/workload
+    // group. Lisa's slot was overwritten with Mika's id when the group was saved
+    // (the VSP-vs-P&D id collision), so the stored list carried Mika twice and
+    // Lisa not at all - she was silently missing from every companywide rollup.
+    // Guarded: fires ONLY when the stored list matches the exact corrupt
+    // signature (deduped == Terry,Will,Mika,Venessa,Keith and no Lisa), so a
+    // deliberate later membership edit is never overwritten.
+    try{
+      var _cgAll=JSON.parse(localStorage.getItem('smb_pnd_compliance_groups_v1')||'{}');
+      var _cgL=Array.isArray(_cgAll.companywide)?_cgAll.companywide.slice():null;
+      if(_cgL){
+        var _cgS={}; _cgL.forEach(function(x){ _cgS[x]=1; });
+        var _cgD=Object.keys(_cgS).sort().join(',');
+        if(_cgD==='p12,p13,p3,p7,p8'){
+          _cgAll.companywide=['p3','p7','p8','p13','p12','p2'];
+          localStorage.setItem('smb_pnd_compliance_groups_v1', JSON.stringify(_cgAll));
+          console.log('[VSP] companywide group repaired: Lisa (p2) restored.');
+        }
+      }
+    }catch(e){}
     try{
       var _tsCfg=_pndLoadTrackingStart();
       _tsCfg.byPerson=_tsCfg.byPerson||{};
@@ -32335,6 +32419,44 @@ try{ _vspMigrateJobNotes(); }catch(e){}
             raw = JSON.stringify(_rs);
           }
         }catch(e){}
+      }
+    } catch(e){}
+    // merge-237 (Dave, 2026-08-13): per-cell newest-wins scorecard merge.
+    // Before adopting the remote blob, patch back any local cell whose edit
+    // stamp (_cellTs) is newer than the remote's for the same metric+week.
+    // This is what stops a stale device's whole-blob push from reverting a
+    // cell entered after that device last pulled. Metrics match by team+id;
+    // a cell with no stamp on either side keeps the remote (adopted) value.
+    try {
+      var _clr = localStorage.getItem(V_keyName());
+      if(_clr){
+        var _cl = JSON.parse(_clr), _cr = JSON.parse(raw), _patched=false;
+        if(_cl && _cl.teams && _cr && _cr.teams){
+          Object.keys(_cl.teams).forEach(function(tk){
+            var lt_=_cl.teams[tk], rt_=_cr.teams[tk];
+            if(!lt_||!rt_||!Array.isArray(lt_.scorecard)||!Array.isArray(rt_.scorecard)) return;
+            var rIdx={};
+            rt_.scorecard.forEach(function(rs){ (rs.metrics||[]).forEach(function(rm){ if(rm&&rm.id!=null) rIdx[rm.id]=rm; }); });
+            lt_.scorecard.forEach(function(ls_){ (ls_.metrics||[]).forEach(function(lm){
+              if(!lm||lm.id==null) return;
+              var rm=rIdx[lm.id]; if(!rm) return;
+              var lts=lm._cellTs||{}, rts=rm._cellTs||{};
+              var all={}; Object.keys(lts).forEach(function(k){all[k]=1;}); Object.keys(rts).forEach(function(k){all[k]=1;});
+              Object.keys(all).forEach(function(k){
+                var li=Number(lts[k]||0), ri=Number(rts[k]||0);
+                if(li>ri){
+                  rm.readings=rm.readings||[];
+                  var ki=Number(k);
+                  while(rm.readings.length<=ki) rm.readings.push(null);
+                  rm.readings[ki]=(lm.readings||[])[ki];
+                  rm._cellTs=rm._cellTs||{}; rm._cellTs[k]=li;
+                  _patched=true;
+                }
+              });
+            }); });
+          });
+          if(_patched) raw=JSON.stringify(_cr);
+        }
       }
     } catch(e){}
     try { origSet(V_keyName(), raw); } catch(e){}
