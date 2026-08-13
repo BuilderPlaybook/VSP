@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-224</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-227</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4631,10 +4631,22 @@ function isTeamScopedAgenda(type){ return TEAM_SCOPED_AGENDA_TYPES.indexOf(type)
 function agendaFor(teamId,type){
   if(typeof meetingAgendas==='undefined'||!Array.isArray(meetingAgendas)) return null;
   var t=type||'Weekly';
-  if(!isTeamScopedAgenda(t)){
-    return meetingAgendas.find(function(a){return a&&a.type===t;})||null;
-  }
   var tid=teamId||state.currentTeam||'lt';
+  // merge-226 (Dave, 2026-08-12): a team-specific agenda record wins for ANY
+  // type, not just the team-scoped ones. This is what lets the Executive team
+  // carry its own Weekly Performance Huddle agenda (the Executive Huddle
+  // agenda) while every other team keeps resolving the shared global huddle
+  // agenda. Non-team-scoped types are NOT seeded per team (the seeding loop
+  // still walks TEAM_SCOPED_AGENDA_TYPES only); a team copy exists only where
+  // one was deliberately created. All editor writes route through this
+  // resolver, so on Executive the editor mutates the Executive copy and
+  // nowhere else.
+  if(!isTeamScopedAgenda(t)){
+    return meetingAgendas.find(function(a){return a&&a.type===t&&a.teamId===tid;})
+        || meetingAgendas.find(function(a){return a&&a.type===t&&!a.teamId;})
+        || meetingAgendas.find(function(a){return a&&a.type===t;})
+        || null;
+  }
   return meetingAgendas.find(function(a){return a&&a.type===t&&a.teamId===tid;})
       || meetingAgendas.find(function(a){return a&&a.type===t&&!a.teamId;})
       || meetingAgendas.find(function(a){return a&&a.type===t;})
@@ -18944,7 +18956,10 @@ function _meetTypeLabel(t, teamName, m){
   // changes. Team meetings read "<Team> Team Meeting"; huddles read plain
   // "Huddle" / "Quarterly Huddle" / "Annual Huddle" (frequency comes from the
   // Repeats setting, not the name); client reads "Client Meeting".
-  if(t==='Weekly')  return (teamName?teamName+' ':'')+'Team Meeting';
+  // Naming convention (Dave, 2026-08-12, merge-227): team meetings read
+  // "[Frequency] [Team] Team Meeting" - the Weekly prefix included, so all
+  // three cadences follow one shape.
+  if(t==='Weekly')  return 'Weekly '+(teamName?teamName+' ':'')+'Team Meeting';
   if(t==='Quarterly') return 'Quarterly '+(teamName?teamName+' ':'')+'Team Meeting';
   if(t==='Annual')    return 'Annual '+(teamName?teamName+' ':'')+'Team Meeting';
   // Huddles name the counterpart (Dave, 2026-08-09, merge-149) so two
@@ -18955,7 +18970,20 @@ function _meetTypeLabel(t, teamName, m){
   // Counterpart = the report the huddle is about; falls back to the other
   // attendee, then to a plain label if neither resolves.
   if(t==='Weekly Performance Huddle' || t==='Quarterly Performance Huddle' || t==='Annual Performance Huddle'){
-    var _base = (t==='Quarterly Performance Huddle') ? 'Quarterly Huddle' : (t==='Annual Performance Huddle' ? 'Annual Huddle' : 'Bi-Weekly Huddle');
+    // Naming convention (Dave, 2026-08-12, merge-227): huddles read
+    // "[Frequency] Huddle [Person]" - e.g. "Bi-Weekly Huddle Mika",
+    // "Quarterly Huddle Terry". The frequency word is DERIVED: quarterly and
+    // annual huddles carry it in the type; the weekly-cadence huddle takes it
+    // from the booking's own Repeats value, so the name can never contradict
+    // the badge (the old label hardcoded "Bi-Weekly" regardless of booking).
+    var _base;
+    if(t==='Quarterly Performance Huddle') _base='Quarterly Huddle';
+    else if(t==='Annual Performance Huddle') _base='Annual Huddle';
+    else {
+      var _re=(m&&m.recurEvery)?Number(m.recurEvery):0;
+      var _fw=(_re===7)?'Weekly':(_re===14)?'Bi-Weekly':(_re===28||_re===30)?'Monthly':'';
+      _base=_fw?(_fw+' Huddle'):'Huddle';
+    }
     var _with='';
     try{
       var _rep = (typeof _meetReportOf==='function' && m) ? _meetReportOf(m) : '';
@@ -18967,9 +18995,9 @@ function _meetTypeLabel(t, teamName, m){
       }
       if(_rep){ var _p=(typeof ppl!=='undefined')?ppl.find(function(x){return x.initials===_rep;}):null; _with = _p ? (_p.first||_rep) : _rep; }
     }catch(e){}
-    return _with ? (_base+' with '+_with) : _base;
+    return _with ? (_base+' '+_with) : _base;
   }
-  if(t==='Monthly Client Meeting')       return 'Client Meeting';
+  if(t==='Monthly Client Meeting')       return 'Monthly Client Meeting';
   return t||'Meeting';
 }
 function _mcChipCtx(e){
@@ -19489,14 +19517,11 @@ function renderMeetings(){
       (state.currentTeam!=='ltsync')&&{type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
       (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
       mtIsLT&&{type:"Annual",cat:"team",desc:"Full strategic planning. Update vision, set annual goals.",c:"#7c3aed"},
-      // merge-224 (Dave, 2026-08-12): the Executive team meets as the Executive
-      // Huddle - a huddle, not a team meeting. Its card sits under Team Meetings
-      // for that team so the box is present like every other team has, but it
-      // carries type "Weekly Performance Huddle" so it runs the weekly
-      // performance huddle agenda (never the team-meeting Goals agenda that
-      // merge-218 rightly hid). name "Executive Huddle" is what it reads as;
-      // the type key drives the agenda, Start Meeting, and history.
-      mtIsSync&&{type:"Weekly Performance Huddle",name:"Executive Huddle",cat:"team",desc:"Individual KPI review, headlines, to-dos, job review, and issues. Runs the weekly performance huddle agenda.",c:"#0891b2"},
+      // merge-227 (Dave, 2026-08-12): the merge-224 Executive Huddle card is
+      // removed. Dave's ruling: the Executive pair (Dave + Terry) runs plain
+      // supervisor huddles like every other pair - no special card, no special
+      // agenda. Their huddles appear under the Supervisor category exactly as
+      // Will's and Mika's do.
       {type:"Weekly Performance Huddle",cat:"supervisor",desc:"Individual KPI review, headlines, to-dos, job review, and issues. Supervisor to direct report.",c:"#0891b2"},
       {type:"Quarterly Performance Huddle",cat:"supervisor",desc:"Quarter review, performance feedback, strengths, and next quarter goals.",c:"#0891b2"},
       {type:"Annual Performance Huddle",cat:"supervisor",desc:"Full year review, career conversation, development plan, and annual goals.",c:"#0891b2"},
@@ -19663,7 +19688,7 @@ function renderMeetings(){
       r+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
       r+='<div style="flex:1">';
       r+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
-      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(m.name || _meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name)))+'</span>';
+      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(m.name || _meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name), m))+'</span>';
       r+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span>';
       if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
       r+='</div>';
@@ -20674,7 +20699,31 @@ function renderMeetings(){
     // v158: one tab per type the ACTIVE team runs, resolved through agendaFor
     // so the tab opens that team's own copy of a team-scoped agenda.
     agendasForTeam(state.currentTeam).forEach(function(a){
-      h+='<button class="btn'+(state.meetAgendaType===a.type?' btn-blu':'')+'" onclick="state.meetAgendaType=\''+a.type+'\';state.meetAgendaDay=0;state.editingAgendaStep=null;renderPage()">'+a.type+'</button>';
+      // merge-226: the Executive team meets as huddles, never as team meetings
+      // (merge-218), so the Weekly / Quarterly / Annual team-meeting agenda
+      // tabs are hidden there. The underlying records stay in data.
+      if(state.currentTeam==='ltsync' && (a.type==='Weekly'||a.type==='Quarterly'||a.type==='Annual')) return;
+      // merge-227 (Dave, 2026-08-12): per-team agenda scoping - the Property
+      // and Development meeting agendas show only on their own teams instead
+      // of as tabs on every team. (Leadership Sync is deleted at load.)
+      if(a.type==='Property Meeting' && state.currentTeam!=='property') return;
+      if(a.type==='Development Meeting' && state.currentTeam!=='development') return;
+      // merge-227: tabs read the same names the schedule uses (Dave's naming
+      // convention) - the agenda-title vocabulary ("Weekly Meeting",
+      // "Quarterly Session") retires. Huddle tabs carry no person because one
+      // agenda serves every pair; team tabs carry the team name.
+      var _tn=(teamsRegistry[state.currentTeam]||{}).name||'';
+      var _tabMap={
+        'Weekly':'Weekly '+(_tn?_tn+' ':'')+'Team Meeting',
+        'Quarterly':'Quarterly '+(_tn?_tn+' ':'')+'Team Meeting',
+        'Annual':'Annual '+(_tn?_tn+' ':'')+'Team Meeting',
+        'Weekly Performance Huddle':'Huddle',
+        'Quarterly Performance Huddle':'Quarterly Huddle',
+        'Annual Performance Huddle':'Annual Huddle',
+        'Monthly Client Meeting':'Monthly Client Meeting'
+      };
+      var _tabLbl=_tabMap[a.type]||a.type;
+      h+='<button class="btn'+(state.meetAgendaType===a.type?' btn-blu':'')+'" onclick="state.meetAgendaType=\''+a.type+'\';state.meetAgendaDay=0;state.editingAgendaStep=null;renderPage()">'+_tabLbl+'</button>';
     });
     h+='</div>';
 
@@ -29432,7 +29481,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-224';
+window.VSP_BUILD = 'v186-merge-227';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -30266,6 +30315,72 @@ function vspApplySnapshot(s){
     });
     // Migration: the "Leadership Sync" team was renamed to "Executive".
     try{ if(teamsRegistry.ltsync && teamsRegistry.ltsync.name==='Leadership Sync') teamsRegistry.ltsync.name='Executive'; }catch(e){}
+    // merge-225 (Dave, 2026-08-12): the four Executive (Dave + Terry) meeting
+    // records were booked while Leadership was the active team, so they filed
+    // under lt and vanished from the Executive tab once the team picker began
+    // scoping the list (merge-223). Move them home, by id: remove from lt with
+    // a tombstone (so a teammate's stale sync snapshot cannot re-add them
+    // there), clear any ltsync tombstone for the same id (so mergeById cannot
+    // delete them on arrival), and restamp teamId/teamName. Idempotent: each id
+    // moves only if still present under lt; runs harmlessly on every load.
+    try{
+      var _exMoveIds=[1786557715192,1786196881988,1786196990672,1785254909475];
+      var _lt=teamsRegistry.lt, _ex=teamsRegistry.ltsync;
+      if(_lt && _ex && Array.isArray(_lt.scheduledMeetings)){
+        _ex.scheduledMeetings=_ex.scheduledMeetings||[];
+        _exMoveIds.forEach(function(mid){
+          var ix=_lt.scheduledMeetings.findIndex(function(m){return m&&m.id===mid;});
+          if(ix<0) return;
+          var rec=_lt.scheduledMeetings.splice(ix,1)[0];
+          _lt.deletedMeetingIds=_lt.deletedMeetingIds||[];
+          if(_lt.deletedMeetingIds.indexOf(mid)<0) _lt.deletedMeetingIds.push(mid);
+          if(Array.isArray(_ex.deletedMeetingIds)){
+            var tx=_ex.deletedMeetingIds.indexOf(mid);
+            if(tx>-1) _ex.deletedMeetingIds.splice(tx,1);
+          }
+          rec.teamId='ltsync'; rec.teamName=_ex.name||'Executive';
+          if(!_ex.scheduledMeetings.some(function(m){return m&&m.id===mid;})) _ex.scheduledMeetings.push(rec);
+        });
+      }
+    }catch(e){}
+    // merge-227 (Dave, 2026-08-12): the merge-226 Executive Huddle agenda copy
+    // is retired - Dave's ruling is that the Executive pair runs plain
+    // supervisor huddles on the shared huddle agenda like every other pair.
+    // Remove any ltsync-scoped huddle agenda copy (including one a synced
+    // device seeded before this build), and the dead Leadership Sync agenda
+    // (retired at v18, still shipping as a tab on every team).
+    try{
+      if(Array.isArray(meetingAgendas)){
+        for(var _ai=meetingAgendas.length-1;_ai>=0;_ai--){
+          var _aa=meetingAgendas[_ai]; if(!_aa) continue;
+          if(_aa.type==='Weekly Performance Huddle'&&_aa.teamId==='ltsync'){ meetingAgendas.splice(_ai,1); continue; }
+          if(_aa.type==='Leadership Sync'){ meetingAgendas.splice(_ai,1); continue; }
+        }
+      }
+    }catch(e){}
+    // merge-227: the old bi-weekly "Executive Meeting" record (replaced by the
+    // huddle series) is deleted with tombstones on both teams it ever lived
+    // under, so no stale sync snapshot can revive it. Its held history stays in
+    // pastMeetings untouched. The stored name on the weekly huddle record is
+    // cleared so the generated convention label ("Weekly Huddle Terry")
+    // applies.
+    try{
+      var _exDel=1785254909475;
+      ['lt','ltsync'].forEach(function(tk){
+        var _tt=teamsRegistry[tk]; if(!_tt) return;
+        if(Array.isArray(_tt.scheduledMeetings)){
+          var _di=_tt.scheduledMeetings.findIndex(function(m){return m&&m.id===_exDel;});
+          if(_di>-1) _tt.scheduledMeetings.splice(_di,1);
+        }
+        _tt.deletedMeetingIds=_tt.deletedMeetingIds||[];
+        if(_tt.deletedMeetingIds.indexOf(_exDel)<0) _tt.deletedMeetingIds.push(_exDel);
+      });
+      var _exH=teamsRegistry.ltsync&&teamsRegistry.ltsync.scheduledMeetings;
+      if(Array.isArray(_exH)){
+        var _hr=_exH.find(function(m){return m&&m.id===1786557715192;});
+        if(_hr&&_hr.name==='Executive Huddle') delete _hr.name;
+      }
+    }catch(e){}
     // Migration: saved data written before the Property Management team was seeded
     // carries members:[] and overwrites the seed (the ['name','color','quarter',
     // 'members'] copy above), which drops every owner dropdown back to the
@@ -30423,6 +30538,22 @@ try{ _vspMigrateJobNotes(); }catch(e){} }, 0); }catch(e){}
       if(i>-1) meetingAgendas[i]=savedA; else meetingAgendas.push(savedA);
     });
   }
+  // merge-227 (Dave, 2026-08-12): purge retired agendas AFTER the saved-state
+  // merge, because a purge that runs before it is immediately undone when the
+  // saved snapshot pushes the same records back in. Retired here: the dead
+  // Leadership Sync agenda (type removed at v18, still riding in saved
+  // snapshots) and any ltsync-scoped huddle-agenda copy (the merge-226
+  // Executive Huddle agenda, retired same day by Dave's ruling that the
+  // Executive pair runs plain supervisor huddles on the shared agenda).
+  try{
+    if(Array.isArray(meetingAgendas)){
+      for(var _pi=meetingAgendas.length-1;_pi>=0;_pi--){
+        var _pa=meetingAgendas[_pi]; if(!_pa) continue;
+        if(_pa.type==='Leadership Sync'){ meetingAgendas.splice(_pi,1); continue; }
+        if(_pa.type==='Weekly Performance Huddle'&&_pa.teamId==='ltsync'){ meetingAgendas.splice(_pi,1); continue; }
+      }
+    }
+  }catch(e){}
   // Apply one-time data migrations, then repoint globals.
   try{ if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } }catch(e){}
   return true;
