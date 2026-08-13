@@ -1944,7 +1944,7 @@
            staging-adapter pull; the adapter has a bridge-pull hook
            installed in the deployable index.html only.
            (3) The four Compliance measurables (ids 45, 32, 38, 52) gain
-           auto:"pnd.compliance.<groupId>" and autoSrc:"P&D" so scCell's
+           auto:"pnd.compliance.<groupId>" and autoSrc:"Performance Scorecards" so scCell's
            existing isAuto branch renders them read-only with the A badge
            and the "Auto-fed from P&D" tooltip.
            Task 3 (single-cell manual override with device-user gate)
@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-231</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-233</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -5852,7 +5852,7 @@ var scorecard=[
     {id:29,title:"All PM Construction Schedules Slippage #Months <1",goal:1,goalType:"≤",unit:"#",_autoKey:"pm.scheduleSlippage",_autoSrc:"PM",readings:[null,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,3,3,3,null]},
     {id:30,title:"All PM TODO's not done upto date <0",goal:0,goalType:"=",unit:"#",readings:[null,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,null]},
     {id:31,title:"All PM Sites Clean, Organized, Safe, & Sign Posted with Compliance Documents",goal:"Yes",goalType:"=",unit:"YN",readings:[null,"Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes",null]},
-    {id:32,title:"All PM Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.pm",autoSrc:"P&D",readings:[null,97.5,97.5,94,100,95,100,100,95,100,100,100,100,100,95,100,100,100,100,0,100,null]}
+    {id:32,title:"All PM Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.pm",autoSrc:"Performance Scorecards",readings:[null,97.5,97.5,94,100,95,100,100,95,100,100,100,100,100,95,100,100,100,100,0,100,null]}
   ]},
   {ownerId:"MN",seat:"Client Experience & Interior Design Manager",metrics:[
     {id:33,title:"All ID Weekly Workload Rating 1-10",goal:8,goalType:"=",unit:"#",readings:[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,null]},
@@ -5860,7 +5860,7 @@ var scorecard=[
     {id:35,title:"All ID Weekly/Monthly Client Updates done <0",goal:0,goalType:"=",unit:"#",readings:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,null]},
     {id:36,title:"All ID Selections Past Milestone <0",goal:0,goalType:"=",unit:"#",readings:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,null]},
     {id:37,title:"Number of Client Deficiencies at Turn Over <5",goal:5,goalType:"≤",unit:"#",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
-    {id:38,title:"All ID Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.id",autoSrc:"P&D",readings:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,0,100,100,null]}
+    {id:38,title:"All ID Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.id",autoSrc:"Performance Scorecards",readings:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,0,100,100,null]}
   ]},
   {ownerId:"TP",seat:"VP of Construction Operations",metrics:[
     {id:39,title:"Companywide Weekly Workload Rating 1-10",goal:8,goalType:"≤",unit:"#",readings:[8,8,8,8,8,8,8,8,8,8,8,8,8.25,null,8,8,8,8,8.25,8,8,null]},
@@ -5869,7 +5869,7 @@ var scorecard=[
     {id:42,title:"Company Culture & Job Satisfaction Rating >8",goal:8,goalType:"≥",unit:"#",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
     {id:43,title:"Companywide FSA & Construction Schedule Slippage #months <0",goal:1,goalType:"≤",unit:"#",readings:[null,null,0,0,0,1,1,0,1,1,1,1,1,1,2,2,2,2,2,3,3,null]},
     {id:44,title:"Companywide Budgets >%500 W/O CWO <0",goal:0,goalType:"=",unit:"#",readings:[null,null,0,0,1,0,0,0,0,0,0,0,1,null,0,0,0,0,0,1,0,null]},
-    {id:45,title:"Companywide Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.companywide",autoSrc:"P&D",readings:[null,null,98.75,97,100,72.5,100,97.5,97.5,100,100,100,null,null,97.5,100,100,100,75,100,100,null]}
+    {id:45,title:"Companywide Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.companywide",autoSrc:"Performance Scorecards",readings:[null,null,98.75,97,100,72.5,100,97.5,97.5,100,100,100,null,null,97.5,100,100,100,75,100,100,null]}
   ]},
   {ownerId:"LS",seat:"Financial Controller & Office Manager",metrics:[
     {id:46,title:"All Financial Weekly Workload Rating 1-10",goal:8,goalType:"≥",unit:"#",readings:[8,null,8,8,8,8,8,8,8,8,8,8,8,null,null,null,null,null,null,null,null,null]},
@@ -5878,7 +5878,7 @@ var scorecard=[
     {id:49,closeDependent:true,title:"GP (2.3M Year, 397K Q3)",goal:132333,goalType:"≥",unit:"$",cadence:"monthly",readings:[121340.13,-86187.42,475184.98,43292.45,null,null,null,null,null,null,null,null]},
     {id:50,closeDependent:true,title:"OE (1.4M Year, 326K Q3)",goal:108666,goalType:"≤",unit:"$",cadence:"monthly",readings:[112305.69,103148.93,105960.11,105763.47,null,null,null,null,null,null,null,null]},
     {id:51,closeDependent:true,title:"NPBT (950K Year, 70K Q3)",goal:23333,goalType:"≥",unit:"$",cadence:"monthly",readings:[8011.88,-190258.49,369987.81,-62471.02,null,null,null,null,null,null,null,null]},
-    {id:52,title:"All Financial Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.financial",autoSrc:"P&D",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
+    {id:52,title:"All Financial Performance Points Compliance >90%",goal:90,goalType:"≥",unit:"%",auto:"pnd.compliance.financial",autoSrc:"Performance Scorecards",readings:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
   ]},
   {ownerId:"VC",seat:"Accounting Administration",metrics:[
     {id:53,title:"Number of A/P over 35 days <0 & Controller Advised.",goal:0,goalType:"≤",unit:"#",readings:[0,null,1,null,2,1,1,0,0,null,0,0,0,null,0,0,0,0,0,0,0,null]},
@@ -7428,7 +7428,7 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     }catch(e){}
   }
   var _pndTipHtml = '';
-  var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(String(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
+  var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(_vspSrcLabel(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
   /* Performance Points Compliance tooltip (merge-220, Dave, 2026-08-12): made
      consistent with the Count-of-No tooltip. The group is enumerated LIVE from
      the raw huddle store, so EVERY member of the group is listed with the % they
@@ -7477,15 +7477,15 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
           return '<span class="pnd-tip-r'+(away?' pnd-out':'')+'"><span>'+_scEsc(String(x.name||''))+'</span><span>'+(away?'away':((Math.round((Number(x.pct)||0)*100)/100)+'%'))+'</span></span>';
         }).join('');
         var _bMean=_bN?Math.round((_bSum/_bN)*100)/100:0;
-        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_cWk))+'</span>'+_bRows
+        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Scorecards &middot; '+_scEsc(String(_cWk))+'</span>'+_bRows
           +'<span class="pnd-tip-sum"><span>'+(Math.round(_bSum*100)/100)+'% over '+_bN+' '+(_bN===1?'person':'people')+'</span><span>'+_bMean+'%</span></span>'
           +'<span class="pnd-tip-ft">Simple average, no weighting. Away weeks are left out of the division. A Priority Rule answered No scores that person 0% for the whole week.</span></span>';
         cellTitle='';
       } else {
         var _cHas=(val!==null&&val!==undefined&&val!=='');
-        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From P&amp;D &middot; '+_scEsc(String(_cWk))+'</span>'
+        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Scorecards &middot; '+_scEsc(String(_cWk))+'</span>'
           +(_cHas
-            ? '<span class="pnd-tip-r"><span>Entered by hand</span><span>'+_scEsc(String(val))+'%</span></span><span class="pnd-tip-ft">This week predates the P&amp;D feed, so there is no per-person working to show.</span>'
+            ? '<span class="pnd-tip-r"><span>Entered by hand</span><span>'+_scEsc(String(val))+'%</span></span><span class="pnd-tip-ft">This week predates the performance-scorecard feed, so there is no per-person working to show.</span>'
             : '<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span><span class="pnd-tip-ft">The percentage fills once the week has closed for everyone in the group.</span>')
           +'</span>';
         cellTitle='';
@@ -7533,10 +7533,10 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       + '<span class="pnd-tip-hd">'+_scEsc(String(_wk2))+'</span>'
       + (_has2
           ? '<span class="pnd-tip-r"><span>Entered by hand</span><span>'+_scEsc(String(val))+'%</span></span>'
-            + '<span class="pnd-tip-ft">This week predates the P&amp;D feed, so there is no per-person working to show. '
-            + 'Weeks fed by P&amp;D list every person and the division.</span>'
+            + '<span class="pnd-tip-ft">This week predates the performance-scorecard feed, so there is no per-person working to show. '
+            + 'Weeks fed by the performance scorecards list every person and the division.</span>'
           : '<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span>'
-            + '<span class="pnd-tip-ft">P&amp;D publishes a week only once it has closed for everyone in the group. '
+            + '<span class="pnd-tip-ft">A week publishes only once it has closed for everyone in the group. '
             + 'Until then nothing is sent, so a partly finished average is never reported here.</span>')
       + '</span>';
     cellTitle = '';
@@ -8420,9 +8420,20 @@ function renderOwnerFilter(key){
 }
 
 // -- Scorecard toolbar: search/sort order, CSV export, print ---------------
+// merge-233 (Dave, 2026-08-12): one display label for the performance-scorecard
+// feed. The stored autoSrc is 'P&D' or 'Scorecards' on legacy rows and
+// 'Performance Scorecards' on new ones - all mean the same source now that
+// P&D is merged into VSP, so they read uniformly. Other real sources (PM =
+// Project Management, etc.) pass through untouched.
+function _vspSrcLabel(src){
+  var s=String(src||'');
+  if(s==='P&D'||s==='Scorecards'||s==='Performance Scorecards') return 'Performance Scorecards';
+  if(s==='PM') return 'Project Management';
+  return s;
+}
 function _autoBadge(m){
   if(!m||!m.auto) return '';
-  var src=m.autoSrc||'Auto';
+  var src=_vspSrcLabel(m.autoSrc||'Auto');
   return '<span title="Auto-fed from '+src+' - read only" style="display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:1px 6px;border-radius:10px;background:var(--blub);color:var(--blu);font-size:var(--fz-xs);font-weight:700;vertical-align:middle;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13z"/></svg>'+src+'</span>';
 }
 function _calcFindMetric(id){ var f=null; scorecard.forEach(function(s){(s.metrics||[]).forEach(function(m){ if(String(m.id)===String(id)) f=m; });}); return f; }
@@ -8563,6 +8574,9 @@ function vspPullPndCompliance(){
     Object.keys(bridge.groups).forEach(function(gk){
       var g=bridge.groups[gk]; if(!g || !g.vspMetricId || !g.weeks) return;
       var m=_findMetric(g.vspMetricId); if(!m) return;
+      // merge-232: a row the user turned to "Typed in by hand" (or Calculated)
+      // is theirs - do not re-stamp pndGroup or fill it from the bridge.
+      if(m.manualOverride) return;
       // v113: mark the metric as P&D-backed regardless of readings, so every
       // cell on the row can explain itself, not just the fed ones.
       m.pndGroup = gk;
@@ -9633,7 +9647,7 @@ function _vspAutoFillCompliance(){
       (sec.metrics||[]).forEach(function(m){
         var a=_vspAutoParse(m.auto||(m.pndGroup?('pnd.compliance.'+m.pndGroup):''));
         if(a.kind!=='compliance') return;
-        m.autoSrc=m.autoSrc||'P&D';
+        m.autoSrc=m.autoSrc||'Performance Scorecards';
         var mem=_vspAutoGroupMembers(a.group);
         if(!mem.length) return;
         m.readings=m.readings||[];
@@ -9692,7 +9706,7 @@ function _vspAutoFillWorkload(){
       (sec.metrics||[]).forEach(function(m){
         var a=_vspAutoParse(m.auto||'');
         if(a.kind!=='workloadavg') return;
-        m.autoSrc=m.autoSrc||'P&D';
+        m.autoSrc=m.autoSrc||'Performance Scorecards';
         var mem=_vspAutoGroupMembers(a.group);
         if(!mem.length) return;
         m.readings=m.readings||[];
@@ -9757,8 +9771,10 @@ function _vspWireWorkloadAuto(){
       var sc=teamsRegistry[k] && teamsRegistry[k].scorecard;
       if(!Array.isArray(sc)) return;
       sc.forEach(function(s){ (s.metrics||[]).forEach(function(m){
-        if(wm[m.id] && String(m.auto||'').indexOf('workloadavg')===-1){
-          m.auto='pnd.workloadavg.'+wm[m.id]; m.autoSrc='P&D';
+        // merge-232: skip rows the user turned manual (they cleared auto on
+        // purpose; do not re-wire the workload rollup back onto them).
+        if(wm[m.id] && !m.manualOverride && String(m.auto||'').indexOf('workloadavg')===-1){
+          m.auto='pnd.workloadavg.'+wm[m.id]; m.autoSrc='Performance Scorecards';
         }
         // The four LT workload rollup rows match the per-person workload rows:
         // numeric two-sided band coloring (keys on _numeric only), and excluded
@@ -10392,8 +10408,14 @@ function saveEditMeasurable(){
   // Auto-Feed Formula: undefined = block absent; null = manual.
   var _autoVal=_vspAutoEditorRead();
   if(_autoVal!==undefined){
-    if(_autoVal){ metric.auto=_autoVal; metric.autoSrc=(_autoVal.indexOf('pnd.compliance.')===0)?'P&D':'Scorecards'; }
+    if(_autoVal){ metric.auto=_autoVal; metric.autoSrc=(_autoVal.indexOf('pnd.compliance.')===0)?'Performance Scorecards':'Performance Scorecards'; }
     else { delete metric.auto; delete metric.autoSrc; }
+    // merge-232 (Dave, 2026-08-12): record an explicit manual override. The P&D
+    // bridge and the workload-rewire loop re-stamp auto/pndGroup onto matched
+    // rows on EVERY load - so "Typed in by hand" saved but reverted next load.
+    // With manualOverride set, both re-stamp sites skip the row. Choosing an
+    // auto source again clears the flag and re-enables the feed.
+    if(_autoVal){ delete metric.manualOverride; } else { metric.manualOverride=true; }
     // merge-229 (Dave, 2026-08-12): pndGroup is a SECOND auto-feed driver,
     // separate from metric.auto. A Performance Points Compliance row fed via
     // the pndGroup marker (e.g. Lisa's Financial rows, pndGroup:'financial')
@@ -10455,7 +10477,7 @@ function saveEditMeasurable(){
   if(_ecop!=='none'){
     var _esrc=[].slice.call(document.querySelectorAll('.em-calcsrc:checked')).map(function(c){return c.value;});
     if(_esrc.length < ((_ecop==='ratio'||_ecop==='divide')?2:1)){ vspAlert((_ecop==='ratio'||_ecop==='divide')?'Pick at least two measurables - first is A, second is B.':'Pick at least one source measurable.'); return; }
-    metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined; delete metric.pndGroup;
+    metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined; delete metric.pndGroup; metric.manualOverride=true;
   } else { metric.calc=undefined; }
   var _newCad=(document.getElementById('em-cadence')||{}).value||'weekly';
   var _oldCad=(metric.cadence)||'weekly';
@@ -16653,7 +16675,7 @@ function _vspRenderJobReview(){
   h += '<span style="font-size:var(--fz-xl);font-weight:700">Job Review</span>';
   h += '<span style="font-size:var(--fz-body);background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:1px 10px;color:var(--txm)">'+c.live.length+'</span>';
   if(c.fromPM) h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Source: Project Management</span>';
-  h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Lines: P&amp;D</span>';
+  h += '<span style="font-size:var(--fz-xs);background:var(--sur2);color:var(--txm);border:1px solid var(--brd);border-radius:10px;padding:1px 7px">Lines: Performance Scorecards</span>';
   h += '<div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">';
   h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobCorrLog()">'+(state.jobCorrOpen?'Hide corrections':'Corrections')+'</button>';
   h += '<button type="button" class="btn btn-sm" onclick="vspToggleJobScopePanel()">'+(state.jobScopeOpen?'Done':'Manage lines')+'</button>';
@@ -16723,7 +16745,7 @@ function _vspRenderJobReview(){
     return h;
   }
   if(!c.stds.length){
-    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">No Weekly Performance standards came back from P&amp;D for '+_vspHuddleEsc(repP.first)+(c.roleLabel?(' (role '+_vspHuddleEsc(c.roleLabel)+')'):'')+'. Seed them in P&amp;D and this grid fills in.</div></div>';
+    h += '<div style="padding:18px;font-size:var(--fz-body);color:var(--txm)">No Weekly Performance standards came back from the performance scorecards for '+_vspHuddleEsc(repP.first)+(c.roleLabel?(' (role '+_vspHuddleEsc(c.roleLabel)+')'):'')+'. Seed them in the performance scorecards and this grid fills in.</div></div>';
     return h;
   }
   if(!c.live.length){
@@ -18769,7 +18791,7 @@ function _mcDerivedSeries(){
       var sup=ppl.find(function(x){ return x.id===pp.reportsTo; });
       var recKey = kind==='annual' ? (pid+'__'+per) : (pid+'__'+per.replace('-Q','__Q'));
       var done = kind==='annual' ? !!arec[recKey] : !!qrec[recKey];
-      out.push({ virtual:kind, done:done, teamId:'', teamName:'P&D',
+      out.push({ virtual:kind, done:done, teamId:'', teamName:'Performance Scorecards',
         m:{ id:'vr_'+k, type:(kind==='annual'?'Annual':'Quarterly')+' Performance Huddle',
             attendees:[sup?sup.initials:'', pp.initials].filter(Boolean),
             date:(rd[k]||{}).date||'', time:(rd[k]||{}).time||'', recurEvery:0 } });
@@ -29541,7 +29563,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-231';
+window.VSP_BUILD = 'v186-merge-233';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -31009,7 +31031,7 @@ try {
         // team rollup wiring below stays - that is the team scorecard's
         // computed rollup, not anyone's personal entry.
         m.auto='pnd.workloadavg.'+_wlMap[rid];
-        m.autoSrc='P&D';
+        m.autoSrc='Performance Scorecards';
       });
       localStorage.setItem('vsp.wlwire.v1','done');
       localStorage.setItem('vsp.stdmig.pending','1');
