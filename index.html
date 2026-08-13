@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-227</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-231</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -10394,6 +10394,21 @@ function saveEditMeasurable(){
   if(_autoVal!==undefined){
     if(_autoVal){ metric.auto=_autoVal; metric.autoSrc=(_autoVal.indexOf('pnd.compliance.')===0)?'P&D':'Scorecards'; }
     else { delete metric.auto; delete metric.autoSrc; }
+    // merge-229 (Dave, 2026-08-12): pndGroup is a SECOND auto-feed driver,
+    // separate from metric.auto. A Performance Points Compliance row fed via
+    // the pndGroup marker (e.g. Lisa's Financial rows, pndGroup:'financial')
+    // stays auto-fed and locked even after the user picks "Typed in by hand",
+    // because the old save cleared only metric.auto and left pndGroup set - so
+    // the row reverted to "Filled from the performance scorecards" on the next
+    // render. Keep the two drivers in lockstep with the editor's source choice:
+    //   auto compliance -> set pndGroup from the picker (or parse the formula)
+    //   manual (or auto but not compliance) -> clear pndGroup so the row unlocks
+    if(_autoVal && _autoVal.indexOf('pnd.compliance.')===0){
+      var _pgSel=(document.getElementById('em-auto-group')||{}).value||'';
+      metric.pndGroup = _pgSel || _autoVal.slice('pnd.compliance.'.length) || metric.pndGroup;
+    } else {
+      delete metric.pndGroup;
+    }
     // Group membership (merge-147): persist the member picker for the selected
     // group alongside the formula. Automatic clears the override.
     var _gmEl=document.getElementById('em-auto-group');
@@ -10440,7 +10455,7 @@ function saveEditMeasurable(){
   if(_ecop!=='none'){
     var _esrc=[].slice.call(document.querySelectorAll('.em-calcsrc:checked')).map(function(c){return c.value;});
     if(_esrc.length < ((_ecop==='ratio'||_ecop==='divide')?2:1)){ vspAlert((_ecop==='ratio'||_ecop==='divide')?'Pick at least two measurables - first is A, second is B.':'Pick at least one source measurable.'); return; }
-    metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined;
+    metric.calc={op:_ecop, sources:_esrc}; metric.auto=undefined; metric.autoSrc=undefined; delete metric.pndGroup;
   } else { metric.calc=undefined; }
   var _newCad=(document.getElementById('em-cadence')||{}).value||'weekly';
   var _oldCad=(metric.cadence)||'weekly';
@@ -15630,6 +15645,22 @@ function _vspMeetMailtoHref(m){
   var emails=(m.attendees||[]).map(function(a){ var p=ppl.find(function(x){return x.initials===a;}); return p&&p.email?p.email:''; }).filter(Boolean);
   return 'mailto:'+emails.join(',');
 }
+function _vspStampEmailed(id){
+  // Record that this meeting was emailed now, by the current device user.
+  var f=_findScheduledById(id); if(!f||!f.m) return;
+  f.m.lastEmailedAt=new Date().toISOString().slice(0,10);
+  try{ f.m.lastEmailedBy=(typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:''; }catch(e){}
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+}
+function _vspMarkEmailed(id){
+  // Manual sent-marker for the mailto path (Outlook not connected) or an email
+  // sent by hand outside the app. Confirm, stamp, repaint.
+  var f=_findScheduledById(id); if(!f||!f.m) return;
+  vspConfirm('Mark this meeting as emailed today? This records that the reminder went out; it does not send anything.', function(){
+    _vspStampEmailed(id);
+    renderPage();
+  }, {okLabel:'Mark emailed'});
+}
 function vspMeetEmailInvite(id){
   // Preview-first reminder (Dave, 2026-08-01): open a preview of the reminder
   // email - subject + full agenda body pulled live from the meeting - then send
@@ -15656,13 +15687,18 @@ function vspSendEmailReminder(id){
   if(!d.toList.length){ vspAlert('No email addresses on file for the recipients.'); return; }
   if(_msConnected()){
     _msSendMail(d.toList, d.subject, d.htmlBody).then(function(ok){
+      // merge-228: stamp the send so the row shows it was emailed and when.
+      if(ok){ try{ _vspStampEmailed(id); }catch(e){} }
       try{ showToast(ok?('Reminder sent to '+d.toList.length+' recipient'+(d.toList.length>1?'s':'')+'.'):'Reminder could not be sent.'); }catch(e){}
     });
   } else {
     // Not connected: fall back to a bare mailto (recipients only; Outlook rejects
     // a querystring body). Agenda cannot travel this path - warn the user.
     try{ var a=document.createElement('a'); a.href='mailto:'+d.toList.join(','); document.body.appendChild(a); a.click(); document.body.removeChild(a); }catch(e){}
-    try{ showToast('Outlook not connected - opened a blank email to the recipients.'); }catch(e){}
+    // merge-228: the mailto path cannot confirm the user actually hit send, so
+    // it does NOT auto-stamp. The row keeps its "Mark emailed" button for the
+    // user to confirm once they have sent it, so the marker never lies.
+    try{ showToast('Outlook not connected - opened a blank email to the recipients. Use \u201cMark emailed\u201d once you have sent it.'); }catch(e){}
   }
   state.emailReminderId=null;
   renderPage();
@@ -19671,6 +19707,16 @@ function renderMeetings(){
       if(ch.txt==='Held this period') return {key:'done', cls:'c-grn', txt:'Done'};
       return {key:'upcoming', cls:'c-blu', txt:'Upcoming'};
     }
+    // merge-228 (Dave, 2026-08-12): a meeting's category, from its type. Client
+    // meetings file under Client, huddles under Supervisor, everything else
+    // Team - the same buckets the cards use. The upcoming list now filters by
+    // the selected tab so a Client meeting never sits in the Team list.
+    function _meetCatOf(m){
+      var t=String(m&&m.type||'');
+      if(t==='Monthly Client Meeting') return 'client';
+      if(t.indexOf('Performance Huddle')>-1) return 'supervisor';
+      return 'team';
+    }
     function _rowFor(m, last, occIso){
       var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
       var tc=typeColors[m.type]||"#64748b";
@@ -19700,6 +19746,17 @@ function renderMeetings(){
       r+='</div>';
       r+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
       r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();vspMeetEmailInvite('+m.id+')" title="Compose, log, and open your mail app">\u2709 Email</button>';
+      // merge-228 (Dave, 2026-08-12): sent-marker. Until the calendar/mail
+      // backend logs real sends, the Outlook send path stamps m.lastEmailedAt /
+      // m.lastEmailedBy, and any user can hand-set it with "Mark emailed" for the
+      // mailto path. The row shows when it was last emailed and by whom, so a
+      // client reminder is not a blind guess.
+      if(m.lastEmailedAt){
+        var _leBy=''; try{ var _lp=ppl.find(function(x){return x.initials===m.lastEmailedBy;}); _leBy=_lp?(' by '+(_lp.first||m.lastEmailedBy)):(m.lastEmailedBy?(' by '+m.lastEmailedBy):''); }catch(e){}
+        r+='<span title="Last time this meeting was emailed'+_scEsc(_leBy)+'" style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:1px solid #86efac;border-radius:6px;background:#dcfce7;color:#15803d;font-size:var(--fz-base);flex-shrink:0">\u2713 Emailed '+_scEsc(_vspFmtDate(m.lastEmailedAt))+'</span>';
+      } else {
+        r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();_vspMarkEmailed('+m.id+')" title="Record that you emailed this outside the app (e.g. sent from Outlook by hand)" style="color:var(--txm)">Mark emailed</button>';
+      }
       if(_msConnected()){
         if(m.outlookEventId){
           r+='<span title="This meeting exists on your Outlook calendar" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #86efac;border-radius:6px;background:#dcfce7;color:#15803d;font-size:var(--fz-base);flex-shrink:0">In Outlook \u2713</span>';
@@ -19716,6 +19773,9 @@ function renderMeetings(){
     // attends. Empty selection keeps everyone.
     if(state.meetPerson){ _allSched=_allSched.filter(function(m){ return (m.attendees||[]).indexOf(state.meetPerson)>-1; }); }
     if(state.meetTypeFilter){ _allSched=_allSched.filter(function(m){ return m.type===state.meetTypeFilter; }); }
+    // merge-228: honour the Team / Supervisor / Client tab. cat 'all' (legacy)
+    // was already collapsed to 'team' above, so this always scopes to one tab.
+    _allSched=_allSched.filter(function(m){ return _meetCatOf(m)===cat; });
     if(!_allSched.length){
       var _emptyMsg=(state.meetPerson||state.meetTypeFilter)
         ? 'No meetings match these filters in this range. Try a wider range, another type, or Everyone.'
@@ -29481,7 +29541,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-227';
+window.VSP_BUILD = 'v186-merge-231';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -30380,6 +30440,25 @@ function vspApplySnapshot(s){
         var _hr=_exH.find(function(m){return m&&m.id===1786557715192;});
         if(_hr&&_hr.name==='Executive Huddle') delete _hr.name;
       }
+    }catch(e){}
+    // merge-231 (Dave, 2026-08-12): turn Lisa's and Venessa's performance
+    // scorecards live from this week (2026-08-10 Monday). Before a go-live date
+    // the scorer treats every week as pre-responsibility and excludes it, so
+    // both showed "no data" on every week and never counted against the team.
+    // With the start set, any week from Aug 10 on that they do not fill (and do
+    // not mark away) counts as 0% per the existing missed-week rule. Both are
+    // set: Lisa has no entries at all; Venessa's only record (Aug 3) is an empty
+    // shell with no answers, which the scorer correctly does not count as data,
+    // so she is not already live and nothing real is lost by starting Aug 10.
+    // Guard: seed only if no start exists, so a later Turn-live-from change or a
+    // synced value always wins. P&D ids: p2 = Lisa, p12 = Venessa.
+    try{
+      var _tsCfg=_pndLoadTrackingStart();
+      _tsCfg.byPerson=_tsCfg.byPerson||{};
+      var _tsCh=false;
+      if(!_tsCfg.byPerson['p2']){ _tsCfg.byPerson['p2']='2026-08-10'; _tsCh=true; }
+      if(!_tsCfg.byPerson['p12']){ _tsCfg.byPerson['p12']='2026-08-10'; _tsCh=true; }
+      if(_tsCh){ _pndSaveTrackingStart(_tsCfg); if(typeof _pndInvalidateTrackingCache==='function') _pndInvalidateTrackingCache(); }
     }catch(e){}
     // Migration: saved data written before the Property Management team was seeded
     // carries members:[] and overwrites the seed (the ['name','color','quarter',
