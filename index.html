@@ -3762,7 +3762,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-238</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-248</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -15774,22 +15774,6 @@ function _vspMeetMailtoHref(m){
   var emails=(m.attendees||[]).map(function(a){ var p=ppl.find(function(x){return x.initials===a;}); return p&&p.email?p.email:''; }).filter(Boolean);
   return 'mailto:'+emails.join(',');
 }
-function _vspStampEmailed(id){
-  // Record that this meeting was emailed now, by the current device user.
-  var f=_findScheduledById(id); if(!f||!f.m) return;
-  f.m.lastEmailedAt=new Date().toISOString().slice(0,10);
-  try{ f.m.lastEmailedBy=(typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:''; }catch(e){}
-  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
-}
-function _vspMarkEmailed(id){
-  // Manual sent-marker for the mailto path (Outlook not connected) or an email
-  // sent by hand outside the app. Confirm, stamp, repaint.
-  var f=_findScheduledById(id); if(!f||!f.m) return;
-  vspConfirm('Mark this meeting as emailed today? This records that the reminder went out; it does not send anything.', function(){
-    _vspStampEmailed(id);
-    renderPage();
-  }, {okLabel:'Mark emailed'});
-}
 function vspMeetEmailInvite(id){
   // Preview-first reminder (Dave, 2026-08-01): open a preview of the reminder
   // email - subject + full agenda body pulled live from the meeting - then send
@@ -15816,18 +15800,13 @@ function vspSendEmailReminder(id){
   if(!d.toList.length){ vspAlert('No email addresses on file for the recipients.'); return; }
   if(_msConnected()){
     _msSendMail(d.toList, d.subject, d.htmlBody).then(function(ok){
-      // merge-228: stamp the send so the row shows it was emailed and when.
-      if(ok){ try{ _vspStampEmailed(id); }catch(e){} }
       try{ showToast(ok?('Reminder sent to '+d.toList.length+' recipient'+(d.toList.length>1?'s':'')+'.'):'Reminder could not be sent.'); }catch(e){}
     });
   } else {
     // Not connected: fall back to a bare mailto (recipients only; Outlook rejects
     // a querystring body). Agenda cannot travel this path - warn the user.
     try{ var a=document.createElement('a'); a.href='mailto:'+d.toList.join(','); document.body.appendChild(a); a.click(); document.body.removeChild(a); }catch(e){}
-    // merge-228: the mailto path cannot confirm the user actually hit send, so
-    // it does NOT auto-stamp. The row keeps its "Mark emailed" button for the
-    // user to confirm once they have sent it, so the marker never lies.
-    try{ showToast('Outlook not connected - opened a blank email to the recipients. Use \u201cMark emailed\u201d once you have sent it.'); }catch(e){}
+    try{ showToast('Outlook not connected - opened a blank email to the recipients.'); }catch(e){}
   }
   state.emailReminderId=null;
   renderPage();
@@ -18474,6 +18453,28 @@ function _vspFullMoney(v){
   var full=Math.round(n).toLocaleString('en-US');
   return (hadDollar?'$':'')+full;
 }
+// merge-245 (Dave, 2026-08-13): money on the Quarterly Plan reads as money.
+// _vspFullMoney deliberately leaves a bare number alone ("180" stays "180"), so
+// a dollar measurable typed as 3600000 rendered raw next to "$2,380,000" on the
+// financial rows. This formats plan figures consistently: percentages and
+// threshold text ("< 10%", "Below 1%") pass through untouched; a bare number
+// large enough to be a dollar figure, or one on a known-currency line, gets a
+// $ and thousands separators. Small counts (Leads 85) stay plain.
+function _q1FmtFigure(v, forceMoney){
+  if(v==null) return '';
+  var raw=String(v).trim();
+  if(!raw) return '';
+  if(raw.indexOf('%')>-1) return raw;                       // percentage
+  if(/[<>]|below|less than|under|above|over/i.test(raw)) return raw; // threshold text
+  if(raw.indexOf('$')>-1) return _vspFullMoney(raw);         // already money
+  if(/[MKB]\s*$/i.test(raw)) return _vspFullMoney('$'+raw);  // 1.8M -> $1,800,000
+  var n=_vspParseMoney(raw);
+  if(n===null || isNaN(n)) return raw;
+  if(forceMoney || Math.abs(n)>=10000){
+    return '$'+Math.round(n).toLocaleString('en-US');
+  }
+  return Math.abs(n)>=1000 ? Math.round(n).toLocaleString('en-US') : raw;
+}
 function _q1Actuals(){
   if(!planData.q1.actuals || typeof planData.q1.actuals!=='object') planData.q1.actuals={};
   return planData.q1.actuals;
@@ -18580,13 +18581,181 @@ function _q1ColGroup(){
   // The label column is a fixed width (not auto) so both tables resolve to
   // identical column positions in a table-layout:fixed table; auto width
   // resolves per-table and drifts a few pixels between the two.
+  // merge-245: the owner avatar gets its OWN fixed column (not tucked inside the
+  // title cell), so every avatar lands on the same x-position in both tables -
+  // the alignment the Goals rows get from their fixed owner slot.
+  // merge-246: owner is the LAST column in both tables. In the Goals rows the
+  // owner avatar sits far right, past the progress bar, next to the status
+  // control - putting it mid-row on the plan is why the two sections never
+  // lined up. Same order here: title, target, actual, hit, vs-target, owner.
   return '<colgroup>'
-    +'<col style="width:40%">'
-    +'<col style="width:88px">'
-    +'<col style="width:88px">'
-    +'<col style="width:66px">'
+    +'<col style="width:auto">'
     +'<col style="width:110px">'
+    +'<col style="width:96px">'
+    +'<col style="width:66px">'
+    +'<col style="width:150px">'
+    +'<col style="width:40px">'
     +'</colgroup>';
+}
+// merge-241 (Dave, 2026-08-13): Quarterly Plan pace layer. EOS keeps the weekly
+// ritual on Rocks (voted) and the Scorecard (read) - the quarterly plan is not a
+// second voting round. What it MUST do is show drift while the quarter is still
+// live, so an off-pace number becomes an issue in week 2 instead of a surprise
+// at the quarterly. These helpers add: where the quarter should be by now
+// (pace), an on-pace status derived from that (not voted), an owner per line,
+// and a coverage flag for any line with no weekly measurable behind it - the
+// lines that genuinely can drift unseen.
+function _q1PaceFrac(){
+  // Fraction of the current quarter elapsed, 0..1, by calendar day.
+  try{
+    var q=_vspQtr(); var qi=(q&&q.q)?q.q:(Math.floor(new Date().getMonth()/3)+1);
+    var yr=(q&&q.year)?q.year:new Date().getFullYear();
+    var start=new Date(yr,(qi-1)*3,1), end=new Date(yr,qi*3,0,23,59,59);
+    var now=new Date();
+    if(now<=start) return 0;
+    if(now>=end) return 1;
+    return (now-start)/(end-start);
+  }catch(e){ return 0; }
+}
+function _q1PaceLabel(){
+  var f=_q1PaceFrac();
+  var wkTot=13, wkNow=Math.max(1,Math.min(wkTot,Math.round(f*wkTot)));
+  return 'Week '+wkNow+' of '+wkTot;
+}
+// Owner per financial line, stored on planData.q1.owners. Measurables already
+// carry their own owner from the 1-Year Plan.
+function _q1Owners(){ if(!planData.q1) planData.q1={}; if(!planData.q1.owners||typeof planData.q1.owners!=='object') planData.q1.owners={}; return planData.q1.owners; }
+function _q1OwnerOf(key){ var o=_q1Owners(); return o[key]||''; }
+function q1SetOwner(key, ini){ _q1Owners()[key]=ini||''; _vspAutosaveQueue(); renderPage(); }
+function _q1OwnerCell(key){
+  // merge-242 (Dave, 2026-08-13): one owner language across the whole plan.
+  // In the meeting/read view every line shows an AVATAR, exactly like the Goals
+  // rows and the measurables - click it to reassign. The <select> appears only
+  // on the editable Strategic Plan (state.planEditUnlocked), matching how the
+  // target fields already behave. Financial lines and measurables now render
+  // through the same helper, so the two halves cannot drift apart again.
+  var ini=_q1OwnerOf(key);
+  if(state.planEditUnlocked){
+    var opts='<option value="">Unassigned</option>'+ (ppl||[]).filter(function(p){return p&&p.status!=='archived';}).map(function(p){
+      return '<option value="'+p.initials+'"'+(p.initials===ini?' selected':'')+'>'+_vspEscNote(p.first+' '+p.last)+'</option>';
+    }).join('');
+    return '<select onchange="q1SetOwner(\''+key+'\',this.value)" title="Who is accountable for this number" aria-label="'+key+' owner" style="max-width:118px;padding:3px 6px;border:1px solid var(--brd2);border-radius:6px;background:var(--sur);font-family:inherit;font-size:var(--fz-base);color:'+(ini?'var(--txt)':'var(--txd)')+'">'+opts+'</select>';
+  }
+  return _q1OwnerAvatar(ini, "q1SetOwnerPick('"+key+"')");
+}
+function _q1OwnerAvatar(ini, onclickJs){
+  // Shared avatar chip: assigned shows the person; unassigned shows a dashed
+  // placeholder so an ownerless number is visibly ownerless.
+  var click=' onclick="event.stopPropagation();'+onclickJs+'" style="cursor:pointer" title="Click to change who is accountable for this number"';
+  if(ini) return '<span'+click+'>'+avatar(ini,pplColor(ini),20)+'</span>';
+  return '<span'+click+' aria-label="Assign an owner"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1px dashed var(--brd2);color:var(--txd);font-size:var(--fz-xs);font-weight:700">+</span></span>';
+}
+// Owner picker used by both halves of the plan in the read/meeting view.
+function q1SetOwnerPick(key){
+  var list=(ppl||[]).filter(function(p){return p&&p.status!=='archived';});
+  var cur=_q1OwnerOf(key);
+  _vspPickPerson('Who is accountable for this number?', list, cur, function(ini){ q1SetOwner(key, ini); });
+}
+function q1SetMeasOwnerPick(id){
+  var list=(ppl||[]).filter(function(p){return p&&p.status!=='archived';});
+  var m=_measDefs().find(function(x){ return x && x.id===id; });
+  _vspPickPerson('Who is accountable for this measurable?', list, (m&&m.owner)||'', function(ini){ q1SetMeasOwner(id, ini); });
+}
+function q1SetMeasOwner(id, ini){
+  var m=_measDefs().find(function(x){ return x && x.id===id; });
+  if(!m) return;
+  m.owner=ini||'';
+  _vspAutosaveQueue(); renderPage();
+}
+// Minimal person chooser reused by both owner controls.
+function _vspPickPerson(title, list, current, cb){
+  var rows=list.map(function(p){
+    var on=(p.initials===current);
+    return '<button type="button" class="btn" style="width:100%;justify-content:flex-start;gap:8px;margin-bottom:5px;'+(on?'border-color:var(--blu);color:var(--blu)':'')+'" onclick="_vspPickPersonChoose(\''+p.initials+'\')">'+avatar(p.initials,pplColor(p.initials),20)+' '+_vspEscNote(p.first+' '+p.last)+(on?' \u2713':'')+'</button>';
+  }).join('');
+  window.__vspPickCb=cb;
+  var h='<div id="vsp-pick-ov" onclick="_vspPickPersonClose()" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300"></div>'
+    +'<div class="modal" onkeydown="event.stopPropagation()" onclick="event.stopPropagation()" role="dialog" aria-modal="true" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:301;background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:16px;width:320px;max-height:70vh;overflow:auto">'
+    +'<div style="font-size:var(--fz-lg);font-weight:700;margin-bottom:10px">'+_vspEscNote(title)+'</div>'
+    +rows
+    +'<button type="button" class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="_vspPickPersonChoose(\'\')">Unassign</button>'
+    +'<button type="button" class="btn" style="width:100%;justify-content:center;margin-top:6px" onclick="_vspPickPersonClose()">Cancel</button>'
+    +'</div>';
+  var host=document.createElement('div'); host.id='vsp-pick-host'; host.innerHTML=h; document.body.appendChild(host);
+}
+function _vspPickPersonClose(){ var el=document.getElementById('vsp-pick-host'); if(el) el.remove(); window.__vspPickCb=null; }
+function _vspPickPersonChoose(ini){ var cb=window.__vspPickCb; _vspPickPersonClose(); if(typeof cb==='function') cb(ini); }
+// Does a weekly scorecard measurable exist behind this plan line? A line with
+// none is invisible until quarter end - the real EOS gap, so it is flagged.
+function _q1TrackedRow(label){
+  // merge-244 (Dave, 2026-08-13): coverage means "something tracks this before
+  // quarter-end", NOT "a weekly row exists". Month-end financials (Gross Profit,
+  // Net Profit, Expenses) come off the P&L and are legitimately tracked monthly
+  // - LIDA already has them as monthly rows (GP, OE, NPBT, Income). Flagging
+  // those as uncovered asserted a standard EOS does not require and nagged about
+  // work already being done. A line is covered when a scorecard row of ANY
+  // cadence tracks it; only a line with nothing behind it is flagged.
+  try{
+    var lab=String(label||'').toLowerCase();
+    if(!lab.trim()) return {covered:true, cadence:''};
+    // Known financial aliases: the plan's wording differs from the scorecard's.
+    var alias={
+      'gross sales':['income','gross sales','revenue'],
+      'expenses':['oe','operating expense','expenses','overhead'],
+      'gross profit':['gp','gross profit'],
+      'net profit':['npbt','net profit','profit before tax']
+    };
+    var want=null;
+    Object.keys(alias).forEach(function(k){ if(lab.indexOf(k)>-1 && !want) want=alias[k]; });
+    if(!want){
+      var words=lab.replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(function(w){ return w.length>3; });
+      want=words.length?words:[lab.trim()];
+    }
+    var hit=null;
+    Object.keys(teamsRegistry||{}).forEach(function(tk){
+      var t=teamsRegistry[tk]; if(!t||!Array.isArray(t.scorecard)) return;
+      t.scorecard.forEach(function(s){ (s.metrics||[]).forEach(function(m){
+        if(hit||!m||!m.title) return;
+        var title=String(m.title).toLowerCase();
+        var match=want.some(function(w){
+          // short aliases (gp, oe) must match as whole words, not substrings
+          if(w.length<=4) return new RegExp('(^|[^a-z])'+w+'([^a-z]|$)').test(title);
+          return title.indexOf(w)>-1;
+        });
+        if(match) hit={cadence:String(m.cadence||'weekly').toLowerCase()};
+      }); });
+    });
+    return hit?{covered:true, cadence:hit.cadence}:{covered:false, cadence:''};
+  }catch(e){ return {covered:true, cadence:''}; }
+}
+function _q1CoverageFlag(label){
+  var c=_q1TrackedRow(label);
+  if(c.covered) return '';
+  return '<span title="Nothing on the scorecard tracks this line, so it can drift unseen until quarter end. Add a weekly or monthly measurable." style="margin-left:6px;display:inline-block;background:var(--ambb);color:#92400e;border:1px solid #fcd34d;border-radius:10px;padding:1px 8px;font-size:var(--fz-base);font-weight:700;white-space:nowrap">Not tracked</span>';
+}
+// Pace bar: marker showing where the quarter should be, plus on/behind status.
+function _q1PaceBar(pct, invert, isThresh){
+  var f=_q1PaceFrac(), paceMark=Math.round(f*100);
+  if(isThresh || pct===null){
+    var w0=(pct===null)?0:Math.min(100,pct);
+    return {bar:'<div style="position:relative;flex:1;min-width:0;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+w0+'%;background:var(--blu);border-radius:5px;transition:width .25s"></div></div>', tier:null, paceMark:paceMark};
+  }
+  var onPace = invert ? (pct>=100) : (pct>=paceMark);
+  var nearPace = invert ? (pct>=90) : (pct>=paceMark-10);
+  var tier = onPace?'green':(nearPace?'amber':'red');
+  var col = tier==='green'?'var(--grn)':tier==='amber'?'var(--amb)':'var(--red)';
+  var w=Math.min(100,pct);
+  var bar='<div style="position:relative;flex:1;min-width:0;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden">'
+    +'<div style="height:100%;width:'+w+'%;background:'+col+';border-radius:5px;transition:width .25s"></div>'
+    +(invert?'':'<div title="Where the quarter should be today ('+paceMark+'%)" style="position:absolute;top:-2px;bottom:-2px;left:'+Math.min(99,paceMark)+'%;width:2px;background:var(--txm);opacity:.75"></div>')
+    +'</div>';
+  return {bar:bar, tier:tier, paceMark:paceMark};
+}
+function _q1PaceChip(tier){
+  if(!tier) return '';
+  var cls=tier==='green'?'c-grn':tier==='amber'?'c-amb':'c-red';
+  var txt=tier==='green'?'On pace':tier==='amber'?'Watch':'Behind';
+  return '<span class="chip '+cls+'" title="Pace against where the quarter should be today. Read, not voted - off-pace lines belong in Issue Solving." style="min-width:60px;display:inline-block;text-align:center">'+txt+'</span>';
 }
 function _q1ActualsCard(){
   // The Revenue/Profit financial rows (with actual/hit/bar) + the measurables
@@ -18595,16 +18764,17 @@ function _q1ActualsCard(){
   var h='<table style="width:100%;border-collapse:collapse;margin-bottom:8px;table-layout:fixed">';
   h+=_q1ColGroup();
   h+='<thead><tr>';
-  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em"></th>';
-  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
-  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
-  h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
-  h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em"></th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
+  h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
+  h+='<th scope="col" style="padding:4px 0 8px"></th>';
   h+='</tr></thead><tbody>';
-  h+='<tr><td colspan="5" style="padding:12px 0 5px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Revenue</td></tr>';
+  h+='<tr><td colspan="6" style="padding:12px 0 5px;font-weight:700;font-size:var(--fz-body);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Revenue</td></tr>';
   h+=_q1RowHtml('grossSales','Gross Sales',planData.q1.grossSales,false);
   h+=_q1RowHtml('expenses','Expenses',planData.q1.expenses,true);
-  h+='<tr><td colspan="5" style="padding:14px 0 5px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Profit</td></tr>';
+  h+='<tr><td colspan="6" style="padding:14px 0 5px;font-weight:700;font-size:var(--fz-body);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Profit</td></tr>';
   h+=_q1RowHtml('grossProfit','Gross Profit',planData.q1.grossProfit,false);
   h+=_q1RowHtml('netProfit','Net Profit',planData.q1.netProfit,false);
   h+='</tbody></table>';
@@ -18624,18 +18794,19 @@ function _q1MeasTable(ownerIni){
       return o===ownerIni || (_ofName && o===_ofName);
     });
   }
-  var h='<div class="fl" style="margin:16px 0 8px;font-weight:700;font-size:var(--fz-xs);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Measurables</div>';
+  var h='<div class="fl" style="margin:16px 0 8px;font-weight:700;font-size:var(--fz-body);letter-spacing:.06em;color:var(--txm);text-transform:uppercase">Measurables</div>';
   if(!ms.length){
     return h+'<div style="font-size:var(--fz-base);color:var(--txm);padding:4px 0 8px">'+(ownerIni?'No quarter measurables are assigned to this person. Assign owners on the 1-Year Plan.':'No measurables yet. Set them on the 1-Year Plan; every quarter reviews the same list.')+'</div>';
   }
   h+='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
   h+=_q1ColGroup();
   h+='<thead><tr>';
-  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis">Measurable</th>';
-  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
-  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
-  h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
-  h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 8px 8px 0;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis">Measurable</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Target</th>';
+  h+='<th scope="col" style="text-align:right;padding:4px 14px 8px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Actual</th>';
+  h+='<th scope="col" style="text-align:center;padding:4px 14px 8px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hit?</th>';
+  h+='<th scope="col" style="text-align:left;padding:4px 0 8px 14px;font-size:var(--fz-body);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.05em">vs Target</th>';
+  h+='<th scope="col" style="padding:4px 0 8px"></th>';
   h+='</tr></thead><tbody>';
   ms.forEach(function(m){
     var res=_q1Result(m.id);
@@ -18652,18 +18823,21 @@ function _q1MeasTable(ownerIni){
     var barW=(pct!==null)?Math.min(100,pct):(st==='hit'?100:st==='miss'?100:0);
     var qEdit=!!state.planEditUnlocked;
     h+='<tr style="border-bottom:0.5px solid var(--brd)">';
-    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500"><div style="display:flex;align-items:center;gap:7px;min-width:0">'+'<span style="min-width:0;flex:1;line-height:1.3">'+_vspEscNote(m.text||'')+'</span>'+avatar(m.owner||'DS',pplColor(m.owner||'DS'),20)+'</div></td>';
+    h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500"><span style="line-height:1.3">'+_vspEscNote(m.text||'')+'</span>'+_q1CoverageFlag(m.text||'')+'</td>';
     if(qEdit){
       h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(qtarget||'').replace(/"/g,"&quot;")+'" oninput="q1MeasQTarget('+m.id+',this.value)" onchange="renderPage()" placeholder="'+_vspEscNote(m.target||'')+'" title="Quarter target (annual: '+_vspEscNote(m.target||'')+')" aria-label="'+_vspEscNote(m.text||'')+' quarter target" style="width:92px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:700;font-family:inherit;background:var(--sur)"></td>';
     } else {
-      h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body);overflow:hidden">'+_vspEscNote(qtarget||'')+'</td>';
+      h+='<td style="padding:10px 14px;text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);font-size:var(--fz-body);overflow:hidden">'+_vspEscNote(_q1FmtFigure(qtarget))+'</td>';
     }
     h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(res.actual||'').replace(/"/g,"&quot;")+'" oninput="q1MeasActual('+m.id+',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+_vspEscNote(m.text||'')+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
     h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1MeasHit('+m.id+')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
+    var _mpb=_q1PaceBar(pct, false, isThresh);
     h+='<td style="padding:6px 0 6px 14px"><div style="display:flex;align-items:center;gap:6px;overflow:hidden">';
-    h+='<div style="flex:1;min-width:0;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+barW+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
-    h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:30px;flex-shrink:0;text-align:right">'+pctTxt+'</span>';
+    h+=_mpb.bar;
+    h+='<span style="font-size:var(--fz-body);color:var(--txm);font-weight:600;min-width:38px;flex-shrink:0;text-align:right">'+pctTxt+'</span>';
+    h+=_q1PaceChip(_mpb.tier);
     h+='</div></td>';
+    h+='<td style="padding:10px 0;text-align:center;white-space:nowrap">'+_q1OwnerAvatar(m.owner||'', "q1SetMeasOwnerPick("+m.id+")")+'</td>';
     h+='</tr>';
   });
   h+='</tbody></table>';
@@ -18683,15 +18857,18 @@ function _q1RowHtml(key,label,targetVal,invert){
   var barCol=st==='hit'?'var(--grn)':st==='miss'?'var(--red)':'var(--blu)';
   var pctTxt=(pct===null)?'':Math.round(pct)+'%';
   var h='<tr style="border-bottom:0.5px solid var(--brd)">';
-  h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</td>';
-  h+='<td style="padding:10px 14px;font-size:var(--fz-body);text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);overflow:hidden">'+targetVal+'</td>';
+  h+='<td style="padding:10px 8px 10px 0;font-size:var(--fz-body);font-weight:500"><span style="line-height:1.3">'+label+'</span>'+_q1CoverageFlag(label)+'</td>';
+  h+='<td style="padding:10px 14px;font-size:var(--fz-body);text-align:right;font-weight:700;white-space:nowrap;color:var(--txt);overflow:hidden">'+_vspEscNote(_q1FmtFigure(targetVal,true))+'</td>';
   h+='<td style="padding:6px 14px;text-align:right"><input value="'+String(a.actual||'').replace(/"/g,"&quot;")+'" oninput="q1ActualSet(\''+key+'\',this.value)" onchange="renderPage()" placeholder="\u2014" aria-label="'+label+' actual" style="width:88px;padding:6px 9px;text-align:right;border:1px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-weight:600;font-family:inherit;background:var(--sur)"></td>';
   h+='<td style="padding:6px 14px;text-align:center"><span class="chip '+chipCls+'" onclick="q1HitToggle(\''+key+'\')" title="Click to cycle Hit / Not Hit" style="cursor:pointer;min-width:52px;display:inline-block;text-align:center">'+chipTxt+'</span></td>';
   h+='<td style="padding:6px 0 6px 14px">';
+  var _pb=_q1PaceBar(pct, invert, false);
   h+='<div style="display:flex;align-items:center;gap:6px;overflow:hidden">';
-  h+='<div style="flex:1;min-width:0;height:8px;background:var(--sur2);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+(pct===null?0:Math.min(100,pct))+'%;background:'+barCol+';border-radius:5px;transition:width .25s"></div></div>';
-  h+='<span style="font-size:var(--fz-base);color:var(--txm);font-weight:600;min-width:30px;flex-shrink:0;text-align:right">'+pctTxt+'</span>';
+  h+=_pb.bar;
+  h+='<span style="font-size:var(--fz-body);color:var(--txm);font-weight:600;min-width:38px;flex-shrink:0;text-align:right">'+pctTxt+'</span>';
+  h+=_q1PaceChip(_pb.tier);
   h+='</div></td>';
+  h+='<td style="padding:10px 0;text-align:center;white-space:nowrap">'+_q1OwnerCell(key)+'</td>';
   h+='</tr>';
   return h;
 }
@@ -19868,24 +20045,21 @@ function renderMeetings(){
       if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
       r+='</div>';
       r+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(occIso||_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
-      if(comp.due>0){ r+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:3px">Held '+comp.held+' of '+comp.due+(comp.missed>0?' \u00b7 '+comp.missed+' missed':'')+'</div>'; }
+      // merge-239 (Dave, 2026-08-13): the Held N of N line is a series-life
+      // cadence stat, computed once for the whole series - so stamping it on
+      // every occurrence row (including future dates) read as "held 2 of 2" on
+      // meetings that have not happened yet. Show it ONLY on the row for the
+      // series' current/next actionable occurrence, and never on a future date.
+      // Series adherence over time lives on the Cadence Health tab.
+      var _occRow = occIso || _vspNextOccur(m.date, m.recurEvery);
+      var _isFutureOcc = !!(_occRow && _todayIso && _occRow > _todayIso);
+      if(comp.due>0 && !_isFutureOcc){ r+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:3px">Held '+comp.held+' of '+comp.due+(comp.missed>0?' \u00b7 '+comp.missed+' missed':'')+'</div>'; }
       r+='</div>';
       r+='<div style="display:flex;align-items:center;gap:-4px;flex-shrink:0">';
       (m.attendees||[]).forEach(function(a){ r+=avatar(a,pplColor(a),22); });
       r+='</div>';
       r+='<button class="btn btn-sm" onclick="joinScheduledMeeting('+m.id+')" style="color:var(--blu)">\u25b6 Join</button>';
       r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();vspMeetEmailInvite('+m.id+')" title="Compose, log, and open your mail app">\u2709 Email</button>';
-      // merge-228 (Dave, 2026-08-12): sent-marker. Until the calendar/mail
-      // backend logs real sends, the Outlook send path stamps m.lastEmailedAt /
-      // m.lastEmailedBy, and any user can hand-set it with "Mark emailed" for the
-      // mailto path. The row shows when it was last emailed and by whom, so a
-      // client reminder is not a blind guess.
-      if(m.lastEmailedAt){
-        var _leBy=''; try{ var _lp=ppl.find(function(x){return x.initials===m.lastEmailedBy;}); _leBy=_lp?(' by '+(_lp.first||m.lastEmailedBy)):(m.lastEmailedBy?(' by '+m.lastEmailedBy):''); }catch(e){}
-        r+='<span title="Last time this meeting was emailed'+_scEsc(_leBy)+'" style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:1px solid #86efac;border-radius:6px;background:#dcfce7;color:#15803d;font-size:var(--fz-base);flex-shrink:0">\u2713 Emailed '+_scEsc(_vspFmtDate(m.lastEmailedAt))+'</span>';
-      } else {
-        r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();_vspMarkEmailed('+m.id+')" title="Record that you emailed this outside the app (e.g. sent from Outlook by hand)" style="color:var(--txm)">Mark emailed</button>';
-      }
       if(_msConnected()){
         if(m.outlookEventId){
           r+='<span title="This meeting exists on your Outlook calendar" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #86efac;border-radius:6px;background:#dcfce7;color:#15803d;font-size:var(--fz-base);flex-shrink:0">In Outlook \u2713</span>';
@@ -20249,7 +20423,8 @@ function renderMeetings(){
       // 90 Days header
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
       h+='<div style="font-size:var(--fz-2xl);font-weight:700">90 Days</div>';
-      h+='<div style="color:var(--txm)">Future Date: <strong>'+_vspQtr().endDate+'</strong></div>';
+      h+='<div style="text-align:right"><div style="color:var(--txm)">Future Date: <strong>'+_vspQtr().endDate+'</strong></div>'
+        +'<div style="color:var(--txm);font-size:var(--fz-body)">'+_q1PaceLabel()+' \u00b7 '+Math.round(_q1PaceFrac()*100)+'% of the quarter gone</div></div>';
       h+='</div>';
       // Shared financials + measurables actuals card (v54) - identical to the
       // Strategic Plan Q1 section, both read planData.q1.
@@ -20509,53 +20684,40 @@ function renderMeetings(){
       // universal notes card already rendered above; nothing else here.
     }
         if(stepIs("wrapup")||stepIs("conclude")){
-      // ── ALL OPEN TEAM TO-DOS (post-meeting feedback May 21) ────────────────
-      // Closes the meeting with a complete to-do picture, not just items
-      // created during this meeting.
-      h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:10px;margin-bottom:14px">';
-      h+='<div style="padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px">';
-      h+='<span style="font-size:var(--fz-xl);font-weight:700">'+(_vspHuddleScopeInitials()?'Open To-Dos':'All Open Team To-Dos')+'</span>';
-      var allOpenTodos = todos.filter(function(t){ return !t.done && _vspTodoInThisMeeting(t); });
-      h+='<span style="font-size:var(--fz-body);background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:1px 10px;color:var(--txm)">'+allOpenTodos.length+'</span>';
-      h+='</div>';
-      if(!allOpenTodos.length){
-        h+='<div style="padding:24px;text-align:center;color:var(--txm)">All to-dos complete \u2713</div>';
-      } else {
-        h+='<div style="display:grid;grid-template-columns:36px 1fr 100px 40px;align-items:center;gap:4px;padding:7px 18px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
-        h+='<div></div>';
-        h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;font-size:var(--fz-base)">Title</span>';
-        h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;font-size:var(--fz-base);text-align:right">Due By</span>';
-        h+='<span style="font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;font-size:var(--fz-base);text-align:center">Owner</span>';
-        h+='</div>';
-        allOpenTodos.forEach(function(t){
-          h+='<div style="display:grid;grid-template-columns:36px 1fr 100px 40px;align-items:center;gap:4px;padding:9px 18px;border-bottom:0.5px solid var(--brd)">';
-          h+='<div style="display:flex;justify-content:center"><input type="checkbox" onchange="toggleTodo('+t.id+')" '+(t.done?'checked':'')+' style="width:18px;height:18px;cursor:pointer"></div>';
-          h+=_mtgTodoTitle(t,'div','font-size:var(--fz-body)');
-          h+='<div style="font-size:var(--fz-body);text-align:right;color:var(--txm)">'+t.due+'</div>';
-          h+='<div style="display:flex;justify-content:center">'+avatar(t.owner,pplColor(t.owner),22)+'</div>';
-          h+='</div>';
-        });
-      }
-      h+='</div>';
+      // merge-247 (Dave, 2026-08-13): the full open-to-do list was removed from
+      // Conclude. The standing list is walked at To-Do Review two segments
+      // earlier; repeating all of it here duplicated that review and buried the
+      // thing Conclude is actually for - confirming the commitments just made,
+      // so everyone leaves knowing their action items. Conclude now shows only
+      // what this meeting created (below).
       // Show todos + issues summary at wrap-up
       // v138: this section claimed to list what the meeting created but was
       // rendering the first five open to-dos on the team, ignoring
       // meetCreatedTodoIds entirely. It now resolves the ids actually
       // recorded during this session, applies the same meeting scope as
       // every other list, and says so plainly when nothing was created.
-      h+='<div class="card"><div class="sec">New To-Dos This Meeting</div>';
       var _newTd=(state.meetCreatedTodoIds||[])
         .map(function(id){ return todos.find(function(x){ return x.id===id; }); })
         .filter(function(t){ return t && _vspTodoInThisMeeting(t); });
+      h+='<div class="card">';
+      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="sec" style="margin:0">Commitments From This Meeting</span>';
+      h+='<span style="font-size:var(--fz-body);background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:1px 10px;color:var(--txm)">'+_newTd.length+'</span></div>';
       if(!_newTd.length){
-        h+='<div style="font-size:var(--fz-body);color:var(--txm)">No new to-dos were created in this meeting.</div>';
+        // An empty recap is a signal, not just an empty state: a meeting that
+        // solved issues but produced no action items usually missed something.
+        var _solvedN=(state.meetSolvedIds||[]).length;
+        h+='<div style="font-size:var(--fz-body);color:var(--txm)">No to-dos were created in this meeting.'
+          +(_solvedN?' '+_solvedN+' issue'+(_solvedN===1?' was':'s were')+' solved - if any needs follow-up, add the to-do before you close.':'')
+          +'</div>';
+        h+='<button type="button" class="btn btn-sm" style="margin-top:8px" onclick="state.createPanel=\'todo\';renderPage()">+ Add a to-do</button>';
       } else {
+        h+='<div style="font-size:var(--fz-body);color:var(--txm);margin-bottom:8px">Who is doing what, by when.</div>';
         _newTd.forEach(function(t){
           var oc=pplColor(t.owner);
-          h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--sur2);border-radius:5px;margin-bottom:4px">';
-          h+='<span style="flex:1;font-size:var(--fz-body)">'+t.task+'</span>';
-          h+='<span style="font-size:var(--fz-base);color:var(--txm)">'+t.due+'</span>';
-          h+=avatar(t.owner,oc,17)+'</div>';
+          h+='<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--sur2);border-radius:5px;margin-bottom:4px">';
+          h+='<span style="flex:1;font-size:var(--fz-body)">'+_scEsc(t.task||'')+'</span>';
+          h+='<span style="font-size:var(--fz-body);color:var(--txm)">'+_scEsc(t.due||'')+'</span>';
+          h+=avatar(t.owner,oc,20)+'</div>';
         });
       }
       h+='</div>';
@@ -22706,14 +22868,50 @@ function generateMeetingRecap(meetingId){
     html+='<p style="color:#64748b;font-style:italic">No Cascading Messages were sent to other teams during this meeting.</p>';
   }
 
+  // merge-240 (Dave, 2026-08-13): Cascading Messages RECEIVED. The section above
+  // lists only what THIS meeting sent; a message cascaded TO this team from
+  // another meeting (e.g. a huddle cascading to the LT) is an INCOMING message
+  // and never appeared here, so it looked like the cascade vanished. This lists
+  // messages cascaded to this team, newest first.
+  try{
+    var _rcTeam=(m.teamId||state.currentTeam);
+    var _rcList=(typeof cascadesRegistry!=='undefined'&&Array.isArray(cascadesRegistry))
+      ? cascadesRegistry.filter(function(cs){ return cs && Array.isArray(cs.toTeams) && cs.toTeams.indexOf(_rcTeam)>-1; })
+      : [];
+    if(_rcList.length){
+      html+='<h2>Cascading Messages Received</h2><ul>';
+      _rcList.forEach(function(cs){
+        var _fromNm=(teamsRegistry[cs.fromTeam]||{name:cs.fromTeam}).name;
+        html+='<li><strong>'+(cs.subject||'(no subject)')+'</strong> \u2190 '+_fromNm+(cs.message?('<div style="color:#475569;font-size:13px;margin-top:2px">'+cs.message+'</div>'):'')+'</li>';
+      });
+      html+='</ul>';
+    }
+  }catch(e){}
+
   // Issues Solved
   html+='<h2>Issues Solved</h2>';
   if(m.resolvedIssues&&m.resolvedIssues.length){
     html+='<ul>';
     m.resolvedIssues.forEach(function(i){
-      html+='<li>'+i.owner+': <a href="#">'+i.title+'</a></li>';
+      // merge-240: real link to the issue's detail below (works in the HTML
+      // recap and in the exported PDF, where an in-app link would be dead).
+      var _iid='issue-'+(i.id!=null?i.id:Math.random().toString(36).slice(2));
+      i._recapAnchor=_iid;
+      html+='<li>'+i.owner+': <a href="#'+_iid+'" style="color:#2563eb">'+i.title+'</a></li>';
     });
     html+='</ul>';
+    // Inline detail block so a reader can click a solved issue and read it.
+    var _anyDesc=m.resolvedIssues.some(function(i){ return (i.description&&String(i.description).trim())||(i.notes&&String(i.notes).trim())||(i.solveNotes&&String(i.solveNotes).trim()); });
+    if(_anyDesc){
+      html+='<h3 style="margin-top:14px;font-size:15px">Issue Details</h3>';
+      m.resolvedIssues.forEach(function(i){
+        var _body=[i.description,i.solveNotes,i.notes].filter(function(x){return x&&String(x).trim();}).join('<br><br>');
+        if(!_body) return;
+        html+='<div id="'+(i._recapAnchor||'')+'" style="margin-bottom:10px;padding:8px 12px;border-left:3px solid #cbd5e1;background:#f8fafc">'
+          +'<div style="font-weight:600">'+i.owner+': '+i.title+'</div>'
+          +'<div style="color:#475569;font-size:13px;margin-top:3px">'+_body+'</div></div>';
+      });
+    }
   } else {
     html+='<p style="color:#64748b;font-style:italic">No issues were solved during this meeting.</p>';
   }
@@ -22784,7 +22982,14 @@ function generateMeetingRecap(meetingId){
       if(!s.actualSecs) return;
       html+='<div class="section-row"><span>'+s.label+'</span><span style="color:#64748b">'+fmtSecs(s.actualSecs)+'</span></div>';
     });
-    html+='<div class="section-row" style="font-weight:700"><span>Total Duration</span><span>'+totalFmt(totalActualSecs)+'</span></div>';
+    // merge-240 (Dave, 2026-08-13): Total Duration is the actual meeting length
+    // (start to end wall-clock, stored in m.duration), NOT the sum of the
+    // section timers - those only run while a section is active, so they
+    // undercount (a 9:00-10:30 meeting read 58:31 instead of 90 min). The
+    // per-section times above stay as the tracked-active breakdown.
+    var _wallSecs=(typeof m.duration==='number'&&m.duration>0)?(m.duration*60):totalActualSecs;
+    html+='<div class="section-row" style="font-weight:700"><span>Total Duration</span><span>'+totalFmt(_wallSecs)+'</span></div>';
+    if(_wallSecs>totalActualSecs+30){ html+='<div style="color:#64748b;font-size:12px;margin-top:2px">Section times above are tracked active time; the total is the full meeting length.</div>'; }
   }
 
   // Footer
@@ -29670,7 +29875,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-238';
+window.VSP_BUILD = 'v186-merge-248';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
