@@ -2616,8 +2616,10 @@
 .c-gry{background:var(--sur2);color:var(--txm);border-color:var(--brd)}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   TYPOGRAPHY ROLES (v2.0 - May 20, 2026)
-   Five roles. Hero numbers, page title, card title - everything else 15px.
+   TYPOGRAPHY ROLES (v2.0 - May 20, 2026; --fz-body lifted to 18px at canon v2.3)
+   Five roles + data tier. Hero numbers, page title, card/modal title 20px,
+   body 18px, chrome 18px. Data tier (--fz-data 15px, --fz-md 13px headers)
+   applied by consumers on dense-grid surfaces per D-160.
    Reference implementation: CRM_Module.html v1.55+
    ═══════════════════════════════════════════════════════════════════════ */
 
@@ -2653,19 +2655,21 @@ body {
 .stat-l  { font-size: var(--fz-xs); color: var(--txm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 .rec-name { font-size: var(--fz-xl); font-weight: 700; color: var(--txt); }
 
-/* Role 3: Card title + modal title (16px) */
+/* Role 3: Card title + modal title (20px at canon v2.3; was 16px via --fz-lg pre-v2.3) */
 .card-title { font-size: var(--fz-xl); font-weight: 600; color: var(--txt); }
 .smb-modal-title { font-size: var(--fz-xl); font-weight: 700; color: var(--txt); }
 
-/* Role 4: Body (15px - container-scoped; content classes inherit) */
+/* Role 4: Body (18px at canon v2.3; container-scoped; content classes inherit) */
 .card-body { padding: 16px; font-size: var(--fz-body); line-height: 1.5; }
 .tbl-wrap { font-size: var(--fz-body); line-height: 1.5; overflow-x: auto; }
 .card-body table td, .tbl-wrap table td { font-size: inherit; }
 
-/* Role 5: ALL chrome at body size (15px). Includes table headers,
-   buttons, sidebar, topbar, form labels and inputs, badges and pills.
-   The collapse Dave finalized May 20: visual hierarchy comes from
-   weight (400/500/600/700) and case (UPPERCASE), not from size. */
+/* Role 5: ALL chrome at body size (18px at canon v2.3; was 15px pre-v2.3).
+   Includes table headers, buttons, sidebar, topbar, form labels and inputs,
+   badges and pills. The collapse Dave finalized May 20: visual hierarchy comes
+   from weight (400/500/600/700) and case (UPPERCASE), not from size.
+   Data tier (--fz-data 15px, --fz-md 13px headers) is applied by consumers
+   on dense-grid surfaces per Standards D-160 Dense-Grid Data Tier v1. */
 
 /* Table headers */
 table th, .card-body table th, .tbl-wrap table th {
