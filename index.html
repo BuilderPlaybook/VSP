@@ -2528,15 +2528,16 @@
 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-/* === SMB CANON v2.2 BEGIN === DO NOT EDIT - change canon source instead === */
+/* === SMB CANON v2.3 BEGIN === DO NOT EDIT - change canon source instead === */
 :root {
   /* ─── Type scale (locked) ────────────────────────────────────────── */
   --fz-xs:    11px;
   --fz-sm:    12px;
   --fz-md:    13px;
   --fz-base:  14px;
-  --fz-body:  15px;
-  --fz-lg:    16px;
+  --fz-data:  15px;
+  --fz-body:  18px;
+  --fz-lg:    18px;
   --fz-xl:    20px;
   --fz-2xl:   22px;
   --fz-3xl:   30px;
@@ -2653,8 +2654,8 @@ body {
 .rec-name { font-size: var(--fz-xl); font-weight: 700; color: var(--txt); }
 
 /* Role 3: Card title + modal title (16px) */
-.card-title { font-size: var(--fz-lg); font-weight: 600; color: var(--txt); }
-.smb-modal-title { font-size: var(--fz-lg); font-weight: 700; color: var(--txt); }
+.card-title { font-size: var(--fz-xl); font-weight: 600; color: var(--txt); }
+.smb-modal-title { font-size: var(--fz-xl); font-weight: 700; color: var(--txt); }
 
 /* Role 4: Body (15px - container-scoped; content classes inherit) */
 .card-body { padding: 16px; font-size: var(--fz-body); line-height: 1.5; }
@@ -2740,7 +2741,7 @@ table th, .card-body table th, .tbl-wrap table th {
   font-size: var(--fz-xs);
 }
 .settings-note { color: var(--txd); font-style: italic; }
-/* === SMB CANON v2.2 END === */
+/* === SMB CANON v2.3 END === */
 
 /* ── VSP module-specific token extensions (not in canon) ─────────── */
 :root {
@@ -3092,7 +3093,7 @@ textarea:not([data-noautogrow]){overflow:hidden;resize:none}
 
 /* Shell Chrome v1 companion tokens (referenced by the chrome block, not in canon;
    HR values. --overlay-light-04 already defined in VSP module tokens above). */
-:root{ --sb-gold-accent:#f0d895; --r-card:8px; --module-accent:#5b8fd6; --overlay-dark-55:rgba(15,23,42,.55); --gray-700:#334155; }
+:root{ --sb-gold-accent:#f0d895; --r-card:8px; --module-accent:#6b5ca8; --overlay-dark-55:rgba(15,23,42,.55); --gray-700:#334155; }
 
 /* === SMB SHELL CHROME v1 BEGIN === DO NOT EDIT - change chrome source instead === */
 /* Companion tokens (sidebar line, gold pill bg/ink). Canon tokens used as-is. */
@@ -3194,6 +3195,8 @@ summary:focus-visible,
   border-radius:6px;
 }
 /* === SHELL CHROME v1 END === */
+/* D-141 dense-grid data tier: scorecard cells stay 15px under the v2.3 18px body root. Module CSS, after the locked chrome block. */
+.sc-hscroll{font-size:var(--fz-data)}
 
 /* merge-170 (Dave, 2026-08-10): page-width horizontal scrollbar fix.
    Root cause (from the live console overflow listing): .tb-r held enough
@@ -3523,9 +3526,9 @@ summary:focus-visible,
 .q-cv-num{width:26px;height:26px;border-radius:50%;background:var(--blu);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fz-body);flex-shrink:0}
 .q-vsp-goal{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--sur2);border-radius:6px;margin-bottom:8px}
 .q-vsp-goal-text{flex:1;font-size:var(--fz-lg);color:var(--txt);line-height:1.4}
-.q-meas-tbl{width:100%;border-collapse:collapse;font-size:var(--fz-body)}
-.q-meas-tbl th{padding:10px 8px;text-align:center;background:var(--sur2);border-bottom:1px solid var(--brd);font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.04em;color:var(--txm);font-weight:700;white-space:nowrap}
-.q-meas-tbl td{padding:12px 8px;border-bottom:1px solid var(--brd);text-align:center;color:var(--txt)}
+.q-meas-tbl{width:100%;border-collapse:collapse;font-size:var(--fz-data)}
+.q-meas-tbl th{padding:9px 12px;text-align:center;background:var(--sur2);border-bottom:2px solid var(--brd);font-size:var(--fz-md);text-transform:uppercase;letter-spacing:.05em;color:var(--txm);font-weight:600;white-space:nowrap}
+.q-meas-tbl td{padding:12px 8px;border-bottom:1px solid var(--brd);text-align:center;color:var(--txt);font-size:var(--fz-data)}
 .q-meas-tbl td:first-child{text-align:left}
 .q-meas-tbl tbody tr:hover{background:var(--sur2)}
 .q-embrace{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--sur);border:1px solid var(--brd);border-radius:6px;margin-top:4px}
@@ -3762,7 +3765,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-248</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-249</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -29875,7 +29878,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-248';
+window.VSP_BUILD = 'v186-merge-249';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
