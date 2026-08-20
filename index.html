@@ -4544,7 +4544,7 @@ async function autoSummarizeSection(stepIdx, sectionLabel){
 }
 
 
-var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetRange:"month",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,scorecardScope:"mine",todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",huddleDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{},scArchivePanel:false,scArchiveSearch:"",jobManageOpen:false,todoRouteMenu:null,issueRouteMenu:null};
+var state={page:"dashboard",expanded:{vsp:true},stratTab:"vision",meetTab:"upcoming",meetRange:"month",meetType:"weekly",meetStep:0,meetRating:0,goalsFilter:"all",goalsOwnerFilter:"",goalsSearch:"",scorecardActive:null,scorecardScope:"mine",todoTab:"team",scorecardPeriod:"weekly",scorecardDateRange:"last13",huddleDateRange:"last13",scCustomStart:"",scCustomEnd:"",scorecardSearch:"",scorecardSort:"manual",scorecardMenu:false,scMerged:false,scReorder:false,showDateRangeMenu:false,collapsedSections:{},goalsView:"list",expandedGoals:{},todoShowArchive:false,todoOverdueOnly:false,todoOwnerFilter:"all",todoTeamMenu:false,todoSearch:"",issueTab:"short",issueShowArchive:false,issueOwnerFilter:"all",expandedIssues:{},issueTeamMenu:false,meetAgendaType:"Weekly",meetAgendaDay:0,editingAgenda:false,editingAgendaStep:null,stratLastReviewed:"Q1 2026 - Mar 28; Q2 mid-quarter review",editingPlanField:null,planEditUnlocked:false,showPlanArchive:false,show3yrArchived:false,expandedArchive:null,newMeasurablePanel:{open:false,sectionIdx:null},newGroupPanel:false,editMeasurablePanel:{open:false,metricId:null,ownerId:null},selectedMetrics:{},newTeamPanel:false,editingCell:null,scNoteEdit:null,emMenu:false,showCascadePanel:false,headlineTeamMenu:false,hlShowArchive:false,cascadeViewTeam:null,cascadeTeamMenu:false,orgView:"chart",orgExpanded:{},orgPanel:null,orgEditId:null,timerSeconds:0,timerRunning:false,timerStepId:-1,timerStepSecs:300,agendaDragIdx:null,agendaDragOver:null,issueCtx:null,todoCtx:null,goalCtx:null,goalSendMenu:false,expandedMeeting:null,issueSendMenu:false,todoSendMenu:false,headlinePanel:null,createPanel:null,editPanel:null,editItemType:null,editItemId:null,headlineCtx:null,hlSendMenu:false,scorecardTeamMenu:false,cascadeSubject:"",cascadeMessage:"",createPrefillTitle:"",createPrefillNotes:"",issPriorityMode:false,issPriorityPicks:[],viewToolsPanel:false,meetCreateMenu:false,pageCreateMenu:null,createLinkFrom:null,schedulePanel:false,smType:"Weekly",smReport:"",meetHuddleReport:"",meetScheduledId:null,cascadePreview:null,meetingCategory:"team",meetSolvedIds:[],meetCreatedTodoIds:[],meetCreatedIssueIds:[],meetCreatedGoalIds:[],meetCreatedHeadlineIds:[],meetSharedHeadlineIds:[],meetSentCascadeIds:[],runningMeetingId:null,meetSectionDurations:{},meetStartTime:null,meetIndvRatings:{},meetGoalRatings:{},meetPlanChecklist:{},meetNotes:"",stepNotes:{},stepSummaries:{},stepSummaryStatus:{},aiEnabled:false,navStack:[],todoDetail:null,issueDetail:null,issueDetailRec:'off',issueDetailTranscript:{},issueDetailSummary:{},issueDetailSummaryStatus:{},monthlyReviewAck:{},scArchivePanel:false,scArchiveSearch:"",jobManageOpen:false,todoRouteMenu:null,issueRouteMenu:null};
 var timerInterval=null;
 
 // Archived plan snapshots - one per quarter
@@ -16078,9 +16078,23 @@ function _meetHeldOn(m, iso){
       var pdiff=Math.round((pd-occ)/86400000);
       if(pdiff< -1 || pdiff>win) continue;
       if(mAtt.length){
-        var pAtt=(p.attended||p.attendees||[]); var shared=false;
-        for(var q=0;q<pAtt.length;q++){ if(mAtt.indexOf(pAtt[q])>-1){ shared=true; break; } }
-        if(!shared) continue;
+        var pAtt=(p.attended||p.attendees||[]);
+        // merge-252 (Dave, 2026-08-20): a 1-on-1 performance huddle must match on
+        // BOTH people, not just one shared attendee. Before this, a WL+TP huddle
+        // held on Aug 20 matched a DS+TP huddle occurrence on Aug 19 (same type,
+        // same week, shared attendee TP) and marked the DS+TP huddle "held" when
+        // it was actually missed - so a missed Terry huddle never showed as
+        // missed. For a two-person huddle, require both attendees present in the
+        // past record; for larger team meetings, keep the overlap match.
+        var isHuddle=String(m.type||'').indexOf('Performance Huddle')>-1 && mAtt.length===2;
+        if(isHuddle){
+          var bothThere = mAtt.every(function(a){ return pAtt.indexOf(a)>-1; });
+          if(!bothThere) continue;
+        } else {
+          var shared=false;
+          for(var q=0;q<pAtt.length;q++){ if(mAtt.indexOf(pAtt[q])>-1){ shared=true; break; } }
+          if(!shared) continue;
+        }
       }
       return true;
     }
@@ -16332,7 +16346,59 @@ function _vspPerfMapReady(){
   return !window.__vspHasSyncAdapter;
 }
 function _vspPerfSyncToast(){
-  try{ showToast('This device has not finished its first sync. Wait for the green Synced badge, refresh, then enter scores.'); }catch(e){}
+  // merge-252 (Dave, 2026-08-20): softened. Writes are no longer dropped when
+  // the map is not ready - they are queued and flushed automatically once the
+  // first sync completes (see _vspPerfQueueWrite / _vspPerfFlushPending). This
+  // toast now just reassures rather than instructing the user to re-enter.
+  try{ showToast('Saving - finishing sync, your entry will be kept.'); }catch(e){}
+}
+// Pending-write queue (merge-252): the map-ready gate used to DISCARD a score
+// entered before this device finished its first cloud pull, so a rating typed
+// the moment the app opened vanished (Mika/Lisa, Aug 20). Instead of dropping
+// the write, stash it here (in localStorage so it survives a reload) and replay
+// it the instant the map is ready. This is the self-healing path: no lost work,
+// no "wait then re-type".
+var _VSP_PERF_PENDING_KEY='smb_perf_pending_writes_v1';
+function _vspPerfQueueWrite(entry){
+  try{
+    var raw=localStorage.getItem(_VSP_PERF_PENDING_KEY);
+    var arr=raw?JSON.parse(raw):[];
+    if(!Array.isArray(arr)) arr=[];
+    entry.queuedAt=new Date().toISOString();
+    arr.push(entry);
+    localStorage.setItem(_VSP_PERF_PENDING_KEY, JSON.stringify(arr));
+  }catch(e){}
+}
+function _vspPerfFlushPending(){
+  // Replay queued writes once the map is ready. Applied oldest-first so later
+  // edits win. Each entry carries its own updatedAt so the cross-device merge
+  // tie-breaks correctly. Clears the queue only after a successful apply.
+  try{
+    if(!_vspPerfMapReady()) return;
+    var raw=localStorage.getItem(_VSP_PERF_PENDING_KEY);
+    if(!raw) return;
+    var arr=JSON.parse(raw);
+    if(!Array.isArray(arr) || !arr.length){ localStorage.removeItem(_VSP_PERF_PENDING_KEY); return; }
+    var all=_vspPndReadHuddles();
+    arr.forEach(function(e){
+      if(!e || !e.personId || !e.iso) return;
+      var key=e.personId+'__'+e.iso;
+      var rec=all[key] || { answers:{}, updatedAt:e.updatedAt||new Date().toISOString() };
+      rec.answers = rec.answers || {};
+      if(e.kind==='answer'){
+        rec.answers[e.rowId] = (e.answer===null||e.answer===undefined)?'':e.answer;
+      } else if(e.kind==='away'){
+        rec.away = !!e.away;
+      }
+      rec.updatedAt = e.updatedAt || new Date().toISOString();
+      all[key]=rec;
+    });
+    localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all));
+    localStorage.removeItem(_VSP_PERF_PENDING_KEY);
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    try{ if(typeof renderPage==='function') renderPage(); }catch(e){}
+    try{ showToast('Your earlier entries have been saved.'); }catch(e){}
+  }catch(e){}
 }
 // merge-211 (Dave, 2026-08-12): read-only diagnostic. In the browser console
 // run  vspWhoFilledScorecard('TP')  (or any initials) to list every stored
@@ -16388,7 +16454,13 @@ window.vspWhoFilledScorecard=function(initials){
 };
 function _vspPndWriteHuddle(personId, iso, rowId, answer){
   // answer: 'yes' | 'no' | null (clear). Preserves neighbouring answers.
-  if(!_vspPerfMapReady()){ _vspPerfSyncToast(); return; }
+  if(!_vspPerfMapReady()){
+    // Queue instead of dropping (merge-252): the entry is kept and replayed
+    // once the first sync completes, so no rating typed before sync is lost.
+    _vspPerfQueueWrite({kind:'answer', personId:personId, iso:iso, rowId:rowId, answer:answer, updatedAt:new Date().toISOString()});
+    _vspPerfSyncToast();
+    return;
+  }
   try{
     var all=_vspPndReadHuddles();
     var key=personId+'__'+iso;
@@ -17863,7 +17935,11 @@ function _vspHuddleIsYes(v){
 }
 function vspHuddleToggleAway(iso){
   var st=window._vspHuddleSc; if(!st) return;
-  if(!_vspPerfMapReady()){ _vspPerfSyncToast(); return; }
+  if(!_vspPerfMapReady()){
+    _vspPerfQueueWrite({kind:'away', personId:st.personId, iso:iso, away:true, updatedAt:new Date().toISOString()});
+    _vspPerfSyncToast();
+    return;
+  }
   try{
     var all=_vspPndReadHuddles();
     var k=st.personId+'__'+iso;
@@ -20378,6 +20454,12 @@ function renderMeetings(){
     h+='<div style="margin-bottom:10px">';
     h+='<div style="display:flex;justify-content:space-between;font-size:var(--fz-base);color:var(--txm);margin-bottom:3px"><span>Progress</span><span>'+doneMin+'/'+totalMin+' min</span></div>';
     h+='<div style="height:4px;background:var(--brd);border-radius:2px"><div style="height:100%;width:'+Math.round(doneMin/totalMin*100)+'%;background:var(--blu);border-radius:2px"></div></div>';
+    // merge-252 (Dave, 2026-08-20): an explicit way out of a running meeting.
+    // Without this, a session that was started (or synced from another device)
+    // could not be dismissed without formally concluding - a test meeting that
+    // got deleted left the In-Meeting view stuck open on every load. Exit clears
+    // the running-session pointer without writing a recap.
+    h+='<button type="button" onclick="exitRunningMeeting()" style="margin-top:8px;width:100%;font-size:var(--fz-base);color:var(--txm);background:none;border:1px solid var(--brd2);border-radius:6px;padding:5px 8px;cursor:pointer" title="Leave without ending - nothing is saved as a recap">Exit meeting</button>';
     h+='</div>';
     runSections.forEach(function(s,i){
       var active=i===step,done=i<step;
@@ -20854,7 +20936,7 @@ function renderMeetings(){
         .map(function(id){ return todos.find(function(x){ return x.id===id; }); })
         .filter(function(t){ return t && _vspTodoInThisMeeting(t); });
       h+='<div class="card">';
-      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="sec" style="margin:0">Commitments From This Meeting</span>';
+      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="sec" style="margin:0">Action Items From This Meeting</span>';
       h+='<span style="font-size:var(--fz-body);background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:1px 10px;color:var(--txm)">'+_newTd.length+'</span></div>';
       if(!_newTd.length){
         // An empty recap is a signal, not just an empty state: a meeting that
@@ -21777,6 +21859,14 @@ function headlineArchive(id){
   var t=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
   var h=(t.headlines||[]).find(function(x){return x.id===id;})||headlines.find(function(x){return x.id===id;});
   if(h){ h.status='archived'; headlines=t.headlines; }
+  // merge-252 (Dave, 2026-08-20): if we are in a running meeting, record that
+  // this headline was shared/reviewed this meeting BEFORE it got archived, so
+  // the recap can still list it. Without this the recap said "No headlines
+  // shared" because every headline is archived by conclude.
+  if(state.meetTab==='running'){
+    state.meetSharedHeadlineIds = state.meetSharedHeadlineIds || [];
+    if(state.meetSharedHeadlineIds.indexOf(id)===-1) state.meetSharedHeadlineIds.push(id);
+  }
   state.headlineCtx=null; state.hlSendMenu=false;
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   renderPage();
@@ -23042,30 +23132,22 @@ function generateMeetingRecap(meetingId){
     }
   }catch(e){}
 
-  // Issues Solved
+  // Issues Solved (merge-252, Dave, 2026-08-20): one section. Previously there
+  // was a linked "Issues Solved" list AND a duplicate "Issue Details" section
+  // repeating the same items - they were the same thing. Now each solved issue
+  // is listed once, with its detail inline underneath when there is one.
   html+='<h2>Issues Solved</h2>';
   if(m.resolvedIssues&&m.resolvedIssues.length){
-    html+='<ul>';
     m.resolvedIssues.forEach(function(i){
-      // merge-240: real link to the issue's detail below (works in the HTML
-      // recap and in the exported PDF, where an in-app link would be dead).
-      var _iid='issue-'+(i.id!=null?i.id:Math.random().toString(36).slice(2));
-      i._recapAnchor=_iid;
-      html+='<li>'+i.owner+': <a href="#'+_iid+'" style="color:#2563eb">'+i.title+'</a></li>';
-    });
-    html+='</ul>';
-    // Inline detail block so a reader can click a solved issue and read it.
-    var _anyDesc=m.resolvedIssues.some(function(i){ return (i.description&&String(i.description).trim())||(i.notes&&String(i.notes).trim())||(i.solveNotes&&String(i.solveNotes).trim()); });
-    if(_anyDesc){
-      html+='<h3 style="margin-top:14px;font-size:15px">Issue Details</h3>';
-      m.resolvedIssues.forEach(function(i){
-        var _body=[i.description,i.solveNotes,i.notes].filter(function(x){return x&&String(x).trim();}).join('<br><br>');
-        if(!_body) return;
-        html+='<div id="'+(i._recapAnchor||'')+'" style="margin-bottom:10px;padding:8px 12px;border-left:3px solid #cbd5e1;background:#f8fafc">'
+      var _body=[i.description,i.solveNotes,i.notes].filter(function(x){return x&&String(x).trim();}).join('<br><br>');
+      if(_body){
+        html+='<div style="margin-bottom:10px;padding:8px 12px;border-left:3px solid #cbd5e1;background:#f8fafc">'
           +'<div style="font-weight:600">'+i.owner+': '+i.title+'</div>'
           +'<div style="color:#475569;font-size:13px;margin-top:3px">'+_body+'</div></div>';
-      });
-    }
+      } else {
+        html+='<div style="margin-bottom:6px"><span style="font-weight:600">'+i.owner+':</span> '+i.title+'</div>';
+      }
+    });
   } else {
     html+='<p style="color:#64748b;font-style:italic">No issues were solved during this meeting.</p>';
   }
@@ -23582,7 +23664,7 @@ function _msCreateEvent(m){
     }).catch(function(){ try{ showToast('Outlook event failed - network.'); }catch(e){} return null; });
   });
 }
-function addScheduledMeeting(){
+function addScheduledMeeting(_bmDupOk){
   var type=document.getElementById('sm-type');
   var date=document.getElementById('sm-date');
   var time=document.getElementById('sm-time');
@@ -23675,6 +23757,27 @@ function addScheduledMeeting(){
     }
   }
   _bmTeam.scheduledMeetings=_bmTeam.scheduledMeetings||[];
+  // Duplicate guard (merge-252, Dave, 2026-08-20): warn before creating a
+  // meeting that matches one already on this team - same type, same attendee
+  // set, same cadence. This is what let two identical "Weekly Leadership Team
+  // Meeting" records, two Mika huddles, and two Dave+Terry huddles pile up and
+  // double on the calendar. A warning, not a block: confirm re-runs the save
+  // with a bypass flag so a genuine second meeting is still allowed.
+  if(!_bmDupOk){
+    var _dupAtt=(_bmMeeting.attendees||[]).slice().sort().join(',');
+    var _dup=(_bmTeam.scheduledMeetings||[]).find(function(x){
+      if(!x) return false;
+      if((x.type||'')!==(_bmMeeting.type||'')) return false;
+      if(((x.attendees||[]).slice().sort().join(','))!==_dupAtt) return false;
+      if((x.recurEvery||0)!==(_bmMeeting.recurEvery||0)) return false;
+      return true;
+    });
+    if(_dup){
+      var _when=_dup.date||'';
+      vspConfirm('A '+(_bmMeeting.type||'meeting')+' with the same people already exists on '+(_bmTeam.name||'this team')+(_when?(' (starts '+_when+')'):'')+'. Creating another will show two of them on the calendar. Create it anyway?', function(){ addScheduledMeeting(true); });
+      return;
+    }
+  }
   _bmTeam.scheduledMeetings.push(_bmMeeting);
   if(_bmTid===state.currentTeam) scheduledMeetings=_bmTeam.scheduledMeetings;
   // Outlook: when connected and the box is ticked, create the real event
@@ -23882,6 +23985,23 @@ function _meetRailQuickAdd(){
     +_b("openCreateForm('todo')",'To-do',_SC_IC_CHECK)
     +'</div></div>';
 }
+function exitRunningMeeting(){
+  // Leave a running meeting WITHOUT producing a recap or a past-meeting record.
+  // Clears the running-session pointer so it does not reopen on reload/sync.
+  vspConfirm('Leave this meeting without ending it? Nothing is saved as a recap. You can start it again later.', function(){
+    state.meetTab='upcoming';
+    state.meetType=null;
+    state.meetStep=0;
+    state.meetStartTime=null;
+    state.meetHuddleReport='';
+    state.meetSolvedIds=[]; state.meetCreatedTodoIds=[]; state.meetCreatedIssueIds=[];
+    state.meetCreatedGoalIds=[]; state.meetCreatedHeadlineIds=[]; state.meetSharedHeadlineIds=[];
+    state.meetSentCascadeIds=[]; state.meetSectionDurations={};
+    state.timerRunning=false; state.timerSeconds=0; state.timerStepId=-1;
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}  // persist runningMeeting:null immediately
+    renderPage();
+  });
+}
 function endMeeting(){
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
   // Record duration for last step
@@ -23991,8 +24111,14 @@ function endMeeting(){
         .map(function(h){ return {id:h.id, text:h.text, type:h.type, owner:h.owner}; });
     }
   }catch(e){}
+  // merge-252: headlines shared this meeting (archived during the Headlines step)
+  // are captured by id so they still appear in the recap.
+  var sharedThisMeeting=(state.meetSharedHeadlineIds||[]).map(function(id){
+    var h=(typeof headlines!=='undefined'&&Array.isArray(headlines))?headlines.find(function(x){return x.id===id;}):null;
+    return h?{id:h.id, text:h.text, type:h.type, owner:h.owner}:null;
+  }).filter(function(x){return x;});
   var _hlSeen={}; var _hlAll=[];
-  openHeadlinesAtConclude.concat(newHeadlinesThisMeeting).forEach(function(h){
+  openHeadlinesAtConclude.concat(newHeadlinesThisMeeting).concat(sharedThisMeeting).forEach(function(h){
     if(!h || _hlSeen[h.id]) return; _hlSeen[h.id]=1; _hlAll.push(h);
   });
   var meetHeadlines = _hlAll;
@@ -24131,6 +24257,7 @@ function endMeeting(){
   state.meetCreatedIssueIds=[];
   state.meetCreatedGoalIds=[];
   state.meetCreatedHeadlineIds=[];
+  state.meetSharedHeadlineIds=[];
   state.meetSentCascadeIds=[];
   state.meetSectionDurations={};
   state.meetStartTime=null;
@@ -31089,7 +31216,14 @@ function vspApplySnapshot(s){
   // sessions older than 7 days are treated as abandoned.
   if(s.runningMeeting && s.runningMeeting.type && state.meetTab!=='running'){
     var _rmAge=s.runningMeeting.startTime?(Date.now()-s.runningMeeting.startTime):0;
-    if(_rmAge>=0 && _rmAge<7*24*3600*1000){
+    // merge-252 (Dave, 2026-08-20): only auto-reopen a genuinely in-progress
+    // meeting. The old 7-day window meant a session that was never concluded
+    // (e.g. a deleted test meeting) forced the In-Meeting view open on every
+    // load for a week. A real meeting runs a few hours; past ~4h it is
+    // abandoned, so leave the user on their normal view. The session is not
+    // resumed, and the next save writes runningMeeting:null so it stops coming
+    // back entirely.
+    if(_rmAge>=0 && _rmAge<4*3600*1000){
       state.meetTab='running';
       state.meetType=s.runningMeeting.type;
       state.meetStep=s.runningMeeting.step||0;
@@ -31491,6 +31625,7 @@ try {
 } catch(e){ console.warn('[VSP] v113 restore:', e.message); }
 try { vspPullPndCompliance(); } catch(e){ console.warn(e); }  // v112: P&D->VSP Compliance bridge
 try { _vspAutoFillCompliance(); } catch(e){ console.warn(e); }  // 2026-08-06: source overrides stale bridge
+try { if(typeof _vspPerfFlushPending==='function') _vspPerfFlushPending(); } catch(e){}  // merge-252: replay writes queued before first sync
 /* Lock-tier corrections (Dave, 2026-08-06): P&D is frozen and there is no VSP
    UI for lock tiers, so set two known corrections here. Lisa (p2) is a division
    head -> tier 1 (Tuesday). Venessa (p12) has no reports -> tier 2 (Monday,
@@ -33559,6 +33694,10 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       try { mapRaw = localStorage.getItem('smb_pnd_people_map_v1'); } catch(e){}
       if(!mapRaw){ /* map not yet arrived; shim falls back to VSP id */ }
     } catch(e){}
+    // merge-252 (Dave, 2026-08-20): the map may have just arrived in this apply -
+    // flush any writes that were queued while the device was not yet ready, so a
+    // rating entered before first sync now lands instead of being lost.
+    try { if(typeof _vspPerfFlushPending === 'function') _vspPerfFlushPending(); } catch(e){}
     // Post-apply render triggers - guarded so a missing function is a no-op.
     try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
     try { if(typeof emitPndSignals === 'function') emitPndSignals(); } catch(e){}
