@@ -8765,6 +8765,93 @@ function _statePayload(){
     CHANNEL_TOUCHES:CHANNEL_TOUCHES,PROSPECTS:PROSPECTS,PERMIT_PULLS:PERMIT_PULLS,
     PULL_ACTIVITY:PULL_ACTIVITY,LOT_AGENT_KEYS:LOT_AGENT_KEYS,BD_GOALS:BD_GOALS,BD_SC_PLANS:BD_SC_PLANS,BD_SC_LOG:BD_SC_LOG,BD_MEAS_CFG:BD_MEAS_CFG,BD_MEAS_OV:BD_MEAS_OV,teamsRegistry:teamsRegistry,BD_EVENTS:BD_EVENTS,BD_TEAM:BD_TEAM,OUTREACH:OUTREACH};
 }
+function _lotDedupeNormName(n){ return String(n||'').toLowerCase().replace(/[^a-z]/g,' ').replace(/\s+/g,' ').trim(); }
+function _lotDedupeScore(p){
+  // higher = keep this record. Activity is the strongest signal; a personal
+  // (non-generic) email is next; then a filled-in phone/portfolio; then lower id.
+  var s=0;
+  s += (p.act && p.act.length ? p.act.length*1000 : 0);
+  var em=String(p.contactEmail||'').trim();
+  if(em && !_isGenericEmail(em)) s += 100;
+  else if(em) s += 20;
+  if(String(p.contactPhone||'').trim()) s += 5;
+  if(p.portfolio && p.portfolio.length) s += p.portfolio.length;
+  return s;
+}
+function mergeDuplicateAgents(){
+  // One-time cleanup: collapse duplicate lot-agent records (same person imported
+  // once by hand and again by the scraper) into a single record. Keeps every
+  // logged email/note, keeps the personal email as primary, stores any other
+  // email as altEmail, and never deletes a record that carries activity without
+  // first moving that activity onto the survivor.
+  var groups={};
+  PROSPECTS.forEach(function(p){
+    if(p.type!=='lot') return;
+    var k=_lotDedupeNormName(p.contactName)+'|'+_lotDedupeNormName(p.contactFirm);
+    if(!k.replace(/[| ]/g,'')) return;
+    (groups[k]=groups[k]||[]).push(p);
+  });
+  var mergedGroups=0, removed=0, actMoved=0, emailsSaved=0, removeIds={};
+  Object.keys(groups).forEach(function(k){
+    var g=groups[k];
+    if(g.length<2) return;
+    // pick survivor = highest score; tiebreak lowest id
+    g.sort(function(a,b){ var d=_lotDedupeScore(b)-_lotDedupeScore(a); return d!==0?d:(a.id-b.id); });
+    var keep=g[0];
+    keep.act = keep.act || [];
+    for(var i=1;i<g.length;i++){
+      var dup=g[i];
+      // move activity
+      if(dup.act && dup.act.length){ keep.act = keep.act.concat(dup.act); actMoved += dup.act.length; }
+      // preserve emails: if survivor has none, adopt dup's; else stash dup's as altEmail
+      var de=String(dup.contactEmail||'').trim();
+      if(de){
+        var ke=String(keep.contactEmail||'').trim();
+        if(!ke){ keep.contactEmail=de; }
+        else if(de.toLowerCase()!==ke.toLowerCase()){
+          // prefer a personal email as primary over a generic one
+          if(_isGenericEmail(ke) && !_isGenericEmail(de)){ if(String(keep.altEmail||'').trim().toLowerCase()!==ke.toLowerCase()) keep.altEmail=ke; keep.contactEmail=de; }
+          else if(!String(keep.altEmail||'').trim() && String(keep.altEmail||'').trim().toLowerCase()!==de.toLowerCase()){ keep.altEmail=de; }
+          emailsSaved++;
+        }
+      }
+      // fill any blank survivor fields from the duplicate
+      if(!String(keep.contactPhone||'').trim() && String(dup.contactPhone||'').trim()) keep.contactPhone=dup.contactPhone;
+      if(!String(keep.contactMobile||'').trim() && String(dup.contactMobile||'').trim()) keep.contactMobile=dup.contactMobile;
+      if(!String(keep.profileUrl||'').trim() && String(dup.profileUrl||'').trim()) keep.profileUrl=dup.profileUrl;
+      if(!String(keep.websites||'').trim() && String(dup.websites||'').trim()) keep.websites=dup.websites;
+      if((!keep.portfolio||!keep.portfolio.length) && dup.portfolio && dup.portfolio.length){ keep.portfolio=dup.portfolio; keep.listingCount=dup.listingCount; keep.totalValue=dup.totalValue; keep.value=dup.totalValue; }
+      if(dup.linkedPartnerId!=null && keep.linkedPartnerId==null) keep.linkedPartnerId=dup.linkedPartnerId;
+      removeIds[dup.id]=1; removed++;
+    }
+    // re-sort merged activity newest-first by loggedAt/date
+    keep.act.sort(function(a,b){ var ta=new Date(a.loggedAt||a.d||0).getTime(), tb=new Date(b.loggedAt||b.d||0).getTime(); return (tb||0)-(ta||0); });
+    // recompute lastContact
+    var last=''; keep.act.forEach(function(a){ var dd=String(a.d||'').slice(0,10); if(dd && dd>last) last=dd; });
+    if(last) keep.lastContact=last;
+    mergedGroups++;
+  });
+  if(removed){
+    PROSPECTS = PROSPECTS.filter(function(p){ return !removeIds[p.id]; });
+    // rebuild the known-key registry so future refreshes match on the new keys
+    LOT_AGENT_KEYS = [];
+    PROSPECTS.forEach(function(p){ if(p.type==='lot') registerLotAgentKey(p.contactEmail,p.contactName,p.contactFirm); });
+    save();
+    if(typeof renderProspecting==='function') renderProspecting();
+  }
+  return {mergedGroups:mergedGroups, removed:removed, actMoved:actMoved, emailsSaved:emailsSaved};
+}
+function mergeDuplicateAgentsPrompt(){
+  var dupCount=0, groups={};
+  PROSPECTS.forEach(function(p){ if(p.type!=='lot') return; var k=_lotDedupeNormName(p.contactName)+'|'+_lotDedupeNormName(p.contactFirm); if(!k.replace(/[| ]/g,'')) return; (groups[k]=groups[k]||[]).push(p); });
+  Object.keys(groups).forEach(function(k){ if(groups[k].length>1) dupCount += groups[k].length-1; });
+  if(!dupCount){ if(typeof toastSuccess==='function') toastSuccess('No duplicates','Every lot agent is already a single record.'); return; }
+  var body='<div style="font-size:var(--fz-body)">Found <b>'+dupCount+'</b> duplicate agent record'+(dupCount===1?'':'s')+' to merge. Each person becomes one record: your logged emails and notes are kept, your personal email stays primary, and any extra address is saved on the record. This cannot be undone, so export a backup first if you want a safety copy.</div>';
+  openModal({title:'Merge duplicate agents', body:body, saveLabel:'Merge now', onSave:function(){
+    var r=mergeDuplicateAgents(); closeModal();
+    if(typeof toastSuccess==='function') toastSuccess('Duplicates merged', r.removed+' record'+(r.removed===1?'':'s')+' merged into '+r.mergedGroups+' agent'+(r.mergedGroups===1?'':'s')+(r.actMoved?(', '+r.actMoved+' logged item'+(r.actMoved===1?'':'s')+' preserved'):''));
+  }});
+}
 function save(){
   try{ localStorage.setItem(STORE_KEY+':'+((window.SMB_TENANT||{}).tenantId||'x'), JSON.stringify(_statePayload())); }catch(e){ console.warn('BD state save failed:',e); }
   try{ emitBdSignal(); }catch(e){}
@@ -9455,6 +9542,7 @@ function renderDash(){
       '<button class="btn btn-primary btn-sm" onclick="pullFromMarketing()">Pull entries from Marketing</button>'+
       '<button class="btn btn-sm" onclick="exportBackup()">Export backup</button>'+
       '<button class="btn btn-sm" onclick="importBackupPick()">Import backup</button>'+
+      '<button class="btn btn-sm" onclick="mergeDuplicateAgentsPrompt()">Merge duplicate agents</button>'+
       '<input id="mk-import-file" type="file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">'+
     '</div></div></div>';
 
