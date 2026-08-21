@@ -23749,6 +23749,20 @@ function addScheduledMeeting(_bmDupOk){
           _supervisorOk=true;
         }
       }catch(e){}
+      // merge-252 (Dave, 2026-08-20): fail-open on an UNRESOLVED booker. This
+      // gate is workflow etiquette (the supervisor owns the huddle), not
+      // security. On a shared/boardroom computer currentUser is often unset, so
+      // _me is empty, the reportsTo walk never matches, and a legitimate
+      // supervisor (Terry) got hard-blocked from booking any huddle - the bug
+      // Dave hit repeatedly. If we cannot identify the booker, or the booker is
+      // any supervisor, do not block. Only block when we positively know the
+      // booker is a non-supervisor who is not in the report's chain.
+      if(!_supervisorOk){
+        var _meP2=ppl.find(function(x){return x.initials===_me;});
+        var _bookerUnknown = !_me || !_meP2;
+        var _bookerIsSupervisor = _meP2 && (_meP2.supervisor===true);
+        if(_bookerUnknown || _bookerIsSupervisor){ _supervisorOk=true; }
+      }
       if(!_supervisorOk){
         var _repName=''; try{ var _rp=ppl.find(function(x){return x.initials===_report;}); _repName=_rp?(_rp.first||_report):_report; }catch(e){}
         vspAlert('Only the supervisor books this huddle. '+(_repName?('Ask the supervisor to book the huddle with '+_repName+'.'):'Ask the supervisor to book this one-on-one huddle.'));
