@@ -19473,12 +19473,23 @@ function _mcRender(){
   h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">';
   [
     {n:occAll.length,l:'Scheduled',c:'var(--txt)',bg:'var(--sur2)'},
-    {n:held,l:'Held',c:'#15803d',bg:'#dcfce7'},
-    {n:missed,l:'Missed',c:'#b91c1c',bg:'#fee2e2'},
-    {n:upcoming,l:'Upcoming',c:'#1d4ed8',bg:'#dbeafe'},
+    {n:held,l:'Held',c:'#15803d',bg:'#dcfce7',st:'held'},
+    {n:missed,l:'Missed',c:'#b91c1c',bg:'#fee2e2',st:'missed'},
+    {n:upcoming,l:'Upcoming',c:'#1d4ed8',bg:'#dbeafe',st:'upcoming'},
     {n:(pct==null?'\u2013':pct+'%'),l:'Compliance',c:(pct==null?'var(--txm)':pct>=90?'#15803d':pct>=70?'#b45309':'#b91c1c'),bg:'var(--sur2)'}
   ].forEach(function(k){
-    h+='<div style="background:'+k.bg+';border:1px solid var(--brd);border-radius:8px;padding:8px 16px;min-width:92px;text-align:center">';
+    // merge-252 (Dave, 2026-08-21): Held / Missed / Upcoming cards are clickable
+    // - clicking filters the calendar to that status so you can see WHICH
+    //   meetings are missed (or held / upcoming). Clicking the active one again
+    //   clears it. Scheduled and Compliance are totals, not clickable.
+    var _active=(k.st && f.status===k.st);
+    var _clickable=!!k.st;
+    var _cur=f.status||'';
+    var _onclick=_clickable ? (' onclick="_mcSet(\'status\',\''+(_active?'':k.st)+'\')"') : '';
+    var _cursor=_clickable ? 'cursor:pointer;' : '';
+    var _ring=_active ? 'box-shadow:0 0 0 2px '+k.c+';' : '';
+    var _title=_clickable ? (' title="'+(_active?'Show all':'Show only '+k.l.toLowerCase()+' meetings')+'"') : '';
+    h+='<div'+_onclick+_title+' style="background:'+k.bg+';border:1px solid var(--brd);border-radius:8px;padding:8px 16px;min-width:92px;text-align:center;'+_cursor+_ring+'">';
     h+='<div style="font-size:var(--fz-xl);font-weight:700;color:'+k.c+'">'+k.n+'</div>';
     h+='<div style="font-size:var(--fz-xs);color:var(--txm);text-transform:uppercase;letter-spacing:.05em;font-weight:700">'+k.l+'</div></div>';
   });
