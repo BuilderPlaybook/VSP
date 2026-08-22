@@ -7115,6 +7115,31 @@ function renderPlanCompleteness(){
   h+='</div>';
   return h;
 }
+function _vspHomeFactsPayload(){
+  // merge-252 (Dave, 2026-08-21): the typed child VSP publishes for the Home
+  // Coach ESR to read live, mirroring the PM->CFO projectFacts pattern (PM
+  // stamps a top-level child on its synced envelope; the consumer reads it
+  // directly from Firebase). Home reads this at vsp/lida-001/data/homeFacts.
+  // Every field is guarded so a missing piece publishes as null, never throws.
+  var out={ __v:1, savedAt:new Date().toISOString() };
+  // Self-Managing Score
+  try{
+    var dep=computeOwnerDependency();
+    out.selfManagingScore={ score:dep.score, owner:dep.owner, ownerName:dep.ownerName };
+  }catch(e){ out.selfManagingScore=null; }
+  // Plan targets (1-Year Plan + current Quarter headline financials + measurables)
+  try{
+    out.planTargets={
+      oneYear:(planData&&planData.oneyr)?{ futureDate:planData.oneyr.futureDate, grossSales:planData.oneyr.grossSales, grossProfit:planData.oneyr.grossProfit, expenses:planData.oneyr.expenses, netProfit:planData.oneyr.netProfit, measurables:(planData.oneyr.measurables||[]), commitments:(planData.oneyr.commitments||[]) } : null,
+      quarter:(planData&&planData.q1)?{ futureDate:planData.q1.futureDate, grossSales:planData.q1.grossSales, grossProfit:planData.q1.grossProfit, expenses:planData.q1.expenses, netProfit:planData.q1.netProfit, results:(planData.q1.results||{}) } : null
+    };
+  }catch(e){ out.planTargets=null; }
+  // Scorecard (the same signal the AI Coach Layer consumes)
+  try{
+    out.scorecard=(typeof _scorecardSignalPayload==='function')?_scorecardSignalPayload():null;
+  }catch(e){ out.scorecard=null; }
+  return out;
+}
 function renderOwnerDependency(){
   var d=computeOwnerDependency();
   var series=OWNER_DEP_HISTORY.concat([{q:"Now",score:d.score,live:true}]);
@@ -33283,17 +33308,41 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       return JSON.stringify(dst);
     }catch(e){ return intoRaw; }
   }
+  function V_stampHomeFacts(raw){
+    // merge-252 (Dave, 2026-08-21): stamp the Home Coach facts as a top-level
+    // child on the outgoing blob, mirroring the PM->CFO projectFacts pattern.
+    // Runs on EVERY push (including the first, before any sync base exists).
+    // Change-time semantics: only restamp savedAt when the payload actually
+    // differs, so it does not churn on every sync. Never blocks the push.
+    try{
+      var _obj=(typeof raw==='string')?JSON.parse(raw):raw;
+      if(_obj && typeof _obj==='object'){
+        var _hf=_vspHomeFactsPayload();
+        var _prev=_obj.homeFacts;
+        var _prevCmp=_prev?JSON.stringify(Object.assign({},_prev,{savedAt:0})):null;
+        var _newCmp=JSON.stringify(Object.assign({},_hf,{savedAt:0}));
+        _obj.homeFacts=(_prevCmp!==_newCmp)?_hf:_prev;
+        return (typeof raw==='string')?JSON.stringify(_obj):_obj;
+      }
+    }catch(e){}
+    return raw;
+  }
   function V_guardOutgoing(raw){
     // Local copy about to be pushed. If it would erase readings the last
     // known cloud image has, merge those readings into it first.
     var base = V_lastSyncedRaw;
-    if(!base) return raw;
-    if(V_countRemovals(base, raw) >= V_GUARD_THRESHOLD){
-      raw = V_mergeReadings(base, raw);
+    if(base){
+      if(V_countRemovals(base, raw) >= V_GUARD_THRESHOLD){
+        raw = V_mergeReadings(base, raw);
+      }
+      // Goal tombstones always reconcile (cheap, idempotent): a stale tab
+      // cannot push archived goals back to life.
+      raw = V_goalReconcile(base, raw);
     }
-    // Goal tombstones always reconcile (cheap, idempotent): a stale tab
-    // cannot push archived goals back to life.
-    raw = V_goalReconcile(base, raw);
+    // Home Coach facts are stamped LAST so no downstream reconcile step (which
+    // may reserialize from base) can drop them. Runs on every push including
+    // the first (no base).
+    raw = V_stampHomeFacts(raw);
     return raw;
   }
 
