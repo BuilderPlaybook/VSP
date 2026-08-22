@@ -7115,30 +7115,102 @@ function renderPlanCompleteness(){
   h+='</div>';
   return h;
 }
-function _vspHomeFactsPayload(){
-  // merge-252 (Dave, 2026-08-21): the typed child VSP publishes for the Home
-  // Coach ESR to read live, mirroring the PM->CFO projectFacts pattern (PM
-  // stamps a top-level child on its synced envelope; the consumer reads it
-  // directly from Firebase). Home reads this at vsp/lida-001/data/homeFacts.
-  // Every field is guarded so a missing piece publishes as null, never throws.
-  var out={ __v:1, savedAt:new Date().toISOString() };
-  // Self-Managing Score
+// === Home ESR publishers (merge-252, Dave, 2026-08-21) ===
+// VSP is the PUBLISHER; the Home module (ESR) is a read-only consumer at
+// https://builderplaybook.github.io/Home/. Home reads three VSP-owned keys off
+// vsp/lida-001/data and mirrors each to localStorage. Shapes below match the
+// deployed Home reader exactly - no shape is invented on the Home side. Per
+// D-163 (Sync-Adopt Recompute Parity) these re-publish on every push including
+// the sync-adopt path, since the stamp runs in V_guardOutgoing on all pushes.
+
+function _esrNum(v){
+  // Plan numbers are stored as formatted strings ("$13,000,000"); Home wants
+  // numbers only. Strip currency/commas; return null when not parseable so Home
+  // renders "No data" rather than 0.
+  if(v==null) return null;
+  if(typeof v==='number') return isNaN(v)?null:v;
+  var s=String(v).replace(/[^0-9.\-]/g,'');
+  if(s===''||s==='-'||s==='.') return null;
+  var n=parseFloat(s);
+  return isNaN(n)?null:n;
+}
+function _esrPlanBlock(p){
+  // Map VSP field names -> Home field names: revenue<-grossSales,
+  // grossProfit<-grossProfit, fixedExpense<-expenses, netProfit<-netProfit.
+  if(!p) return null;
+  return {
+    revenue:_esrNum(p.grossSales),
+    grossProfit:_esrNum(p.grossProfit),
+    fixedExpense:_esrNum(p.expenses),
+    netProfit:_esrNum(p.netProfit)
+  };
+}
+function _esrPlanPayload(){
+  // esrPlan -> smb_vsp_plan_facts_v1. annual = 1-Year Plan; quarters.qN =
+  // per-quarter. Only q1 exists in planData today; q2-q4 publish as null so
+  // Home shows "No data" for them (documented behaviour).
+  try{
+    var yr=2026;
+    try{ var fd=(planData&&planData.oneyr&&planData.oneyr.futureDate)||''; var mm=String(fd).match(/(20\d\d)/); if(mm) yr=parseInt(mm[1],10); }catch(e){}
+    return {
+      year:yr,
+      annual:_esrPlanBlock(planData&&planData.oneyr),
+      quarters:{
+        q1:_esrPlanBlock(planData&&planData.q1),
+        q2:null, q3:null, q4:null
+      }
+    };
+  }catch(e){ return null; }
+}
+function _esrSelfManagingPayload(){
+  // esrSelfManaging -> smb_vsp_selfmanaging_v1. Straight from
+  // computeOwnerDependency(); breakdown[] drives the "where to delegate next"
+  // tooltip. prev = prior-quarter score from OWNER_DEP_HISTORY.
   try{
     var dep=computeOwnerDependency();
-    out.selfManagingScore={ score:dep.score, owner:dep.owner, ownerName:dep.ownerName };
-  }catch(e){ out.selfManagingScore=null; }
-  // Plan targets (1-Year Plan + current Quarter headline financials + measurables)
-  try{
-    out.planTargets={
-      oneYear:(planData&&planData.oneyr)?{ futureDate:planData.oneyr.futureDate, grossSales:planData.oneyr.grossSales, grossProfit:planData.oneyr.grossProfit, expenses:planData.oneyr.expenses, netProfit:planData.oneyr.netProfit, measurables:(planData.oneyr.measurables||[]), commitments:(planData.oneyr.commitments||[]) } : null,
-      quarter:(planData&&planData.q1)?{ futureDate:planData.q1.futureDate, grossSales:planData.q1.grossSales, grossProfit:planData.q1.grossProfit, expenses:planData.q1.expenses, netProfit:planData.q1.netProfit, results:(planData.q1.results||{}) } : null
+    var prev=null;
+    try{ if(typeof OWNER_DEP_HISTORY!=='undefined' && OWNER_DEP_HISTORY.length){ prev=OWNER_DEP_HISTORY[OWNER_DEP_HISTORY.length-1].score; } }catch(e){}
+    var band=''; try{ band=depBandLabel(dep.score); }catch(e){}
+    return {
+      score:dep.score,
+      bandLabel:band,
+      prev:prev,
+      breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; })
     };
-  }catch(e){ out.planTargets=null; }
-  // Scorecard (the same signal the AI Coach Layer consumes)
+  }catch(e){ return null; }
+}
+function _esrScorecardPayload(){
+  // esrScorecard -> smb_vsp_scorecard_v1. Home's vspScorecard() expects
+  // { seats:[ { name, metrics:[ { id,name,unit,goal,goalType,cadence,readings,
+  // showTotal,rollupAs } ] } ] }. Read the CURRENT team scorecard. Home does
+  // its own filtering (drops cadence:'monthly') and tiering - we publish the
+  // full shape it reads.
   try{
-    out.scorecard=(typeof _scorecardSignalPayload==='function')?_scorecardSignalPayload():null;
-  }catch(e){ out.scorecard=null; }
-  return out;
+    var t=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
+    var secs=(t&&t.scorecard)||[];
+    if(!secs.length) return { seats:[] };
+    return {
+      seats:secs.map(function(s){
+        return {
+          name:s.seat||s.ownerId||'',
+          role:s.seat||'',
+          metrics:(s.metrics||[]).map(function(m){
+            return {
+              id:m.id,
+              name:m.title,
+              unit:m.unit,
+              goal:m.goal,
+              goalType:m.goalType,
+              cadence:m.cadence||'weekly',
+              readings:(m.readings||[]),
+              showTotal:!!m.showTotal,
+              rollupAs:m.rollupAs
+            };
+          })
+        };
+      })
+    };
+  }catch(e){ return { seats:[] }; }
 }
 function renderOwnerDependency(){
   var d=computeOwnerDependency();
@@ -33309,19 +33381,26 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     }catch(e){ return intoRaw; }
   }
   function V_stampHomeFacts(raw){
-    // merge-252 (Dave, 2026-08-21): stamp the Home Coach facts as a top-level
-    // child on the outgoing blob, mirroring the PM->CFO projectFacts pattern.
-    // Runs on EVERY push (including the first, before any sync base exists).
-    // Change-time semantics: only restamp savedAt when the payload actually
-    // differs, so it does not churn on every sync. Never blocks the push.
+    // merge-252 (Dave, 2026-08-21): stamp the three Home ESR keys (esrPlan,
+    // esrSelfManaging, esrScorecard) as top-level children on the outgoing
+    // blob, mirroring the PM->CFO pattern. VSP publishes; Home reads them off
+    // vsp/lida-001/data. Runs on EVERY push (first push + sync-adopt path,
+    // satisfying D-163 Sync-Adopt Recompute Parity). Never blocks the push.
     try{
       var _obj=(typeof raw==='string')?JSON.parse(raw):raw;
       if(_obj && typeof _obj==='object'){
-        var _hf=_vspHomeFactsPayload();
-        var _prev=_obj.homeFacts;
-        var _prevCmp=_prev?JSON.stringify(Object.assign({},_prev,{savedAt:0})):null;
-        var _newCmp=JSON.stringify(Object.assign({},_hf,{savedAt:0}));
-        _obj.homeFacts=(_prevCmp!==_newCmp)?_hf:_prev;
+        var _keys=[
+          ['esrPlan', _esrPlanPayload()],
+          ['esrSelfManaging', _esrSelfManagingPayload()],
+          ['esrScorecard', _esrScorecardPayload()]
+        ];
+        _keys.forEach(function(kv){
+          var k=kv[0], val=kv[1];
+          // Only overwrite when the value actually changed, so a stale tab that
+          // recomputes an identical block does not churn the node.
+          var prev=_obj[k];
+          if(JSON.stringify(prev)!==JSON.stringify(val)){ _obj[k]=val; }
+        });
         return (typeof raw==='string')?JSON.stringify(_obj):_obj;
       }
     }catch(e){}
