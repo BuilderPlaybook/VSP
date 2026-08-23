@@ -7149,16 +7149,13 @@ function _esrSelfManagingPayload(){
   }catch(e){ return null; }
 }
 function _esrScorecardPayload(){
-  // esrScorecard -> smb_vsp_scorecard_v1. The complete Sales & Marketing mirror
-  // Home renders. Field names/anchoring match Home's reader EXACTLY:
-  //  - Home reads m.title (not m.name), so we publish title (and name as alias).
-  //  - Home weekly: scWeekStart uses sc.weekStartIso (week 0 = Mon Dec 29 2025),
-  //    reading index i = that week. VSP weekRanges[0]='Dec 29 - Jan 04' matches.
-  //  - Home monthly: scMonthInfo uses sc.monthAnchorYear, index i = month i (Jan=0).
-  //    VSP team monthly maps reading i -> SC_MONTHS_I[i] (Jan=0) for 2026, so
-  //    monthAnchorYear=2026 and readings pass through unshifted.
-  // Publish EVERY Marketing/Sales seat with ALL measurables (weekly + monthly)
-  // and full readings, so Home's avg/total equal VSP's. Reads Leadership team.
+  // esrScorecard -> smb_vsp_scorecard_v1. Replicates VSP's own scorecard exactly:
+  // one card per SEAT, in VSP's order, no merging. VSP shows "Marketing",
+  // "Marketing Manager", and "Sales" as separate cards; Home mirrors that 1:1.
+  // Each seat carries all its measurables (whatever cadence VSP has for it) with
+  // full readings. Field names/anchoring match Home's reader (m.title;
+  // weekStartIso week 0 = Mon Dec 29 2025; monthAnchorYear 2026, Jan=index 0).
+  // Reads the Leadership team scorecard regardless of current team.
   try{
     var t=teamsRegistry['lt']||teamsRegistry[state.currentTeam];
     var allSecs=(t&&t.scorecard)||[];
@@ -7176,19 +7173,9 @@ function _esrScorecardPayload(){
           metrics:(s.metrics||[]).map(function(m){
             var cad=String(m.cadence||'').toLowerCase();
             if(cad!=='monthly'&&cad!=='quarterly'&&cad!=='annual') cad='weekly';
-            return {
-              id:m.id,
-              title:m.title,
-              name:m.title,
-              unit:m.unit,
-              goal:m.goal,
-              goalType:m.goalType,
-              cadence:cad,
-              readings:(m.readings||[]),
-              showTotal:!!m.showTotal,
-              showAverage:(m.showAverage!==false),
-              rollupAs:m.rollupAs
-            };
+            return { id:m.id, title:m.title, name:m.title, unit:m.unit, goal:m.goal,
+              goalType:m.goalType, cadence:cad, readings:(m.readings||[]),
+              showTotal:!!m.showTotal, showAverage:(m.showAverage!==false), rollupAs:m.rollupAs };
           })
         };
       })
