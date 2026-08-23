@@ -7149,18 +7149,51 @@ function _esrSelfManagingPayload(){
   }catch(e){ return null; }
 }
 function _esrScorecardPayload(){
+  // esrScorecard -> smb_vsp_scorecard_v1. The complete Sales & Marketing mirror
+  // Home renders. Field names/anchoring match Home's reader EXACTLY:
+  //  - Home reads m.title (not m.name), so we publish title (and name as alias).
+  //  - Home weekly: scWeekStart uses sc.weekStartIso (week 0 = Mon Dec 29 2025),
+  //    reading index i = that week. VSP weekRanges[0]='Dec 29 - Jan 04' matches.
+  //  - Home monthly: scMonthInfo uses sc.monthAnchorYear, index i = month i (Jan=0).
+  //    VSP team monthly maps reading i -> SC_MONTHS_I[i] (Jan=0) for 2026, so
+  //    monthAnchorYear=2026 and readings pass through unshifted.
+  // Publish EVERY Marketing/Sales seat with ALL measurables (weekly + monthly)
+  // and full readings, so Home's avg/total equal VSP's. Reads Leadership team.
   try{
     var t=teamsRegistry['lt']||teamsRegistry[state.currentTeam];
     var allSecs=(t&&t.scorecard)||[];
-    var wanted={'marketing':1,'sales':1};
-    var secs=allSecs.filter(function(s){ return wanted[String(s.seat||'').trim().toLowerCase()]===1; });
-    if(!secs.length) return { seats:[] };
-    return { seats:secs.map(function(s){
-      return { name:s.seat||s.ownerId||'', role:s.seat||'', metrics:(s.metrics||[]).map(function(m){
-        return { id:m.id, name:m.title, unit:m.unit, goal:m.goal, goalType:m.goalType, cadence:m.cadence||'weekly', readings:(m.readings||[]), showTotal:!!m.showTotal, rollupAs:m.rollupAs };
-      }) };
-    }) };
-  }catch(e){ return { seats:[] }; }
+    var secs=allSecs.filter(function(s){
+      var nm=String(s.seat||'').trim().toLowerCase();
+      return nm.indexOf('marketing')===0 || nm.indexOf('sales')===0;
+    });
+    return {
+      weekStartIso:'2025-12-29',
+      monthAnchorYear:2026,
+      seats:secs.map(function(s){
+        return {
+          name:s.seat||s.ownerId||'',
+          role:s.seat||'',
+          metrics:(s.metrics||[]).map(function(m){
+            var cad=String(m.cadence||'').toLowerCase();
+            if(cad!=='monthly'&&cad!=='quarterly'&&cad!=='annual') cad='weekly';
+            return {
+              id:m.id,
+              title:m.title,
+              name:m.title,
+              unit:m.unit,
+              goal:m.goal,
+              goalType:m.goalType,
+              cadence:cad,
+              readings:(m.readings||[]),
+              showTotal:!!m.showTotal,
+              showAverage:(m.showAverage!==false),
+              rollupAs:m.rollupAs
+            };
+          })
+        };
+      })
+    };
+  }catch(e){ return { seats:[], weekStartIso:'2025-12-29', monthAnchorYear:2026 }; }
 }
 function renderOwnerDependency(){
   var d=computeOwnerDependency();
