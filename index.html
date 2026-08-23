@@ -33380,38 +33380,27 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       return JSON.stringify(dst);
     }catch(e){ return intoRaw; }
   }
-  // merge-252 (Dave, 2026-08-21): publish the three Home ESR keys as SEPARATE
-  // Firebase children (vsp/lida-001/data/esrPlan.json, etc). This is REQUIRED,
-  // not optional: the main VSP blob is stored at vsp/lida-001/data as a JSON
-  // *string* (double-encoded - the adapter has always pushed a stringified blob
-  // and its own pull decodes it the same way). Home reads esrPlan/esrScorecard/
-  // esrSelfManaging as top-level CHILDREN of vsp/lida-001/data, which do not
-  // exist inside a string blob. So we PUT each key to its own child path as a
-  // clean object. Change-detected against the last published value so we do not
-  // churn the node on every sync. Called from V_pushUp's success handler, so it
-  // runs on every push including the sync-adopt path (D-163 parity).
-  var V_esrLast={};
-  function V_publishEsr(){
-    if(typeof fetch !== 'function') return;
+  // merge-252 (Dave, 2026-08-21): stamp the three Home ESR keys as REAL object
+  // children inside the outgoing blob (esrPlan / esrSelfManaging / esrScorecard).
+  // This works because the main push now sends a parsed OBJECT to Firebase (see
+  // V_pushUp), so vsp/lida-001/data is an object tree - exactly like CFO's node -
+  // and Home reads vsp/lida-001/data/esrPlan directly. Runs on every push
+  // including the sync-adopt path (D-163). Never blocks the push.
+  function V_stampHomeFacts(obj){
     try{
-      var base=FB_URL.replace(/\/+$/,'')+'/vsp/lida-001/data/';
-      var items=[
-        ['esrPlan', _esrPlanPayload()],
-        ['esrSelfManaging', _esrSelfManagingPayload()],
-        ['esrScorecard', _esrScorecardPayload()]
-      ];
-      items.forEach(function(kv){
-        var key=kv[0], val=kv[1];
-        var ser=JSON.stringify(val==null?null:val);
-        if(V_esrLast[key]===ser) return;   // unchanged since last publish
-        V_esrLast[key]=ser;
-        fetch(base+key+'.json', {
-          method:'PUT',
-          headers:{'Content-Type':'application/json'},
-          body:ser                          // clean object as its own child
-        }).catch(function(){ V_esrLast[key]=null; });  // allow retry next push
-      });
+      if(obj && typeof obj==='object'){
+        var items=[
+          ['esrPlan', _esrPlanPayload()],
+          ['esrSelfManaging', _esrSelfManagingPayload()],
+          ['esrScorecard', _esrScorecardPayload()]
+        ];
+        items.forEach(function(kv){
+          var k=kv[0], val=kv[1];
+          if(JSON.stringify(obj[k])!==JSON.stringify(val)){ obj[k]=val; }
+        });
+      }
     }catch(e){}
+    return obj;
   }
   function V_guardOutgoing(raw){
     // Local copy about to be pushed. If it would erase readings the last
@@ -33432,15 +33421,28 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     if(typeof fetch !== 'function') return;
     raw = V_guardOutgoing(raw);
     setBadge('sync', 'Saving...');
+    // merge-252 (Dave, 2026-08-21): push the blob as a real OBJECT tree (not a
+    // double-encoded string) so the three Home ESR keys ride as real children of
+    // vsp/lida-001/data - the shape Home reads, matching CFO's node. The stamp
+    // runs here on the parsed object. The pull already accepts both object and
+    // string (V_pull), so existing devices keep working. On any parse failure we
+    // fall back to the original string body so the push is never blocked.
+    var _body;
+    try{
+      var _o=(typeof raw==='string')?JSON.parse(raw):raw;
+      _o=V_stampHomeFacts(_o);
+      _body=JSON.stringify(_o);          // clean single-encoded object tree
+    }catch(e){
+      _body=JSON.stringify(raw);          // safety fallback: original behaviour
+    }
     fetch(V_ENDPOINT, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(raw)
+      body: _body
     }).then(function(){
       V_lastSyncedRaw = raw;
       if(V_pendingLocal === raw) V_pendingLocal = null;
       try { pushPerfAnswers(); } catch(e){}
-      try { V_publishEsr(); } catch(e){}   // merge-252: publish Home ESR children
       flash('ok', 'Saved', 1200);
     }).catch(function(){
       setBadge('off', 'Offline - will retry on next save');
