@@ -7182,12 +7182,18 @@ function _esrSelfManagingPayload(){
 function _esrScorecardPayload(){
   // esrScorecard -> smb_vsp_scorecard_v1. Home's vspScorecard() expects
   // { seats:[ { name, metrics:[ { id,name,unit,goal,goalType,cadence,readings,
-  // showTotal,rollupAs } ] } ] }. Read the CURRENT team scorecard. Home does
-  // its own filtering (drops cadence:'monthly') and tiering - we publish the
-  // full shape it reads.
+  // showTotal,rollupAs } ] } ] }. This is the SALES & MARKETING scorecard only
+  // (Dave, 2026-08-21): publish just the Marketing and Sales seats, not every
+  // operational seat. Publishing all seats made Home render 10 stacked
+  // scorecards, most empty. Read from the lt team (source of the S&M scorecard).
   try{
-    var t=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
-    var secs=(t&&t.scorecard)||[];
+    var t=teamsRegistry['lt']||teamsRegistry[state.currentTeam];
+    var allSecs=(t&&t.scorecard)||[];
+    var wanted={'marketing':1,'sales':1};
+    var secs=allSecs.filter(function(s){
+      var nm=String(s.seat||'').trim().toLowerCase();
+      return wanted[nm]===1;   // exact match: 'Marketing' and 'Sales' seats only
+    });
     if(!secs.length) return { seats:[] };
     return {
       seats:secs.map(function(s){
