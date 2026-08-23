@@ -8902,6 +8902,71 @@ function _scConvReadings(readings, oldCad, newCad, m){
   }
   return _cadNulls(newCad);
 }
+function scSeatHealFromOrgChart(){
+  // Structural fix (Dave, 2026-08-23): scorecard sections must map to REAL Org
+  // Chart seats, not free-typed labels. A typo ("Marketing" vs "Marketing
+  // Manager", "Pre Construction Estimator" vs "Pre-Construction Estimator",
+  // "Accounting Administration" vs "Accounting Administrator") used to spawn a
+  // phantom section split from the real seat. This heal reconciles every
+  // scorecard section to the owner's real Org Chart seat and merges orphan
+  // sections into the real one, preserving all metrics and readings. Runs at
+  // boot AND on the sync-adopt path (D-163 parity). Idempotent - once every
+  // section already matches a real seat, it is a no-op.
+  try{
+    var seats=(typeof orgSeats!=='undefined'&&Array.isArray(orgSeats))?orgSeats:[];
+    if(!seats.length) return;
+    // Map: ownerInitials -> list of that owner's real seat names.
+    var byOwner={};
+    seats.forEach(function(s){
+      var oid=s&&s.initials, nm=s&&s.seat;
+      if(!oid||!nm) return;
+      (byOwner[oid]=byOwner[oid]||[]).push(nm);
+    });
+    // Normalize a label for fuzzy matching: lowercase, strip non-alphanumerics.
+    function norm(x){ return String(x||'').toLowerCase().replace(/[^a-z0-9]+/g,''); }
+    function realSeatFor(ownerId, seatLabel){
+      var list=byOwner[ownerId]||[];
+      if(!list.length) return null;
+      // exact match first
+      for(var i=0;i<list.length;i++){ if(list[i]===seatLabel) return list[i]; }
+      // fuzzy match (typo/spacing/hyphen differences)
+      var ns=norm(seatLabel);
+      for(var j=0;j<list.length;j++){ if(norm(list[j])===ns) return list[j]; }
+      // prefix match: orphan label is the start of exactly one real seat
+      // (e.g. "Marketing" -> "Marketing Manager"). Only when unambiguous.
+      var pref=list.filter(function(x){ return norm(x).indexOf(ns)===0 || ns.indexOf(norm(x))===0; });
+      if(pref.length===1) return pref[0];
+      // if the owner has exactly ONE seat, snap an orphan to it
+      if(list.length===1) return list[0];
+      return null;
+    }
+    function healBoard(sc){
+      if(!Array.isArray(sc)) return;
+      // First pass: correct each section's seat label to the real Org Chart seat.
+      sc.forEach(function(s){
+        if(!s) return;
+        var real=realSeatFor(s.ownerId, s.seat||'');
+        if(real && real!==s.seat){ s.seat=real; }
+      });
+      // Second pass: merge sections that now share the same owner+seat.
+      for(var a=0;a<sc.length;a++){
+        var A=sc[a]; if(!A) continue;
+        for(var b=sc.length-1;b>a;b--){
+          var B=sc[b]; if(!B) continue;
+          if(B.ownerId===A.ownerId && (B.seat||'')===(A.seat||'')){
+            // merge B into A (A is earlier = keeps position/order)
+            A.metrics=(A.metrics||[]).concat(B.metrics||[]);
+            sc.splice(b,1);
+          }
+        }
+      }
+    }
+    if(typeof teamsRegistry==='object'&&teamsRegistry){
+      Object.keys(teamsRegistry).forEach(function(k){ healBoard(teamsRegistry[k]&&teamsRegistry[k].scorecard); });
+    }
+    if(typeof scorecard!=='undefined'&&Array.isArray(scorecard)) healBoard(scorecard);
+  }catch(e){ if(typeof console!=='undefined') console.warn('[VSP] scSeatHeal:', e.message); }
+}
 function scExtendBack(){
   try{
     var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -9220,16 +9285,32 @@ function closeNewMeasurable(){
 function saveNewGroup(){
   var name=document.getElementById('ng-name');
   var seat=document.getElementById('ng-seat');
+  var person=document.getElementById('ng-person');
   var color=document.getElementById('ng-color');
   if(!name||!name.value.trim()){vspAlert('Group name is required.');return;}
-  var id='grp_'+Date.now();
-  scorecard.push({
-    ownerId:id,
-    ownerName:name.value.trim(),
-    seat:seat?seat.value.trim():'',
-    color:color?color.value:'#94a3b8',
-    metrics:[]
-  });
+  // Org Chart bound (Dave, 2026-08-23): if a person is picked, the section is
+  // owned by that person and its seat is their Org Chart seat. If no person is
+  // picked, it is a free "group" (grp_ id) with no seat, kept for ad-hoc use.
+  var pv=person?person.value:'';
+  var seatVal=seat?seat.value:'';
+  if(pv){
+    scorecard.push({
+      ownerId:pv,
+      ownerName:(pplName(pv)||pv),
+      seat:seatVal,
+      color:(pplColor(pv)||(color?color.value:'#94a3b8')),
+      metrics:[]
+    });
+  } else {
+    var id='grp_'+Date.now();
+    scorecard.push({
+      ownerId:id,
+      ownerName:name.value.trim(),
+      seat:'',
+      color:color?color.value:'#94a3b8',
+      metrics:[]
+    });
+  }
   state.newGroupPanel=false;
   renderPage();
 }
@@ -13461,10 +13542,18 @@ function renderScorecard(){
     h+='<input id="ng-name" placeholder="e.g. Marketing, Finance, Sales" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" />';
     h+='</div>';
 
-    // Seat / Role
-    h+='<div style="margin-bottom:16px">';
-    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Seat / Role <span style="font-weight:400;color:var(--txd)">(Optional)</span></label>';
-    h+='<input id="ng-seat" placeholder="e.g. VP of Marketing" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box" />';
+    // Owner + Seat (Org Chart bound - Dave, 2026-08-23): the seat is always an
+    // Org Chart seat, never free text, so scorecard sections stay bound to the
+    // Org Chart and cannot spawn phantom seats.
+    h+='<div style="display:flex;gap:10px;margin-bottom:16px">';
+    h+='<div style="flex:1">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Owner</label>';
+    h+='<select id="ng-person" onchange="_grpPersonPick(\'ng\',this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box"><option value="">(Unassigned)</option>'+_vspOwnerOptions('')+'</select>';
+    h+='</div>';
+    h+='<div id="ng-seat-wrap" style="flex:1;display:none">';
+    h+='<label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Seat</label>';
+    h+='<select id="ng-seat" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box"><option value="">(no seat)</option></select>';
+    h+='</div>';
     h+='</div>';
 
     // Color
@@ -31703,6 +31792,7 @@ try{
   }
 }catch(e){ console.warn('[VSP] seed meeting purge:', e && e.message); }
 try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } } catch(e){}
+try { scSeatHealFromOrgChart(); } catch(e){ console.warn(e); }
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
 try { scNormalize(); } catch(e){ console.warn(e); }
@@ -33112,6 +33202,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     try { if(typeof vspLoadAll === 'function') vspLoadAll(); } catch(e){} try{ if(window._vspMigrateYearGoalIds) window._vspMigrateYearGoalIds(); }catch(e){}
     // Keep this user on the team they are viewing, not the team the saver was on.
     try { if(keepTeam && typeof state !== 'undefined' && state){ state.currentTeam = keepTeam; if(typeof syncTeamData === 'function') syncTeamData(); } } catch(e){}
+    try { if(typeof scSeatHealFromOrgChart === 'function') scSeatHealFromOrgChart(); } catch(e){}
     try { if(typeof scExtendBack === 'function') scExtendBack(); } catch(e){}
     try { if(typeof scExtendYear === 'function') scExtendYear(); } catch(e){}
     try { if(typeof scNormalize === 'function') scNormalize(); } catch(e){}
