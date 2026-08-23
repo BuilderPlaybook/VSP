@@ -33380,31 +33380,38 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       return JSON.stringify(dst);
     }catch(e){ return intoRaw; }
   }
-  function V_stampHomeFacts(raw){
-    // merge-252 (Dave, 2026-08-21): stamp the three Home ESR keys (esrPlan,
-    // esrSelfManaging, esrScorecard) as top-level children on the outgoing
-    // blob, mirroring the PM->CFO pattern. VSP publishes; Home reads them off
-    // vsp/lida-001/data. Runs on EVERY push (first push + sync-adopt path,
-    // satisfying D-163 Sync-Adopt Recompute Parity). Never blocks the push.
+  // merge-252 (Dave, 2026-08-21): publish the three Home ESR keys as SEPARATE
+  // Firebase children (vsp/lida-001/data/esrPlan.json, etc). This is REQUIRED,
+  // not optional: the main VSP blob is stored at vsp/lida-001/data as a JSON
+  // *string* (double-encoded - the adapter has always pushed a stringified blob
+  // and its own pull decodes it the same way). Home reads esrPlan/esrScorecard/
+  // esrSelfManaging as top-level CHILDREN of vsp/lida-001/data, which do not
+  // exist inside a string blob. So we PUT each key to its own child path as a
+  // clean object. Change-detected against the last published value so we do not
+  // churn the node on every sync. Called from V_pushUp's success handler, so it
+  // runs on every push including the sync-adopt path (D-163 parity).
+  var V_esrLast={};
+  function V_publishEsr(){
+    if(typeof fetch !== 'function') return;
     try{
-      var _obj=(typeof raw==='string')?JSON.parse(raw):raw;
-      if(_obj && typeof _obj==='object'){
-        var _keys=[
-          ['esrPlan', _esrPlanPayload()],
-          ['esrSelfManaging', _esrSelfManagingPayload()],
-          ['esrScorecard', _esrScorecardPayload()]
-        ];
-        _keys.forEach(function(kv){
-          var k=kv[0], val=kv[1];
-          // Only overwrite when the value actually changed, so a stale tab that
-          // recomputes an identical block does not churn the node.
-          var prev=_obj[k];
-          if(JSON.stringify(prev)!==JSON.stringify(val)){ _obj[k]=val; }
-        });
-        return (typeof raw==='string')?JSON.stringify(_obj):_obj;
-      }
+      var base=FB_URL.replace(/\/+$/,'')+'/vsp/lida-001/data/';
+      var items=[
+        ['esrPlan', _esrPlanPayload()],
+        ['esrSelfManaging', _esrSelfManagingPayload()],
+        ['esrScorecard', _esrScorecardPayload()]
+      ];
+      items.forEach(function(kv){
+        var key=kv[0], val=kv[1];
+        var ser=JSON.stringify(val==null?null:val);
+        if(V_esrLast[key]===ser) return;   // unchanged since last publish
+        V_esrLast[key]=ser;
+        fetch(base+key+'.json', {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          body:ser                          // clean object as its own child
+        }).catch(function(){ V_esrLast[key]=null; });  // allow retry next push
+      });
     }catch(e){}
-    return raw;
   }
   function V_guardOutgoing(raw){
     // Local copy about to be pushed. If it would erase readings the last
@@ -33418,10 +33425,6 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       // cannot push archived goals back to life.
       raw = V_goalReconcile(base, raw);
     }
-    // Home Coach facts are stamped LAST so no downstream reconcile step (which
-    // may reserialize from base) can drop them. Runs on every push including
-    // the first (no base).
-    raw = V_stampHomeFacts(raw);
     return raw;
   }
 
@@ -33437,6 +33440,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       V_lastSyncedRaw = raw;
       if(V_pendingLocal === raw) V_pendingLocal = null;
       try { pushPerfAnswers(); } catch(e){}
+      try { V_publishEsr(); } catch(e){}   // merge-252: publish Home ESR children
       flash('ok', 'Saved', 1200);
     }).catch(function(){
       setBadge('off', 'Offline - will retry on next save');
