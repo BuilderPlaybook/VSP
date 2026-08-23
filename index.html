@@ -7115,7 +7115,6 @@ function renderPlanCompleteness(){
   h+='</div>';
   return h;
 }
-// === Home ESR publishers (merge-252, Dave, 2026-08-21) ===
 // VSP is the PUBLISHER; the Home module (ESR) is a read-only consumer at
 // https://builderplaybook.github.io/Home/. Home reads three VSP-owned keys off
 // vsp/lida-001/data and mirrors each to localStorage. Shapes below match the
@@ -7124,92 +7123,43 @@ function renderPlanCompleteness(){
 // the sync-adopt path, since the stamp runs in V_guardOutgoing on all pushes.
 
 function _esrNum(v){
-  // Plan numbers are stored as formatted strings ("$13,000,000"); Home wants
-  // numbers only. Strip currency/commas; return null when not parseable so Home
-  // renders "No data" rather than 0.
   if(v==null) return null;
   if(typeof v==='number') return isNaN(v)?null:v;
   var s=String(v).replace(/[^0-9.\-]/g,'');
   if(s===''||s==='-'||s==='.') return null;
-  var n=parseFloat(s);
-  return isNaN(n)?null:n;
+  var n=parseFloat(s); return isNaN(n)?null:n;
 }
 function _esrPlanBlock(p){
-  // Map VSP field names -> Home field names: revenue<-grossSales,
-  // grossProfit<-grossProfit, fixedExpense<-expenses, netProfit<-netProfit.
   if(!p) return null;
-  return {
-    revenue:_esrNum(p.grossSales),
-    grossProfit:_esrNum(p.grossProfit),
-    fixedExpense:_esrNum(p.expenses),
-    netProfit:_esrNum(p.netProfit)
-  };
+  return { revenue:_esrNum(p.grossSales), grossProfit:_esrNum(p.grossProfit), fixedExpense:_esrNum(p.expenses), netProfit:_esrNum(p.netProfit) };
 }
 function _esrPlanPayload(){
-  // esrPlan -> smb_vsp_plan_facts_v1. annual = 1-Year Plan; quarters.qN =
-  // per-quarter. Only q1 exists in planData today; q2-q4 publish as null so
-  // Home shows "No data" for them (documented behaviour).
   try{
     var yr=2026;
     try{ var fd=(planData&&planData.oneyr&&planData.oneyr.futureDate)||''; var mm=String(fd).match(/(20\d\d)/); if(mm) yr=parseInt(mm[1],10); }catch(e){}
-    return {
-      year:yr,
-      annual:_esrPlanBlock(planData&&planData.oneyr),
-      quarters:{
-        q1:_esrPlanBlock(planData&&planData.q1),
-        q2:null, q3:null, q4:null
-      }
-    };
+    return { year:yr, annual:_esrPlanBlock(planData&&planData.oneyr), quarters:{ q1:_esrPlanBlock(planData&&planData.q1), q2:null, q3:null, q4:null } };
   }catch(e){ return null; }
 }
 function _esrSelfManagingPayload(){
-  // esrSelfManaging -> smb_vsp_selfmanaging_v1. Straight from
-  // computeOwnerDependency(); breakdown[] drives the "where to delegate next"
-  // tooltip. prev = prior-quarter score from OWNER_DEP_HISTORY.
   try{
     var dep=computeOwnerDependency();
-    var prev=null;
-    try{ if(typeof OWNER_DEP_HISTORY!=='undefined' && OWNER_DEP_HISTORY.length){ prev=OWNER_DEP_HISTORY[OWNER_DEP_HISTORY.length-1].score; } }catch(e){}
+    var prev=null; try{ if(typeof OWNER_DEP_HISTORY!=='undefined' && OWNER_DEP_HISTORY.length){ prev=OWNER_DEP_HISTORY[OWNER_DEP_HISTORY.length-1].score; } }catch(e){}
     var band=''; try{ band=depBandLabel(dep.score); }catch(e){}
-    return {
-      score:dep.score,
-      bandLabel:band,
-      prev:prev,
-      breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; })
-    };
+    return { score:dep.score, bandLabel:band, prev:prev, breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; }) };
   }catch(e){ return null; }
 }
 function _esrScorecardPayload(){
-  // esrScorecard -> smb_vsp_scorecard_v1. Home's vspScorecard() expects
-  // { seats:[ { name, metrics:[ { id,name,unit,goal,goalType,cadence,readings,
-  // showTotal,rollupAs } ] } ] }. Read the CURRENT team scorecard. Home does
-  // its own filtering (drops cadence:'monthly') and tiering - we publish the
-  // full shape it reads.
   try{
-    var t=teamsRegistry[state.currentTeam]||teamsRegistry['lt'];
-    var secs=(t&&t.scorecard)||[];
+    var t=teamsRegistry['lt']||teamsRegistry[state.currentTeam];
+    var allSecs=(t&&t.scorecard)||[];
+    var wanted={'marketing':1,'sales':1};
+    var secs=allSecs.filter(function(s){ return wanted[String(s.seat||'').trim().toLowerCase()]===1; });
     if(!secs.length) return { seats:[] };
-    return {
-      seats:secs.map(function(s){
-        return {
-          name:s.seat||s.ownerId||'',
-          role:s.seat||'',
-          metrics:(s.metrics||[]).map(function(m){
-            return {
-              id:m.id,
-              name:m.title,
-              unit:m.unit,
-              goal:m.goal,
-              goalType:m.goalType,
-              cadence:m.cadence||'weekly',
-              readings:(m.readings||[]),
-              showTotal:!!m.showTotal,
-              rollupAs:m.rollupAs
-            };
-          })
-        };
-      })
-    };
+    return { seats:secs.map(function(s){
+      return { name:s.seat||s.ownerId||'', role:s.seat||'', metrics:(s.metrics||[]).map(function(m){
+        return { id:m.id, name:m.title, unit:m.unit, goal:m.goal, goalType:m.goalType, cadence:m.cadence||'weekly', readings:(m.readings||[]), showTotal:!!m.showTotal, rollupAs:m.rollupAs };
+      }) };
+    }) };
   }catch(e){ return { seats:[] }; }
 }
 function renderOwnerDependency(){
@@ -33181,6 +33131,37 @@ try{ _vspMigrateJobNotes(); }catch(e){}
      parallel-run. Retire at cutover. */
   var PD_HUDDLE_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/pd/lida-001/data.json';
   var PERF_KEY = 'smb_perf_huddles_v1';
+  // merge-252 (Dave, 2026-08-23): Home ESR publish. Writes the three ESR keys to
+  // a SEPARATE Firebase node (vsp/lida-001/esr) via PATCH - the same isolated
+  // pattern pushPerfAnswers uses for pd/lida-001/data. It NEVER touches the main
+  // VSP node (vsp/lida-001/data), so it cannot affect VSP's own data. Home reads
+  // these three keys from vsp/lida-001/esr.
+  var ESR_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/vsp/lida-001/esr.json';
+  var _lastEsrPushed = '';
+  function pushEsrFacts(){
+    if(typeof fetch !== 'function') return;
+    var payload;
+    try{
+      payload = {
+        esrPlan: (typeof _esrPlanPayload==='function') ? _esrPlanPayload() : null,
+        esrSelfManaging: (typeof _esrSelfManagingPayload==='function') ? _esrSelfManagingPayload() : null,
+        esrScorecard: (typeof _esrScorecardPayload==='function') ? _esrScorecardPayload() : null,
+        savedAt: new Date().toISOString()
+      };
+    }catch(e){ return; }
+    var ser;
+    try{ ser = JSON.stringify(payload); }catch(e){ return; }
+    // change-detect on everything except savedAt, so we do not churn the node
+    var cmp;
+    try{ var c=JSON.parse(ser); c.savedAt=0; cmp=JSON.stringify(c); }catch(e){ cmp=ser; }
+    if(cmp === _lastEsrPushed) return;
+    _lastEsrPushed = cmp;
+    fetch(ESR_ENDPOINT, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: ser
+    }).catch(function(){ _lastEsrPushed=''; });
+  }
   var lastPerfPushed = null;
   function pushPerfAnswers(){
     if(typeof fetch !== 'function') return;
@@ -33380,39 +33361,6 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       return JSON.stringify(dst);
     }catch(e){ return intoRaw; }
   }
-  // merge-252 (Dave, 2026-08-21): publish the three Home ESR keys as SEPARATE
-  // Firebase children (vsp/lida-001/data/esrPlan.json, etc). This is REQUIRED,
-  // not optional: the main VSP blob is stored at vsp/lida-001/data as a JSON
-  // *string* (double-encoded - the adapter has always pushed a stringified blob
-  // and its own pull decodes it the same way). Home reads esrPlan/esrScorecard/
-  // esrSelfManaging as top-level CHILDREN of vsp/lida-001/data, which do not
-  // exist inside a string blob. So we PUT each key to its own child path as a
-  // clean object. Change-detected against the last published value so we do not
-  // churn the node on every sync. Called from V_pushUp's success handler, so it
-  // runs on every push including the sync-adopt path (D-163 parity).
-  var V_esrLast={};
-  function V_publishEsr(){
-    if(typeof fetch !== 'function') return;
-    try{
-      var base=FB_URL.replace(/\/+$/,'')+'/vsp/lida-001/data/';
-      var items=[
-        ['esrPlan', _esrPlanPayload()],
-        ['esrSelfManaging', _esrSelfManagingPayload()],
-        ['esrScorecard', _esrScorecardPayload()]
-      ];
-      items.forEach(function(kv){
-        var key=kv[0], val=kv[1];
-        var ser=JSON.stringify(val==null?null:val);
-        if(V_esrLast[key]===ser) return;   // unchanged since last publish
-        V_esrLast[key]=ser;
-        fetch(base+key+'.json', {
-          method:'PUT',
-          headers:{'Content-Type':'application/json'},
-          body:ser                          // clean object as its own child
-        }).catch(function(){ V_esrLast[key]=null; });  // allow retry next push
-      });
-    }catch(e){}
-  }
   function V_guardOutgoing(raw){
     // Local copy about to be pushed. If it would erase readings the last
     // known cloud image has, merge those readings into it first.
@@ -33440,6 +33388,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       V_lastSyncedRaw = raw;
       if(V_pendingLocal === raw) V_pendingLocal = null;
       try { pushPerfAnswers(); } catch(e){}
+      try { pushEsrFacts(); } catch(e){}
       flash('ok', 'Saved', 1200);
     }).catch(function(){
       setBadge('off', 'Offline - will retry on next save');
