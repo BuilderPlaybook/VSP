@@ -8924,9 +8924,21 @@ function scSeatHealFromOrgChart(){
     });
     // Normalize a label for fuzzy matching: lowercase, strip non-alphanumerics.
     function norm(x){ return String(x||'').toLowerCase().replace(/[^a-z0-9]+/g,''); }
+    // Explicit aliases for known informal seat labels -> the real Org Chart seat
+    // (owner-scoped). Added for the empty secondary-team seats that the fuzzy
+    // logic cannot resolve unambiguously (Dave, 2026-08-23).
+    var SEAT_ALIASES={
+      'TP': { 'Operations Lead':'VP of Construction Operations', 'VP Construction':'VP of Construction Operations' },
+      'MN': { 'Design Lead':'Client Experience Manager & Interior Design' }
+    };
     function realSeatFor(ownerId, seatLabel){
       var list=byOwner[ownerId]||[];
       if(!list.length) return null;
+      // explicit alias
+      if(SEAT_ALIASES[ownerId] && SEAT_ALIASES[ownerId][seatLabel]){
+        var aliased=SEAT_ALIASES[ownerId][seatLabel];
+        if(list.indexOf(aliased)>-1) return aliased;
+      }
       // exact match first
       for(var i=0;i<list.length;i++){ if(list[i]===seatLabel) return list[i]; }
       // fuzzy match (typo/spacing/hyphen differences)
