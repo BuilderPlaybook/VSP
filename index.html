@@ -7186,6 +7186,38 @@ function _esrSelfManagingPayload(){
     return { score:dep.score, bandLabel:band, prev:prev, breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; }) };
   }catch(e){ return null; }
 }
+function _esrGoalsPayload(){
+  // esrGoals -> Home Goals section. Publishes the LT goals exactly as VSP shows
+  // them (Dave, 2026-08-23): company goals, Dave's (DS) goals, and every other
+  // LT person's goals, each grouped so Home can render a per-person tab like the
+  // Profit/Cash tabs. Quarter rule matches VSP: a goal's quarter = its own
+  // quarter field if set, else the current quarter (planData.currentQuarter).
+  try{
+    var lt=teamsRegistry['lt']; if(!lt) return null;
+    var gs=(lt.goals||[]);
+    var cq={q:3,year:2026};
+    try{ if(planData&&planData.currentQuarter&&planData.currentQuarter.q){ cq={q:planData.currentQuarter.q, year:planData.currentQuarter.year}; } }catch(e){}
+    var cqLabel='Q'+cq.q+' '+cq.year;
+    function _g(g){
+      var q=(g.quarter && String(g.quarter).trim()) ? g.quarter : cqLabel;
+      return { id:g.id, title:g.title, owner:g.owner, status:g.status, progress:(g.progress==null?0:g.progress),
+        due:g.due||'', quarter:q, company:!!g.company,
+        milestones:(g.milestones||[]).map(function(m){ return { text:m.text, done:!!m.done }; }) };
+    }
+    var company=[], mine=[], teamMap={};
+    gs.forEach(function(g){
+      if(g.company){ company.push(_g(g)); return; }
+      if(g.owner==='DS'){ mine.push(_g(g)); return; }
+      var o=g.owner||'?';
+      if(!teamMap[o]) teamMap[o]={ owner:o, name:(pplName(o)||o), goals:[] };
+      teamMap[o].goals.push(_g(g));
+    });
+    // team as an ordered array (LT people, excluding DS), stable by name
+    var team=Object.keys(teamMap).map(function(k){ return teamMap[k]; })
+      .sort(function(a,b){ return a.name<b.name?-1:(a.name>b.name?1:0); });
+    return { currentQuarter:cq, currentQuarterLabel:cqLabel, company:company, mine:mine, team:team };
+  }catch(e){ return null; }
+}
 function _esrScorecardPayload(){
   // esrScorecard -> smb_vsp_scorecard_v1. Replicates VSP's own scorecard exactly:
   // one card per SEAT, in VSP's order, no merging. VSP shows "Marketing",
@@ -7201,22 +7233,27 @@ function _esrScorecardPayload(){
       var nm=String(s.seat||'').trim().toLowerCase();
       return nm.indexOf('marketing')===0 || nm.indexOf('sales')===0;
     });
+    function _esrSeat(s){
+      return {
+        name:s.seat||s.ownerId||'',
+        role:s.seat||'',
+        metrics:(s.metrics||[]).map(function(m){
+          var cad=String(m.cadence||'').toLowerCase();
+          if(cad!=='monthly'&&cad!=='quarterly'&&cad!=='annual') cad='weekly';
+          return { id:m.id, title:m.title, name:m.title, unit:m.unit, goal:m.goal,
+            goalType:m.goalType, cadence:cad, readings:(m.readings||[]),
+            showTotal:!!m.showTotal, showAverage:(m.showAverage!==false), rollupAs:m.rollupAs };
+        })
+      };
+    }
+    var out=secs.map(_esrSeat);
+    // BDM (Dave, 2026-08-23): include the BDM-sourced scorecard in the ESR too,
+    // read from the same BDM contract VSP displays on LT. Placed after Sales.
+    try{ var bdm=_bdmScorecardRead(); if(bdm && bdm.metrics && bdm.metrics.length){ out.push(_esrSeat(bdm)); } }catch(e){}
     return {
       weekStartIso:'2025-12-29',
       monthAnchorYear:2026,
-      seats:secs.map(function(s){
-        return {
-          name:s.seat||s.ownerId||'',
-          role:s.seat||'',
-          metrics:(s.metrics||[]).map(function(m){
-            var cad=String(m.cadence||'').toLowerCase();
-            if(cad!=='monthly'&&cad!=='quarterly'&&cad!=='annual') cad='weekly';
-            return { id:m.id, title:m.title, name:m.title, unit:m.unit, goal:m.goal,
-              goalType:m.goalType, cadence:cad, readings:(m.readings||[]),
-              showTotal:!!m.showTotal, showAverage:(m.showAverage!==false), rollupAs:m.rollupAs };
-          })
-        };
-      })
+      seats:out
     };
   }catch(e){ return { seats:[], weekStartIso:'2025-12-29', monthAnchorYear:2026 }; }
 }
@@ -33342,6 +33379,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
         esrPlan: (typeof _esrPlanPayload==='function') ? _esrPlanPayload() : null,
         esrSelfManaging: (typeof _esrSelfManagingPayload==='function') ? _esrSelfManagingPayload() : null,
         esrScorecard: (typeof _esrScorecardPayload==='function') ? _esrScorecardPayload() : null,
+        esrGoals: (typeof _esrGoalsPayload==='function') ? _esrGoalsPayload() : null,
         savedAt: new Date().toISOString()
       };
     }catch(e){ return; }
