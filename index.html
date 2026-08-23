@@ -6258,6 +6258,44 @@ function syncTeamData(){
   headlines=t.headlines;
   scheduledMeetings=t.scheduledMeetings;
   pastMeetings=t.pastMeetings;
+  try{ _bdmInject(); }catch(e){}
+}
+function _bdmWriteBack(){
+  // 2-way edit (Dave, 2026-08-23): persist the injected BDM section back to the
+  // BDM-owned surface (localStorage smb_bdm_scorecard_v1 now; the BDM Firebase
+  // node is wired by the staging adapter). Writes the current injected section
+  // as the BDM contract shape. The BDM module reads the same node, so an edit
+  // made on LT shows up in BDM. Per-metric data rides along; merge-by-id is the
+  // BDM node's job on adopt.
+  try{
+    if(!Array.isArray(scorecard)) return;
+    var sec=null; for(var i=0;i<scorecard.length;i++){ if(scorecard[i]&&scorecard[i]._bdmSource){ sec=scorecard[i]; break; } }
+    if(!sec) return;
+    var payload={ ownerId:sec.ownerId||'DS', seat:sec.seat||'Business Development Manager', metrics:sec.metrics||[], savedAt:new Date().toISOString() };
+    try{ localStorage.setItem(BDM_KEY, JSON.stringify(payload)); }catch(e){}
+    try{ window.SMB_BDM_SCORECARD=payload; }catch(e){}
+  }catch(e){ if(typeof console!=='undefined') console.warn('[VSP] _bdmWriteBack:', e.message); }
+}
+function _bdmInject(){
+  // Inject the BDM-sourced section into the LT scorecard for display + 2-way
+  // edit, positioned right after the Marketing seat (Dave, 2026-08-23). It is
+  // tagged _bdmSource:true and is STRIPPED from vspSnapshot so it never persists
+  // into VSP's own data - BDM owns it. Idempotent: removes any prior injected
+  // copy first, so repeated syncs never duplicate it. LT team only.
+  if(!Array.isArray(scorecard)) return;
+  // remove any previously injected BDM section
+  for(var i=scorecard.length-1;i>=0;i--){ if(scorecard[i] && scorecard[i]._bdmSource) scorecard.splice(i,1); }
+  if(state.currentTeam!=='lt') return;
+  var sec=_bdmScorecardRead();
+  if(!sec) return;
+  // find the Marketing seat (post-heal it is "Marketing Manager"); insert after it,
+  // else after the last Marketing-ish seat, else append.
+  var at=-1;
+  for(var j=0;j<scorecard.length;j++){
+    var nm=String(scorecard[j].seat||'').toLowerCase();
+    if(nm.indexOf('marketing')===0) at=j;
+  }
+  if(at>=0) scorecard.splice(at+1,0,sec); else scorecard.push(sec);
 }
 
 function switchTeam(teamId){
@@ -8902,6 +8940,26 @@ function _scConvReadings(readings, oldCad, newCad, m){
   }
   return _cadNulls(newCad);
 }
+var BDM_KEY='smb_bdm_scorecard_v1';
+function _bdmScorecardRead(){
+  // Read the BDM-published scorecard (2-way shared contract, Dave 2026-08-23).
+  // Surfaces: window.SMB_BDM_SCORECARD, then localStorage smb_bdm_scorecard_v1.
+  // Shape: { ownerId, seat, metrics:[...], savedAt }. Returns a section-shaped
+  // object (ownerId, seat, metrics, _bdmSource:true) or null. The _bdmSource
+  // flag marks it read/display here but OWNED by BDM - vspSnapshot strips it so
+  // it never persists into VSP's own scorecard data.
+  var o=null;
+  try{ if(window.SMB_BDM_SCORECARD && typeof window.SMB_BDM_SCORECARD==='object') o=window.SMB_BDM_SCORECARD; }catch(e){}
+  if(!o){ try{ var raw=localStorage.getItem(BDM_KEY); if(raw) o=JSON.parse(raw); }catch(e){} }
+  if(!o || typeof o!=='object') return null;
+  if(!Array.isArray(o.metrics)) return null;
+  return {
+    ownerId:o.ownerId||'DS',
+    seat:o.seat||'Business Development Manager',
+    metrics:o.metrics,
+    _bdmSource:true
+  };
+}
 function scSeatHealFromOrgChart(){
   // Structural fix (Dave, 2026-08-23): scorecard sections must map to REAL Org
   // Chart seats, not free-typed labels. A typo ("Marketing" vs "Marketing
@@ -11021,9 +11079,14 @@ function saveCellEdit(){
     var m=section.metrics.find(function(m){return m.id===c.metricId;});
     if(m){ m.readings[c.weekIdx]=val; _scStampCell(m, c.weekIdx); }
   }
-  // Also sync back to teamsRegistry
-  var team=teamsRegistry[state.currentTeam];
-  if(team) team.scorecard=scorecard;
+  // BDM 2-way: an edit on the injected BDM section writes back to the BDM node,
+  // not into VSP's own scorecard (vspSnapshot strips _bdmSource sections).
+  if(section && section._bdmSource){ try{ _bdmWriteBack(); }catch(e){} }
+  else {
+    // Also sync back to teamsRegistry (VSP-owned sections only)
+    var team=teamsRegistry[state.currentTeam];
+    if(team) team.scorecard=scorecard;
+  }
   state.editingCell=null;
   rerenderKeepScroll();
 }
@@ -30807,6 +30870,16 @@ function vspSnapshot(){
   // is its own object tree.
   var teams = {};
   try { teams = JSON.parse(JSON.stringify(teamsRegistry)); } catch(e){ teams = {}; }
+  // BDM strip (Dave, 2026-08-23): the BDM-sourced scorecard section is injected
+  // for display + 2-way edit only. It is OWNED by BDM (its own node), so it must
+  // never be written into VSP's persisted scorecard. Remove any _bdmSource
+  // section from every team before serializing.
+  try{
+    Object.keys(teams).forEach(function(tk){
+      var tt=teams[tk]; if(!tt||!Array.isArray(tt.scorecard)) return;
+      tt.scorecard=tt.scorecard.filter(function(s){ return !(s && s._bdmSource); });
+    });
+  }catch(e){}
   // merge-210 (Dave, 2026-08-12): push-time tombstone filter. Strip deleted
   // meetings from the outgoing snapshot so no device can ever push a deleted
   // meeting back to the shared store, regardless of adopt-order races.
