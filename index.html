@@ -23917,6 +23917,33 @@ function _msHandleRedirect(){
 }
 /* Now that the auth constants are assigned, safe to run the redirect handler. */
 try{ _msHandleRedirect(); }catch(e){}
+/* Embed mode (Dave, 2026-08-24): ?page=<pageId>&embed=1 boots straight to that
+   page with the sidebar, topbar, and staging badge hidden, so Home (or any
+   surface) can frame a live VSP page 1:1 - identical look, feel, and function,
+   real 2-way, because it IS VSP running on VSP's own data and sync. Ends the
+   rebuild-the-goals-page-in-Home cycle. Sync still runs normally underneath. */
+try{
+  (function(){
+    var q=new URLSearchParams(location.search);
+    var pg=q.get('page');
+    var isEmbed=q.get('embed')==='1';
+    if(pg){
+      var okPages=['goals','scorecard','dashboard','todos','issues','meetings','headlines','strategic','org'];
+      if(okPages.indexOf(pg)>-1){ state.page=pg; if(pg==='scorecard') state.scorecardScope='metrics'; }
+    }
+    if(isEmbed){
+      window.__VSP_EMBED = true;
+      var st=document.createElement('style');
+      st.id='vsp-embed-css';
+      st.textContent='.sb,.tb,#smb-stage-badge{display:none !important}'
+        +'.main{margin-left:0 !important;width:100% !important;max-width:none !important}'
+        +'.app{display:block !important}'
+        +'.page{padding-top:10px !important}'
+        +'body{background:var(--bg)}';
+      (document.head||document.documentElement).appendChild(st);
+    }
+  })();
+}catch(e){}
 /* Deep links (Dave, 2026-07-31): invite emails land the person directly on
    their own Quarterly or Annual review. ?open=quarterly&pid=p7&year=2026&q=Q3 */
 try{
