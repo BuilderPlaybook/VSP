@@ -34514,6 +34514,15 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     // nodes; neither touches the main VSP data node). Prime once, then poll.
     try{ pullBdmScorecard(); setInterval(pullBdmScorecard, 15000); }catch(e){}
     try{ pollEsrInbox(); setInterval(pollEsrInbox, 8000); }catch(e){}
+    // Boot republish (found 2026-08-24): the esr node only refreshed on a
+    // save or adopt, so after deploying a build that changes the payload
+    // (e.g. the BDM normalizer) the node stayed STALE until someone edited
+    // something - Home kept rendering the old shape. Republish once at boot,
+    // after the initial pulls settle, so the node always reflects the
+    // current build against current data. pushEsrFacts is change-detected
+    // per session but _lastEsrPushed starts empty, so this always writes on
+    // boot; one small PUT per page load is acceptable for staging.
+    try{ setTimeout(function(){ try{ pushEsrFacts(); }catch(e){} }, 5000); }catch(e){}
   }
 
   if(document.readyState === 'loading'){
