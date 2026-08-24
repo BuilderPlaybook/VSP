@@ -5420,6 +5420,8 @@ function saveEditItem(){
       if(ownerEl) it.owner=ownerEl.value;
       var compEl=document.getElementById('edit-company');
       if(compEl) it.company=compEl.checked;
+      var persEl=document.getElementById('edit-personal');
+      if(persEl) it.personal=persEl.checked;
       var dueEl2=document.getElementById('edit-due');
       if(dueEl2&&dueEl2.value) it.due=dueEl2.value;
       var notesEl2=document.getElementById('edit-notes');
@@ -5531,7 +5533,8 @@ function submitCreateForm(){
     _newId = Date.now();
     var _cfpRaw=(document.getElementById('cf-parent')||{}).value||'';
     var _cfpid = !_cfpRaw ? null : (_cfpRaw.indexOf('y1:')===0 ? _cfpRaw : (parseInt(_cfpRaw,10)||null));
-    goals.unshift({id:_newId,title:title.value.trim(),owner:owner?owner.value:'DS',company:!!(companyChk&&companyChk.checked),status:'on-track',progress:0,due:due?due.value:'2026-06-30',horizon:state.createHorizon||'current',milestones:[],notes:(document.getElementById('cf-notes')||{}).value||'',parentId:_cfpid});state.createHorizon=null;
+    var _cfPers=document.getElementById('cf-personal');
+    goals.unshift({id:_newId,title:title.value.trim(),owner:owner?owner.value:'DS',company:!!(companyChk&&companyChk.checked),personal:!!(_cfPers&&_cfPers.checked),status:'on-track',progress:0,due:due?due.value:'2026-06-30',horizon:state.createHorizon||'current',milestones:[],notes:(document.getElementById('cf-notes')||{}).value||'',parentId:_cfpid});state.createHorizon=null;
     if(state.meetTab==='running'){ state.meetCreatedGoalIds = state.meetCreatedGoalIds || []; state.meetCreatedGoalIds.push(_newId); }
   } else if(type==='todo'){
     var title=document.getElementById('cf-title');
@@ -7031,30 +7034,64 @@ var OWNER_DEP_HISTORY=[
   {q:"Q4 2025",score:6.9},
   {q:"Q1 2026",score:7.6}
 ];
+// Self-Managing Score v2 (Dave, 2026-08-23). Three weighting upgrades over v1:
+//  1. Personal goals (goal.personal===true) are excluded from goalsShare entirely
+//     - they inflate owner-dependency without reflecting company operations.
+//  2. Company goals (goal.company===true) weigh SM_COMPANY_GOAL_WEIGHT x an
+//     individual goal, so owning company goals moves the score more.
+//  3. Seats the owner holds WITH a named successor weigh SM_SEAT_COVERED_WEIGHT
+//     (0.5) instead of 1 - a covered seat is resilience, not raw dependency.
+// Published owned/total carry the EFFECTIVE WEIGHTED numbers (rounded for display)
+// so Home's owned/total percentage stays honest without new fields. Category
+// weights (40/20/20/20), floor/ceiling (1-10), and band thresholds unchanged.
+var SM_COMPANY_GOAL_WEIGHT = 2;    // company goal counts 2x an individual goal
+var SM_SEAT_COVERED_WEIGHT = 0.5;  // owner-held seat with a successor counts 0.5
+var SM_FORMULA_VERSION = 2;
 function computeOwnerDependency(){
   var top=orgSeats.find(function(s){return s.reportsTo===null;});
   var owner=top?top.initials:"DS";
   var ownerName=top?top.person:"Owner";
+  // --- Seats: weighted by succession coverage ---
   var totalSeats=orgSeats.length;
-  var ownerSeats=orgSeats.filter(function(s){return s.initials===owner && s.reportsTo!==null;}).length;
-  var activeGoals=goals.filter(function(g){return g.status!=="complete";});
-  var ownerGoals=activeGoals.filter(function(g){return g.owner===owner;}).length;
+  var ownerSeatObjs=orgSeats.filter(function(s){return s.initials===owner && s.reportsTo!==null;});
+  var ownerSeatsRaw=ownerSeatObjs.length;
+  var ownerSeatsCovered=ownerSeatObjs.filter(function(s){ return s.successor && String(s.successor).trim() && String(s.successor).trim()!=='-'; }).length;
+  // effective weighted owned seats: covered seats count 0.5, uncovered 1
+  var ownerSeatsW = (ownerSeatsRaw - ownerSeatsCovered) * 1 + ownerSeatsCovered * SM_SEAT_COVERED_WEIGHT;
+  var seatsShare=totalSeats?ownerSeatsW/totalSeats:0;
+  // --- Goals: exclude personal, weight company goals heavier ---
+  var activeGoals=goals.filter(function(g){return g.status!=="complete" && g.personal!==true;});
+  var personalExcluded=goals.filter(function(g){return g.status!=="complete" && g.personal===true;}).length;
+  function goalW(g){ return g.company===true ? SM_COMPANY_GOAL_WEIGHT : 1; }
+  var totalGoalsW=activeGoals.reduce(function(a,g){ return a+goalW(g); }, 0);
+  var ownerGoalsW=activeGoals.filter(function(g){return g.owner===owner;}).reduce(function(a,g){ return a+goalW(g); }, 0);
+  var goalsShare=totalGoalsW?ownerGoalsW/totalGoalsW:0;
+  // --- Metrics: unchanged (equal weight) ---
   var totalMetrics=0, ownerMetrics=0;
   scorecard.forEach(function(s){s.metrics.forEach(function(m){totalMetrics++; if(s.ownerId===owner)ownerMetrics++;});});
+  var metricsShare=totalMetrics?ownerMetrics/totalMetrics:0;
+  // --- Issues: unchanged (equal weight) ---
   var openIssues=issues.filter(function(i){return i.status==="open";});
   var ownerIssues=openIssues.filter(function(i){return i.owner===owner;}).length;
-  var seatsShare=totalSeats?ownerSeats/totalSeats:0;
-  var goalsShare=activeGoals.length?ownerGoals/activeGoals.length:0;
-  var metricsShare=totalMetrics?ownerMetrics/totalMetrics:0;
   var issuesShare=openIssues.length?ownerIssues/openIssues.length:0;
-  var depFrac=seatsShare*0.40+goalsShare*0.20+metricsShare*0.20+issuesShare*0.20;
+  // --- Combine (category weights unchanged) ---
+  // Weights rebalanced 40/20/20/20 -> 30/30/15/25 (Dave, 2026-08-23, EOS logic):
+  // goal ownership is the clearest delegation signal (up to 30); issue routing
+  // shows where decisions still bottleneck (up to 25); scorecard-number
+  // ownership is the most mechanical dependency (down to 15); seat COUNT is too
+  // crude to deserve 40 until seat criticality is weighted (down to 30).
+  var depFrac=seatsShare*0.30+goalsShare*0.30+metricsShare*0.15+issuesShare*0.25;
   var score=Math.round((1+(1-depFrac)*9)*10)/10;
-  return {owner:owner, ownerName:ownerName, score:score,
+  // Published owned/total = effective weighted numbers, rounded for display so
+  // Home's owned/total renders a truthful percentage.
+  var r1=function(x){ return Math.round(x*10)/10; };
+  return {owner:owner, ownerName:ownerName, score:score, formulaVersion:SM_FORMULA_VERSION,
+    personalExcluded:personalExcluded,
     rows:[
-      {label:"Seats filled",      owned:ownerSeats,   total:totalSeats,        share:seatsShare},
-      {label:"Active goals owned",owned:ownerGoals,   total:activeGoals.length,share:goalsShare},
-      {label:"Scorecard numbers", owned:ownerMetrics, total:totalMetrics,      share:metricsShare},
-      {label:"Open issues owned", owned:ownerIssues,  total:openIssues.length, share:issuesShare}
+      {label:"Seats filled",      owned:r1(ownerSeatsW), total:totalSeats,     share:seatsShare, note:(ownerSeatsCovered?ownerSeatsCovered+' with a successor (counted at half)':'')},
+      {label:"Active goals owned",owned:r1(ownerGoalsW), total:r1(totalGoalsW),share:goalsShare, note:(personalExcluded?personalExcluded+' personal goal'+(personalExcluded===1?'':'s')+' excluded; company goals weigh '+SM_COMPANY_GOAL_WEIGHT+'x':'')},
+      {label:"Scorecard numbers", owned:ownerMetrics,    total:totalMetrics,   share:metricsShare, note:''},
+      {label:"Open issues owned", owned:ownerIssues,     total:openIssues.length, share:issuesShare, note:''}
     ]};
 }
 function depBandColor(s){ return s>=8?"var(--grn)":s>=5?"var(--amb)":"var(--red)"; }
@@ -7216,8 +7253,9 @@ function _esrSelfManagingPayload(){
     var dep=computeOwnerDependency();
     var prev=null; try{ if(typeof OWNER_DEP_HISTORY!=='undefined' && OWNER_DEP_HISTORY.length){ prev=OWNER_DEP_HISTORY[OWNER_DEP_HISTORY.length-1].score; } }catch(e){}
     var band=''; try{ band=depBandLabel(dep.score); }catch(e){}
-    var trend=[]; try{ trend=_smSeries().recent4.map(function(x){ return { q:x.q, score:x.score, live:!!x.live }; }); }catch(e){}
-    return { score:dep.score, bandLabel:band, prev:prev, trend:trend, breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; }) };
+    var trend=[]; try{ trend=_smSeries().recent4.map(function(x){ return { q:x.q, score:x.score, live:!!x.live, fv:(x.fv!=null?x.fv:1) }; }); }catch(e){}
+    return { score:dep.score, bandLabel:band, prev:prev, formulaVersion:(dep.formulaVersion||2), trend:trend,
+      breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total, note:(r.note||'') }; }) };
   }catch(e){ return null; }
 }
 function _esrGoalsPayload(){
@@ -7234,8 +7272,10 @@ function _esrGoalsPayload(){
     var cqLabel='Q'+cq.q+' '+cq.year;
     function _g(g){
       var q=(g.quarter && String(g.quarter).trim()) ? g.quarter : cqLabel;
+      var supports=''; try{ supports=(g.parentId!=null&&g.parentId!=='')?parentLabel(g.parentId):''; }catch(e){}
       return { id:g.id, title:g.title, owner:g.owner, status:g.status, progress:(g.progress==null?0:g.progress),
         due:g.due||'', quarter:q, company:!!g.company,
+        parentId:(g.parentId!=null?g.parentId:null), supportsLabel:supports,
         milestones:(g.milestones||[]).map(function(m){ return { id:m.id, text:m.text, done:!!m.done }; }) };
     }
     var company=[], mine=[], teamMap={};
@@ -7287,7 +7327,8 @@ function _esrScorecardPayload(){
           if(cad!=='monthly'&&cad!=='quarterly'&&cad!=='annual') cad='weekly';
           return { id:m.id, title:m.title, name:m.title, unit:m.unit, goal:m.goal,
             goalType:m.goalType, cadence:cad, readings:(m.readings||[]),
-            showTotal:!!m.showTotal, showAverage:(m.showAverage!==false), rollupAs:m.rollupAs };
+            showTotal:!!m.showTotal, showAverage:(m.showAverage!==false), rollupAs:m.rollupAs,
+            indicator:(m.indicator||null), auto:(m.auto!=null?m.auto:(m._autoKey?true:false)), _autoKey:(m._autoKey||null) };
         })
       };
     }
@@ -7348,7 +7389,7 @@ function _smCaptureIfRolled(){
       // the score we last saw in it (not the current one).
       var hist=_smHistory();
       if(seenScore!=null && !hist.some(function(x){ return x.q===seenLabel; })){
-        hist.push({ q:seenLabel, score:seenScore });
+        hist.push({ q:seenLabel, score:seenScore, fv:(typeof SM_FORMULA_VERSION!=='undefined'?SM_FORMULA_VERSION:2) });
         // keep ordered oldest->newest by quarter index
         hist.sort(function(a,b){ return (_smQIndex(a.q)||0)-(_smQIndex(b.q)||0); });
         try{ localStorage.setItem(SMSCORE_HKEY, JSON.stringify(hist)); }catch(e){}
@@ -7370,15 +7411,19 @@ function _smSeries(){
   if(idxs.length){
     var startIdx=Math.min.apply(null, idxs);
     var endIdx=_smQIndex(cur.label)-1; // last completed quarter
-    var byIdx={}; hist.forEach(function(x){ var i=_smQIndex(x.q); if(i!=null) byIdx[i]=x.score; });
+    var byIdx={}, fvIdx={}; hist.forEach(function(x){ var i=_smQIndex(x.q); if(i!=null){ byIdx[i]=x.score; fvIdx[i]=(x.fv!=null?x.fv:1); } });
     for(var i=startIdx;i<=endIdx;i++){
       var yy=Math.floor((i-1)/4), qq=((i-1)%4)+1;
-      full.push({ q:'Q'+qq+' '+yy, score:(byIdx[i]!=null?byIdx[i]:null) });
+      full.push({ q:'Q'+qq+' '+yy, score:(byIdx[i]!=null?byIdx[i]:null), fv:(fvIdx[i]!=null?fvIdx[i]:1) });
     }
   }
-  // append live Now
+  // append live Now (always current formula)
   var d=computeOwnerDependency();
-  full.push({ q:'Now', score:d.score, live:true });
+  full.push({ q:'Now', score:d.score, live:true, fv:(typeof SM_FORMULA_VERSION!=='undefined'?SM_FORMULA_VERSION:2) });
+  // Tag each historical point with its formula version (absent = pre-v2 = v1) so
+  // the card/Coach can mark the jump at the v1->v2 boundary and not read it as
+  // real delegation. byIdx carries fv when the stored entry has one.
+  full.forEach(function(pt){ if(pt.fv==null) pt.fv=(pt.live?2:1); });
   var recent4=full.slice(-4);
   var archived=full.slice(0, Math.max(0, full.length-4)).filter(function(x){ return !x.live; });
   return { all:full, recent4:recent4, archived:archived };
@@ -7451,7 +7496,28 @@ function renderOwnerDependency(){
   h+='<button onclick="state.showDepRoadmap=!state.showDepRoadmap;renderPage()" style="background:none;border:none;color:var(--blu);font-size:var(--fz-body);font-weight:600;font-family:inherit;cursor:pointer;padding:0">'+(state.showDepRoadmap?'Hide hand-off roadmap':'Show hand-off roadmap')+'</button>';
   if(state.showDepRoadmap) h+=renderSuccessionRoadmap();
   h+='</div>';
-  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:12px;line-height:1.5">Measures how much of the company\u2019s seats, goals, numbers, and open issues run through '+d.ownerName+'. Drive it up by handing seats and ownership to the team - that is what makes the company able to run without you.</div>';
+  // How-this-is-scored methodology block (Dave, 2026-08-23): the whole team sees
+  // exactly how the score is built and what has to happen to get the owner out.
+  h+='<div style="margin-top:12px;padding:12px 14px;border:1px solid var(--brd);border-radius:8px;background:var(--sur2)">';
+  h+='<div style="font-size:var(--fz-base);font-weight:700;color:var(--txt);margin-bottom:6px">How this score works</div>';
+  h+='<div style="font-size:var(--fz-xs);color:var(--txm);line-height:1.6">';
+  h+='It measures how much of the company still runs through '+d.ownerName+'. Four categories, weighted by how strongly each signals real dependency: ';
+  h+='<b style="color:var(--txt)">Goals 30%</b> (owning goals is the clearest delegation signal; company goals count 2x, personal goals are excluded), ';
+  h+='<b style="color:var(--txt)">Seats 30%</b> (a seat with a named successor counts half - coverage is resilience), ';
+  h+='<b style="color:var(--txt)">Open issues 25%</b> (issues routed to the owner mean decisions still bottleneck there), ';
+  h+='<b style="color:var(--txt)">Scorecard numbers 15%</b> (the most mechanical form of ownership). ';
+  h+='10 means the company runs without the owner; 1 means everything runs through them.';
+  h+='</div>';
+  h+='<div style="font-size:var(--fz-base);font-weight:700;color:var(--txt);margin:10px 0 6px">What gets '+d.ownerName+' out of the company</div>';
+  h+='<div style="font-size:var(--fz-xs);color:var(--txm);line-height:1.6">';
+  h+='Every move below raises the score. In order of leverage: ';
+  h+='<b style="color:var(--txt)">1.</b> Take ownership of a goal '+d.ownerName+' currently holds - especially company goals. ';
+  h+='<b style="color:var(--txt)">2.</b> Take a seat, or get named as successor on one of '+d.ownerName+'\u2019s seats so it is covered. ';
+  h+='<b style="color:var(--txt)">3.</b> Pull open issues off '+d.ownerName+'\u2019s plate - solve them or own them. ';
+  h+='<b style="color:var(--txt)">4.</b> Take over scorecard numbers '+d.ownerName+' still reports. ';
+  h+='The Hand-Off Roadmap below lists the exact items.';
+  h+='</div>';
+  h+='</div>';
   h+='</div>';
   return h;
 }
@@ -9143,7 +9209,16 @@ function _bdmScorecardRead(){
   return {
     ownerId:o.ownerId||'DS',
     seat:o.seat||'Business Development Manager',
-    metrics:o.metrics,
+    // Preserve BDM per-metric provenance fields so VSP can render the same
+    // tooltips/badges BDM shows (indicator = leading/lagging, auto = auto-fed,
+    // _autoKey = which activity feeds it). Dave, 2026-08-23.
+    metrics:(o.metrics||[]).map(function(m){
+      return Object.assign({}, m, {
+        indicator: m.indicator||null,
+        auto: (m.auto!=null?m.auto:(m._autoKey?true:false)),
+        _autoKey: m._autoKey||null
+      });
+    }),
     _bdmSource:true
   };
 }
@@ -30265,6 +30340,7 @@ function renderPage(){
       // Scope: company vs individual (goals only)
       if(emType==='goal'){
         emH+='<div style="margin-bottom:14px"><label style="display:inline-flex;align-items:center;gap:9px;font-size:var(--fz-base);cursor:pointer;color:var(--txt)"><input type="checkbox" id="edit-company"'+(emItem.company?' checked':'')+' style="width:17px;height:17px;cursor:pointer"> Company goal <span style="color:var(--txm);font-size:var(--fz-body)">(also shows in Company Goals)</span></label></div>';
+        emH+='<div style="margin-bottom:14px"><label style="display:inline-flex;align-items:center;gap:9px;font-size:var(--fz-base);cursor:pointer;color:var(--txt)"><input type="checkbox" id="edit-personal"'+(emItem.personal?' checked':'')+' style="width:17px;height:17px;cursor:pointer"> Personal goal <span style="color:var(--txm);font-size:var(--fz-body)">(excluded from the Self-Managing Score)</span></label></div>';
       }
       // Line of sight: parent goal (goals only)
       if(emType==='goal'){
@@ -30440,6 +30516,7 @@ function renderPage(){
       formBody+='<input id="cf-due" type="date" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;box-sizing:border-box"></div>';
       formBody+='</div>';
       formBody+='<div style="margin-bottom:14px"><label style="display:inline-flex;align-items:center;gap:9px;font-size:var(--fz-lg);cursor:pointer;color:var(--txt)"><input type="checkbox" id="cf-company" style="width:17px;height:17px;cursor:pointer"> Company goal <span style="color:var(--txm);font-size:var(--fz-body)">(also shows in Company Goals)</span></label></div>';
+      formBody+='<div style="margin-bottom:14px"><label style="display:inline-flex;align-items:center;gap:9px;font-size:var(--fz-lg);cursor:pointer;color:var(--txt)"><input type="checkbox" id="cf-personal" style="width:17px;height:17px;cursor:pointer"> Personal goal <span style="color:var(--txm);font-size:var(--fz-body)">(excluded from the Self-Managing Score)</span></label></div>';
       // Line of sight: parent goal (Supports)
       formBody+='<div style="margin-bottom:14px"><label style="font-size:var(--fz-body);font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Supports (optional)</label>';
       formBody+='<select id="cf-parent" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-base);font-family:inherit;background:var(--sur)">';
@@ -33506,6 +33583,10 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     try { if(typeof renderTopbarV2 === 'function') renderTopbarV2(); } catch(e){}
     try { if(typeof renderNav === 'function') renderNav(); } catch(e){}
     try { if(typeof renderPage === 'function') renderPage(); } catch(e){}
+    // D-163: recompute-and-republish on the sync-adopt path, not only at boot/save.
+    // The Self-Managing Score and ESR facts must reflect adopted teammate data.
+    try { if(typeof _smCaptureIfRolled === 'function') _smCaptureIfRolled(); } catch(e){}
+    try { _lastEsrPushed=''; pushEsrFacts(); } catch(e){}
   }
 
   /* v141 D-120 bridge (VSP<->P&D huddle answers).
@@ -33548,6 +33629,94 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       headers: { 'Content-Type': 'application/json' },
       body: ser
     }).catch(function(){ _lastEsrPushed=''; });
+  }
+
+  // merge-252 (Dave, 2026-08-23): ESR goal-edit inbox. Home is a separate deployed
+  // page, so window.SMB_VSP_GOALS.* cannot be called across pages. Instead Home
+  // pushes edit ops to vsp/lida-001/esr/inbox; VSP polls, applies each op to its
+  // own goal store (silent-fail-safe, D-92 discipline), clears the applied ops,
+  // and republishes esrGoals so Home sees its edit confirmed on the next pull.
+  // Op shapes (all carry {id, at, by}):
+  //   {op:'setMilestone', goalId, milestoneId, done}
+  //   {op:'setStatus',    goalId, status}          status: on-track|off-track|complete
+  //   {op:'setProgress',  goalId, progress}        progress: 0..100
+  // Inbox node is a flat map keyed by op id: { "<opId>": {op...}, ... }. VSP
+  // deletes each key it applies (PUT null). This node is isolated from the main
+  // VSP data node, so it can never corrupt VSP's own data.
+  // merge-252 (Dave, 2026-08-23): BDM scorecard Firebase READ bridge. BDM and VSP
+  // run on separate GitHub Pages origins, so localStorage/window globals do not
+  // cross. The BDM module publishes its scorecard to bdm/lida-001/scorecard;
+  // this pulls that node into local smb_bdm_scorecard_v1 so _bdmScorecardRead()
+  // finds live BDM data and the LT injection + ESR publish match the BDM module.
+  // Read-only: VSP never writes the BDM node. (BDM owns the write side - it must
+  // publish to bdm/lida-001/scorecard from its own staging adapter.)
+  var BDM_SC_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/bdm/lida-001/scorecard.json';
+  var _bdmPulling = false, _lastBdmSig = null;
+  function pullBdmScorecard(){
+    if(typeof fetch!=='function' || _bdmPulling) return;
+    _bdmPulling = true;
+    fetch(BDM_SC_ENDPOINT, { cache:'no-store' }).then(function(r){
+      return r.ok ? r.json() : null;
+    }).then(function(sc){
+      _bdmPulling = false;
+      if(!sc || typeof sc!=='object' || !Array.isArray(sc.metrics)) return;
+      var ser; try{ ser=JSON.stringify(sc); }catch(e){ return; }
+      if(ser===_lastBdmSig) return;   // no change
+      _lastBdmSig = ser;
+      try{ localStorage.setItem('smb_bdm_scorecard_v1', ser); }catch(e){}
+      try{ window.SMB_BDM_SCORECARD = sc; }catch(e){}
+      // Re-render if the LT scorecard is on screen so the injected section refreshes.
+      try{ if(typeof syncTeamData==='function') syncTeamData(); }catch(e){}
+      try{ if(state && state.page==='scorecard') renderPage(); }catch(e){}
+      try{ _lastEsrPushed=''; pushEsrFacts(); }catch(e){}   // republish ESR with fresh BDM numbers
+    }).catch(function(){ _bdmPulling=false; });
+  }
+  var ESR_INBOX_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/vsp/lida-001/esr/inbox.json';
+  var _esrInboxPolling = false;
+  function _applyEsrOp(op){
+    // Returns true if applied (or safely no-op), false if it should be retried.
+    try{
+      if(!op || !op.op) return true; // malformed: drop it
+      if(op.op==='setMilestone'){
+        return !!(window.SMB_VSP_GOALS && window.SMB_VSP_GOALS.setMilestone
+          && window.SMB_VSP_GOALS.setMilestone(op.goalId, op.milestoneId, !!op.done)) || true;
+      }
+      if(op.op==='setStatus'){
+        try{ if(window.SMB_VSP_GOALS && window.SMB_VSP_GOALS.setStatus) window.SMB_VSP_GOALS.setStatus(op.goalId, op.status); }catch(e){}
+        return true;
+      }
+      if(op.op==='setProgress'){
+        try{
+          var p=parseInt(op.progress,10); if(isNaN(p)) return true;
+          p=Math.max(0,Math.min(100,p));
+          var g=(typeof goals!=='undefined')?goals.find(function(x){ return String(x.id)===String(op.goalId); }):null;
+          if(g){ g.progress=p; try{ vspSaveNow(); }catch(e){} try{ if(state.page==='goals') renderPage(); }catch(e){} }
+        }catch(e){}
+        return true;
+      }
+      return true; // unknown op: drop it (do not wedge the inbox)
+    }catch(e){ return true; }
+  }
+  function pollEsrInbox(){
+    if(typeof fetch!=='function' || _esrInboxPolling) return;
+    _esrInboxPolling = true;
+    fetch(ESR_INBOX_ENDPOINT, { cache:'no-store' }).then(function(r){
+      return r.ok ? r.json() : null;
+    }).then(function(inbox){
+      _esrInboxPolling = false;
+      if(!inbox || typeof inbox!=='object') return;
+      var ids=Object.keys(inbox);
+      if(!ids.length) return;
+      var applied=[];
+      ids.forEach(function(k){ if(_applyEsrOp(inbox[k])) applied.push(k); });
+      // Clear applied ops (PATCH each to null), then republish esrGoals.
+      if(applied.length){
+        var patch={}; applied.forEach(function(k){ patch[k]=null; });
+        fetch(ESR_INBOX_ENDPOINT, {
+          method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(patch)
+        }).then(function(){ try{ _lastEsrPushed=''; pushEsrFacts(); }catch(e){} }).catch(function(){});
+      }
+    }).catch(function(){ _esrInboxPolling=false; });
   }
   var lastPerfPushed = null;
   function pushPerfAnswers(){
@@ -34277,6 +34446,10 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     // Parallel pulls: each root sets its own ready flag on completion.
     V_pull();
     P_pull();
+    // merge-252: BDM scorecard pull + ESR goal-edit inbox poll (both isolated
+    // nodes; neither touches the main VSP data node). Prime once, then poll.
+    try{ pullBdmScorecard(); setInterval(pullBdmScorecard, 15000); }catch(e){}
+    try{ pollEsrInbox(); setInterval(pollEsrInbox, 8000); }catch(e){}
   }
 
   if(document.readyState === 'loading'){
