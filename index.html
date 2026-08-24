@@ -7183,7 +7183,8 @@ function _esrSelfManagingPayload(){
     var dep=computeOwnerDependency();
     var prev=null; try{ if(typeof OWNER_DEP_HISTORY!=='undefined' && OWNER_DEP_HISTORY.length){ prev=OWNER_DEP_HISTORY[OWNER_DEP_HISTORY.length-1].score; } }catch(e){}
     var band=''; try{ band=depBandLabel(dep.score); }catch(e){}
-    return { score:dep.score, bandLabel:band, prev:prev, breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; }) };
+    var trend=[]; try{ trend=_smSeries().recent4.map(function(x){ return { q:x.q, score:x.score, live:!!x.live }; }); }catch(e){}
+    return { score:dep.score, bandLabel:band, prev:prev, trend:trend, breakdown:(dep.rows||[]).map(function(r){ return { label:r.label, owned:r.owned, total:r.total }; }) };
   }catch(e){ return null; }
 }
 function _esrGoalsPayload(){
@@ -7257,10 +7258,93 @@ function _esrScorecardPayload(){
     };
   }catch(e){ return { seats:[], weekStartIso:'2025-12-29', monthAnchorYear:2026 }; }
 }
+// Self-Managing Score history (Dave, 2026-08-23): last-4-quarters trend with
+// "Not Available" for unrecorded quarters, older results archived + viewable,
+// and auto-capture of the score each quarter on load. History persists in
+// localStorage smb_selfmanaging_history_v1 as [{q, score}] ordered oldest->newest.
+// It seeds from the original OWNER_DEP_HISTORY once, then grows on quarter roll.
+var SMSCORE_HKEY='smb_selfmanaging_history_v1';
+function _smQIndex(qLabel){
+  // 'Q3 2026' -> a sortable integer (year*4 + q). Returns null if unparseable.
+  var m=String(qLabel||'').match(/Q([1-4])\s+(\d{4})/);
+  if(!m) return null; return parseInt(m[2],10)*4 + parseInt(m[1],10);
+}
+function _smCurQ(){
+  var q=3, y=2026;
+  try{ if(planData&&planData.currentQuarter&&planData.currentQuarter.q){ q=planData.currentQuarter.q; y=planData.currentQuarter.year; } }catch(e){}
+  return { q:q, year:y, label:'Q'+q+' '+y };
+}
+function _smHistory(){
+  // Load persisted history; seed once from OWNER_DEP_HISTORY if empty.
+  var hist=null;
+  try{ var raw=localStorage.getItem(SMSCORE_HKEY); if(raw) hist=JSON.parse(raw); }catch(e){}
+  if(!Array.isArray(hist)){
+    hist=(typeof OWNER_DEP_HISTORY!=='undefined'?OWNER_DEP_HISTORY:[]).map(function(x){ return { q:x.q, score:x.score }; });
+    try{ localStorage.setItem(SMSCORE_HKEY, JSON.stringify(hist)); }catch(e){}
+  }
+  return hist;
+}
+var SMSCORE_SEENKEY='smb_selfmanaging_lastseen_v1';
+function _smCaptureIfRolled(){
+  // Honest capture (Dave, 2026-08-23): NEVER backfill a past quarter with a made-
+  // up number. A quarter only gets a recorded score if the app was actually open
+  // during that quarter. We track the last quarter the app was seen in; when the
+  // quarter rolls over, we stamp the quarter we were LAST in with the score that
+  // was live then (captured at that time), then update last-seen. Quarters the
+  // app never saw stay unrecorded and render as "Not Available".
+  try{
+    var cur=_smCurQ();
+    var curIdx=_smQIndex(cur.label);
+    if(curIdx==null) return;
+    var seenLabel=null, seenScore=null;
+    try{ var s=JSON.parse(localStorage.getItem(SMSCORE_SEENKEY)||'null'); if(s){ seenLabel=s.q; seenScore=s.score; } }catch(e){}
+    var d=computeOwnerDependency();
+    if(seenLabel && seenLabel!==cur.label){
+      // quarter rolled since last open: record the quarter we were last in, using
+      // the score we last saw in it (not the current one).
+      var hist=_smHistory();
+      if(seenScore!=null && !hist.some(function(x){ return x.q===seenLabel; })){
+        hist.push({ q:seenLabel, score:seenScore });
+        // keep ordered oldest->newest by quarter index
+        hist.sort(function(a,b){ return (_smQIndex(a.q)||0)-(_smQIndex(b.q)||0); });
+        try{ localStorage.setItem(SMSCORE_HKEY, JSON.stringify(hist)); }catch(e){}
+      }
+    }
+    // update last-seen to the current quarter with the current live score
+    try{ localStorage.setItem(SMSCORE_SEENKEY, JSON.stringify({ q:cur.label, score:d.score })); }catch(e){}
+  }catch(e){ if(typeof console!=='undefined') console.warn('[VSP] _smCapture:', e.message); }
+}
+function _smSeries(){
+  // Build the full ordered series (recorded history + live Now), with gaps as
+  // {score:null} = Not Available. Returns {all:[...], recent4:[...], archived:[...]}.
+  var hist=_smHistory().slice();
+  var cur=_smCurQ();
+  // Build a continuous quarter axis from the earliest recorded quarter to the
+  // quarter before now, inserting Not-Available for any missing quarter.
+  var idxs=hist.map(function(x){ return _smQIndex(x.q); }).filter(function(v){ return v!=null; });
+  var full=[];
+  if(idxs.length){
+    var startIdx=Math.min.apply(null, idxs);
+    var endIdx=_smQIndex(cur.label)-1; // last completed quarter
+    var byIdx={}; hist.forEach(function(x){ var i=_smQIndex(x.q); if(i!=null) byIdx[i]=x.score; });
+    for(var i=startIdx;i<=endIdx;i++){
+      var yy=Math.floor((i-1)/4), qq=((i-1)%4)+1;
+      full.push({ q:'Q'+qq+' '+yy, score:(byIdx[i]!=null?byIdx[i]:null) });
+    }
+  }
+  // append live Now
+  var d=computeOwnerDependency();
+  full.push({ q:'Now', score:d.score, live:true });
+  var recent4=full.slice(-4);
+  var archived=full.slice(0, Math.max(0, full.length-4)).filter(function(x){ return !x.live; });
+  return { all:full, recent4:recent4, archived:archived };
+}
+function toggleSmArchive(){ state.smArchiveOpen=!state.smArchiveOpen; renderPage(); }
 function renderOwnerDependency(){
   var d=computeOwnerDependency();
-  var series=OWNER_DEP_HISTORY.concat([{q:"Now",score:d.score,live:true}]);
-  var maxS=Math.max.apply(null, series.map(function(x){return x.score;}).concat([10]));
+  var _sm=_smSeries();
+  var series=_sm.recent4;
+  var maxS=Math.max.apply(null, series.map(function(x){return x.score||0;}).concat([10]));
   var band=depBandColor(d.score);
   var h='<div class="card" style="margin-bottom:14px">';
   h+='<div class="hdr">Self-Managing Score</div>';
@@ -7276,6 +7360,15 @@ function renderOwnerDependency(){
   h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-bottom:8px">Trend (quarterly)</div>';
   h+='<div style="display:flex;align-items:flex-end;gap:10px;height:70px">';
   series.forEach(function(x){
+    var na=(x.score==null);
+    if(na){
+      h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">';
+      h+='<div style="font-size:var(--fz-xs);font-weight:700;color:var(--txd);margin-bottom:3px">N/A</div>';
+      h+='<div style="width:100%;max-width:34px;height:6px;border-radius:4px 4px 0 0;background:var(--sur2)"></div>';
+      h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px;white-space:nowrap">'+x.q+'</div>';
+      h+='</div>';
+      return;
+    }
     var hgt=Math.max(6, Math.round(x.score/maxS*60));
     var c=depBandColor(x.score);
     h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">';
@@ -7284,7 +7377,20 @@ function renderOwnerDependency(){
     h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:4px;white-space:nowrap">'+x.q+'</div>';
     h+='</div>';
   });
-  h+='</div></div>';
+  h+='</div>';
+  // Archive link + panel (older-than-4 quarters)
+  if(_sm.archived.length){
+    h+='<div style="margin-top:8px"><span onclick="toggleSmArchive()" style="font-size:var(--fz-xs);color:var(--blu);cursor:pointer;font-weight:600">'+(state.smArchiveOpen?'Hide history':'Show earlier quarters ('+_sm.archived.length+')')+'</span></div>';
+    if(state.smArchiveOpen){
+      h+='<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px">';
+      _sm.archived.forEach(function(x){
+        var na=(x.score==null);
+        h+='<div style="font-size:var(--fz-xs);color:var(--txm);border:1px solid var(--brd);border-radius:5px;padding:3px 8px">'+x.q+': <b style="color:'+(na?'var(--txd)':depBandColor(x.score))+'">'+(na?'N/A':x.score)+'</b></div>';
+      });
+      h+='</div>';
+    }
+  }
+  h+='</div>';
   // Breakdown
   h+='<div style="flex:1;min-width:240px">';
   h+='<div style="font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-bottom:8px">Where the dependency sits</div>';
@@ -11903,8 +12009,10 @@ function renderStrategic(){
   // Owner-Dependency Score (signature strategic metric)
   h+=renderOwnerDependency();
 
-  // Construction quarterly check: backlog + capacity vs the annual plan
-  h+=renderYearOnPace();
+  // On Pace for the Year card removed (Dave, 2026-08-23): not how the business is
+  // tracked, and the underlying measures are not maintained in the scorecard.
+  // renderYearOnPace() and its helpers remain defined (helpers are shared) but it
+  // is no longer rendered.
 
   // Rally Cry banner (v44) - set in the quarterly Establish Goals step
   if(planData.rallyCry && planData.rallyCry.text){
@@ -31915,6 +32023,7 @@ try{
 }catch(e){ console.warn('[VSP] seed meeting purge:', e && e.message); }
 try { if(typeof _vspRunMigrations==='function'){ _vspRunMigrations(); if(typeof syncTeamData==='function') syncTeamData(); } } catch(e){}
 try { scSeatHealFromOrgChart(); } catch(e){ console.warn(e); }
+try { _smCaptureIfRolled(); } catch(e){ console.warn(e); }
 try { scExtendBack(); } catch(e){ console.warn(e); }
 try { scExtendYear(); } catch(e){ console.warn(e); }
 try { scNormalize(); } catch(e){ console.warn(e); }
