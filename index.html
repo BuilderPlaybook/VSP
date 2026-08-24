@@ -4081,8 +4081,41 @@ function vspEmitSignals(){
             try{ if(state.page === 'goals') renderPage(); }catch(e){}
             return true;
           }catch(e){ return false; }
+        },
+        setMilestone: function(goalId, milestoneId, done){
+          // 2-way milestone write-back (Dave, 2026-08-23). Home calls this when a
+          // milestone is checked/unchecked in the ESR Goals mirror. Silent-fail-safe:
+          // never throws. If VSP is not mounted, queues the intent to
+          // smb_vsp_milestone_queue_v1 and flushes on next VSP mount.
+          try{
+            var g=goals.find(function(x){ return String(x.id)===String(goalId); });
+            if(!g){ // VSP not mounted or goal not found - queue for later
+              try{
+                var q=[]; try{ q=JSON.parse(localStorage.getItem('smb_vsp_milestone_queue_v1')||'[]'); }catch(e){}
+                q.push({ goalId:goalId, milestoneId:milestoneId, done:!!done, ts:Date.now() });
+                localStorage.setItem('smb_vsp_milestone_queue_v1', JSON.stringify(q));
+              }catch(e){}
+              return false;
+            }
+            var ms=(g.milestones||[]).find(function(m){ return String(m.id)===String(milestoneId); });
+            if(!ms) return false;
+            ms.done=!!done;
+            try{ vspSaveNow(); }catch(e){}
+            try{ if(state.page==='goals') renderPage(); }catch(e){}
+            return true;
+          }catch(e){ return false; }
         }
       };
+      // Flush any pending milestone writes from Home (queued while VSP was unmounted).
+      try{
+        var _mq=JSON.parse(localStorage.getItem('smb_vsp_milestone_queue_v1')||'[]');
+        if(_mq.length){
+          _mq.forEach(function(item){
+            try{ window.SMB_VSP_GOALS.setMilestone(item.goalId, item.milestoneId, item.done); }catch(e){}
+          });
+          localStorage.removeItem('smb_vsp_milestone_queue_v1');
+        }
+      }catch(e){}
       // v108: same-origin bridge for cross-URL consumers (P&D standalone).
       // Not a contract; retires when the master shell loads both modules in
       // one page. Snapshot written on every save; consumer reads and moves on.
@@ -7203,7 +7236,7 @@ function _esrGoalsPayload(){
       var q=(g.quarter && String(g.quarter).trim()) ? g.quarter : cqLabel;
       return { id:g.id, title:g.title, owner:g.owner, status:g.status, progress:(g.progress==null?0:g.progress),
         due:g.due||'', quarter:q, company:!!g.company,
-        milestones:(g.milestones||[]).map(function(m){ return { text:m.text, done:!!m.done }; }) };
+        milestones:(g.milestones||[]).map(function(m){ return { id:m.id, text:m.text, done:!!m.done }; }) };
     }
     var company=[], mine=[], teamMap={};
     gs.forEach(function(g){
@@ -7216,7 +7249,18 @@ function _esrGoalsPayload(){
     // team as an ordered array (LT people, excluding DS), stable by name
     var team=Object.keys(teamMap).map(function(k){ return teamMap[k]; })
       .sort(function(a,b){ return a.name<b.name?-1:(a.name>b.name?1:0); });
-    return { currentQuarter:cq, currentQuarterLabel:cqLabel, company:company, mine:mine, team:team };
+    // people photo map: keyed by initials, value is the photo URL (base64 or URL).
+    // Home uses this to render real avatars on goal cards without needing to load VSP.
+    var photos={};
+    try{
+      if(typeof peoplePhotos!=='undefined'){
+        Object.keys(peoplePhotos).forEach(function(k){
+          var p=peoplePhotos[k];
+          if(p&&p.photo) photos[k]=p.photo;
+        });
+      }
+    }catch(e){}
+    return { currentQuarter:cq, currentQuarterLabel:cqLabel, company:company, mine:mine, team:team, photos:photos };
   }catch(e){ return null; }
 }
 function _esrScorecardPayload(){
