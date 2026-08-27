@@ -13175,9 +13175,9 @@ function renderScorecardInline(opts){ _recalcAll();
       if(_hasDL) h+='<td style="'+scStkB(SC_OFF.deadline,SC_W.deadline,rowBg,'text-align:left;padding:10px 12px;font-size:var(--fz-body);color:var(--txm);vertical-align:top;line-height:1.3;white-space:normal')+'">'+_scEsc(String(m.deadline||''))+'</td>';
       h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':_goalLabel(m))+'</td>';
       var _cnpVals = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
-      var _cnpAvgTipHtml = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals, avg);
+      var _cnpAvgTipHtml = (((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')) ? '' : _cnpAvgTip(m, _cnpVals, avg);
       var _cnpTotTipHtml = _cnpTotalTip(m, _cnpVals);
-      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==="Total"?"var(--txm)":_tierColor(_scTier(m,(m.unit==="YN"?_ynAvg:avg)))))+'">'+(m.showAverage===false?'-':(m.unit==="YN"?(_ynAvg==null?'-':fmtVal(_ynAvg,m.unit)):fmtVal(avg,m.unit)))+_cnpAvgTipHtml+'</td>';
+      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==="Total"?"var(--txm)":_tierColor(_scTier(m,(m.unit==="YN"?_ynAvg:avg)))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':(m.unit==="YN"?(_ynAvg==null?'-':fmtVal(_ynAvg,m.unit)):fmtVal(avg,m.unit)))+_cnpAvgTipHtml+'</td>';
       h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||"var(--txm)"):"var(--txm)")+';border-right:2px solid var(--brd)')+'">'+(m.unit==="YN"?_ynTotalDisplay:((m.showTotal===false||m.rollupAs==="Average"||m.unit==="%")?'-':fmtVal(sum,m.unit)))+_cnpTotTipHtml+'</td>';
 
       var _isWk = true;
@@ -13700,8 +13700,8 @@ function renderScorecard(){
       h+='<td style="padding:8px 10px;text-align:left"><span style="display:inline-flex;align-items:center;gap:6px">'+avatar((r.oid||'').slice(0,2),r.ocolor,18)+'<span style="font-size:var(--fz-body);color:var(--txm)">'+r.oname+'</span></span></td>';
       h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(m.showGoal===false?'-':(_isAgg?_pGoalLabel(m):_goalLabel(m)))+'</td>';
       var _cnpVals2 = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
-      var _cnpAvgTipHtml2 = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals2, avg);
-      h+='<td tabindex="0" data-cnp="avg" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml2+'</td>';
+      var _cnpAvgTipHtml2 = (((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')) ? '' : _cnpAvgTip(m, _cnpVals2, avg);
+      h+='<td tabindex="0" data-cnp="avg" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml2+'</td>';
       var _cnpVals3 = nums || [];
       var _cnpTotTipHtml3 = _cnpTotalTip(m, _cnpVals3);
       h+='<td tabindex="0" data-cnp="total" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(nums.length?sum:null),(_isAgg?_scBaseN(m):nums.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+_cnpTotTipHtml3+'</td>';
@@ -13856,9 +13856,9 @@ function renderScorecard(){
         h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
         h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':(_isAgg?_pGoalLabel(m):_goalLabel(m)))+'</td>';
         var _cnpVals4 = validCols || [];
-        var _cnpAvgTipHtml4 = (m.showAverage===false) ? '' : _cnpAvgTip(m, _cnpVals4, avg);
+        var _cnpAvgTipHtml4 = (((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')) ? '' : _cnpAvgTip(m, _cnpVals4, avg);
         var _cnpTotTipHtml4 = _cnpTotalTip(m, _cnpVals4);
-        h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+(m.showAverage===false?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml4+'</td>';
+        h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml4+'</td>';
         h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay)+'</td>';
 
         var _isWk3 = (((m.cadence)||'weekly')===period) && !_isAgg;
