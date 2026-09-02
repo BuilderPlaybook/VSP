@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-257</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-258</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -6030,7 +6030,7 @@ var meetingAgendas=[
   ]},
   {type:"Weekly Performance Huddle",title:"Weekly Performance Huddle",dur:"52 min",color:"#0891b2",role:"supervisor",sections:[
     {label:"Check-In",min:2,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
-    {label:"Scorecard Review",min:20,detail:"Review the direct report's full Weekly Performance scorecard from P&D. Each row is answered Yes or No. Off-track items move to Issues.",visible:true,locked:true,bind:"scorecard"},
+    {label:"Scorecard Review",min:20,detail:"Review the direct report's full Weekly Performance scorecard. Each row is answered Yes or No. Off-track items move to Issues.",visible:true,locked:true,bind:"scorecard"},
     {label:"Headlines",min:2,detail:"Good news only  -  client wins and team wins. State it and move on. No discussion.",visible:true,locked:false},
     {label:"To-Do Review",min:5,detail:"Review last week\u2019s to-dos. Done or Not Done. Incomplete items are discussed briefly.",visible:true,locked:false},
     {label:"Job Review",min:10,detail:"Go job by job. Confirm what the performance scorecard claims is actually done, and record what was verified.",visible:true,locked:false},
@@ -6586,9 +6586,13 @@ function toggleTodo(id){
   var list=state.todoTab==="private"?privateTodos:todos;
   var idx=list.findIndex(function(x){return x.id===id;});
   if(idx===-1){
-    // Try the other list
+    // Try the other current-team list
     var idx2=todos.findIndex(function(x){return x.id===id;});
     if(idx2>-1){todos[idx2].done=!todos[idx2].done;_stampTodoDone(todos[idx2]);renderPage();return;}
+    // merge-258: in a huddle the to-do may live in another team's array. Find
+    // it there and flip it in place so the home team's record is the one saved.
+    var loc=_vspLocateTodoAcrossTeams(id);
+    if(loc){ loc.item.done=!loc.item.done; _stampTodoDone(loc.item); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} renderPage(); return; }
     return;
   }
   list[idx].done=!list[idx].done;
@@ -16119,10 +16123,26 @@ function renderIssuesInline(){
   var prioMode=state.issPriorityMode;
   var prioPicks=state.issPriorityPicks;
   // v128: inside a running meeting, show only the issues that belong to it.
-  var _issSrc = state.issueTab==='long' ? longTermIssues : issues;
-  var issList = _issSrc.filter(_vspItemInThisMeeting);
-  var _stOpen = issues.filter(function(i){return i.status==='open' && _vspItemInThisMeeting(i);}).length;
-  var _ltOpen = longTermIssues.filter(function(i){return i.status==='open' && _vspItemInThisMeeting(i);}).length;
+  // merge-258: in a running huddle, gather the report's issues across ALL teams
+  // so a pre-meeting entry under any team appears. Outside a huddle, unchanged.
+  var _huddleGather=_vspHuddleActive();
+  var _issSrc, issList;
+  if(_huddleGather){
+    var _rt=_vspCurrentMeetingRoute();
+    _issSrc = state.issueTab==='long'
+      ? _vspIssuesForHuddleAllTeams(state.meetHuddleReport,_rt,true)
+      : _vspIssuesForHuddleAllTeams(state.meetHuddleReport,_rt,false);
+    issList = _issSrc.slice();
+  } else {
+    _issSrc = state.issueTab==='long' ? longTermIssues : issues;
+    issList = _issSrc.filter(_vspItemInThisMeeting);
+  }
+  var _stOpen = _huddleGather
+    ? _vspIssuesForHuddleAllTeams(state.meetHuddleReport,_vspCurrentMeetingRoute(),false).filter(function(i){return i.status==='open';}).length
+    : issues.filter(function(i){return i.status==='open' && _vspItemInThisMeeting(i);}).length;
+  var _ltOpen = _huddleGather
+    ? _vspIssuesForHuddleAllTeams(state.meetHuddleReport,_vspCurrentMeetingRoute(),true).filter(function(i){return i.status==='open';}).length
+    : longTermIssues.filter(function(i){return i.status==='open' && _vspItemInThisMeeting(i);}).length;
 
   // Header
   h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
@@ -18180,6 +18200,99 @@ function _vspGoalsForPersonAllTeams(ini){
     });
   }catch(e){}
   return out;
+}
+
+/* Cross-team gather for huddle To-Dos and Issues (Dave, 2026-09-02, merge-258).
+   The huddle reads the report's items the same all-teams way Goals already do,
+   so an Issue or To-Do the report entered while working under any team shows in
+   their huddle (Will's pre-meeting-entry gap). These return the LIVE record
+   objects (not copies) so a status flip in the huddle writes straight through
+   to the record; _team is attached for display only and does not persist.
+   Ownership + routing decide membership exactly as the single-team path did:
+   an item owned by the report, OR routed into this huddle via reviewIn. */
+function _vspTodosForHuddleAllTeams(rep, route){
+  var seen={}, out=[];
+  try{
+    Object.keys(teamsRegistry).forEach(function(tid){
+      var t=teamsRegistry[tid]; if(!t) return;
+      (t.todos||[]).forEach(function(td){
+        if(!td || seen[td.id]) return;
+        if(td.status==='archived') return;
+        var belongs;
+        if(td.reviewIn && (typeof _vspRouteIsValid!=='function' || _vspRouteIsValid(td.reviewIn))){
+          belongs = (td.reviewIn === route);
+        } else {
+          belongs = (td.owner === rep);
+        }
+        if(!belongs) return;
+        seen[td.id]=1; td._team=(t.name||tid); td._teamId=tid; out.push(td);
+      });
+    });
+  }catch(e){}
+  return out;
+}
+function _vspIssuesForHuddleAllTeams(rep, route, longTerm){
+  var seen={}, out=[];
+  try{
+    Object.keys(teamsRegistry).forEach(function(tid){
+      var t=teamsRegistry[tid]; if(!t) return;
+      var src = longTerm ? (t.longTermIssues||[]) : (t.issues||[]);
+      src.forEach(function(it){
+        if(!it || seen[it.id]) return;
+        if(it.status==='archived' || it.status==='resolved') return;
+        var belongs;
+        if(it.reviewIn && (typeof _vspRouteIsValid!=='function' || _vspRouteIsValid(it.reviewIn))){
+          belongs = (it.reviewIn === route);
+        } else {
+          belongs = (it.owner === rep);
+        }
+        if(!belongs) return;
+        seen[it.id]=1; it._team=(t.name||tid); it._teamId=tid; out.push(it);
+      });
+    });
+  }catch(e){}
+  return out;
+}
+/* Find a to-do or issue by id across every team, returning {item, teamId, list}
+   so a write-back handler can mutate the record in its true home team and save
+   there, rather than assuming the active team. Used as a fallback by the
+   handlers when the id is not in the current globals. */
+function _vspLocateTodoAcrossTeams(id){
+  try{
+    var tids=Object.keys(teamsRegistry);
+    for(var i=0;i<tids.length;i++){
+      var t=teamsRegistry[tids[i]]; if(!t) continue;
+      var arrs=[['todos',t.todos],['privateTodos',t.privateTodos]];
+      for(var a=0;a<arrs.length;a++){
+        var list=arrs[a][1]; if(!Array.isArray(list)) continue;
+        var idx=list.findIndex(function(x){return x && x.id===id;});
+        if(idx>-1) return {item:list[idx], teamId:tids[i], list:list, key:arrs[a][0]};
+      }
+    }
+  }catch(e){}
+  return null;
+}
+function _vspLocateIssueAcrossTeams(id){
+  try{
+    var tids=Object.keys(teamsRegistry);
+    for(var i=0;i<tids.length;i++){
+      var t=teamsRegistry[tids[i]]; if(!t) continue;
+      var arrs=[['issues',t.issues],['longTermIssues',t.longTermIssues]];
+      for(var a=0;a<arrs.length;a++){
+        var list=arrs[a][1]; if(!Array.isArray(list)) continue;
+        var idx=list.findIndex(function(x){return x && x.id===id;});
+        if(idx>-1) return {item:list[idx], teamId:tids[i], list:list, key:arrs[a][0]};
+      }
+    }
+  }catch(e){}
+  return null;
+}
+/* True only while a Performance Huddle is actually running - gates the
+   cross-team gather so every other surface (Goals page, team meetings, the
+   Issues/To-Do pages) is untouched and behaves exactly as before. */
+function _vspHuddleActive(){
+  return state.page==='meetings' && state.meetTab==='running' &&
+         (state.meetType||'').indexOf('performance')>-1 && !!state.meetHuddleReport;
 }
 function _vspRenderGoalListFor(ini){
   /* v151: render through the real Goals renderer so a huddle behaves exactly
@@ -21471,8 +21584,17 @@ function renderMeetings(){
     }
     if(stepIs("to-do")||stepIs("todo")){
       h+='<div class="card"><div class="sec">To-Do Review <button class="btn btn-sm btn-blu" onclick="openCreateForm(\'todo\')">+ Add</button></div>';
-      // Show all todos - done ones at bottom with strikethrough; archived drop out of the meeting view
-      var allTd=todos.filter(function(t){return !_delTD()[t.id] && t.status!=='archived' && _vspTodoInThisMeeting(t);});
+      // Show all todos - done ones at bottom with strikethrough; archived drop out of the meeting view.
+      // merge-258: in a running huddle, gather the report's to-dos across ALL
+      // teams (a to-do entered under any team shows in their huddle), mirroring
+      // the Goals all-teams gather. Outside a huddle this path is unchanged.
+      var allTd;
+      if(_vspHuddleActive()){
+        allTd=_vspTodosForHuddleAllTeams(state.meetHuddleReport, _vspCurrentMeetingRoute())
+          .filter(function(t){return !_delTD()[t.id];});
+      } else {
+        allTd=todos.filter(function(t){return !_delTD()[t.id] && t.status!=='archived' && _vspTodoInThisMeeting(t);});
+      }
       h+=_vspTodoCompletionBanner(allTd);
       h+=_vspHuddleScopeNote();
       if(!allTd.length) h+='<div style="font-size:var(--fz-body);color:var(--txm)">No to-dos yet.</div>';
@@ -23301,6 +23423,21 @@ function issueUpvote(id){
 function issueMarkSolved(id){
   var src=issues, idx=issues.findIndex(function(i){return i.id===id;});
   if(idx<0){ src=longTermIssues; idx=longTermIssues.findIndex(function(i){return i.id===id;}); }
+  if(idx<0){
+    // merge-258: in a huddle the issue may live in another team. Resolve it in
+    // its home team so the flip persists on the right record.
+    var loc=_vspLocateIssueAcrossTeams(id);
+    if(loc){
+      var it2=loc.list.splice(loc.list.findIndex(function(x){return x.id===id;}),1)[0];
+      it2.status="resolved"; it2._wasLong=(loc.key==='longTermIssues');
+      try{ it2.resolvedAt=new Date().toISOString(); it2.resolvedIn=_vspCurrentMeetingRoute()||null; }catch(e){}
+      var ht=teamsRegistry[loc.teamId];
+      if(ht){ if(!Array.isArray(ht.resolvedIssues)) ht.resolvedIssues=[]; ht.resolvedIssues.push(it2); }
+      if(state.meetTab==="running"&&state.meetSolvedIds.indexOf(id)===-1) state.meetSolvedIds.push(id);
+      try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+      state.issueCtx=null;renderPage();issueSolveToast(id,it2);return;
+    }
+  }
   if(idx>-1){var it=src.splice(idx,1)[0];it.status="resolved";it._wasLong=(src===longTermIssues);
     // v149: record where and when it was resolved so it can report back to the
     // meeting that raised it.
@@ -23433,7 +23570,16 @@ function setPriorityPick(id){
 function issueArchive(id){
   var src=state.issueTab==="long"?longTermIssues:issues;
   var idx=src.findIndex(function(i){return i.id===id;});
-  if(idx>-1){var it=src.splice(idx,1)[0];it.status="archived";resolvedIssues.unshift(it);}
+  if(idx>-1){var it=src.splice(idx,1)[0];it.status="archived";resolvedIssues.unshift(it);state.issueCtx=null;renderPage();return;}
+  // merge-258: huddle cross-team fallback - archive in the issue's home team.
+  var loc=_vspLocateIssueAcrossTeams(id);
+  if(loc){
+    var it2=loc.list.splice(loc.list.findIndex(function(x){return x.id===id;}),1)[0];
+    it2.status="archived";
+    var ht=teamsRegistry[loc.teamId];
+    if(ht){ if(!Array.isArray(ht.resolvedIssues)) ht.resolvedIssues=[]; ht.resolvedIssues.unshift(it2); }
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  }
   state.issueCtx=null;renderPage();
 }
 function issueDelete(id){
@@ -23492,8 +23638,19 @@ function todoMoveBottom(id){
 function todoMarkComplete(id){
   var list=state.todoTab==="private"?privateTodos:todos;
   var t=list.find(function(x){return x.id===id;});
-  if(t){t.done=!t.done;_stampTodoDone(t);}
+  if(t){t.done=!t.done;_stampTodoDone(t);state.todoCtx=null;renderPage();return;}
+  // merge-258: huddle cross-team fallback.
+  var loc=_vspLocateTodoAcrossTeams(id);
+  if(loc){ loc.item.done=!loc.item.done; _stampTodoDone(loc.item); try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} }
   state.todoCtx=null;renderPage();
+}
+function todoArchive(id){
+  var t=todos.find(function(x){return x.id===id;})||privateTodos.find(function(x){return x.id===id;});
+  if(t){ t.status='archived'; var tm=teamsRegistry[state.currentTeam]; if(tm){tm.todos=todos;tm.privateTodos=privateTodos;} try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} state.todoCtx=null; renderPage(); return; }
+  // merge-258: huddle cross-team fallback - archive in the to-do's home team.
+  var loc=_vspLocateTodoAcrossTeams(id);
+  if(loc){ loc.item.status='archived'; try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){} }
+  state.todoCtx=null; renderPage();
 }
 function todoCreateLinkedIssue(id){
   var list=state.todoTab==="private"?privateTodos:todos;
@@ -30824,7 +30981,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-257';
+window.VSP_BUILD = 'v186-merge-258';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
