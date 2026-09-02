@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-255</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-257</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14252,18 +14252,6 @@ var _vspPerfLockTiers = [
   { id:2, label:'Individual', days:7 }
 ];
 
-/* Edit lock is decoupled from the scoring lock (Dave, 2026-08-27, merge-253).
-   The 9/8/7 clock above still decides when an empty week starts counting as 0%
-   in the score. Entry stays open a further 7 days on the clock below, so a late
-   entry inside the extended window corrects the score automatically (the 0% is
-   computed live and never persisted). Same tier order: Company / Division /
-   Individual. */
-var _vspPerfEditLockTiers = [
-  { id:0, label:'Company',    days:16 },
-  { id:1, label:'Division',   days:15 },
-  { id:2, label:'Individual', days:14 }
-];
-
 /* Storage readers - byte-identical shape to P&D. */
 function _vspPerfLoadHuddles(){
   try{ var v=localStorage.getItem('smb_perf_huddles_v1'); return v?JSON.parse(v):{}; }catch(e){ return {}; }
@@ -14344,18 +14332,8 @@ function _vspPerfIsWeekLocked(personId, weekIso){
   if(!weekIso) return false;
   return new Date().getTime() > _vspPerfWeekLockAt(personId, weekIso).getTime();
 }
-function _vspPerfEditLockAt(personId, weekIso){
-  var d = new Date(weekIso+'T00:00:00');
-  d.setDate(d.getDate() + _vspPerfEditLockTiers[_vspPerfLockTier(personId)].days);
-  d.setHours(23,59,59,999);
-  return d;
-}
-function _vspPerfIsWeekEditLocked(personId, weekIso){
-  if(!weekIso) return false;
-  return new Date().getTime() > _vspPerfEditLockAt(personId, weekIso).getTime();
-}
 function _vspPerfCanEditWeek(personId, weekIso){
-  if(!_vspPerfIsWeekEditLocked(personId, weekIso)) return true;
+  if(!_vspPerfIsWeekLocked(personId, weekIso)) return true;
   // P&D canEditWeek: locked weeks are correctable by ADMIN only. Supervisors
   // are NOT admins for this purpose - a locked week is locked for them too.
   // Uses the shared robust admin predicate (merge-129) so 'who is admin' is
@@ -15231,10 +15209,7 @@ function _vspPerfRenderSections(people, editable, weeksOverride){
   var dispPersonIds = people.filter(function(p){ return !!map[p.initials]; }).map(function(p){ return p.id; });
   function _wkLockedForAll(iso){
     for(var i=0;i<dispPersonIds.length;i++){
-      // merge-253: the padlock glyph reports the EDIT clock, not the scoring
-      // clock, so the rendered lock always matches whether the cell accepts a
-      // click (D-158 rendered-surface rule).
-      if(!_vspPerfIsWeekEditLocked(dispPersonIds[i], iso)) return false;
+      if(!_vspPerfIsWeekLocked(dispPersonIds[i], iso)) return false;
     }
     return dispPersonIds.length > 0;
   }
@@ -15262,7 +15237,7 @@ function _vspPerfRenderSections(people, editable, weeksOverride){
         var _stP = map[sec.ownerId];
         var _pidP = _stP ? (function(){ var pp=people.find(function(x){ return x.initials===sec.ownerId; }); return pp?pp.id:null; })() : null;
         weekRanges = weeks.map(function(iso){
-          var lk = _pidP ? _vspPerfIsWeekEditLocked(_pidP, iso) : _wkLockedForAll(iso);
+          var lk = _pidP ? _vspPerfIsWeekLocked(_pidP, iso) : _wkLockedForAll(iso);
           return _vspHuddleWeekLabel(iso) + (lk ? ' \ud83d\udd12' : '');
         });
         scorecard = [sec];
@@ -17003,9 +16978,7 @@ window.vspWhyNotLocked=function(initials, weekIso){
     console.log('Org depth:', depth, ' Top-scored depth:', topDepth);
     console.log('Resolved tier:', tierIdx, '('+(tier?tier.label:'?')+', locks '+(tier?tier.days:'?')+' days after week start)');
     console.log('Week:', wk);
-    console.log('Scores 0% from:', lockAt.toString());
-    console.log('Edit closes at:', _vspPerfEditLockAt(pid, wk).toString(),
-      '('+(_vspPerfEditLockTiers[tierIdx]?_vspPerfEditLockTiers[tierIdx].days:'?')+' days after week start)');
+    console.log('Locks at:', lockAt.toString());
     console.log('Now:', now.toString());
     console.log('Is locked now?', now.getTime() > lockAt.getTime());
     var ov=_vspPerfLoadLockTierOverrides();
@@ -30851,7 +30824,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-255';
+window.VSP_BUILD = 'v186-merge-257';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -31274,6 +31247,116 @@ function vspToday(){
 function vspStorageKey(){
   var t = (window.SMB_TENANT && window.SMB_TENANT.tenantId) || 'default';
   return 'vsp.' + t + '.data';
+}
+
+/* Storage-relief layer (Dave, 2026-09-01, merge-257). The guard snapshots
+   (.guard.lastGood and .guard.preAdopt) were each a full raw second copy of the
+   whole dataset - together 58% of VSP's localStorage footprint and the primary
+   cause of the quota overflow that silently dropped saves. These helpers store
+   the guards compressed (a self-contained LZ codec, no external dependency),
+   which shrinks a snapshot by roughly 80%, keeping the rollback safety at a
+   fraction of the space. A stored blob is tagged with a 'LZ1:' prefix so the
+   reader knows to decompress; untagged blobs are read raw for backward
+   compatibility with guards written before this build. */
+var _VSP_LZ_PREFIX = 'LZ1:';
+/* LZW over the raw string, emitting each code as a UTF-16 code unit. Codes are
+   capped to the 0x0000-0xD7FF safe BMP range (below the surrogate block) so
+   every emitted unit is a valid, losslessly round-trippable character in a
+   JS string and in JSON; the dictionary resets when it reaches the cap so the
+   codec never emits a code it cannot represent. This packs multi-character
+   sequences into single units, so repetitive JSON (which VSP snapshots are)
+   shrinks substantially; incompressible input at worst stays about the same
+   size, and _vspWriteGuard keeps whichever is smaller. */
+var _VSP_LZ_MAX = 0xD7FF; // stay below the UTF-16 surrogate range
+function _vspLzCompress(str){
+  try{
+    if(str == null) return _VSP_LZ_PREFIX + '';
+    // Normalise to an ASCII-safe byte stream first: every character becomes one
+    // or more %XX/literal bytes all < 128, so a source literal can never collide
+    // with a dictionary code number (>= 256). This is what makes the codec safe
+    // for en-dashes and any high/surrogate characters in the data (charcodes were
+    // seen up to 57619 in real snapshots). decodeURIComponent reverses it.
+    var data = encodeURIComponent(String(str));
+    var dict = {}, code = 256, i;
+    var out = [], cur = '', c, cc;
+    for(i = 0; i < data.length; i++){
+      c = data.charAt(i);
+      cc = cur + c;
+      if(cur === '' || Object.prototype.hasOwnProperty.call(dict, cc)){ cur = cc; continue; }
+      out.push(cur.length > 1 ? dict[cur] : cur.charCodeAt(0));
+      if(code <= _VSP_LZ_MAX){ dict[cc] = code++; }
+      cur = c;
+    }
+    if(cur !== '') out.push(cur.length > 1 ? dict[cur] : cur.charCodeAt(0));
+    var packed = '';
+    for(i = 0; i < out.length; i++) packed += String.fromCharCode(out[i]);
+    return _VSP_LZ_PREFIX + packed;
+  }catch(e){ return _VSP_LZ_PREFIX + String(str); }
+}
+function _vspLzDecompress(blob){
+  try{
+    if(blob == null) return '';
+    var s = String(blob);
+    if(s.slice(0, _VSP_LZ_PREFIX.length) !== _VSP_LZ_PREFIX) return s; // raw legacy guard
+    var packed = s.slice(_VSP_LZ_PREFIX.length);
+    if(packed === '') return '';
+    var dict = {}, code = 256, i, k, entry, w;
+    w = String.fromCharCode(packed.charCodeAt(0));
+    var out = [w];
+    for(i = 1; i < packed.length; i++){
+      k = packed.charCodeAt(i);
+      if(k < 256) entry = String.fromCharCode(k);
+      else if(Object.prototype.hasOwnProperty.call(dict, k)) entry = dict[k];
+      else entry = w + w.charAt(0);
+      out.push(entry);
+      if(code <= _VSP_LZ_MAX){ dict[code++] = w + entry.charAt(0); }
+      w = entry;
+    }
+    return decodeURIComponent(out.join(''));
+  }catch(e){ return ''; }
+}
+/* Write a guard snapshot compressed. Returns true on success, false if even the
+   compressed copy will not fit (in which case the guard is simply skipped - the
+   real data and the sync backend remain the recovery path). */
+function _vspWriteGuard(key, payloadObj){
+  try{
+    var raw = JSON.stringify(payloadObj);
+    var comp = _vspLzCompress(raw);
+    // Keep whichever is smaller. A raw store is prefixed 'RAW:' so the reader
+    // never mistakes leading data for the LZ1 marker; untagged blobs from
+    // before this build are read raw too (legacy path in _vspReadGuard).
+    var store = (comp.length < (raw.length + 4)) ? comp : ('RAW:' + raw);
+    localStorage.setItem(key, store);
+    return true;
+  }catch(e){
+    try{ localStorage.removeItem(key); }catch(e2){}
+    return false;
+  }
+}
+function _vspReadGuard(key){
+  try{
+    var blob = localStorage.getItem(key);
+    if(!blob) return null;
+    var s = String(blob);
+    if(s.slice(0,4) === 'RAW:') return JSON.parse(s.slice(4));      // stored raw this build
+    if(s.slice(0, _VSP_LZ_PREFIX.length) === _VSP_LZ_PREFIX) return JSON.parse(_vspLzDecompress(s)); // compressed
+    return JSON.parse(s);                                          // untagged legacy guard
+  }catch(e){ return null; }
+}
+/* Live footprint of every key on this origin, and VSP's share. Powers the
+   storage meter so the tab fill level is visible before it hits the wall. */
+function _vspStorageStats(){
+  var total = 0, mine = 0, cap = 5 * 1024 * 1024;
+  try{
+    for(var i = 0; i < localStorage.length; i++){
+      var k = localStorage.key(i); if(!k) continue;
+      var v = localStorage.getItem(k) || '';
+      var n = k.length + v.length;
+      total += n;
+      if(k.indexOf('vsp.') === 0 || k.indexOf('smb_perf') === 0 || k.indexOf('smb_pnd') === 0 || k.indexOf('SMB_BRIDGE_VSP') === 0) mine += n;
+    }
+  }catch(e){}
+  return { total: total, mine: mine, cap: cap, pct: Math.round(100 * total / cap) };
 }
 function vspSnapshot(){
   // CRITICAL: Sync current global pointers back into teamsRegistry before
@@ -32092,10 +32175,10 @@ function _vspGuardedWrite(json){
         return false;
       }
       // Clean or single-metric save: keep a rolling lastGood of the outgoing state.
-      // merge-191: only keep a lastGood copy when it is small enough not to
-      // risk the quota (the duplicate full-copy was a primary cause of the
-      // storage overflow). Large states rely on the sync backend + manual Backup.
-      try{ if(prevRaw && prevRaw.length < 1500000){ localStorage.setItem(vspStorageKey()+'.guard.lastGood', JSON.stringify({at:new Date().toISOString(), tag:'lastGood', data:prevRaw})); } else { localStorage.removeItem(vspStorageKey()+'.guard.lastGood'); } }catch(e){}
+      // merge-257: the lastGood copy is now stored COMPRESSED (~80% smaller) so
+      // the rollback safety no longer costs a full second raw copy. This is the
+      // single retained guard; the separate preAdopt guard is also compressed.
+      try{ _vspWriteGuard(vspStorageKey()+'.guard.lastGood', {at:new Date().toISOString(), tag:'lastGood', data:prevRaw}); }catch(e){}
     }catch(e){ /* parse trouble: never block on guard failure */ }
   }
   // merge-191 (Dave, 2026-08-10): quota-aware write. localStorage was filling up
@@ -32135,11 +32218,12 @@ function _vspGuardedWrite(json){
   }
 }
 function _vspGuardList(){
-  var out=[], keys=['.guard.backup.1','.guard.backup.2','.guard.backup.3','.guard.lastGood'];
+  var out=[], keys=['.guard.backup.1','.guard.backup.2','.guard.backup.3','.guard.lastGood','.guard.preAdopt'];
   keys.forEach(function(sfx){
     try{
-      var raw=localStorage.getItem(vspStorageKey()+sfx); if(!raw) return;
-      var o=JSON.parse(raw); var c=_vspReadingCounts(JSON.parse(o.data)); var t=0; Object.keys(c).forEach(function(k){t+=c[k];});
+      // merge-257: guards may be compressed (LZ1: prefix) or raw legacy; _vspReadGuard handles both.
+      var o=_vspReadGuard(vspStorageKey()+sfx); if(!o) return;
+      var c=_vspReadingCounts(JSON.parse(o.data)); var t=0; Object.keys(c).forEach(function(k){t+=c[k];});
       out.push({key:sfx, at:o.at||'', tag:o.tag||'', total:t});
     }catch(e){}
   });
@@ -32147,8 +32231,8 @@ function _vspGuardList(){
 }
 function vspRestoreBackup(sfx){
   try{
-    var raw=localStorage.getItem(vspStorageKey()+sfx); if(!raw){ vspAlert('Backup not found.'); return; }
-    var o=JSON.parse(raw);
+    // merge-257: guards may be compressed (LZ1:) or raw legacy; _vspReadGuard handles both.
+    var o=_vspReadGuard(vspStorageKey()+sfx); if(!o){ vspAlert('Backup not found.'); return; }
     vspConfirm('Restore the backup from '+(o.at||'unknown time')+'? Current unsaved state on this page is replaced by the backup, and the backup will sync to the team on your next change.', function(){
       try{
         localStorage.setItem(vspStorageKey(), o.data);
@@ -32191,6 +32275,29 @@ function _vspSetSaveStatus(kind){
     el.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Saved \u00b7 this device';
     el.style.color='var(--txm)';
   }
+  _vspUpdateStorageMeter();
+}
+/* Storage meter (merge-257): a visible fill gauge so a device nearing the
+   browser limit is obvious before a save fails, not after. Green under 70%,
+   amber 70-89%, red 90%+. Shown only once it crosses 60% so it is not noise. */
+function _vspUpdateStorageMeter(){
+  var el=document.getElementById('vsp-storage-meter'); if(!el) return;
+  try{
+    var s=_vspStorageStats();
+    if(s.pct < 60){ el.style.display='none'; return; }
+    el.style.display='inline-flex';
+    var col = s.pct >= 90 ? 'var(--red)' : (s.pct >= 70 ? 'var(--amb)' : 'var(--grn)');
+    el.style.color = col;
+    el.style.borderColor = col;
+    el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12H2M5 5h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>Storage ' + s.pct + '%';
+  }catch(e){ el.style.display='none'; }
+}
+function _vspStorageMeterClick(){
+  try{
+    var s=_vspStorageStats();
+    var mb=function(n){ return (n/1024/1024).toFixed(2)+' MB'; };
+    vspAlert('This device\'s storage for the app is '+s.pct+'% full ('+mb(s.total)+' of about '+mb(s.cap)+').\n\nVSP is using '+mb(s.mine)+' of that. The rest belongs to the other modules on this site.\n\nIf this reaches 100%, saves will be refused (and you will be told, not left guessing). To free space: click Back up, then Settings > Clear local data. Your data reloads from sync.');
+  }catch(e){}
 }
 function vspSaveNow(){
   // Immediate persistence (no debounce). Use for events that MUST be saved
@@ -34178,7 +34285,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       // Adopt cloud copy - guarded.
       // Rescue snapshot first: the pre-adopt local copy is always kept in
       // one slot so an adopt can never destroy the only copy of anything.
-      try{ if(local) localStorage.setItem(V_keyName() + '.guard.preAdopt', JSON.stringify({ at: new Date().toISOString(), data: local })); }catch(e){}
+      try{ if(local) _vspWriteGuard(V_keyName() + '.guard.preAdopt', { at: new Date().toISOString(), data: local }); }catch(e){}
       if(remote === V_lastSyncedRaw){
         // This exact cloud copy was already adopted this session - local
         // re-serialization must not trigger endless re-adopts.
