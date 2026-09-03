@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-266</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-267</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -17021,8 +17021,16 @@ function _vspPerfFlushPending(){
         rec.answers[e.rowId] = (e.answer===null||e.answer===undefined)?'':e.answer;
         _vspPerfLogEntry(rec, e.rowId, _pv, rec.answers[e.rowId], e.by, e.updatedAt);
       } else if(e.kind==='away'){
-        _vspPerfLogEntry(rec, 'away', !!rec.away, !!e.away, e.by, e.updatedAt);
-        rec.away = !!e.away;
+        // merge-267: replay the dated Away, applying the more-days-away test.
+        var _aw=false;
+        if(e.awayStart){
+          var _wd=_vspAwayDaysInWeek(e.iso, e.awayStart, e.awayEnd||e.awayStart);
+          _aw = _wd > (5-_wd);
+        } else { _aw = !!e.away; }
+        _vspPerfLogEntry(rec, 'away', (rec.away?'away':'not away'), (_aw?('away '+(e.awayStart||'')+' - '+(e.awayReason||'')):'not away'), e.by, e.updatedAt);
+        rec.away = _aw;
+        if(_aw){ rec.awayStart=e.awayStart; rec.awayEnd=e.awayEnd||e.awayStart; rec.awayReason=e.awayReason||''; }
+        else { delete rec.awayStart; delete rec.awayEnd; delete rec.awayReason; }
       }
       rec.updatedAt = e.updatedAt || new Date().toISOString();
       all[key]=rec;
@@ -18687,6 +18695,95 @@ function vspHuddleToggleAway(iso, pid){
     try{ showToast('Only the owner can mark a week Away'); }catch(e){}
     return;
   }
+  // merge-267 (Dave, 2026-09-03): Away is not a blind toggle. If the week is
+  // already Away, this clears it. Otherwise open the Away modal: the owner
+  // enters the away dates (within this Mon-Fri week) and a reason. The week
+  // counts as Away only when away work-days exceed present work-days (3+ of 5).
+  // A single day, or any count that does not beat the days worked, does not.
+  try{
+    var all=_vspPndReadHuddles();
+    var rec=all[st.personId+'__'+iso];
+    if(rec && rec.away){ _vspAwaySet(st.personId, iso, null, null, ''); return; }
+  }catch(e){}
+  _vspOpenAwayModal(st.personId, iso);
+}
+/* Mon-Fri workdays of the week whose Monday is weekIso. */
+function _vspWeekWorkdays(weekIso){
+  var out=[]; var d=new Date(weekIso+'T00:00:00');
+  for(var i=0;i<5;i++){ var x=new Date(d); x.setDate(d.getDate()+i); out.push(_meetLocalIso(x)); }
+  return out;
+}
+/* Count weekday away-days inside this week for a start..end range (inclusive),
+   ignoring Sat/Sun and anything outside the week. */
+function _vspAwayDaysInWeek(weekIso, startIso, endIso){
+  if(!startIso) return 0;
+  if(!endIso) endIso=startIso;
+  var days=_vspWeekWorkdays(weekIso), n=0;
+  days.forEach(function(dy){ if(dy>=startIso && dy<=endIso) n++; });
+  return n;
+}
+/* Write the Away decision for one week. away-days > 3 (i.e. 3,4,5 of 5 beat the
+   2-or-fewer worked) -> week is Away; otherwise not. Passing start=null clears. */
+function _vspAwaySet(pid, weekIso, startIso, endIso, reason){
+  try{
+    if(!_vspPerfMapReady()){
+      _vspPerfQueueWrite({kind:'away', personId:pid, iso:weekIso, away:!!startIso, awayStart:startIso||'', awayEnd:endIso||'', awayReason:reason||'', updatedAt:new Date().toISOString(), by:((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?')});
+      _vspPerfSyncToast(); return;
+    }
+    var all=_vspPndReadHuddles();
+    var k=pid+'__'+weekIso;
+    var rec=all[k] || { answers:{}, away:false };
+    var awayDays = startIso ? _vspAwayDaysInWeek(weekIso, startIso, endIso) : 0;
+    var isAway = awayDays > (5-awayDays); // away beats present: 3,4,5 of 5
+    _vspPerfLogEntry(rec, 'away', (rec.away?'away':'not away'), (isAway?('away '+startIso+(endIso&&endIso!==startIso?('..'+endIso):'')+' - '+(reason||'')):'not away'));
+    rec.away = isAway;
+    if(isAway){ rec.awayStart=startIso; rec.awayEnd=endIso||startIso; rec.awayReason=reason||''; }
+    else { delete rec.awayStart; delete rec.awayEnd; delete rec.awayReason; }
+    rec.updatedAt=new Date().toISOString();
+    all[k]=rec;
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    if(startIso && !isAway){ try{ showToast('Away '+awayDays+' of 5 days - not enough to skip the week, so it still counts'); }catch(e){} }
+  }catch(e){}
+  renderPage();
+}
+function _vspCloseAwayModal(){ var m=document.getElementById("away-modal"); if(m) m.remove(); }
+function _vspAwayOverlay(ev){ if(ev && ev.target && ev.target.id==="away-modal") _vspCloseAwayModal(); }
+function _vspOpenAwayModal(pid, weekIso){
+  var days=_vspWeekWorkdays(weekIso);
+  var minD=days[0], maxD=days[4];
+  var nm=''; try{ var p=ppl.find(function(x){ return (typeof _vspPndPersonId==='function'?_vspPndPersonId(x):x.id)===pid; }); nm=p?(p.first||''):''; }catch(e){}
+  var lbl=function(iso){ var d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}); };
+  var h='<div id="away-modal" onclick="_vspAwayOverlay(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;display:flex;align-items:center;justify-content:center">';
+  h+='<div class="modal" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="background:var(--sur);border-radius:10px;width:min(440px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.3)">';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">Mark away'+(nm?(' \\u00b7 '+_scEsc(nm)):'')+'</div><div style="font-size:var(--fz-base);color:var(--txm);margin-top:2px">Week of '+_scEsc(lbl(minD))+'. A week only counts as away when away days are more than days worked (3 or more of 5).</div></div>';
+  h+='<div style="padding:16px 18px">';
+  h+='<label style="display:block;font-size:var(--fz-base);color:var(--txm);margin-bottom:4px">First day away</label>';
+  h+='<input id="away-start" type="date" min="'+minD+'" max="'+maxD+'" value="'+minD+'" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base);margin-bottom:12px">';
+  h+='<label style="display:block;font-size:var(--fz-base);color:var(--txm);margin-bottom:4px">Last day away</label>';
+  h+='<input id="away-end" type="date" min="'+minD+'" max="'+maxD+'" value="'+maxD+'" style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base);margin-bottom:12px">';
+  h+='<label style="display:block;font-size:var(--fz-base);color:var(--txm);margin-bottom:4px">Reason</label>';
+  h+='<input id="away-reason" type="text" placeholder="Holiday, sick, etc." style="width:100%;padding:8px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base);margin-bottom:6px">';
+  h+='<div id="away-err" style="font-size:var(--fz-base);color:var(--red);min-height:18px"></div>';
+  h+='</div>';
+  h+='<div style="padding:0 18px 16px;display:flex;gap:8px;justify-content:flex-end">';
+  h+='<button type="button" class="btn btn-sm" onclick="_vspCloseAwayModal()">Cancel</button>';
+  h+='<button type="button" class="btn btn-sm btn-blu" onclick="_vspAwayModalSave(this.getAttribute(\'data-pid\'),this.getAttribute(\'data-wk\'))" data-pid="'+_scEsc(pid)+'" data-wk="'+weekIso+'">Mark away</button>';
+  h+='</div></div></div>';
+  var old=document.getElementById('away-modal'); if(old) old.remove();
+  document.body.insertAdjacentHTML('beforeend', h);
+}
+function _vspAwayModalSave(pid, weekIso){
+  var s=document.getElementById('away-start'), e=document.getElementById('away-end'), r=document.getElementById('away-reason'), err=document.getElementById('away-err');
+  var sv=s?s.value:'', ev=e?e.value:'', rv=r?r.value.trim():'';
+  if(!sv || !ev){ if(err) err.textContent='Enter both dates.'; return; }
+  if(ev<sv){ if(err) err.textContent='Last day is before the first day.'; return; }
+  if(!rv){ if(err) err.textContent='A reason is required.'; return; }
+  var m=document.getElementById('away-modal'); if(m) m.remove();
+  _vspAwaySet(pid, weekIso, sv, ev, rv);
+}
+function _vspHuddleToggleAway_legacy(iso, pid){
+  var st=window._vspHuddleSc; if(!st) return;
   if(!_vspPerfMapReady()){
     _vspPerfQueueWrite({kind:'away', personId:st.personId, iso:iso, away:true, updatedAt:new Date().toISOString(), by:((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?')});
     _vspPerfSyncToast();
@@ -18727,6 +18824,7 @@ function vspHuddleClearWeek(iso, pid){
     // so a cleared closed week scores 0 with no second click.
     _vspPerfLogEntry(rec, 'clear', (_had||'(empty)')+(rec.away?' +away':''), '');
     rec.away=false;
+    delete rec.awayStart; delete rec.awayEnd; delete rec.awayReason;
     rec.updatedAt=new Date().toISOString();
     all[k]=rec;
     localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
@@ -31148,7 +31246,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-266';
+window.VSP_BUILD = 'v186-merge-267';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -34736,6 +34834,10 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       // every merge). Newest intent wins, same as answers.
       if(top && top.away !== undefined) merged.away = !!top.away;
       else if(base && base.away !== undefined) merged.away = !!base.away;
+      // merge-267: the away dates + reason travel with whichever record is newer,
+      // so the reason survives sync and shows on hover / in History everywhere.
+      var _aw=(top&&(top.updatedAt||top.savedAt)>=((base&&(base.updatedAt||base.savedAt))||''))?top:base;
+      if(merged.away && _aw){ if(_aw.awayStart) merged.awayStart=_aw.awayStart; if(_aw.awayEnd) merged.awayEnd=_aw.awayEnd; if(_aw.awayReason) merged.awayReason=_aw.awayReason; }
       // merge-259: audit log is append-only - union by entry id, oldest first.
       try{
         var _lg={}, _la=(base&&Array.isArray(base.log))?base.log:[], _lb=(top&&Array.isArray(top.log))?top.log:[];
