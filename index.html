@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-263</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-264</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -16664,53 +16664,42 @@ function _meetApplyReplacement(m, occs){
   }catch(e){ return occs; }
 }
 function _meetHeldOn(m, iso){
-  // A meeting counts as held for an occurrence if a held stamp falls within
-  // half a period on or after the occurrence date (so a meeting held a day or
-  // two late still counts for that occurrence, not the next).
+  // merge-264 (Dave, 2026-09-03): a meeting is Held only when it was actually
+  // concluded FOR THIS occurrence. The standard is: click Conclude, nothing
+  // else. So Held requires a concluded record for THIS meeting on THIS exact
+  // date - same day, and for a team meeting the same team, for a huddle the
+  // same pair. No forward window, no same-type-nearby match: those let a Sep 2
+  // Executive Weekly mark the Sep 3 Leadership Weekly "held". A future or
+  // today occurrence is never Held until concluded.
   var occ=new Date(iso+'T00:00:00'); if(isNaN(occ.getTime())) return false;
-  var every=(m.recurEvery&&m.recurEvery>0)?m.recurEvery:7;
-  var win=Math.max(1,Math.floor(every/2));
-  // 1) Explicit held stamps (written on conclude when a meeting was launched
-  //    from the scheduled tile).
+  var occIsoDay=iso;
+  var mType=String(m.type||''); var mAtt=(m.attendees||[]);
+  var homeTid=m._teamId||null;
+  // 1) Explicit held stamp written on Conclude, for this exact day.
   var log=Array.isArray(m.heldLog)?m.heldLog:[];
-  for(var i=0;i<log.length;i++){
-    var h=new Date(log[i]+'T00:00:00'); if(isNaN(h.getTime())) continue;
-    var diff=Math.round((h-occ)/86400000);
-    if(diff>=(-1) && diff<=win) return true;
-  }
-  // 2) Actual meeting history (Dave, 2026-08-07 merge-108). heldLog is only
-  //    stamped when a meeting is started from the scheduled tile, so ad-hoc and
-  //    historical meetings never marked the series held and every past
-  //    occurrence read as "missed". Derive held from pastMeetings of the same
-  //    type within the occurrence window, scoped by attendee overlap when the
-  //    series names any attendees. This makes the count and the status pill
-  //    reflect what actually happened, not just what was launched from the tile.
+  for(var i=0;i<log.length;i++){ if(String(log[i]).slice(0,10)===occIsoDay) return true; }
+  // 2) A concluded pastMeetings record for this exact day, matched to THIS
+  //    meeting (team for team meetings, both people for a huddle).
   try{
-    var mType=String(m.type||''); var mAtt=(m.attendees||[]);
+    var isHuddle=mType.indexOf('Performance Huddle')>-1;
     var pools=[];
     if(typeof teamsRegistry==='object' && teamsRegistry){
-      Object.keys(teamsRegistry).forEach(function(k){ var a=teamsRegistry[k]&&teamsRegistry[k].pastMeetings; if(Array.isArray(a)) pools=pools.concat(a); });
+      Object.keys(teamsRegistry).forEach(function(k){
+        // A team meeting only counts if concluded on ITS OWN team.
+        if(!isHuddle && homeTid && k!==homeTid) return;
+        var a=teamsRegistry[k]&&teamsRegistry[k].pastMeetings; if(Array.isArray(a)) pools=pools.concat(a);
+      });
     } else if(typeof pastMeetings!=='undefined' && Array.isArray(pastMeetings)){ pools=pastMeetings; }
     for(var j=0;j<pools.length;j++){
-      var p=pools[j]; if(!p) continue;
-      if(String(p.type||'')!==mType) continue;
-      var pd=new Date(p.date); if(isNaN(pd.getTime())) continue;
-      pd=new Date(pd.getFullYear(),pd.getMonth(),pd.getDate());
-      var pdiff=Math.round((pd-occ)/86400000);
-      if(pdiff< -1 || pdiff>win) continue;
+      var pm=pools[j]; if(!pm) continue;
+      if(String(pm.type||'')!==mType) continue;
+      var pd=new Date(pm.date); if(isNaN(pd.getTime())) continue;
+      var pIso=pd.getFullYear()+'-'+String(pd.getMonth()+1).padStart(2,'0')+'-'+String(pd.getDate()).padStart(2,'0');
+      if(pIso!==occIsoDay) continue; // exact day only
       if(mAtt.length){
-        var pAtt=(p.attended||p.attendees||[]);
-        // merge-252 (Dave, 2026-08-20): a 1-on-1 performance huddle must match on
-        // BOTH people, not just one shared attendee. Before this, a WL+TP huddle
-        // held on Aug 20 matched a DS+TP huddle occurrence on Aug 19 (same type,
-        // same week, shared attendee TP) and marked the DS+TP huddle "held" when
-        // it was actually missed - so a missed Terry huddle never showed as
-        // missed. For a two-person huddle, require both attendees present in the
-        // past record; for larger team meetings, keep the overlap match.
-        var isHuddle=String(m.type||'').indexOf('Performance Huddle')>-1 && mAtt.length===2;
-        if(isHuddle){
-          var bothThere = mAtt.every(function(a){ return pAtt.indexOf(a)>-1; });
-          if(!bothThere) continue;
+        var pAtt=(pm.attended||pm.attendees||[]);
+        if(isHuddle && mAtt.length===2){
+          if(!mAtt.every(function(a){ return pAtt.indexOf(a)>-1; })) continue;
         } else {
           var shared=false;
           for(var q=0;q<pAtt.length;q++){ if(mAtt.indexOf(pAtt[q])>-1){ shared=true; break; } }
@@ -31140,7 +31129,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-263';
+window.VSP_BUILD = 'v186-merge-264';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
