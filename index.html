@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-262</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-263</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -16371,52 +16371,54 @@ function _findScheduledById(id){
   });
   return res;
 }
-function _visibleScheduled(){
-  var out=(typeof scheduledMeetings!=='undefined'?scheduledMeetings.slice():[]);
-  var seen={}; out.forEach(function(m){seen[m.id]=1;});
-  // merge-223 (Dave, 2026-08-12): the team picker now scopes the meetings list.
-  // Default 'team' returns only the selected team's meetings, so the picker
-  // means what its label says. The meetings-local "All teams" toggle sets
-  // state.meetScope='all' to restore the cross-team pull-in below (an admin or
-  // supervisor seeing every meeting they oversee) as an explicit choice, not a
-  // silent override of the picker. Supersedes the always-on pull-in from
-  // merge-149 / merge-166 for the default view.
-  if(state.meetScope!=='all'){ return out; }
+/* Meetings scope (merge-263, Dave, 2026-09-03). The Meetings page has its OWN
+   team picker (state.meetTeam), separate from the global team picker that
+   drives the scorecard and goals. '' means All teams: every team's meetings of
+   every type, no exceptions. A specific team id means that team only. In both
+   cases performance huddles are still subject to the privacy rule below (a
+   direct report never sees a huddle they are not in); team and client meetings
+   are always visible. Supersedes the merge-223 meetScope toggle and the
+   Team / Supervisor / Client category pills. */
+function _meetTeamId(){
+  if(state.meetTeam===undefined || state.meetTeam===null) state.meetTeam=state.currentTeam;
+  return state.meetTeam;
+}
+function _meetCanSeeHuddle(m){
   var ini=currentUser?currentUser.initials:'';
-  // Huddle visibility (Dave, 2026-08-09, merge-149): a performance huddle from
-  // another team is pulled in when the signed-in user should see it -
-  //   (a) they are an attendee, OR
-  //   (b) they are an admin (President/Owner/HR - sees all huddles), OR
-  //   (c) they supervise a huddle attendee (sees huddles of people below them).
-  // Before this fix only (a) applied, so an owner viewing a different team
-  // never saw a report's huddles even though they oversee them.
-  var _isAdmin=false; try{ _isAdmin=_vspAutoIsAdmin(); }catch(e){}
-  function _canSeeHuddle(m){
-    if((m.attendees||[]).indexOf(ini)>-1) return true;      // (a) in the room
-    if(_isAdmin) return true;                                // (b) admin sees all
-    try{                                                     // (c) supervises an attendee
-      var me=ppl.find(function(x){return x.initials===ini;});
-      if(me){
-        return (m.attendees||[]).some(function(a){
-          var pa=ppl.find(function(x){return x.initials===a;});
-          return pa && typeof _vspSupervisesPerson==='function' && _vspSupervisesPerson(me.id, pa.id);
-        });
-      }
-    }catch(e){}
-    return false;
-  }
-  Object.keys(teamsRegistry).forEach(function(tid){
-    if(tid===state.currentTeam) return;
-    ((teamsRegistry[tid]&&teamsRegistry[tid].scheduledMeetings)||[]).forEach(function(m){
-      // Pull in ANY meeting from another team the user should see - team
-      // meetings (Weekly/Quarterly/Annual) as well as performance huddles.
-      // merge-149 restricted this to huddles only, which hid the LT team
-      // meeting when the user was viewing a different team. Fixed merge-166.
-      // Archived-attendee check removed (merge-166): a stale person status
-      // must never silently hide a meeting.
-      if(_canSeeHuddle(m) && !seen[m.id]){ out.push(m); seen[m.id]=1; }
+  if((m.attendees||[]).indexOf(ini)>-1) return true;      // in the room
+  try{ if(_vspAutoIsAdmin()) return true; }catch(e){}     // admin sees all
+  try{                                                     // supervises an attendee
+    var me=ppl.find(function(x){return x.initials===ini;});
+    if(me){
+      return (m.attendees||[]).some(function(a){
+        var pa=ppl.find(function(x){return x.initials===a;});
+        return pa && typeof _vspSupervisesPerson==='function' && _vspSupervisesPerson(me.id, pa.id);
+      });
+    }
+  }catch(e){}
+  return false;
+}
+function _visibleScheduled(){
+  var tid=_meetTeamId();
+  var out=[], seen={};
+  function take(list, teamId){
+    (list||[]).forEach(function(m){
+      if(!m || seen[m.id]) return;
+      var isHuddle=String(m.type||'').indexOf('Performance Huddle')>-1;
+      if(isHuddle && !_meetCanSeeHuddle(m)) return;
+      if(!m._teamId) { try{ Object.defineProperty(m,'_teamId',{value:teamId,enumerable:false,writable:true,configurable:true}); }catch(e){} }
+      out.push(m); seen[m.id]=1;
     });
-  });
+  }
+  if(tid===''){
+    Object.keys(teamsRegistry).forEach(function(t){
+      var list=(t===state.currentTeam && typeof scheduledMeetings!=='undefined') ? scheduledMeetings : ((teamsRegistry[t]||{}).scheduledMeetings||[]);
+      take(list, t);
+    });
+  } else {
+    var list=(tid===state.currentTeam && typeof scheduledMeetings!=='undefined') ? scheduledMeetings : ((teamsRegistry[tid]||{}).scheduledMeetings||[]);
+    take(list, tid);
+  }
   return out;
 }
 function _meetHasArchivedAttendee(m){
@@ -16860,6 +16862,16 @@ function _vspSameHuddle(m){
   });
   if(!rep && att.length) rep=att[att.length-1];
   return rep === (state.meetHuddleReport||'');
+}
+/* merge-263: the Run-a-meeting strip is keyed on the Meetings-local team
+   picker. Starting a team meeting for a team that is not the global current
+   team switches into that team first (running a team's meeting IS working in
+   that team), then starts it. type null = switch only (Edit agenda). */
+function _meetStartForTeam(tid, type){
+  try{
+    if(tid && tid!==state.currentTeam){ state.currentTeam=tid; if(typeof syncTeamData==='function') syncTeamData(); }
+  }catch(e){}
+  if(type) startMeetingByType(type);
 }
 function joinScheduledMeeting(id){
   var f=_findScheduledById(id); var m=f?f.m:null;
@@ -20811,8 +20823,11 @@ function renderMeetings(){
 
   // Tabs
   h+='<div class="tab-bar">';
-  [{v:"calendar",l:"Calendar"},{v:"upcoming",l:"Schedule"},{v:"running",l:"In Meeting"},{v:"past",l:"Past Meetings"},{v:"agendas",l:"Agendas"}].forEach(function(t){
-    h+='<button class="tab'+(tab===t.v?" active":"")+'" onclick="state.meetTab=\''+t.v+'\';renderPage()">'+t.l+'</button>';
+  // merge-263: four tabs. Agendas folds into History as a sub-view (a setup
+  // surface you touch rarely, not a daily tab).
+  [{v:"calendar",l:"Calendar"},{v:"upcoming",l:"Schedule"},{v:"running",l:"In Meeting"},{v:"past",l:"History"}].forEach(function(t){
+    var _lit=(tab===t.v)||(t.v==='past'&&tab==='agendas');
+    h+='<button class="tab'+(_lit?" active":"")+'" onclick="state.meetTab=\''+t.v+'\';renderPage()">'+t.l+'</button>';
   });
   // Print Agenda button removed (post-meeting feedback May 21) - the Recap on past meetings serves the actual-meeting-print need.
   h+='</div>';
@@ -20821,28 +20836,21 @@ function renderMeetings(){
 
   // ── UPCOMING ──────────────────────────────────────────────
   if(tab==="upcoming"){
-    var mtIsLT=state.currentTeam==='lt';
-    var mtIsSync=state.currentTeam==='ltsync';
-    var cat=state.meetingCategory||'team'; if(cat==='all')cat='team';
+    var mtIsLT=(_meetTeamId()==='lt');
+    var _mtid=_meetTeamId();
+    var mtIsSync=_mtid==='ltsync';
+    var cat='team';
 
-    // Category filter bar
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">';
-    h+=renderTeamMenu('meetTeamMenu');
-    // merge-223: All-teams scope toggle. Off (default) = only the selected
-    // team's meetings; On = every team's meetings the signed-in person can see.
-    // Lives here, not in the team picker, because that picker is global (it
-    // also drives the scorecard and goals, which need a single team).
-    var _msAll=(state.meetScope==='all');
-    h+='<button onclick="state.meetScope=(state.meetScope===\'all\'?\'team\':\'all\');renderPage()" title="'+(_msAll?'Showing meetings from every team. Click to show only the selected team.':'Showing only the selected team. Click to show meetings from every team.')+'" style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:16px;font-size:var(--fz-base);font-weight:'+(_msAll?'600':'400')+';border:1.5px solid '+(_msAll?'var(--blu)':'var(--brd2)')+';background:'+(_msAll?'var(--blub)':'var(--sur)')+';color:'+(_msAll?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'
-      +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="18" cy="7" r="2.2"/><path d="M22 21v-1.6a3.2 3.2 0 0 0-2.6-3.1"/></svg>'
-      +'All teams</button>';
-    [{id:'team',l:'Team Meetings'},{id:'supervisor',l:'Supervisor'},{id:'client',l:'Client'}].forEach(function(ct){
-      var isA=cat===ct.id;
-      h+='<button onclick="state.meetingCategory=\''+ct.id+'\';renderPage()" style="padding:5px 14px;border-radius:16px;font-size:var(--fz-base);font-weight:'+(isA?'600':'400')+';border:1.5px solid '+(isA?'var(--blu)':'var(--brd2)')+';background:'+(isA?'var(--blub)':'var(--sur)')+';color:'+(isA?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'+ct.l+'</button>';
+    // merge-263: Meetings-local team picker. All teams means all teams.
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">';
+    h+='<span style="font-size:var(--fz-base);color:var(--txm)">Team:</span>';
+    h+='<select onchange="state.meetTeam=this.value;renderPage()" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-family:inherit;cursor:pointer;font-weight:600">';
+    h+='<option value=""'+(_mtid===''?' selected':'')+'>All teams</option>';
+    Object.keys(teamsRegistry).forEach(function(t){
+      var nm=(teamsRegistry[t]&&teamsRegistry[t].name)||t;
+      h+='<option value="'+_scEsc(t)+'"'+(_mtid===t?' selected':'')+'>'+_scEsc(nm)+'</option>';
     });
-    if(cat==='supervisor'){
-      h+='<span style="color:var(--txm);margin-left:4px">\ud83d\udd12 Supervisor & HR only  -  private meetings not visible to direct reports</span>';
-    }
+    h+='</select>';
     h+='</div>';
 
     // Meeting type cards. v158: the step list and duration are read from the
@@ -20856,8 +20864,8 @@ function renderMeetings(){
       // team-meeting card is hidden for that team (same pattern as Quarterly
       // below). The "Executive Team Meeting" card with the Goals agenda kept
       // reintroducing the wrong name and the wrong agenda for what is a huddle.
-      (state.currentTeam!=='ltsync')&&{type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
-      (state.currentTeam!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
+      (_mtid!=='ltsync')&&{type:"Weekly",cat:"team",desc:"Scorecard, goals, headlines, to-dos, and issues.",c:"#2563eb"},
+      (_mtid!=='ltsync')&&{type:"Quarterly",cat:"team",desc:"Grade last quarter, review strategic plan, set new goals.",c:"#7c3aed"},
       mtIsLT&&{type:"Annual",cat:"team",desc:"Full strategic planning. Update vision, set annual goals.",c:"#7c3aed"},
       // merge-227 (Dave, 2026-08-12): the merge-224 Executive Huddle card is
       // removed. Dave's ruling: the Executive pair (Dave + Terry) runs plain
@@ -20870,8 +20878,15 @@ function renderMeetings(){
       {type:"Monthly Client Meeting",cat:"client",desc:"Project progress, schedule, budget, change orders, selections, and upcoming milestones.",c:"#0891b2"},
     ].filter(Boolean);
 
-    var filteredCards=allMeetingCards.filter(function(mt){return mt.cat===cat;});
+    // merge-263: the "Run a meeting" strip shows the picked team's TEAM meeting
+    // cards only. Huddles and client meetings start from their own row (Join),
+    // since they need a specific report or client. Hidden on All teams: you
+    // cannot start a meeting for every team at once.
+    var filteredCards=(_mtid==='')?[]:allMeetingCards.filter(function(mt){return mt.cat==='team';});
 
+    if(filteredCards.length){
+      h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">Run a meeting \u00b7 '+_scEsc((teamsRegistry[_mtid]&&teamsRegistry[_mtid].name)||_mtid)+'</div>';
+    }
     h+='<div class="g3" style="margin-bottom:18px">';
     filteredCards.forEach(function(mt){
       // v158: resolve this team's live agenda. The card is a preview of the
@@ -20901,8 +20916,8 @@ function renderMeetings(){
       });
       if(_more>0) h+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:4px;padding-left:20px">+'+_more+' more</div>';
       h+='</div>';
-      h+='<button class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px" onclick="state.meetAgendaType=\''+mt.type+'\';state.meetAgendaDay=0;state.editingAgendaStep=null;state.meetTab=\'agendas\';renderPage()">Edit agenda</button>';
-      h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="startMeetingByType(\''+mt.type+'\')">';
+      h+='<button class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px" onclick="_meetStartForTeam(\''+_mtid+'\',null);state.meetAgendaType=\''+mt.type+'\';state.meetAgendaDay=0;state.editingAgendaStep=null;state.meetTab=\'agendas\';renderPage()">Edit agenda</button>';
+      h+='<button class="btn btn-blu" style="width:100%;justify-content:center" onclick="_meetStartForTeam(\''+_mtid+'\',\''+mt.type+'\')">';
       h+='\u25b6 Start Meeting</button>';
       h+='</div>';
     });
@@ -20977,14 +20992,13 @@ function renderMeetings(){
       // labels are the merge-121 display names. NOTE: state.meetType is already
       // used by agendas, so this filter uses its own key state.meetTypeFilter.
       var _tf=state.meetTypeFilter||'';
+      // merge-263: three categories, the same buckets _meetCatOf uses. Replaces
+      // the seven-type list AND the Team / Supervisor / Client pills, which
+      // were two controls asking the same question.
       var _tOpts=[
-        ['Weekly','Team Meeting'],
-        ['Quarterly','Quarterly Team Meeting'],
-        ['Annual','Annual Team Meeting'],
-        ['Weekly Performance Huddle','Bi-Weekly Huddle'],
-        ['Quarterly Performance Huddle','Quarterly Huddle'],
-        ['Annual Performance Huddle','Annual Huddle'],
-        ['Monthly Client Meeting','Client Meeting']
+        ['team','Team meetings'],
+        ['supervisor','Huddles'],
+        ['client','Client meetings']
       ];
       h+='<span style="font-size:var(--fz-base);color:var(--txm);margin-left:8px">Type:</span>';
       h+='<select onchange="state.meetTypeFilter=this.value;renderPage()" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);font-family:inherit;cursor:pointer">';
@@ -21023,37 +21037,40 @@ function renderMeetings(){
       if(t.indexOf('Performance Huddle')>-1) return 'supervisor';
       return 'team';
     }
+    // merge-263: status describes ONE occurrence, from its date and whether it
+    // was held. Four states, one meaning each:
+    //   Upcoming  - future date, not held
+    //   Due today - today, not held yet
+    //   Held      - this occurrence was concluded
+    //   Missed    - date passed, never held
+    // Replaces the series-level "Done / Not Done" that stamped last week's
+    // outcome onto this week's row (today's LT meeting read Done before it ran).
+    function _occStatus(m, occIso){
+      var oc=occIso||_vspNextOccur(m.date,m.recurEvery)||m.date||'';
+      var held=false; try{ held=_meetHeldOn(m, oc); }catch(e){}
+      if(held) return {key:'held', cls:'c-grn', txt:'Held'};
+      if(oc>_todayIso) return {key:'upcoming', cls:'c-blu', txt:'Upcoming'};
+      if(oc===_todayIso) return {key:'duetoday', cls:'c-amb', txt:'Due today'};
+      return {key:'missed', cls:'c-red', txt:'Missed'};
+    }
     function _rowFor(m, last, occIso){
       var typeColors={"Weekly":"#2563eb","Quarterly":"#7c3aed","Annual":"#92400e","Weekly Performance Huddle":"#0891b2","Quarterly Performance Huddle":"#0891b2","Annual Performance Huddle":"#0891b2","Leadership Sync":"#475569","Monthly Client Meeting":"#0891b2"};
       var tc=typeColors[m.type]||"#64748b";
-      var st=_meetStatus(m);
-      // A row shows a specific occurrence (occIso). The status must describe THAT
-      // occurrence, not the series' last one. A future occurrence can never be
-      // Done/Not Done - those describe the past. Force Upcoming (Dave, merge-115).
-      var _occShown = occIso || _vspNextOccur(m.date, m.recurEvery);
-      if(st && _occShown && _todayIso && _occShown > _todayIso && (st.key==='done' || st.key==='notdone')){
-        st = {key:'upcoming', cls:'c-blu', txt:'Upcoming'};
-      }
-      var comp=_meetComplianceFor(m, m.date, _todayIso);
+      var st=_occStatus(m, occIso);
       var r='<div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:'+(last?'none':'1px solid var(--brd)')+'">';
       r+='<div style="width:42px;height:42px;border-radius:8px;background:'+tc+'12;border:1.5px solid '+tc+'40;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
       r+='<svg width="16" height="16" fill="none" stroke="'+tc+'" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>';
       r+='<div style="flex:1">';
       r+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">';
-      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(m.name || _meetTypeLabel(m.type, m.teamName||((teamsRegistry[state.currentTeam]||{}).name), m))+'</span>';
+      var _ownTeam=(m._teamId&&teamsRegistry[m._teamId]&&teamsRegistry[m._teamId].name)||m.teamName||((teamsRegistry[state.currentTeam]||{}).name);
+      r+='<span onclick="_mcOpenMove('+m.id+',\''+(occIso||m.date||'')+'\')" title="Click to edit this meeting" style="font-size:var(--fz-body);font-weight:500;cursor:pointer;color:var(--blu)">'+_scEsc(m.name || _meetTypeLabel(m.type, _ownTeam, m))+'</span>';
+      if(_meetTeamId()==='' && _ownTeam) r+='<span class="tag" style="font-size:var(--fz-xs)">'+_scEsc(_ownTeam)+'</span>';
       r+='<span style="font-size:var(--fz-base);background:'+tc+'12;color:'+tc+';border:1px solid '+tc+'30;border-radius:10px;padding:1px 7px">'+m.recurring+'</span>';
       if(st) r+='<span class="chip '+st.cls+'">'+st.txt+'</span>';
       r+='</div>';
       r+='<div style="font-size:var(--fz-body);color:var(--txm)">'+_vspFmtDate(occIso||_vspNextOccur(m.date,m.recurEvery))+' \u00b7 '+m.time+' \u00b7 '+m.location+'</div>';
-      // merge-239 (Dave, 2026-08-13): the Held N of N line is a series-life
-      // cadence stat, computed once for the whole series - so stamping it on
-      // every occurrence row (including future dates) read as "held 2 of 2" on
-      // meetings that have not happened yet. Show it ONLY on the row for the
-      // series' current/next actionable occurrence, and never on a future date.
-      // Series adherence over time lives on the Cadence Health tab.
-      var _occRow = occIso || _vspNextOccur(m.date, m.recurEvery);
-      var _isFutureOcc = !!(_occRow && _todayIso && _occRow > _todayIso);
-      if(comp.due>0 && !_isFutureOcc){ r+='<div style="font-size:var(--fz-base);color:var(--txd);margin-top:3px">Held '+comp.held+' of '+comp.due+(comp.missed>0?' \u00b7 '+comp.missed+' missed':'')+'</div>'; }
+      // merge-263: the Held N of N series stat no longer prints on a row. Series
+      // adherence lives on the Cadence Health tab.
       r+='</div>';
       r+='<div style="display:flex;align-items:center;gap:-4px;flex-shrink:0">';
       (m.attendees||[]).forEach(function(a){ r+=avatar(a,pplColor(a),22); });
@@ -21075,48 +21092,39 @@ function renderMeetings(){
     // Apply the person filter (merge-120): keep only meetings the chosen person
     // attends. Empty selection keeps everyone.
     if(state.meetPerson){ _allSched=_allSched.filter(function(m){ return (m.attendees||[]).indexOf(state.meetPerson)>-1; }); }
-    if(state.meetTypeFilter){ _allSched=_allSched.filter(function(m){ return m.type===state.meetTypeFilter; }); }
-    // merge-228: honour the Team / Supervisor / Client tab. cat 'all' (legacy)
-    // was already collapsed to 'team' above, so this always scopes to one tab.
-    _allSched=_allSched.filter(function(m){ return _meetCatOf(m)===cat; });
+    if(state.meetTypeFilter){ _allSched=_allSched.filter(function(m){ return _meetCatOf(m)===state.meetTypeFilter; }); }
     if(!_allSched.length){
       var _emptyMsg=(state.meetPerson||state.meetTypeFilter)
         ? 'No meetings match these filters in this range. Try a wider range, another type, or Everyone.'
         : 'No meetings scheduled. Click \u201cSchedule a Meeting\u201d to add one.';
       h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:32px;text-align:center;color:var(--txm);font-size:var(--fz-body)">'+_emptyMsg+'</div>';
     } else {
-      // Partition. Needs attention = Not Done + Due Soon. On track = Done +
-      // Upcoming within the range horizon. Upcoming past the horizon is hidden.
+      // merge-263: one row PER OCCURRENCE in the range, each with its own status.
+      // Needs attention = Missed + Due today. On track = Upcoming + Held.
+      // Range 'all' lists from today forward plus the current missed occurrence.
       var _attn=[], _ontrack=[];
       _allSched.forEach(function(m){
-        var st=_meetStatus(m);
-        if(!st){ return; }
-        if(st.key==='notdone' || st.key==='duesoon'){
-          // Scope to the selected range by the occurrence the status is about,
-          // so a stale months-old overdue meeting does not clutter This Week /
-          // This Month (Dave, 2026-08-07 merge-110). 'all' shows everything.
-          var _ref=_meetCurrentOccIso(m);
-          var _inWin=(_mr==='all') || ((!_wStartIso || _ref>=_wStartIso) && _ref<=_horizonIso);
-          if(_inWin){ _attn.push(m); }
-          return;
+        var _fromIso=_wStartIso || _todayIso;
+        var _toIso=_horizonIso;
+        var occs=[];
+        if(m.recurEvery){ occs=_meetOccurrences(m, _fromIso, _toIso); }
+        else if((m.date||'')>=_fromIso && (m.date||'')<=_toIso){ occs=[m.date]; }
+        if(_mr==='all'){
+          // surface the current missed occurrence even though it is before today
+          try{ var cur=_meetCurrentOccIso(m); if(cur && cur<_todayIso && occs.indexOf(cur)<0 && !_meetHeldOn(m,cur)) occs.unshift(cur); }catch(e){}
         }
-        // Done or Upcoming: one entry PER OCCURRENCE in the range (Dave,
-        // 2026-07-31) so a quarter shows all its meetings, not one row per series.
-        var _hzIso=_horizonIso;
-        var _fromIso=_hzFrom||_todayIso;
-        if(m.recurEvery){
-          _meetOccurrences(m, _fromIso, _hzIso).forEach(function(oc){ _ontrack.push({m:m, occ:oc}); });
-        } else {
-          var nx=_vspNextOccur(m.date,m.recurEvery);
-          if(st.key==='done'){ if((m.date||'')>=_fromIso && (m.date||'')<=_hzIso) _ontrack.push({m:m, occ:m.date}); }
-          else if(nx>=_fromIso && nx<=_hzIso) _ontrack.push({m:m, occ:m.date});
-        }
+        occs.forEach(function(oc){
+          var st=_occStatus(m, oc);
+          if(st.key==='missed' || st.key==='duetoday') _attn.push({m:m, occ:oc});
+          else _ontrack.push({m:m, occ:oc});
+        });
       });
+      _attn.sort(function(a,b){ return (a.occ||'').localeCompare(b.occ||''); });
       _ontrack.sort(function(a,b){ return (a.occ||'').localeCompare(b.occ||''); });
       if(_attn.length){
         h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">Needs attention</div>';
         h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px;margin-bottom:16px">';
-        _attn.forEach(function(m,i){ h+=_rowFor(m, i===_attn.length-1); });
+        _attn.forEach(function(e,i){ h+=_rowFor(e.m, i===_attn.length-1, e.occ); });
         h+='</div>';
       }
       h+='<div style="font-size:var(--fz-base);font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px 2px">On track</div>';
@@ -21128,8 +21136,7 @@ function renderMeetings(){
         // ever silently hidden.
         var _beyond=0;
         _allSched.forEach(function(m){
-          var st=_meetStatus(m); if(!st) return;
-          if(st.key==='upcoming'){ var nx=_vspNextOccur(m.date,m.recurEvery); if(nx>_horizonIso) _beyond++; }
+          var nx=_vspNextOccur(m.date,m.recurEvery); if(nx && nx>_horizonIso) _beyond++;
         });
         if(_beyond>0){
           h+='<div style="padding:24px;text-align:center;color:var(--txm);font-size:var(--fz-body)">Nothing in this range, but you have <strong>'+_beyond+'</strong> upcoming meeting'+(_beyond>1?'s':'')+' further out. Choose a wider range above (This Month / Quarter / Year) to see '+(_beyond>1?'them':'it')+'.</div>';
@@ -21959,6 +21966,13 @@ function renderMeetings(){
     h+='</div></div>';
   }
   if(tab==="past"){
+    // merge-263: History sub-view toggle: Records (past meetings) | Agendas.
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">';
+    [['past','Records'],['agendas','Agendas']].forEach(function(sv){
+      var on=(tab===sv[0]);
+      h+='<button onclick="state.meetTab=\''+sv[0]+'\';renderPage()" style="padding:5px 14px;border-radius:16px;font-size:var(--fz-base);font-weight:'+(on?'600':'400')+';border:1.5px solid '+(on?'var(--blu)':'var(--brd2)')+';background:'+(on?'var(--blub)':'var(--sur)')+';color:'+(on?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'+sv[1]+'</button>';
+    });
+    h+='</div>';
     var totalMeetings=pastMeetings.length;
     var avgRating=(pastMeetings.reduce(function(a,m){return a+m.rating;},0)/totalMeetings).toFixed(1);
     var totalResolved=pastMeetings.reduce(function(a,m){return a+m.resolved;},0);
@@ -22061,6 +22075,13 @@ function renderMeetings(){
 
   // ── AGENDAS ───────────────────────────────────────────────
   if(tab==="agendas"){
+    // merge-263: History sub-view toggle: Records (past meetings) | Agendas.
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">';
+    [['past','Records'],['agendas','Agendas']].forEach(function(sv){
+      var on=(tab===sv[0]);
+      h+='<button onclick="state.meetTab=\''+sv[0]+'\';renderPage()" style="padding:5px 14px;border-radius:16px;font-size:var(--fz-base);font-weight:'+(on?'600':'400')+';border:1.5px solid '+(on?'var(--blu)':'var(--brd2)')+';background:'+(on?'var(--blub)':'var(--sur)')+';color:'+(on?'var(--blu)':'var(--txm)')+';cursor:pointer;font-family:inherit">'+sv[1]+'</button>';
+    });
+    h+='</div>';
     var agendaData=agendaFor(state.currentTeam,state.meetAgendaType)||meetingAgendas[0];
     var isMultiDay=!!agendaData.days;
     var activeDayIdx=isMultiDay?Math.min(state.meetAgendaDay||0,agendaData.days.length-1):0;
@@ -24641,17 +24662,31 @@ function addScheduledMeeting(_bmDupOk){
   // double on the calendar. A warning, not a block: confirm re-runs the save
   // with a bypass flag so a genuine second meeting is still allowed.
   if(!_bmDupOk){
+    // merge-263 (Dave, 2026-09-03): a huddle is a PAIR, and a pair has one
+    // huddle. Check EVERY team and ANY cadence, so Terry/Will cannot be booked
+    // weekly on one team and every-2-weeks on another (that is exactly how
+    // three Terry/Will huddles piled up). Team and client meetings keep the
+    // same-team check. Still a warning with an override, not a hard block.
     var _dupAtt=(_bmMeeting.attendees||[]).slice().sort().join(',');
-    var _dup=(_bmTeam.scheduledMeetings||[]).find(function(x){
-      if(!x) return false;
-      if((x.type||'')!==(_bmMeeting.type||'')) return false;
-      if(((x.attendees||[]).slice().sort().join(','))!==_dupAtt) return false;
-      if((x.recurEvery||0)!==(_bmMeeting.recurEvery||0)) return false;
-      return true;
+    var _isHud=String(_bmMeeting.type||'').indexOf('Performance Huddle')>-1;
+    var _dup=null, _dupTeam='';
+    var _teamsToCheck=_isHud?Object.keys(teamsRegistry):[_bmTid];
+    _teamsToCheck.forEach(function(t){
+      if(_dup) return;
+      var lst=(t===_bmTid)?(_bmTeam.scheduledMeetings||[]):(((teamsRegistry[t]||{}).scheduledMeetings)||[]);
+      var f=lst.find(function(x){
+        if(!x) return false;
+        if((x.type||'')!==(_bmMeeting.type||'')) return false;
+        if(((x.attendees||[]).slice().sort().join(','))!==_dupAtt) return false;
+        if(!_isHud && (x.recurEvery||0)!==(_bmMeeting.recurEvery||0)) return false;
+        return true;
+      });
+      if(f){ _dup=f; _dupTeam=(teamsRegistry[t]&&teamsRegistry[t].name)||t; }
     });
     if(_dup){
       var _when=_dup.date||'';
-      vspConfirm('A '+(_bmMeeting.type||'meeting')+' with the same people already exists on '+(_bmTeam.name||'this team')+(_when?(' (starts '+_when+')'):'')+'. Creating another will show two of them on the calendar. Create it anyway?', function(){ addScheduledMeeting(true); });
+      var _cad=_dup.recurEvery?(' every '+_dup.recurEvery+' days'):'';
+      vspConfirm('These people already have a '+(_bmMeeting.type||'meeting')+' on '+_dupTeam+_cad+(_when?(', starting '+_when):'')+'. A pair should have one huddle. Create a second one anyway?', function(){ addScheduledMeeting(true); });
       return;
     }
   }
@@ -31105,7 +31140,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-262';
+window.VSP_BUILD = 'v186-merge-263';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
