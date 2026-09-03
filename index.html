@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-267</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-274</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7917,11 +7917,18 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   }
   var _pndTipHtml = '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(_vspSrcLabel(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
+  // merge-268: forced-No reason on a supervisor cell, visible to everyone.
+  try{
+    if(m._perfStore && m._perfWeeks && m._perfWeeks[weekIdx]){
+      var _fi2=_vspPerfForcedInfo(m._perfStore, m._rowId, m._perfWeeks[weekIdx]);
+      if(_fi2) cellTitle='Forced No \u00b7 '+_scEsc(_vspPerfForcedText(_fi2))+' \u00b7 '+_scEsc(_vspForcedAckText(m._perfStore, m._rowId, _fi2))+' \u00b7 locked';
+    }
+  }catch(e){}
   // merge-259: admin-only audit line on performance cells - who last set this
   // cell, when, and what it was before. Read from the week record's log.
   try{
     if(m._perfStore && m._perfWeeks && m._perfWeeks[weekIdx] && _vspAutoIsAdmin()){
-      var _alRec=_vspPndReadHuddles()[m._perfStore+'__'+m._perfWeeks[weekIdx]];
+      var _alRec=_vspPndReadHuddlesScored()[m._perfStore+'__'+m._perfWeeks[weekIdx]];
       var _alLog=(_alRec&&Array.isArray(_alRec.log))?_alRec.log.filter(function(en){ return en&&en.row===m._rowId; }):[];
       if(_alLog.length){
         var _alE=_alLog[_alLog.length-1];
@@ -8034,7 +8041,7 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     try{
       var _rcIsoD=scWeekDate(weekIdx);
       var _rcIso=_rcIsoD.getFullYear()+'-'+String(_rcIsoD.getMonth()+1).padStart(2,'0')+'-'+String(_rcIsoD.getDate()).padStart(2,'0');
-      var _rcHuds=_vspPndReadHuddles();
+      var _rcHuds=_vspPndReadHuddlesScored();
       _vspAutoGroupMembers(_rcA.group).forEach(function(pid){
         var nm=pid;
         try{ var pp=(typeof personById==='function')?personById(pid):null; if(pp) nm=(typeof fullName==='function')?fullName(pp):(pp.first+' '+pp.last); }catch(e){}
@@ -10577,7 +10584,7 @@ function _vspAutoFillRowcounts(){
         var a=_vspAutoParse(m.auto);
         if(a.kind!=='rowcount') return;
         m.autoSrc=m.autoSrc||'Scorecards';
-        huds=huds||_vspPndReadHuddles();
+        huds=huds||_vspPndReadHuddlesScored();
         var mem=_vspAutoGroupMembers(a.group);
         m.readings=m.readings||[];
         for(var idx=0; idx<Math.max(m.readings.length, 22); idx++){
@@ -13165,6 +13172,7 @@ function renderScorecardInline(opts){ _recalcAll();
       h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspSetStartWeek(\''+section.ownerId+'\')" title="Turn this scorecard live from a chosen week; earlier weeks are away and not scored">'+_obLbl+'</button>';
       h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspMarkHistoryAway(\''+section.ownerId+'\')" title="Mark all past weeks away; score only from this week forward">Mark history away</button>';
       if(_vspAutoIsAdmin()) h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspOpenScorecardHistory(\''+section.ownerId+'\')" title="Every change to this scorecard: who, what, when">History</button>';
+      h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspOpenMyRecord(\''+section.ownerId+'\')" title="Warnings, reprimands, and plans on record for this person">My Record</button>';
     }
     h+='</div>';
 
@@ -13828,6 +13836,7 @@ function renderScorecard(){
       h+='<button class="btn btn-sm" onclick="vspSetStartWeek(\''+section.ownerId+'\')" title="Turn this scorecard live from a chosen week; earlier weeks are away and not scored">'+_stLbl+'</button>';
       h+='<button class="btn btn-sm" onclick="vspMarkHistoryAway(\''+section.ownerId+'\')" title="Mark all past weeks away; score only from this week forward">Mark history away</button>';
       if(_vspAutoIsAdmin()) h+='<button class="btn btn-sm" onclick="vspOpenScorecardHistory(\''+section.ownerId+'\')" title="Every change to this scorecard: who, what, when">History</button>';
+      h+='<button class="btn btn-sm" onclick="vspOpenMyRecord(\''+section.ownerId+'\')" title="Warnings, reprimands, and plans on record for this person">My Record</button>';
     }
     h+='<button onclick="openEditGroup('+di+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Edit group (seat & person)">';
     h+='<svg width="12" height="12" fill="none" stroke="var(--txm)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>';
@@ -14456,7 +14465,7 @@ function _vspPerfWeekScore(person, weekIso, std){
   // and _vspPerfWeekScore did not previously read the away flag, so check it
   // here at the source rather than relying on each caller.
   try{
-    var _awAll=_vspPndReadHuddles();
+    var _awAll=_vspPndReadHuddlesScored();
     var _awRec=_awAll[_tpid+'__'+weekIso];
     if(_awRec && _awRec.away){ return { pct: 0, hardFail: false, hasData: false, away: true }; }
   }catch(e){}
@@ -14960,7 +14969,7 @@ function _vspPerfBuildSection(person, weeks){
   try{ _vspEnsureSeedRows(); }catch(e){}
   var stds = _vspPndReadStandards(roleLabel);
   if(!stds || !stds.length) return null;
-  var all = _vspPndReadHuddles();
+  var all = _vspPndReadHuddlesScored();
   var personId = _vspPndPersonId(person);   // pre-BOSHR: VSP id -> P&D id (D-98)
   function readingsFor(rowId){
     return weeks.map(function(iso){
@@ -15353,7 +15362,305 @@ function renderPerfScorecard(scope){
   // merge-173: the CNA reason box renders on the scorecard page too, since the
   // right-click that opens it lives on the monthly client-meeting cell here.
   if(_ph) _ph += _vspCnaBoxOverlay();
+  // merge-269: after the scorecard paints, if the signed-in supervisor has a
+  // forced No with no follow-up recorded, ask for it.
+  try{ setTimeout(_vspForcedAckCheck, 0); }catch(e){}
   return _ph;
+}
+
+/* ============================================================================
+   DISCIPLINE FOLLOW-UP (Dave, 2026-09-03, merge-269)
+   When an automatic No lands on a supervisor's scorecard, the supervisor is
+   asked, in a popup they cannot dismiss without answering:
+     1. Did the report get a verbal warning for the FIRST No?   (date)
+     2. Did the report get a written reprimand for the SECOND No? (date)
+   One follow-up per report + KPI + quarter (the first and second instance),
+   stored on the supervisor's week record for the forcing week as
+   rec.discipline[rowId], logged, and synced with the record. Until answered,
+   the popup returns every time the supervisor opens their scorecard.
+   ========================================================================== */
+function _vspForcedAckKeyWeek(info){ return (info&&info.by&&info.by[0]&&info.by[0].weeks&&info.by[0].weeks[1])||null; }
+
+/* ============================================================================
+   PERFORMANCE PLAN STATUS (Dave, 2026-09-03, merge-273)
+   A performance plan is a durable status, not a per-quarter mark. Keyed by
+   report initials + KPI row id, it persists across quarters. It ends only when
+   the supervisor closes it: 'improved' or 'terminated', with a date and note.
+   Stored under smb_perf_plans_v1, synced by the adapter alongside the huddle
+   store. While a plan is open, every further No on that KPI is a "No on plan".
+   ========================================================================== */
+var VSP_PERF_PLANS_KEY='smb_perf_plans_v1';
+function _vspPerfReadPlans(){
+  try{ var v=localStorage.getItem(VSP_PERF_PLANS_KEY); return v?JSON.parse(v):{}; }catch(e){ return {}; }
+}
+function _vspPerfWritePlans(obj){
+  try{ localStorage.setItem(VSP_PERF_PLANS_KEY, JSON.stringify(obj)); if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+}
+function _vspPerfPlanKey(repIni, rowId){ return repIni+'|'+rowId; }
+function _vspPerfPlanOpen(repIni, rowId){
+  var p=_vspPerfReadPlans()[_vspPerfPlanKey(repIni,rowId)];
+  return (p && p.status==='open') ? p : null;
+}
+function _vspPerfPlanStart(repIni, rowId, startIso, by){
+  var all=_vspPerfReadPlans(); var k=_vspPerfPlanKey(repIni,rowId);
+  if(all[k] && all[k].status==='open') return; // already on it
+  all[k]={ rep:repIni, row:rowId, status:'open', startDate:startIso||_meetLocalIso(), by:by||'?', startedAt:new Date().toISOString() };
+  _vspPerfWritePlans(all);
+}
+function _vspPerfPlanClose(repIni, rowId, outcome, dateIso, note, by){
+  var all=_vspPerfReadPlans(); var k=_vspPerfPlanKey(repIni,rowId);
+  if(!all[k]) return;
+  all[k].status=(outcome==='terminated')?'terminated':'improved';
+  all[k].endDate=dateIso||_meetLocalIso(); all[k].endNote=note||''; all[k].closedBy=by||'?'; all[k].closedAt=new Date().toISOString();
+  _vspPerfWritePlans(all);
+}
+
+/* ============================================================================
+   FIRST-NO REASON (merge-273)
+   At a report's FIRST No on a KPI in a quarter the supervisor records one line:
+   why it happened. Stored on the supervisor's record for the first-No week as
+   rec.firstNoReason[rowId][repIni]; surfaced again in the second-No popup.
+   ========================================================================== */
+function _vspFirstNoReasonGet(supPnd, repIni, rowId, firstWk){
+  try{ var rec=_vspPndReadHuddles()[supPnd+'__'+firstWk];
+    return (rec&&rec.firstNoReason&&rec.firstNoReason[rowId]&&rec.firstNoReason[rowId][repIni])||null; }catch(e){ return null; }
+}
+
+/* Warnings/reprimands/plans logged against a person, for their OWN card
+   (merge-273, feature 5). Reads the supervisor discipline records plus the plan
+   store, returns entries keyed to this report. */
+function _vspPerfRecordForReport(repIni){
+  var out=[];
+  try{
+    var raw=_vspPndReadHuddles();
+    Object.keys(raw).forEach(function(k){
+      var rec=raw[k]; if(!rec||!rec.discipline) return;
+      Object.keys(rec.discipline).forEach(function(rowId){
+        var d=rec.discipline[rowId] && rec.discipline[rowId][repIni]; if(!d) return;
+        if(d.warn==='yes') out.push({ kind:'Verbal warning', row:rowId, date:d.warnDate||'', by:d.by });
+        if(d.reprimand==='yes') out.push({ kind:'Written reprimand', row:rowId, date:d.reprimandDate||'', by:d.by });
+        if(d.plan==='yes') out.push({ kind:'Performance plan started', row:rowId, date:d.planDate||'', by:d.by });
+      });
+    });
+    var plans=_vspPerfReadPlans();
+    Object.keys(plans).forEach(function(pk){
+      var p=plans[pk]; if(p.rep!==repIni) return;
+      if(p.status!=='open') out.push({ kind:(p.status==='terminated'?'Plan closed (terminated)':'Plan closed (improved)'), row:p.row, date:p.endDate||'', by:p.closedBy, note:p.endNote });
+    });
+  }catch(e){}
+  out.sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
+  return out;
+}
+function _vspForcedAckKeyWeekOrig(info){ return _vspForcedAckKeyWeek(info); }
+function _vspForcedAckPending(){
+  var out=[];
+  try{
+    if(typeof currentUser==='undefined'||!currentUser) return out;
+    var me=ppl.find(function(x){ return x.initials===currentUser.initials; }); if(!me) return out;
+    var myPnd=(typeof _vspPndPersonId==='function')?_vspPndPersonId(me):me.id;
+    var raw=_vspPndReadHuddles();
+    var f=_vspPerfForcedMap(raw);
+    var seen={};
+    // Latest forcing week first, so the entry seen for a report+KPI+quarter is
+    // the one carrying the full list of No weeks (needed to know about a 3rd).
+    Object.keys(f).sort().reverse().forEach(function(k){
+      if(k.indexOf(myPnd+'__')!==0) return;
+      Object.keys(f[k]).forEach(function(rowId){
+        (f[k][rowId].by||[]).forEach(function(b){
+          var q=_vspQuarterMondays(b.weeks[0])[0]||b.weeks[0];
+          var ackWk=b.weeks[1]; if(!ackWk) return;
+          var id=b.ini+'|'+rowId+'|'+q; if(seen[id]) return; seen[id]=1;
+          var rec=raw[myPnd+'__'+ackWk];
+          var done=rec&&rec.discipline&&rec.discipline[rowId]&&rec.discipline[rowId][b.ini];
+          // merge-270: a 3rd No on the same KPI this quarter = work performance
+          // plan. Ask for it once, as question 3, when the 3rd instance exists.
+          var has3=b.weeks.length>=3;
+          var need3=has3 && !(done&&done.plan);
+          if(!done || need3) out.push({ supPnd:myPnd, rowId:rowId, rep:b, ackWk:ackWk, q:q, third:has3, prior:done||null });
+        });
+      });
+    });
+  }catch(e){}
+  return out;
+}
+function _vspForcedAckCheck(){
+  try{
+    if(state.page!=='scorecard') return;
+    if(document.getElementById('forced-ack-modal')) return;
+    if(document.getElementById('firstno-modal')) return;
+    // merge-273: first-No reason takes priority - capture the "why" before the
+    // discipline popup ever appears.
+    var fn=_vspFirstNoPending();
+    if(fn.length){ _vspOpenFirstNoModal(fn[0]); return; }
+    var p=_vspForcedAckPending(); if(!p.length) return;
+    _vspOpenForcedAckModal(p[0]);
+  }catch(e){}
+}
+/* A report's FIRST No on a KPI this quarter, where the supervisor has not yet
+   recorded a reason. One per report+KPI+quarter. */
+function _vspFirstNoPending(){
+  var out=[];
+  try{
+    if(typeof currentUser==='undefined'||!currentUser) return out;
+    var me=ppl.find(function(x){ return x.initials===currentUser.initials; }); if(!me) return out;
+    var myPnd=(typeof _vspPndPersonId==='function')?_vspPndPersonId(me):me.id;
+    var link=_VSP_KPI_LINKS[String(me.roleLabel||me.role||'')]; if(!link) return out;
+    var raw=_vspPndReadHuddles();
+    var reports=ppl.filter(function(r){ return r&&r.status!=='archived'&&r.reportsTo===me.id&&String(r.roleLabel||r.role||'')===link.reportRole; });
+    var supStds=_vspPndReadStandards(String(me.roleLabel||me.role||''))||[];
+    var seen={};
+    supStds.forEach(function(srow){
+      var repRow = (link.map&&typeof link.map==='object') ? link.map[srow.id] : (function(){ var mm=String(srow.id).match(new RegExp('^'+link.supPrefix+'(\\d+)$')); return mm?link.repPrefix+mm[1]:null; })();
+      if(!repRow) return;
+      reports.forEach(function(rep){
+        var repPnd=(typeof _vspPndPersonId==='function')?_vspPndPersonId(rep):rep.id;
+        var noWeeks=Object.keys(raw).filter(function(k){ if(k.indexOf(repPnd+'__')!==0) return false; var rc=raw[k]; return rc&&!rc.away&&rc.answers&&rc.answers[repRow]==='no'; }).map(function(k){ return k.slice(repPnd.length+2); }).sort();
+        if(!noWeeks.length) return;
+        var byQ={}; noWeeks.forEach(function(wk){ var q=_vspQuarterMondays(wk)[0]||wk; (byQ[q]=byQ[q]||[]).push(wk); });
+        Object.keys(byQ).forEach(function(q){
+          var firstWk=byQ[q][0]; var id=rep.initials+'|'+srow.id+'|'+q; if(seen[id]) return; seen[id]=1;
+          if(!_vspFirstNoReasonGet(myPnd, rep.initials, srow.id, firstWk)){
+            out.push({ supPnd:myPnd, rowId:srow.id, repIni:rep.initials, repName:(rep.first||rep.initials), firstWk:firstWk });
+          }
+        });
+      });
+    });
+  }catch(e){}
+  return out;
+}
+function _vspOpenFirstNoModal(item){
+  var lbl=function(iso){ var d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'}); };
+  var h='<div id="firstno-modal" onclick="_vspFirstNoOverlay(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:405;display:flex;align-items:center;justify-content:center">';
+  h+='<div class="modal" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="background:var(--sur);border-radius:10px;width:min(480px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.3)">';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">First miss \\u00b7 '+_scEsc(item.repName)+'</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">'+_scEsc(item.repName)+' missed <b>'+_scEsc(_vspRowTitle(item.rowId))+'</b> the week of '+_scEsc(lbl(item.firstWk))+'. This is a first miss - a coaching conversation, not a mark. What happened?</div></div>';
+  h+='<div style="padding:16px 18px">';
+  h+='<input id="fn-reason" type="text" placeholder="Reason (e.g. carrying two extra jobs)" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base)">';
+  h+='<div id="fn-err" style="font-size:var(--fz-base);color:var(--red);min-height:18px;margin-top:6px"></div>';
+  h+='</div><div style="padding:0 18px 16px;display:flex;justify-content:flex-end">';
+  h+='<button type="button" class="btn btn-sm btn-blu" onclick="_vspFirstNoSaveBtn(this)" data-sup="'+_scEsc(item.supPnd)+'" data-row="'+_scEsc(item.rowId)+'" data-rep="'+_scEsc(item.repIni)+'" data-wk="'+_scEsc(item.firstWk)+'">Save</button>';
+  h+='</div></div></div>';
+  var old=document.getElementById('firstno-modal'); if(old) old.remove();
+  document.body.insertAdjacentHTML('beforeend', h);
+}
+function _vspFirstNoOverlay(ev){ if(ev&&ev.target&&ev.target.id==='firstno-modal'){ /* required - do not dismiss on overlay */ } }
+function _vspFirstNoSaveBtn(btn){
+  var supPnd=btn.getAttribute('data-sup'), rowId=btn.getAttribute('data-row'), repIni=btn.getAttribute('data-rep'), wk=btn.getAttribute('data-wk');
+  var r=(document.getElementById('fn-reason')||{}).value||''; var err=document.getElementById('fn-err');
+  if(!r.trim()){ if(err) err.textContent='Enter a reason.'; return; }
+  try{
+    var all=_vspPndReadHuddles(); var k=supPnd+'__'+wk;
+    var rec=all[k]||{answers:{},updatedAt:''};
+    rec.firstNoReason=rec.firstNoReason||{}; rec.firstNoReason[rowId]=rec.firstNoReason[rowId]||{};
+    rec.firstNoReason[rowId][repIni]={ reason:r.trim(), by:((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?'), t:new Date().toISOString() };
+    rec.updatedAt=new Date().toISOString(); all[k]=rec;
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    if(typeof vspSaveNow==='function') vspSaveNow();
+  }catch(e){}
+  var m=document.getElementById('firstno-modal'); if(m) m.remove();
+  renderPage();
+}
+function _vspRowTitle(rowId){
+  try{
+    var s=_vspPerfLoadRoleStandards();
+    var t=''; Object.keys(s).forEach(function(r){ (s[r]||[]).forEach(function(x){ if(x&&x.id===rowId&&!t) t=x.std||x.title||''; }); });
+    return t||rowId;
+  }catch(e){ return rowId; }
+}
+function _vspOpenForcedAckModal(item){
+  var lbl=function(iso){ var d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'}); };
+  var w1=item.rep.weeks[0], w2=item.rep.weeks[1];
+  var h='<div id="forced-ack-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:410;display:flex;align-items:center;justify-content:center">';
+  h+='<div class="modal" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="background:var(--sur);border-radius:10px;width:min(520px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.3)">';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">Automatic No on your scorecard</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">'+_scEsc(item.rep.name)+' has a second No this quarter on: <b>'+_scEsc(_vspRowTitle(item.rowId))+'</b>. Record what action was taken.</div></div>';
+  h+='<div style="padding:16px 18px;display:grid;gap:14px">';
+  // merge-273: surface the reason the supervisor recorded at the first No.
+  try{
+    var _fr=_vspFirstNoReasonGet(item.supPnd, item.rep.ini, item.rowId, w1);
+    if(_fr && _fr.reason){ h+='<div style="background:var(--sur2);border-radius:8px;padding:8px 10px;font-size:var(--fz-base);color:var(--txm)">At the first No you noted: \\u201c'+_scEsc(_fr.reason)+'\\u201d</div>'; }
+  }catch(e){}
+  h+='<div><div style="font-weight:600;margin-bottom:6px">1. Did '+_scEsc(item.rep.name)+' get a verbal warning for the first No (week of '+_scEsc(lbl(w1))+')?</div>';
+  h+='<label style="margin-right:14px"><input type="radio" name="fa-warn" value="yes"> Yes</label><label><input type="radio" name="fa-warn" value="no"> No</label>';
+  h+='<div style="margin-top:6px"><label style="font-size:var(--fz-base);color:var(--txm)">Date </label><input id="fa-warn-date" type="date" style="padding:6px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base)"></div></div>';
+  h+='<div><div style="font-weight:600;margin-bottom:6px">2. Did '+_scEsc(item.rep.name)+' get a written reprimand for the second No (week of '+_scEsc(lbl(w2))+')?</div>';
+  h+='<label style="margin-right:14px"><input type="radio" name="fa-rep" value="yes"> Yes</label><label><input type="radio" name="fa-rep" value="no"> No</label>';
+  h+='<div style="margin-top:6px"><label style="font-size:var(--fz-base);color:var(--txm)">Date </label><input id="fa-rep-date" type="date" style="padding:6px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base)"></div></div>';
+  if(item.third){
+    var w3=item.rep.weeks[2];
+    h+='<div><div style="font-weight:600;margin-bottom:6px">3. Was '+_scEsc(item.rep.name)+' put on a work performance plan for the third No (week of '+_scEsc(lbl(w3))+')?</div>';
+    h+='<label style="margin-right:14px"><input type="radio" name="fa-plan" value="yes"> Yes</label><label><input type="radio" name="fa-plan" value="no"> No</label>';
+    h+='<div style="margin-top:6px"><label style="font-size:var(--fz-base);color:var(--txm)">Date </label><input id="fa-plan-date" type="date" style="padding:6px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base)"></div></div>';
+  }
+  h+='<div id="fa-err" style="font-size:var(--fz-base);color:var(--red);min-height:18px"></div>';
+  h+='</div>';
+  h+='<div style="padding:0 18px 16px;display:flex;justify-content:flex-end">';
+  h+='<button type="button" class="btn btn-sm btn-blu" onclick="_vspForcedAckSaveBtn(this)" data-sup="'+_scEsc(item.supPnd)+'" data-row="'+_scEsc(item.rowId)+'" data-rep="'+_scEsc(item.rep.ini)+'" data-wk="'+_scEsc(item.ackWk)+'">Save</button>';
+  h+='</div></div></div>';
+  var old=document.getElementById('forced-ack-modal'); if(old) old.remove();
+  document.body.insertAdjacentHTML('beforeend', h);
+  try{
+    var pr=item.prior;
+    if(pr){
+      var q1=document.querySelector('input[name="fa-warn"][value="'+pr.warn+'"]'); if(q1) q1.checked=true;
+      var q2=document.querySelector('input[name="fa-rep"][value="'+pr.reprimand+'"]'); if(q2) q2.checked=true;
+      var d1=document.getElementById('fa-warn-date'); if(d1&&pr.warnDate) d1.value=pr.warnDate;
+      var d2=document.getElementById('fa-rep-date'); if(d2&&pr.reprimandDate) d2.value=pr.reprimandDate;
+    }
+  }catch(e){}
+}
+function _vspForcedAckSaveBtn(btn){ _vspForcedAckSave(btn.getAttribute('data-sup'), btn.getAttribute('data-row'), btn.getAttribute('data-rep'), btn.getAttribute('data-wk')); }
+function _vspForcedAckSave(supPnd, rowId, repIni, ackWk){
+  var err=document.getElementById('fa-err');
+  var warn=(document.querySelector('input[name="fa-warn"]:checked')||{}).value||'';
+  var rep=(document.querySelector('input[name="fa-rep"]:checked')||{}).value||'';
+  var wd=(document.getElementById('fa-warn-date')||{}).value||'';
+  var rd=(document.getElementById('fa-rep-date')||{}).value||'';
+  if(!warn||!rep){ if(err) err.textContent='Answer both questions.'; return; }
+  if(warn==='yes'&&!wd){ if(err) err.textContent='Enter the date of the verbal warning.'; return; }
+  if(rep==='yes'&&!rd){ if(err) err.textContent='Enter the date of the written reprimand.'; return; }
+  var planQ=document.querySelector('input[name="fa-plan"]');
+  var plan='', pd='';
+  if(planQ){
+    plan=(document.querySelector('input[name="fa-plan"]:checked')||{}).value||'';
+    pd=(document.getElementById('fa-plan-date')||{}).value||'';
+    if(!plan){ if(err) err.textContent='Answer question 3.'; return; }
+    if(plan==='yes'&&!pd){ if(err) err.textContent='Enter the date of the work performance plan.'; return; }
+  }
+  try{
+    var all=_vspPndReadHuddles();
+    var k=supPnd+'__'+ackWk;
+    var rec=all[k]||{answers:{},updatedAt:''};
+    rec.discipline=rec.discipline||{}; rec.discipline[rowId]=rec.discipline[rowId]||{};
+    var by=((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?');
+    var entry={ warn:warn, warnDate:wd, reprimand:rep, reprimandDate:rd, by:by, t:new Date().toISOString() };
+    if(planQ){ entry.plan=plan; entry.planDate=pd;
+      // merge-273: a recorded plan opens the durable plan status (persists across
+      // quarters until the supervisor closes it).
+      if(plan==='yes'){ _vspPerfPlanStart(repIni, rowId, pd, by); }
+    }
+    rec.discipline[rowId][repIni]=entry;
+    _vspPerfLogEntry(rec, 'discipline', '', repIni+': warning '+warn+(wd?(' '+wd):'')+'; reprimand '+rep+(rd?(' '+rd):'')+(planQ?('; performance plan '+plan+(pd?(' '+pd):'')):''));
+    rec.updatedAt=new Date().toISOString();
+    all[k]=rec;
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+  }catch(e){}
+  var m=document.getElementById('forced-ack-modal'); if(m) m.remove();
+  renderPage();
+}
+/* Follow-up status text for the forced-cell tooltip. */
+function _vspForcedAckText(supPnd, rowId, info){
+  try{
+    var ackWk=_vspForcedAckKeyWeek(info); if(!ackWk) return '';
+    var rec=_vspPndReadHuddles()[supPnd+'__'+ackWk];
+    var b=info.by[0]; var d=rec&&rec.discipline&&rec.discipline[rowId]&&rec.discipline[rowId][b.ini];
+    if(!d) return 'Follow-up not recorded';
+    var s='Verbal warning: '+(d.warn==='yes'?(d.warnDate||'yes'):'no')+' \u00b7 Written reprimand: '+(d.reprimand==='yes'?(d.reprimandDate||'yes'):'no');
+    if(d.plan!==undefined) s+=' \u00b7 Performance plan: '+(d.plan==='yes'?(d.planDate||'yes'):'no');
+    else if(b.weeks.length>=3) s+=' \u00b7 Performance plan: not recorded';
+    return s;
+  }catch(e){ return ''; }
 }
 
 
@@ -15834,6 +16141,7 @@ function renderTodos(){
     // ── Title + attachment badge ───────────────────────────
     h+='<div onclick="openTodoDetail('+t.id+')" title="Open to view / edit notes" style="min-width:0;display:flex;align-items:center;gap:8px;cursor:pointer">';
     h+='<span style="font-size:var(--fz-body);color:'+(t.done?'var(--txm)':'var(--txt)')+';text-decoration:'+(t.done?'line-through':'none')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+t.task+'</span>';
+    if(state.todoAllTeams && t._todoTeam) h+='<span class="tag" style="font-size:var(--fz-xs);flex-shrink:0">'+_scEsc(t._todoTeam)+'</span>';
     if(overdue) h+='<span style="font-size:var(--fz-xs);font-weight:700;color:#b45309;background:#fef3c7;border-radius:10px;padding:1px 8px;white-space:nowrap;flex-shrink:0">Carried over</span>';
     h+=_linkBadge(t);
     if(t.attachments && t.attachments.length){
@@ -15906,14 +16214,20 @@ function renderTodos(){
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">';
 
   // Team selector dropdown
+  var _todoAll=!!state.todoAllTeams;
   h+='<div style="position:relative">';
   h+='<button onclick="state.todoTeamMenu=!state.todoTeamMenu;renderPage()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;font-family:inherit;font-size:var(--fz-lg);color:var(--txt)">';
-  h+='<div style="width:8px;height:8px;border-radius:50%;background:'+activeT.color+';flex-shrink:0"></div>';
-  h+='Team: <strong>'+activeT.name+'</strong>';
+  if(_todoAll){ h+='<div style="width:8px;height:8px;border-radius:50%;background:var(--txm);flex-shrink:0"></div>Team: <strong>All teams</strong>'; }
+  else { h+='<div style="width:8px;height:8px;border-radius:50%;background:'+activeT.color+';flex-shrink:0"></div>Team: <strong>'+activeT.name+'</strong>'; }
   h+='<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
   h+='</button>';
   if(state.todoTeamMenu){
     h+='<div onclick="event.stopPropagation()" style="position:absolute;top:100%;left:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:100;min-width:240px;padding:4px 0">';
+    // All teams option (merge-274): one list, every team, no switching.
+    h+='<button onclick="state.todoTeamMenu=false;state.todoAllTeams=true;renderPage()" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;border-bottom:1px solid var(--brd);background:'+(_todoAll?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(_todoAll?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg);font-weight:600">';
+    h+='<div style="width:8px;height:8px;border-radius:50%;background:var(--txm);flex-shrink:0"></div>All teams';
+    if(_todoAll) h+='<svg style="margin-left:auto" width="11" height="11" fill="none" stroke="var(--blu)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+    h+='</button>';
     // Search
     h+='<div style="padding:7px 10px;border-bottom:1px solid var(--brd)">';
     h+='<div style="display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--sur2);border-radius:5px;border:1px solid var(--brd)">';
@@ -15924,7 +16238,7 @@ function renderTodos(){
     var filtered=teamList.filter(function(t){return String((t&&t.name)||'').toLowerCase().includes(q);});
     filtered.forEach(function(t){
       var isActive=t.id===state.currentTeam;
-      h+='<button onclick="state.todoTeamMenu=false;switchTeam(\''+t.id+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
+      h+='<button onclick="state.todoTeamMenu=false;state.todoAllTeams=false;switchTeam(\''+t.id+'\')" style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 14px;border:none;background:'+(isActive&&!_todoAll?'var(--blub)':'transparent')+';cursor:pointer;font-family:inherit;color:'+(isActive&&!_todoAll?'var(--blu)':'var(--txt)')+';font-size:var(--fz-lg)">';
       h+='<div style="width:8px;height:8px;border-radius:50%;background:'+t.color+';flex-shrink:0"></div>';
       h+=String((t&&t.name)||'(unnamed team)');
       if(isActive) h+='<svg style="margin-left:auto" width="11" height="11" fill="none" stroke="var(--blu)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -15969,10 +16283,20 @@ function renderTodos(){
     h+='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>';
     h+='</button>';
     h+='</div></div>';
-    // Show all todos sorted: open first, done (strikethrough) at bottom
+    // Show all todos sorted: open first, done (strikethrough) at bottom.
+    // merge-274: All teams gathers every visible team's to-dos into one list,
+    // each tagged with its team, so nobody switches teams to see them all.
+    var _tdSource;
+    if(_todoAll){
+      _tdSource=[];
+      teamList.forEach(function(tm){
+        var lst=(tm.id===state.currentTeam)?todos:((teamsRegistry[tm.id]||{}).todos||[]);
+        (lst||[]).forEach(function(t){ if(!t) return; try{ Object.defineProperty(t,'_todoTeam',{value:tm.name,enumerable:false,writable:true,configurable:true}); }catch(e){} _tdSource.push(t); });
+      });
+    } else { _tdSource=todos; }
     var listFilter=showArchive
-      ? todos.filter(function(t){return !_delTD()[t.id] && t.status==='archived';})
-      : todos.filter(function(t){return !_delTD()[t.id] && t.status!=='archived';});
+      ? _tdSource.filter(function(t){return !_delTD()[t.id] && t.status==='archived';})
+      : _tdSource.filter(function(t){return !_delTD()[t.id] && t.status!=='archived';});
     listFilter=listFilter.filter(function(t){return _ownerSelHas('todoOwner',t.owner);});
     // Search filter
     var todoSearch=(state.todoSearch||"").toLowerCase();
@@ -15991,11 +16315,11 @@ function renderTodos(){
       return 0;
     });
 
-    var totalShowing=todos.filter(function(t){return !_delTD()[t.id] && (showArchive?(t.status==='archived'):(t.status!=='archived'));}).length;
+    var totalShowing=_tdSource.filter(function(t){return !_delTD()[t.id] && (showArchive?(t.status==='archived'):(t.status!=='archived'));}).length;
     h+='<div style="background:var(--sur);border:1px solid var(--brd);border-radius:8px">';
     // List header
     h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--sur2);border-bottom:1px solid var(--brd)">';
-    h+='<span style="font-size:var(--fz-lg);font-weight:500">'+( showArchive?'Archived To-Dos':'Team To-Dos')+'</span>';
+    h+='<span style="font-size:var(--fz-lg);font-weight:500">'+( showArchive?'Archived To-Dos':(_todoAll?'All Teams To-Dos':'Team To-Dos'))+'</span>';
     h+='<span style="font-size:var(--fz-body);background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:1px 8px;color:var(--txm)">'+totalShowing+'</span>';
     h+='</div>';
     // Column labels - match Ninety: checkbox | Title | Due By | Owner | menu
@@ -16014,6 +16338,7 @@ function renderTodos(){
     }
     h+='<div style="padding:8px 14px;border-top:0.5px solid var(--brd);background:var(--sur2)">';
     h+='<button style="font-size:var(--fz-body);color:var(--blu);background:none;border:none;cursor:pointer;padding:0" onclick="openCreateForm(\'todo\')">+ Add To-Do</button>';
+    if(_todoAll) h+='<span style="font-size:var(--fz-body);color:var(--txm);margin-left:8px">adds to '+_scEsc(activeT.name)+'</span>';
     h+='</div>';
     h+='</div>';
 
@@ -16923,6 +17248,140 @@ function _vspPndReadHuddles(){
   try{ var v=localStorage.getItem('smb_perf_huddles_v1'); return v?JSON.parse(v):{}; }
   catch(e){ return {}; }
 }
+
+/* ============================================================================
+   SUPERVISOR ACCOUNTABILITY RULE (Dave, 2026-09-03, merge-268)
+   A direct report gets ONE free No per KPI per calendar quarter (a verbal
+   warning). That report's SECOND No on the same KPI, and every No after it
+   until the quarter ends, forces the supervisor's matching KPI cell for that
+   week to No - red, locked, regardless of what the supervisor entered. Each
+   report is counted separately (one free No per person per KPI), and any
+   report's second-or-later No forces the supervisor.
+
+   Which rows link: declared per supervisor role in _VSP_KPI_LINKS. Sr. PM <->
+   Project Manager link by number (srpmN <-> pmN, confirmed row-for-row from the
+   role standards). VP Construction is NOT numbered the same as Sr. PM (vp3 is
+   Buildertrend = srpm4, vp7 is huddles = srpm10), so the VP link waits for an
+   explicit map from Dave rather than guessing.
+
+   Computed live from the reports' stored answers, never persisted, so a
+   corrected report No releases the supervisor's forced No on its own.
+   _vspPndReadHuddlesScored() is the read used by every renderer and scorer;
+   writers keep the raw reader.
+   ========================================================================== */
+var _VSP_KPI_LINKS = {
+  'Sr. PM': { reportRole:'Project Manager', supPrefix:'srpm', repPrefix:'pm', map:'same-number' },
+  // VP Construction <- Sr. PM (Dave, 2026-09-03, merge-271). Explicit map: the
+  // two roles are not numbered alike. vp8 (escalate to the President) is NOT
+  // linked to srpm8 (report to the VP): Terry IS the VP, so Will reporting to
+  // him is a different act from Terry escalating upward. vp6, vp9, vp10 have no
+  // Sr. PM counterpart. srpm3, 7, 9, 11, 12 have no VP counterpart.
+  'VP Construction': { reportRole:'Sr. PM', supPrefix:'vp', repPrefix:'srpm', map:{ vp1:'srpm1', vp2:'srpm2', vp3:'srpm4', vp4:'srpm5', vp5:'srpm6', vp7:'srpm10' } }
+};
+function _vspQuarterMondays(weekIso){
+  // Every Monday in weekIso's calendar quarter, ascending.
+  var d=new Date(weekIso+'T00:00:00'); if(isNaN(d.getTime())) return [];
+  var qs=Math.floor(d.getMonth()/3)*3;
+  var start=new Date(d.getFullYear(), qs, 1); var end=new Date(d.getFullYear(), qs+3, 0);
+  var dow=(start.getDay()+6)%7; var m=new Date(start); m.setDate(start.getDate()-dow);
+  if(m<start){ m.setDate(m.getDate()+7); }
+  var out=[]; while(m<=end){ out.push(_meetLocalIso(m)); m.setDate(m.getDate()+7); }
+  return out;
+}
+/* Build the forced map for the whole store in one pass:
+   forced[supPnd+'__'+weekIso][supRowId] = { by:[{ini,name,nth,weeks:[...]}] } */
+function _vspPerfForcedMap(raw){
+  var forced={};
+  try{
+    if(typeof ppl==='undefined' || !ppl) return forced;
+    var pndOf=function(p){ return (typeof _vspPndPersonId==='function')?_vspPndPersonId(p):p.id; };
+    // merge-272 (Dave, 2026-09-03): a forced No is a real No. It counts at the
+    // next level up exactly like an entered one, so the chain runs Keith ->
+    // Will -> Terry with one free No at each level. Supervisors are processed
+    // deepest-first, and each level reads EFFECTIVE answers (raw plus the
+    // forced No's already applied below it).
+    var depthOf=function(p){ var n=0, cur=p, seen={}; while(cur&&cur.reportsTo&&!seen[cur.id]){ seen[cur.id]=1; n++; cur=ppl.find(function(x){return x.id===cur.reportsTo;}); } return n; };
+    var effNo=function(pnd, wk, row){
+      var k=pnd+'__'+wk;
+      if(forced[k] && forced[k][row]) return true;
+      var rec=raw[k]; return !!(rec && !rec.away && rec.answers && rec.answers[row]==='no');
+    };
+    var sups=ppl.filter(function(s){ return s && s.status!=='archived' && _VSP_KPI_LINKS[String(s.roleLabel||s.role||'')]; })
+                .sort(function(a,b){ return depthOf(b)-depthOf(a); });
+    sups.forEach(function(sup){
+      var supRole=String(sup.roleLabel||sup.role||'');
+      var link=_VSP_KPI_LINKS[supRole]; if(!link) return;
+      var supPnd=pndOf(sup);
+      var reports=ppl.filter(function(r){ return r && r.status!=='archived' && r.reportsTo===sup.id && String(r.roleLabel||r.role||'')===link.reportRole; });
+      if(!reports.length) return;
+      // supervisor's numbered rows
+      var supStds=_vspPndReadStandards(supRole)||[];
+      supStds.forEach(function(srow){
+        var repRow=null;
+        if(link.map && typeof link.map==='object'){
+          repRow=link.map[srow.id]||null;                       // explicit map
+        } else {
+          var mm=String(srow.id||'').match(new RegExp('^'+link.supPrefix+'(\\d+)$'));
+          if(mm) repRow=link.repPrefix+mm[1];                   // same-number
+        }
+        if(!repRow) return;
+        reports.forEach(function(rep){
+          var repPnd=pndOf(rep);
+          // weeks (quarter-scoped later) where this report has a No on repRow
+          var wkSet={};
+          Object.keys(raw).forEach(function(k){ if(k.indexOf(repPnd+'__')===0) wkSet[k.slice(repPnd.length+2)]=1; });
+          Object.keys(forced).forEach(function(k){ if(k.indexOf(repPnd+'__')===0) wkSet[k.slice(repPnd.length+2)]=1; });
+          var noWeeks=Object.keys(wkSet).filter(function(wk){ return effNo(repPnd, wk, repRow); }).sort();
+          if(noWeeks.length<2) return;
+          // group by quarter; from the 2nd No in a quarter on, each No forces
+          var byQ={};
+          noWeeks.forEach(function(wk){ var q=_vspQuarterMondays(wk)[0]||wk; (byQ[q]=byQ[q]||[]).push(wk); });
+          Object.keys(byQ).forEach(function(q){
+            var list=byQ[q];
+            for(var i=1;i<list.length;i++){
+              var wk=list[i]; var key=supPnd+'__'+wk;
+              forced[key]=forced[key]||{};
+              forced[key][srow.id]=forced[key][srow.id]||{by:[]};
+              forced[key][srow.id].by.push({ ini:rep.initials, name:(rep.first||rep.initials), nth:i+1, weeks:list.slice(0,i+1) });
+            }
+          });
+        });
+      });
+    });
+  }catch(e){}
+  return forced;
+}
+/* Scored view of the store: raw records with supervisor forced No's applied.
+   Records are cloned before being changed; the raw store is never mutated. */
+function _vspPndReadHuddlesScored(){
+  var raw=_vspPndReadHuddles();
+  var forced=_vspPerfForcedMap(raw);
+  var keys=Object.keys(forced); if(!keys.length) return raw;
+  var out={}; Object.keys(raw).forEach(function(k){ out[k]=raw[k]; });
+  keys.forEach(function(k){
+    var src=out[k];
+    var rec=src?JSON.parse(JSON.stringify(src)):{answers:{},updatedAt:''};
+    rec.answers=rec.answers||{};
+    Object.keys(forced[k]).forEach(function(rowId){ rec.answers[rowId]='no'; });
+    rec._forced=forced[k];
+    out[k]=rec;
+  });
+  return out;
+}
+/* Why a supervisor cell is forced (or null). Used by the tooltip and the click gate. */
+function _vspPerfForcedInfo(pndPersonId, rowId, weekIso){
+  try{
+    var f=_vspPerfForcedMap(_vspPndReadHuddles());
+    var k=pndPersonId+'__'+weekIso;
+    return (f[k]&&f[k][rowId])?f[k][rowId]:null;
+  }catch(e){ return null; }
+}
+function _vspPerfForcedText(info){
+  if(!info||!info.by||!info.by.length) return '';
+  var ordinal=function(n){ return n===2?'2nd':(n===3?'3rd':(n+'th')); };
+  var lbl=function(iso){ var d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'}); };
+  return info.by.map(function(b){ return b.name+'\u2019s '+ordinal(b.nth)+' No on this KPI this quarter ('+b.weeks.map(lbl).join(', ')+')'; }).join('; ');
+}
 /* PRE-BOSHR SHIM (retires at BOSHR People Registry cutover, D-98).
    VSP and P&D seed person IDs independently, so the same person has a different
    id in each app (Will is p3 in VSP, p7 in P&D). All P&D performance data
@@ -17177,6 +17636,11 @@ function _vspHuddleWeekLabel(iso){
   return mo[start.getMonth()]+' '+String(start.getDate()).padStart(2,'0')+' - '+mo[end.getMonth()]+' '+String(end.getDate()).padStart(2,'0');
 }
 function _vspHuddleCellClick(personId, iso, rowId){
+  // merge-268: a supervisor cell forced No by a report's repeat No is locked.
+  try{
+    var _fi=_vspPerfForcedInfo(personId, rowId, iso);
+    if(_fi){ try{ showToast('Locked: '+_vspPerfForcedText(_fi)); }catch(e){} return; }
+  }catch(e){}
   // Workload rating (numeric): prompt for a 1-10 value instead of cycling yes/no.
   if(String(rowId).indexOf('_wl')>-1){
     var all0=_vspPndReadHuddles();
@@ -18569,7 +19033,7 @@ function _vspRenderHuddleScorecard(){
   // last13 = lastN(13) selects the last 13 of the 52). P&D: _pndScBuildWeeks
   // pushes 52 weeks (i=51..0); VSP now matches.
   var weeks = _vspHuddleWeeksIsos52();
-  var all = _vspPndReadHuddles();
+  var all = _vspPndReadHuddlesScored();
   var personId = _vspPndPersonId(repP);   // pre-BOSHR: translate VSP id -> P&D id (D-98)
   function readingsFor(rowId){
     return weeks.map(function(iso){
@@ -18859,7 +19323,7 @@ function _vspHuddleWeekIsMiss(pndPersonId, weekIso, huddles){
 }
 function _vspHuddleFooterRow(section, colIdxs, colLabels, scStkB, SC_OFF, SC_W){
   var st=window._vspHuddleSc; if(!st) return '';
-  var all=_vspPndReadHuddles();
+  var all=_vspPndReadHuddlesScored();
   var mets=section.metrics||[];
   // v168: mirror P&D exactly, across separate deployed pages. P&D publishes its
   // computed huddle scores to smb_pnd_huddle_scores_v1 (synced here by the
@@ -19079,7 +19543,7 @@ function _vspHuddleTrend(){
   if(!repP) return '';
   var roleLabel = repP.roleLabel || repP.role || null;
   var stds = roleLabel ? _vspPndReadStandards(roleLabel) : null;
-  var all = _vspPndReadHuddles();
+  var all = _vspPndReadHuddlesScored();
   var _pndPid = _vspPndPersonId(repP);   // pre-BOSHR: VSP id -> P&D id (D-98)
   var weeks = _vspHuddleWeeksIsos();          // 13, oldest first, current last
 
@@ -27687,6 +28151,66 @@ function isWeekTracked(personId, weekIso){
 function vspCloseScorecardHistory(ev){
   try{ var m=document.getElementById('sc-hist-modal'); if(!m) return; if(!ev || ev.target===m) m.remove(); }catch(e){}
 }
+function vspOpenMyRecord(ownerIni){
+  try{
+    var raw=_vspPndReadHuddles();
+    var recs=_vspPerfRecordForReport(ownerIni);
+    var plans=_vspPerfReadPlans();
+    var openPlans=Object.keys(plans).filter(function(k){ return plans[k].rep===ownerIni && plans[k].status==='open'; }).map(function(k){ return plans[k]; });
+    var isAdmin=false; try{ isAdmin=_vspAutoIsAdmin(); }catch(e){}
+    var nm=''; try{ var p=ppl.find(function(x){ return x.initials===ownerIni; }); nm=p?(p.first||ownerIni):ownerIni; }catch(e){}
+    var lbl=function(iso){ if(!iso) return ''; var d=new Date(iso+'T00:00:00'); return isNaN(d.getTime())?iso:d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}); };
+    var h='<div id="myrec-modal" onclick="_vspMyRecOverlay(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;display:flex;align-items:center;justify-content:center">';
+    h+='<div class="modal" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="background:var(--sur);border-radius:10px;width:min(680px,94vw);max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">Record \\u00b7 '+_scEsc(nm)+'</div><button type="button" class="btn btn-sm" onclick="_vspMyRecClose()">Close</button></div>';
+    h+='<div style="overflow:auto;padding:14px 18px">';
+    if(openPlans.length){
+      h+='<div style="font-weight:700;margin-bottom:6px">Open performance plan'+(openPlans.length>1?'s':'')+'</div>';
+      openPlans.forEach(function(pl){
+        h+='<div style="border:1.5px solid var(--red);background:var(--redb);border-radius:8px;padding:10px 12px;margin-bottom:10px">';
+        h+='<div style="font-weight:600">'+_scEsc(_vspRowTitle(pl.row))+'</div>';
+        h+='<div style="font-size:var(--fz-base);color:var(--txm)">Started '+_scEsc(lbl(pl.startDate))+' by '+_scEsc(pl.by)+'. Stays open until closed.</div>';
+        if(isAdmin){
+          h+='<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
+          h+='<input type="date" id="mr-date-'+_scEsc(pl.row)+'" style="padding:6px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base)">';
+          h+='<input type="text" id="mr-note-'+_scEsc(pl.row)+'" placeholder="Closing note" style="padding:6px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base);flex:1;min-width:140px">';
+          h+='<button type="button" class="btn btn-sm" onclick="_vspMyRecClosePlan(this)" data-rep="'+_scEsc(ownerIni)+'" data-row="'+_scEsc(pl.row)+'" data-out="improved">Close: improved</button>';
+          h+='<button type="button" class="btn btn-sm" onclick="_vspMyRecClosePlan(this)" data-rep="'+_scEsc(ownerIni)+'" data-row="'+_scEsc(pl.row)+'" data-out="terminated">Close: terminated</button>';
+          h+='</div>';
+        }
+        h+='</div>';
+      });
+    }
+    h+='<div style="font-weight:700;margin:6px 0">History</div>';
+    if(!recs.length){ h+='<div style="color:var(--txd);padding:8px 0">No warnings, reprimands, or plans on record.</div>'; }
+    else {
+      h+='<table style="width:100%;border-collapse:collapse;font-size:var(--fz-base)"><thead><tr>';
+      ['Action','KPI','Date','By'].forEach(function(c){ h+='<th scope="col" style="text-align:left;padding:7px 6px;border-bottom:1px solid var(--brd);color:var(--txd);font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.04em">'+c+'</th>'; });
+      h+='</tr></thead><tbody>';
+      recs.forEach(function(r){
+        h+='<tr><td style="padding:7px 6px;border-bottom:1px solid var(--brd);font-weight:600">'+_scEsc(r.kind)+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd)">'+_scEsc(_vspRowTitle(r.row))+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd);white-space:nowrap">'+_scEsc(lbl(r.date))+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd)">'+_scEsc(r.by||'')+'</td></tr>';
+        if(r.note){ h+='<tr><td colspan="4" style="padding:0 6px 7px;color:var(--txm);font-size:var(--fz-base)">'+_scEsc(r.note)+'</td></tr>'; }
+      });
+      h+='</tbody></table>';
+    }
+    h+='</div></div></div>';
+    var old=document.getElementById('myrec-modal'); if(old) old.remove();
+    document.body.insertAdjacentHTML('beforeend', h);
+  }catch(e){}
+}
+function _vspMyRecClose(){ var m=document.getElementById('myrec-modal'); if(m) m.remove(); }
+function _vspMyRecOverlay(ev){ if(ev&&ev.target&&ev.target.id==='myrec-modal') _vspMyRecClose(); }
+function _vspMyRecClosePlan(btn){
+  var rep=btn.getAttribute('data-rep'), row=btn.getAttribute('data-row'), out=btn.getAttribute('data-out');
+  var dt=(document.getElementById('mr-date-'+row)||{}).value||'';
+  var note=(document.getElementById('mr-note-'+row)||{}).value||'';
+  var by=((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?');
+  _vspPerfPlanClose(rep, row, out, dt, note, by);
+  _vspMyRecClose(); renderPage();
+}
 function vspOpenScorecardHistory(ownerIni){
   try{
     if(!_vspAutoIsAdmin()) return;
@@ -29506,7 +30030,7 @@ function pdCurrentUser(){
 }
 /* Huddle store reader: one storage key, one reader - reuse VSP's. */
 function _pndLoadHuddles(){
-  try{ return (typeof _vspPndReadHuddles==='function') ? _vspPndReadHuddles() : JSON.parse(localStorage.getItem('smb_perf_huddles_v1')||'{}'); }catch(e){ return {}; }
+  try{ return (typeof _vspPndReadHuddlesScored==='function') ? _vspPndReadHuddlesScored() : JSON.parse(localStorage.getItem('smb_perf_huddles_v1')||'{}'); }catch(e){ return {}; }
 }
 /* Toast + escapes: VSP names differ. */
 function toast(msg){ try{ showToast(msg); }catch(e){} }
@@ -31246,7 +31770,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-267';
+window.VSP_BUILD = 'v186-merge-274';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -34779,7 +35303,8 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     'smb_pnd_monthly_v1',
     'smb_pnd_huddle_scores_v1',
     'smb_pnd_row_order_v1',
-    'smb_pnd_people_map_v1'
+    'smb_pnd_people_map_v1',
+    'smb_perf_plans_v1'
   ];
   var P_KEYS_SET = {};
   P_KEYS.forEach(function(k){ P_KEYS_SET[k] = true; });
