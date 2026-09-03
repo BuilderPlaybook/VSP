@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-258</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-259</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7917,6 +7917,19 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   }
   var _pndTipHtml = '';
   var cellTitle = isAuto ? ('Auto-fed from '+_scEsc(_vspSrcLabel(m.autoSrc||m._autoSrc||'a connected module'))+' \u00b7 read-only (click to manage)') : ('Click to edit'+(isWeekly?' \u00b7 Right-click for note':''));
+  // merge-259: admin-only audit line on performance cells - who last set this
+  // cell, when, and what it was before. Read from the week record's log.
+  try{
+    if(m._perfStore && m._perfWeeks && m._perfWeeks[weekIdx] && _vspAutoIsAdmin()){
+      var _alRec=_vspPndReadHuddles()[m._perfStore+'__'+m._perfWeeks[weekIdx]];
+      var _alLog=(_alRec&&Array.isArray(_alRec.log))?_alRec.log.filter(function(en){ return en&&en.row===m._rowId; }):[];
+      if(_alLog.length){
+        var _alE=_alLog[_alLog.length-1];
+        var _alT=new Date(_alE.t); var _alW=_alT.toLocaleDateString('en-CA',{month:'short',day:'numeric'})+' '+_alT.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'});
+        cellTitle+=' \u00b7 Set by '+_scEsc(_alE.by)+' '+_alW+(_alE.from!==''?(' (was '+_scEsc(String(_alE.from))+')'):'');
+      }
+    }
+  }catch(e){}
   /* Performance Points Compliance tooltip (merge-220, Dave, 2026-08-12): made
      consistent with the Count-of-No tooltip. The group is enumerated LIVE from
      the raw huddle store, so EVERY member of the group is listed with the % they
@@ -9921,8 +9934,8 @@ function _vspIsOwner(){
    the entry window, but once the week has been scored nobody can retroactively
    excuse themselves out of it. Owner only past that point. */
 function _vspPerfCanSetAway(personId, weekIso){
-  if(!personId || !weekIso) return true;
-  if(!_vspPerfIsWeekLocked(personId, weekIso)) return true;
+  // merge-259 (Dave, 2026-09-02): owner-only at ALL times, not just past the
+  // deadline. Nobody excuses their own week; a missed week is a 0, locked.
   return _vspIsOwner();
 }
 function _vspSupervisesPerson(supId, personId){
@@ -10418,6 +10431,7 @@ function _vspAutoWorkloadForPersonWeek(pid, iso){
     var all=_vspPndReadHuddles();
     var rec=all[pid+'__'+iso];
     if(!rec || !rec.answers) return null;
+    if(rec.away) return null; // merge-259: an Away week never feeds the team average
     var k=Object.keys(rec.answers).filter(function(x){ return String(x).indexOf('_wl')>-1; })[0];
     if(!k) return null;
     var v=rec.answers[k];
@@ -13124,6 +13138,7 @@ function renderScorecardInline(opts){ _recalcAll();
       var _obLbl=_obIso?('Live from '+_pndFormatDateShort(_obIso)):'Set start week';
       h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspSetStartWeek(\''+section.ownerId+'\')" title="Turn this scorecard live from a chosen week; earlier weeks are away and not scored">'+_obLbl+'</button>';
       h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspMarkHistoryAway(\''+section.ownerId+'\')" title="Mark all past weeks away; score only from this week forward">Mark history away</button>';
+      if(_vspAutoIsAdmin()) h+='<button class="btn btn-sm" onclick="event.stopPropagation();vspOpenScorecardHistory(\''+section.ownerId+'\')" title="Every change to this scorecard: who, what, when">History</button>';
     }
     h+='</div>';
 
@@ -13786,6 +13801,7 @@ function renderScorecard(){
       var _stLbl=_stIso?('Live from '+_pndFormatDateShort(_stIso)):'Set start week';
       h+='<button class="btn btn-sm" onclick="vspSetStartWeek(\''+section.ownerId+'\')" title="Turn this scorecard live from a chosen week; earlier weeks are away and not scored">'+_stLbl+'</button>';
       h+='<button class="btn btn-sm" onclick="vspMarkHistoryAway(\''+section.ownerId+'\')" title="Mark all past weeks away; score only from this week forward">Mark history away</button>';
+      if(_vspAutoIsAdmin()) h+='<button class="btn btn-sm" onclick="vspOpenScorecardHistory(\''+section.ownerId+'\')" title="Every change to this scorecard: who, what, when">History</button>';
     }
     h+='<button onclick="openEditGroup('+di+')" style="width:26px;height:26px;border-radius:5px;border:1px solid var(--brd2);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Edit group (seat & person)">';
     h+='<svg width="12" height="12" fill="none" stroke="var(--txm)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>';
@@ -16963,8 +16979,11 @@ function _vspPerfFlushPending(){
       var rec=all[key] || { answers:{}, updatedAt:e.updatedAt||new Date().toISOString() };
       rec.answers = rec.answers || {};
       if(e.kind==='answer'){
+        var _pv=rec.answers[e.rowId];
         rec.answers[e.rowId] = (e.answer===null||e.answer===undefined)?'':e.answer;
+        _vspPerfLogEntry(rec, e.rowId, _pv, rec.answers[e.rowId], e.by, e.updatedAt);
       } else if(e.kind==='away'){
+        _vspPerfLogEntry(rec, 'away', !!rec.away, !!e.away, e.by, e.updatedAt);
         rec.away = !!e.away;
       }
       rec.updatedAt = e.updatedAt || new Date().toISOString();
@@ -17029,12 +17048,28 @@ window.vspWhoFilledScorecard=function(initials){
     return rows;
   }catch(e){ console.warn('vspWhoFilledScorecard error:', e && e.message); }
 };
+/* Scorecard audit log (Dave, 2026-09-02, merge-259). Every change to a
+   weekly scorecard cell is logged on the week's own record as rec.log:
+   { id, t (ISO), by (initials of the signed-in user on the device that made
+   the change), row (row id or 'away'/'clear'), from, to }. Living on the
+   record means it rides the existing huddle sync; P_mergeHuddles unions logs
+   by entry id so entries from two devices never overwrite each other. Read by
+   the admin-only cell tooltip and the History panel. */
+function _vspPerfLogEntry(rec, row, from, to, by, t){
+  try{
+    if(!rec) return;
+    if(!Array.isArray(rec.log)) rec.log=[];
+    var who = by || ((typeof currentUser!=='undefined' && currentUser && currentUser.initials) ? currentUser.initials : '?');
+    rec.log.push({ id: Date.now()+'-'+Math.random().toString(36).slice(2,7), t: t||new Date().toISOString(), by: who, row: row, from: (from==null?'':from), to: (to==null?'':to) });
+    if(rec.log.length>400) rec.log=rec.log.slice(-400);
+  }catch(e){}
+}
 function _vspPndWriteHuddle(personId, iso, rowId, answer){
   // answer: 'yes' | 'no' | null (clear). Preserves neighbouring answers.
   if(!_vspPerfMapReady()){
     // Queue instead of dropping (merge-252): the entry is kept and replayed
     // once the first sync completes, so no rating typed before sync is lost.
-    _vspPerfQueueWrite({kind:'answer', personId:personId, iso:iso, rowId:rowId, answer:answer, updatedAt:new Date().toISOString()});
+    _vspPerfQueueWrite({kind:'answer', personId:personId, iso:iso, rowId:rowId, answer:answer, updatedAt:new Date().toISOString(), by:((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?')});
     _vspPerfSyncToast();
     return;
   }
@@ -17043,6 +17078,7 @@ function _vspPndWriteHuddle(personId, iso, rowId, answer){
     var key=personId+'__'+iso;
     var rec=all[key] || { answers:{}, updatedAt: new Date().toISOString() };
     rec.answers = rec.answers || {};
+    var _prev = rec.answers[rowId];
     // merge-215 (Dave, 2026-08-12): a cleared cell writes an explicit ''
     // (cleared) marker instead of deleting the key. The merge-211 answer-level
     // union could only ADD answers, never remove them - so a clear vanished from
@@ -17052,6 +17088,7 @@ function _vspPndWriteHuddle(personId, iso, rowId, answer){
     // overrides the old one; every reader already treats '' as no-value.
     if(answer===null || answer===undefined) rec.answers[rowId]='';
     else rec.answers[rowId]=answer;
+    _vspPerfLogEntry(rec, rowId, _prev, rec.answers[rowId]);
     rec.updatedAt=new Date().toISOString();
     all[key]=rec;
     localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all));
@@ -18606,11 +18643,11 @@ function _vspHuddleIsYes(v){
 function vspHuddleToggleAway(iso){
   var st=window._vspHuddleSc; if(!st) return;
   if(typeof _vspPerfCanSetAway==='function' && !_vspPerfCanSetAway(st.personId, iso)){
-    try{ showToast('Week is closed - only the owner can change Away'); }catch(e){}
+    try{ showToast('Only the owner can mark a week Away'); }catch(e){}
     return;
   }
   if(!_vspPerfMapReady()){
-    _vspPerfQueueWrite({kind:'away', personId:st.personId, iso:iso, away:true, updatedAt:new Date().toISOString()});
+    _vspPerfQueueWrite({kind:'away', personId:st.personId, iso:iso, away:true, updatedAt:new Date().toISOString(), by:((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?')});
     _vspPerfSyncToast();
     return;
   }
@@ -18618,6 +18655,7 @@ function vspHuddleToggleAway(iso){
     var all=_vspPndReadHuddles();
     var k=st.personId+'__'+iso;
     var rec=all[k] || { answers:{}, away:false };
+    _vspPerfLogEntry(rec, 'away', !!rec.away, !rec.away);
     rec.away = !rec.away;
     rec.updatedAt = new Date().toISOString();
     all[k]=rec;
@@ -18629,7 +18667,7 @@ function vspHuddleToggleAway(iso){
 function vspHuddleClearWeek(iso){
   var st=window._vspHuddleSc; if(!st) return;
   if(typeof _vspPerfCanSetAway==='function' && !_vspPerfCanSetAway(st.personId, iso)){
-    try{ showToast('Week is closed - only the owner can clear it'); }catch(e){}
+    try{ showToast('Only the owner can clear a week'); }catch(e){}
     return;
   }
   try{
@@ -18639,8 +18677,14 @@ function vspHuddleClearWeek(iso){
     // merge-215: setting answers={} let the union merge resurrect every value
     // from the server copy. Mark each existing answer '' (cleared) instead so
     // the clear propagates.
-    var _ca=rec.answers||{}; Object.keys(_ca).forEach(function(rk){ _ca[rk]=''; });
+    var _ca=rec.answers||{};
+    var _had=Object.keys(_ca).filter(function(rk){ return _ca[rk]!==''&&_ca[rk]!=null; }).map(function(rk){ return rk+'='+_ca[rk]; }).join(', ');
+    Object.keys(_ca).forEach(function(rk){ _ca[rk]=''; });
     rec.answers=_ca;
+    // merge-259: Clear is a full reset of the week - the Away flag drops too,
+    // so a cleared closed week scores 0 with no second click.
+    _vspPerfLogEntry(rec, 'clear', (_had||'(empty)')+(rec.away?' +away':''), '');
+    rec.away=false;
     rec.updatedAt=new Date().toISOString();
     all[k]=rec;
     localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
@@ -27470,6 +27514,60 @@ function isWeekTracked(personId, weekIso){
   return weekIso >= first;
 }
 
+/* Scorecard History panel (merge-259). Admin-only. Lists every logged change
+   on a person's weekly scorecard, newest first: when, who, week, row, from, to.
+   Read straight from the week records' logs; writes nothing. */
+function vspCloseScorecardHistory(ev){
+  try{ var m=document.getElementById('sc-hist-modal'); if(!m) return; if(!ev || ev.target===m) m.remove(); }catch(e){}
+}
+function vspOpenScorecardHistory(ownerIni){
+  try{
+    if(!_vspAutoIsAdmin()) return;
+    var pid=_vspResolvePersonId(ownerIni);
+    var all=_vspPndReadHuddles();
+    var rows=[];
+    var labels={};
+    try{
+      var _st=_vspPerfLoadRoleStandards();
+      Object.keys(_st).forEach(function(rk){ (_st[rk]||[]).forEach(function(r){ if(r&&r.id) labels[r.id]=r.std||r.title||r.id; }); });
+    }catch(e){}
+    Object.keys(all).forEach(function(k){
+      if(k.indexOf(pid+'__')!==0) return;
+      var wk=k.slice(pid.length+2);
+      var rec=all[k];
+      (Array.isArray(rec.log)?rec.log:[]).forEach(function(en){ if(en) rows.push({wk:wk, en:en}); });
+    });
+    rows.sort(function(a,b){ return String(b.en.t).localeCompare(String(a.en.t)); });
+    var name=(ppl.find(function(p){ return p.initials===ownerIni; })||{}).first||ownerIni;
+    var fmtV=function(v){ if(v===''||v==null) return '(empty)'; if(v===true) return 'away'; if(v===false) return 'not away'; return String(v); };
+    var h='<div id="sc-hist-modal" onclick="vspCloseScorecardHistory(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;display:flex;align-items:center;justify-content:center">';
+    h+='<div class="modal" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="background:var(--sur);border-radius:10px;width:min(860px,94vw);max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">Scorecard history \u00b7 '+_scEsc(name)+'</div><button type="button" class="btn btn-sm" onclick="document.getElementById(\'sc-hist-modal\').remove()">Close</button></div>';
+    h+='<div style="overflow:auto;padding:0 18px 14px">';
+    if(!rows.length){
+      h+='<div style="padding:24px 0;color:var(--txd)">No changes logged yet. Logging starts from this build; earlier entries have no record of who made them.</div>';
+    } else {
+      h+='<table style="width:100%;border-collapse:collapse;font-size:var(--fz-base)"><thead><tr>';
+      ['When','By','Week','Row','From','To'].forEach(function(c){ h+='<th scope="col" style="text-align:left;padding:8px 6px;border-bottom:1px solid var(--brd);color:var(--txd);font-size:var(--fz-xs);text-transform:uppercase;letter-spacing:.04em">'+c+'</th>'; });
+      h+='</tr></thead><tbody>';
+      rows.forEach(function(r){
+        var t=new Date(r.en.t);
+        var when=t.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'})+' '+t.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'});
+        var rowLbl = r.en.row==='away' ? 'Away' : (r.en.row==='clear' ? 'Clear week' : (labels[r.en.row]||r.en.row));
+        h+='<tr><td style="padding:7px 6px;border-bottom:1px solid var(--brd);white-space:nowrap">'+_scEsc(when)+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd);font-weight:600">'+_scEsc(r.en.by)+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd);white-space:nowrap">'+_scEsc(_vspHuddleWeekLabel(r.wk))+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd)">'+_scEsc(rowLbl)+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd);color:var(--txm)">'+_scEsc(fmtV(r.en.from))+'</td>';
+        h+='<td style="padding:7px 6px;border-bottom:1px solid var(--brd);font-weight:600">'+_scEsc(fmtV(r.en.to))+'</td></tr>';
+      });
+      h+='</tbody></table>';
+    }
+    h+='</div></div></div>';
+    var old=document.getElementById('sc-hist-modal'); if(old) old.remove();
+    document.body.insertAdjacentHTML('beforeend', h);
+  }catch(e){}
+}
 function _pndFormatDateShort(iso){
   if(!iso) return '';
   var d = new Date(iso+'T00:00:00');
@@ -30981,7 +31079,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-258';
+window.VSP_BUILD = 'v186-merge-259';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -34569,6 +34667,13 @@ try{ _vspMigrateJobNotes(); }catch(e){}
       // every merge). Newest intent wins, same as answers.
       if(top && top.away !== undefined) merged.away = !!top.away;
       else if(base && base.away !== undefined) merged.away = !!base.away;
+      // merge-259: audit log is append-only - union by entry id, oldest first.
+      try{
+        var _lg={}, _la=(base&&Array.isArray(base.log))?base.log:[], _lb=(top&&Array.isArray(top.log))?top.log:[];
+        _la.concat(_lb).forEach(function(en){ if(en&&en.id&&!_lg[en.id]) _lg[en.id]=en; });
+        var _lo=Object.keys(_lg).map(function(x){ return _lg[x]; }).sort(function(a,b){ return String(a.t).localeCompare(String(b.t)); });
+        if(_lo.length) merged.log=_lo.slice(-400);
+      }catch(e){}
       merged.updatedAt = (top && (top.updatedAt||top.savedAt)) || (base && (base.updatedAt||base.savedAt)) || new Date().toISOString();
       out[k] = merged;
     }
