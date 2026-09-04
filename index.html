@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-279</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-282</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14446,6 +14446,7 @@ function _vspPerfEffAnswer(personId, weekIso, rowId, rowAllowsNA){
     var rec=all[pnd+'__'+weekIso];
     if(rec && rec.away) return raw;                 // away: excused
     if(rowAllowsNA) return raw;                      // N/A-eligible blank stays blank
+    if(weekIso < '2026-04-01') return raw;           // merge-280: missed-week No's from Q2 2026 only
     if(typeof isWeekTracked==='function' && !isWeekTracked(pnd, weekIso)) return raw; // pre-start
     if(_vspPerfIsWeekLocked(pnd, weekIso)) return 'no';  // locked + blank scored row = No
   }catch(e){}
@@ -15009,7 +15010,7 @@ function _vspPerfBuildSection(person, weeks){
       // renders No, matching the score.
       if(_rowScored && !_rowNA){
         try{
-          if(!(rec && rec.away) && _vspPerfIsWeekLocked(personId, iso) && (typeof isWeekTracked!=='function' || isWeekTracked(personId, iso))){
+          if(iso>='2026-04-01' && !(rec && rec.away) && _vspPerfIsWeekLocked(personId, iso) && (typeof isWeekTracked!=='function' || isWeekTracked(personId, iso))){
             return 'No';
           }
         }catch(e){}
@@ -17343,6 +17344,26 @@ function _vspQuarterMondays(weekIso){
    forced[supPnd+'__'+weekIso][supRowId] = { by:[{ini,name,nth,weeks:[...]}] } */
 function _vspPerfForcedMap(raw){
   var forced={};
+  // merge-280: raw tracking check for the forced-map engine only. Mirrors
+  // isWeekTracked but reads the RAW huddle store passed in, never the scored
+  // view, so it cannot recurse back through _vspPerfForcedMap.
+  var _vspForcedRawTracked=function(pnd, wk){
+    try{
+      var cfg=(typeof _pndLoadTrackingStart==='function')?_pndLoadTrackingStart():{};
+      var explicit=(cfg.byPerson&&cfg.byPerson[pnd])||cfg.tenantDefault||null;
+      if(explicit) return wk>=explicit;
+      var earliest=null, pfx=pnd+'__';
+      Object.keys(raw).forEach(function(k){
+        if(k.indexOf(pfx)!==0) return;
+        var rec=raw[k]; if(!rec||!rec.answers) return;
+        var has=Object.keys(rec.answers).some(function(a){ return rec.answers[a]!=null && String(rec.answers[a])!==''; });
+        if(!has) return;
+        var w=k.slice(pfx.length); if(!earliest||w<earliest) earliest=w;
+      });
+      if(!earliest) return false;
+      return wk>=earliest;
+    }catch(e){ return false; }
+  };
   try{
     if(typeof ppl==='undefined' || !ppl) return forced;
     var pndOf=function(p){ return (typeof _vspPndPersonId==='function')?_vspPndPersonId(p):p.id; };
@@ -17355,7 +17376,27 @@ function _vspPerfForcedMap(raw){
     var effNo=function(pnd, wk, row){
       var k=pnd+'__'+wk;
       if(forced[k] && forced[k][row]) return true;
-      var rec=raw[k]; return !!(rec && !rec.away && rec.answers && rec.answers[row]==='no');
+      var rec=raw[k];
+      if(rec && rec.away) return false;
+      if(rec && rec.answers && rec.answers[row]==='no') return true;
+      // merge-280: a missed week is a No. A scored row left blank in a locked,
+      // tracked, non-away week counts as a No here too, so missed weeks cascade
+      // up the chain exactly like entered No's (the scored view already does
+      // this; the forced-map engine must agree or a 3rd No that is a MISS never
+      // forces the supervisor). N/A-eligible rows are never auto-No'd.
+      var blank = !rec || !rec.answers || rec.answers[row]==null || String(rec.answers[row])==='';
+      if(blank){
+        try{
+          if(typeof _vspRowAllowsNA==='function' && _vspRowAllowsNA(row)) return false;
+          // merge-280: missed-week No's only apply from Q2 2026 forward (Dave's
+          // ruling). Earlier locked-empty weeks are not retroactively turned
+          // into No's - an ENTERED No before then still counts, a blank does not.
+          if(wk < '2026-04-01') return false;
+          if(!_vspForcedRawTracked(pnd, wk)) return false;
+          if(_vspPerfIsWeekLocked(pnd, wk)) return true;
+        }catch(e){}
+      }
+      return false;
     };
     var sups=ppl.filter(function(s){ return s && s.status!=='archived' && _VSP_KPI_LINKS[String(s.roleLabel||s.role||'')]; })
                 .sort(function(a,b){ return depthOf(b)-depthOf(a); });
@@ -17382,6 +17423,15 @@ function _vspPerfForcedMap(raw){
           var wkSet={};
           Object.keys(raw).forEach(function(k){ if(k.indexOf(repPnd+'__')===0) wkSet[k.slice(repPnd.length+2)]=1; });
           Object.keys(forced).forEach(function(k){ if(k.indexOf(repPnd+'__')===0) wkSet[k.slice(repPnd.length+2)]=1; });
+          // merge-280: also consider locked weeks the report never touched at
+          // all (a fully-missed week has no record). Scan this quarter's and
+          // last quarter's Mondays so an untouched miss can be counted as a No.
+          try{
+            var _seed=Object.keys(wkSet).concat([_meetLocalIso()]);
+            var _qs={};
+            _seed.forEach(function(wk){ _vspQuarterMondays(wk).forEach(function(mn){ _qs[mn]=1; }); });
+            Object.keys(_qs).forEach(function(mn){ if(_vspPerfIsWeekLocked(repPnd, mn)) wkSet[mn]=1; });
+          }catch(e){}
           var noWeeks=Object.keys(wkSet).filter(function(wk){ return effNo(repPnd, wk, repRow); }).sort();
           if(noWeeks.length<2) return;
           // group by quarter; from the 2nd No in a quarter on, each No forces
@@ -19100,7 +19150,7 @@ function _vspRenderHuddleScorecard(){
       // renders No, matching the score.
       if(_rowScored && !_rowNA){
         try{
-          if(!(rec && rec.away) && _vspPerfIsWeekLocked(personId, iso) && (typeof isWeekTracked!=='function' || isWeekTracked(personId, iso))){
+          if(iso>='2026-04-01' && !(rec && rec.away) && _vspPerfIsWeekLocked(personId, iso) && (typeof isWeekTracked!=='function' || isWeekTracked(personId, iso))){
             return 'No';
           }
         }catch(e){}
@@ -19725,16 +19775,23 @@ function _vspHuddleHardFailCard(){
     var isY=_vspHuddleIsYes(m.readings[cur]);
     h+='<div style="color:'+(isY?'#16a34a':'#dc2626')+';font-size:var(--fz-body);font-weight:600;margin-top:4px">Item #'+idx+' (Priority Rule) = '+(isY?'YES':'NO')+' <span style="margin-left:4px">'+(isY?'&#10003;':'&#10007;')+'</span></div>';
   });
-  // merge-279: the accountability ladder, shown on every card so the process is
-  // visible, not just enforced in the background.
-  h+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--brd)">';
-  h+='<div style="font-size:var(--fz-base);font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--txd);margin-bottom:6px">Accountability</div>';
-  h+='<div style="font-size:var(--fz-body);color:var(--txm);line-height:1.55">';
-  h+='On any single KPI, within a quarter: the <strong>first No</strong> is a verbal warning, the <strong>second No</strong> a written warning, and the <strong>third No</strong> a work performance plan that stays in place until the supervisor closes it. ';
-  h+='A direct report\\u2019s second No on a KPI also lands as an automatic No on their supervisor\\u2019s matching KPI for that week - locked, and the supervisor records the action taken. The count resets each quarter.';
-  h+='</div></div>';
+  // merge-281: accountability ladder, styled to match the card, real apostrophes.
+  h+='<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--brd)">';
+  h+='<div style="font-size:var(--fz-sm);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--txd);margin-bottom:10px">Accountability Ladder</div>';
+  h+='<div style="font-style:italic;color:var(--txm);font-size:var(--fz-body);margin-bottom:10px">Counts are per KPI and reset each quarter.</div>';
+  var _ladder=[['1st No','Verbal warning'],['2nd No','Written warning'],['3rd No','Work performance plan \u2014 stays in place until the supervisor closes it']];
+  _ladder.forEach(function(step){
+    h+='<div style="display:flex;align-items:baseline;gap:10px;margin-top:6px;font-size:var(--fz-body)">';
+    h+='<span style="flex-shrink:0;min-width:56px;font-weight:700;color:var(--red)">'+step[0]+'</span>';
+    h+='<span style="color:var(--txt)">'+step[1]+'</span>';
+    h+='</div>';
+  });
+  h+='<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--brd);font-size:var(--fz-body);color:var(--txm);line-height:1.55">';
+  h+='<strong style="color:var(--txt)">Supervisors:</strong> a direct report\u2019s 1st No does not touch your scorecard \u2014 it is your early warning to address it. Their 2nd No on the same KPI lands on your scorecard as a No that week. It locks, and you record the action taken.';
   h+='</div>';
-  return h;
+  h+='</div>';
+  h+='</div>';
+    return h;
 }
 function _vspInstallHuddleCellAdapter(){
   /* Intercept VSP's own cell editor for the huddle's Yes/No grid and write
@@ -31843,7 +31900,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-279';
+window.VSP_BUILD = 'v186-merge-282';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
