@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-284</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-287</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7904,6 +7904,18 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
       // local membership. Fallback for rowcount and companywide: lock math.
       if(m.pndBreakdown && m.pndBreakdown[weekIdx] && m.pndBreakdown[weekIdx].length){
         _abShow=true;
+        // merge-286: a pre-lock provisional CU Yes carries a breakdown but is
+        // NOT locked yet - no badge until its lock instant passes.
+        try{
+          var _cuPk=_vspAutoParse(m.auto||m._autoKey||'');
+          if(_cuPk.kind==='pmcu'){
+            var _cuIsId2=_vspPmCuIsDesigner(_cuPk.person);
+            var _cuD=scWeekDate(weekIdx);
+            var _cuMon=_cuD.getFullYear()+'-'+String(_cuD.getMonth()+1).padStart(2,'0')+'-'+String(_cuD.getDate()).padStart(2,'0');
+            var _cuLock=new Date(_cuMon+'T00:00:00'); if(_cuIsId2){ _cuLock.setDate(_cuLock.getDate()+4); } else { _cuLock.setDate(_cuLock.getDate()+7); }
+            if(Date.now() < _cuLock.getTime()) _abShow=false;
+          }
+        }catch(e){}
       } else {
         var _abG=_vspAutoMetricGroup(m);
         var _abD=scWeekDate(weekIdx);
@@ -8081,6 +8093,40 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
             + 'Until then nothing is sent, so a partly finished average is never reported here.</span>')
       + '</span>';
     cellTitle = '';
+  } else if(_vspAutoParse(m.auto||m._autoKey||'').kind==='pmcu'){
+    // merge-285: Client-update cells get the same From-Project-Management hover
+    // as the LT scorecard rows: header, one row per job (sent / missed greyed),
+    // the N of N summary, and the rule footer. Reads the pndBreakdown the CU
+    // engine stamped for this locked week.
+    var _cuA=_vspAutoParse(m.auto||m._autoKey||'');
+    var _cuIsId=_vspPmCuIsDesigner(_cuA.person);
+    var _cuWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+    var _cuBd=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
+    if(_cuBd && _cuBd.length){
+      var _cuMiss=0, _cuRows=_cuBd.map(function(x){
+        var ok=!!x.onTime; if(!ok)_cuMiss++;
+        var when='';
+        if(ok && x.sentAt){ try{ var _sd=new Date(x.sentAt); when=_sd.toLocaleDateString('en-CA',{weekday:'short'})+' '+_sd.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){ when=_cuIsId?'merged':'sent'; } }
+        else { when=_cuIsId?'not merged':'not sent'; }
+        return '<span class="pnd-tip-r'+(ok?'':' pnd-out')+'"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(when)+'</span></span>';
+      }).join('');
+      var _cuN=_cuBd.length, _cuOk=_cuN-_cuMiss;
+      var _cuResult=(_cuMiss===0)?('Yes - '+_cuOk+' of '+_cuN+(_cuIsId?' merged':' sent')):('No - '+_cuMiss+' of '+_cuN+(_cuIsId?' not merged':' not sent'));
+      _pndTipHtml='<span class="pnd-tip">'
+        +'<span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_cuWk))+'</span>'
+        +_cuRows
+        +'<span class="pnd-tip-sum"><span>'+_scEsc(_cuResult)+'</span><span>'+((_cuMiss===0)?'Yes':'No')+'</span></span>'
+        +'<span class="pnd-tip-ft">'+(_cuIsId
+            ? 'Yes only if every job this person is Designer or Pre-Con Manager on had its ID update marked ready by Friday 12:00am. One miss is No. Locked at Friday 12:00am.'
+            : 'Yes only if every job this person is Project Manager or Pre-Con Manager on had its client update sent through PM by Monday 12:00am. One miss is No. Locked at Monday 12:00am.')
+        +'</span></span>';
+      cellTitle='';
+    } else {
+      _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_cuWk))+'</span>'
+        +'<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span>'
+        +'<span class="pnd-tip-ft">Fills once the week closes ('+(_cuIsId?'Friday':'Monday')+' 12:00am). The current open week is not scored yet.</span></span>';
+      cellTitle='';
+    }
   }
   if(hasNote){
     var _noteTxt = String(m.notes[weekIdx]);
@@ -9253,11 +9299,16 @@ function vspApplyPmCu(){
           if(!Array.isArray(m.readings)) m.readings=[];
           m.pndGroup='pmcu:'+ini; m.autoSrc='Project Management'; m.unit='YN';
           for(var idx=Math.max(0,floorIdx); idx<maxCol; idx++){
-            if(idx===curIdx) continue;                    // never the current open week
             if(idx<floorIdx) continue;
             var mondayIso=isoForIdx(idx);
-            if(nowMs < lockMs(mondayIso, isId)) continue; // not locked yet
+            // merge-286 (Dave, 2026-09-04): immediate positive feedback. A week
+            // shows Yes the moment every required job has a fact - including the
+            // current, not-yet-locked week. A week with a missing fact stays
+            // BLANK until its lock instant, and only then becomes No. Never
+            // write No before lock.
+            var locked = nowMs >= lockMs(mondayIso, isId);
             var jobs=jobsFor(ini, isId).filter(function(j){ return jobLive(j, mondayIso); });
+            if(!jobs.length){ continue; }                 // no jobs this week: leave blank
             var bd=[]; var miss=0;
             jobs.forEach(function(j){
               var f=factFor(ini, j.jobId, mondayIso, isId);
@@ -9265,10 +9316,17 @@ function vspApplyPmCu(){
               if(!f) miss++;
             });
             while(m.readings.length<=idx) m.readings.push(null);
-            if(!jobs.length){ continue; }                 // no jobs this week: leave blank
-            m.readings[idx]=(miss===0)?'Yes':'No';
-            if(!m.pndBreakdown) m.pndBreakdown={};
-            m.pndBreakdown[idx]=bd;
+            if(locked){
+              m.readings[idx]=(miss===0)?'Yes':'No';
+              if(!m.pndBreakdown) m.pndBreakdown={};
+              m.pndBreakdown[idx]=bd;
+            } else if(miss===0){
+              // provisional Yes before lock - all jobs already sent
+              m.readings[idx]='Yes';
+              if(!m.pndBreakdown) m.pndBreakdown={};
+              m.pndBreakdown[idx]=bd;
+            }
+            // else: not locked and something outstanding -> leave blank until lock
           }
         });
       });
@@ -15707,8 +15765,8 @@ function _vspOpenFirstNoModal(item){
   var lbl=function(iso){ var d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'}); };
   var h='<div id="firstno-modal" onclick="_vspFirstNoOverlay(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:405;display:flex;align-items:center;justify-content:center">';
   h+='<div class="modal" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="background:var(--sur);border-radius:10px;width:min(480px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.3)">';
-  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">First miss \\u00b7 '+_scEsc(item.repName)+'</div>';
-  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:4px">'+_scEsc(item.repName)+' missed <b>'+_scEsc(_vspRowTitle(item.rowId))+'</b> the week of '+_scEsc(lbl(item.firstWk))+'. This is a first miss - a coaching conversation, not a mark. What happened?</div></div>';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--brd)"><div class="smb-modal-title">First miss for '+_scEsc(item.repName)+'</div>';
+  h+='<div style="font-size:var(--fz-base);color:var(--txm);margin-top:6px;line-height:1.5">'+_scEsc(item.repName)+' got their first No this quarter on <b>'+_scEsc(_vspRowTitle(item.rowId))+'</b>, the week of '+_scEsc(lbl(item.firstWk))+'.<br><br>A first No is a coaching moment, not a mark against anyone. Nothing lands on your scorecard for it. Note what happened so the conversation is on record. If it happens again on the same item, that second No does count, and this note will remind you what you agreed to.</div></div>';
   h+='<div style="padding:16px 18px">';
   h+='<input id="fn-reason" type="text" placeholder="Reason (e.g. carrying two extra jobs)" style="width:100%;padding:9px;border:1.5px solid var(--brd2);border-radius:8px;font-family:inherit;font-size:var(--fz-base)">';
   h+='<div id="fn-err" style="font-size:var(--fz-base);color:var(--red);min-height:18px;margin-top:6px"></div>';
@@ -32055,7 +32113,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-284';
+window.VSP_BUILD = 'v186-merge-287';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
