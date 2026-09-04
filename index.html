@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-282</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-284</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9167,6 +9167,116 @@ function vspPullPndCompliance(){
     });
   }catch(e){ /* silent */ }
 }
+/* ============================================================================
+   PM CLIENT-UPDATE FEED (merge-283, Dave, 2026-09-04). Read-only consumer of
+   PM's A43 cuSendFacts. Writes Yes/No onto rows bound to auto:'pm.cu.<INI>'.
+   PM rule (pm / preConManager seats): Yes only if every job the person holds
+   that stage on has a send fact for that Monday-week. Locks Monday 00:00 of the
+   next week. ID rule (designer / preConManager seats): Yes only if every such
+   job has an 'id' fact inside [Mon 00:00, Fri 00:00). Locks Friday 00:00.
+   One miss = No. Only locked weeks >= the go-live floor are written; the
+   current open week and pre-floor weeks are left untouched (manual).
+   ========================================================================== */
+var VSP_PM_CU_FLOOR_ISO = '2026-08-31';
+function _vspPmCuData(){
+  try{
+    if(window.SMB_PM_CU_SEND_FACTS && window.SMB_PM_CU_SEND_FACTS.__v===1) return window.SMB_PM_CU_SEND_FACTS;
+    var raw=localStorage.getItem('smb_pm_cu_send_facts_v1'); if(!raw) return null;
+    var o=JSON.parse(raw); return (o && o.__v===1) ? o : null;
+  }catch(e){ return null; }
+}
+/* Does this person hold any designer seat in the roster? (chooses the ID rule) */
+function _vspPmCuIsDesigner(ini){
+  try{
+    var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.roster)) return false;
+    return cu.roster.some(function(j){ return j && j.designer===ini; });
+  }catch(e){ return false; }
+}
+function _vspPmCuMonday(iso){
+  var x=new Date(iso+'T00:00:00'); if(isNaN(x.getTime())) return iso;
+  var dow=(x.getDay()+6)%7; x.setDate(x.getDate()-dow);
+  return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+}
+/* Apply the CU feed to every bound metric. Mirrors vspPullPndCompliance's
+   idx mapping and only writes locked, past-floor, non-current weeks. */
+function scApplyCompliance(){ try{ vspPullPndCompliance(); }catch(e){} try{ vspApplyPmCu(); }catch(e){} }
+function vspApplyPmCu(){
+  try{
+    var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return;
+    var roster=Array.isArray(cu.roster)?cu.roster:[];
+    var startIdx=(typeof scPlanStartIdx==='function')?scPlanStartIdx():0;
+    var startMs=SC_PLAN_START_DATE.getTime();
+    var maxCol=(typeof weekRanges!=='undefined'&&Array.isArray(weekRanges))?weekRanges.length:0;
+    var floorIdx=_vspComplianceFloorIdx(VSP_PM_CU_FLOOR_ISO);
+    var curIdx=(typeof scCurrentWeekIdx==='function')?scCurrentWeekIdx():-1;
+    var nowMs=Date.now();
+    function idxForIso(iso){ var d=new Date(iso+'T00:00:00'); if(isNaN(d.getTime()))return -1; return startIdx+Math.round((d.getTime()-startMs)/(7*86400000)); }
+    function isoForIdx(i){ var d=new Date(startMs+(i-startIdx)*7*86400000); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+    // lock instant for a Monday-week: PM rule = next Monday 00:00; ID = that Friday 00:00
+    function lockMs(mondayIso, isId){
+      var d=new Date(mondayIso+'T00:00:00');
+      if(isId){ d.setDate(d.getDate()+4); }   // Friday 00:00
+      else { d.setDate(d.getDate()+7); }       // next Monday 00:00
+      return d.getTime();
+    }
+    function jobsFor(ini, isId){
+      return roster.filter(function(j){
+        if(!j) return false;
+        if(isId){ return j.designer===ini || (j.stage==='precon' && j.preConManager===ini); }
+        return (j.stage==='construction' && j.pm===ini) || (j.stage==='precon' && j.preConManager===ini);
+      });
+    }
+    function jobLive(j, mondayIso){
+      if(!j.fsaSignedDate) return true;                 // no FSA date: counts
+      var fsaMon=_vspPmCuMonday(String(j.fsaSignedDate).slice(0,10));
+      return fsaMon <= mondayIso;                        // first full week on/after FSA Monday
+    }
+    function factFor(ini, jobId, mondayIso, isId){
+      return cu.sends.find(function(s){
+        if(!s || s.jobId!==jobId || s.person!==ini) return false;
+        if(isId){
+          if(s.stage!=='id') return false;
+          var sm=new Date(s.sentAt); if(isNaN(sm.getTime())) return false;
+          var wk=_vspPmCuMonday(mondayIso); var mon=new Date(wk+'T00:00:00'); var fri=new Date(wk+'T00:00:00'); fri.setDate(fri.getDate()+4);
+          return sm.getTime()>=mon.getTime() && sm.getTime()<fri.getTime();
+        }
+        return s.stage!=='id' && s.week===mondayIso;
+      });
+    }
+    function applyList(list){
+      if(!Array.isArray(list)) return;
+      list.forEach(function(sec){
+        (sec.metrics||[]).forEach(function(m){
+          if(!m||!m.auto) return;
+          var a=_vspAutoParse(m.auto); if(a.kind!=='pmcu') return;
+          var ini=a.person; var isId=_vspPmCuIsDesigner(ini);
+          if(!Array.isArray(m.readings)) m.readings=[];
+          m.pndGroup='pmcu:'+ini; m.autoSrc='Project Management'; m.unit='YN';
+          for(var idx=Math.max(0,floorIdx); idx<maxCol; idx++){
+            if(idx===curIdx) continue;                    // never the current open week
+            if(idx<floorIdx) continue;
+            var mondayIso=isoForIdx(idx);
+            if(nowMs < lockMs(mondayIso, isId)) continue; // not locked yet
+            var jobs=jobsFor(ini, isId).filter(function(j){ return jobLive(j, mondayIso); });
+            var bd=[]; var miss=0;
+            jobs.forEach(function(j){
+              var f=factFor(ini, j.jobId, mondayIso, isId);
+              bd.push({ jobId:j.jobId, name:j.name, type:(isId?'id':j.stage), sentAt:(f?f.sentAt:null), dueBy:new Date(lockMs(mondayIso,isId)).toISOString(), onTime:!!f });
+              if(!f) miss++;
+            });
+            while(m.readings.length<=idx) m.readings.push(null);
+            if(!jobs.length){ continue; }                 // no jobs this week: leave blank
+            m.readings[idx]=(miss===0)?'Yes':'No';
+            if(!m.pndBreakdown) m.pndBreakdown={};
+            m.pndBreakdown[idx]=bd;
+          }
+        });
+      });
+    }
+    if(typeof teamsRegistry==='object'&&teamsRegistry){ Object.keys(teamsRegistry).forEach(function(k){ applyList(teamsRegistry[k]&&teamsRegistry[k].scorecard); }); }
+    if(typeof scorecard!=='undefined') applyList(scorecard);
+  }catch(e){ /* silent */ }
+}
 function scApplyFeed(){
   try{
     var feed=window.SMB_SCORECARD_FEED; if(!feed||typeof feed!=='object') return;
@@ -10071,6 +10181,8 @@ function _vspAutoParse(auto){
   if(m2) return {kind:'rowcount', group:m2[1], rows:m2[2].split('|')};
   var m3=String(auto||'').match(/^pnd\.workloadavg\.(.+)$/);
   if(m3) return {kind:'workloadavg', group:m3[1]};
+  var m4=String(auto||'').match(/^pm\.cu\.(.+)$/);   // merge-283: PM client-update feed
+  if(m4) return {kind:'pmcu', person:m4[1]};
   return {kind:'manual'};
 }
 function _vspAutoFormulaText(auto){
@@ -10078,6 +10190,7 @@ function _vspAutoFormulaText(auto){
   if(a.kind==='compliance') return '= COMPLIANCE%( '+a.group+' )';
   if(a.kind==='rowcount')  return '= COUNT_NO( '+a.group+', '+a.rows.length+' standard row'+(a.rows.length===1?'':'s')+' )';
   if(a.kind==='workloadavg') return '= WORKLOAD_AVG( '+a.group+' )';
+  if(a.kind==='pmcu') return _vspPmCuIsDesigner(a.person) ? ('= ID_MERGED_ALL( '+a.person+' )') : ('= CU_SENT_ALL( '+a.person+' )');
   return 'Manual entry';
 }
 function _vspAutoFeedEditorBlock(m){
@@ -10101,6 +10214,7 @@ function _vspAutoFeedEditorBlock(m){
   h+='<option value="manual"'+(a.kind==='manual'?' selected':'')+'>Manual entry (no formula)</option>';
   h+='<option value="compliance"'+(a.kind==='compliance'?' selected':'')+'>Performance Points Compliance % of a group</option>';
   h+='<option value="rowcount"'+(a.kind==='rowcount'?' selected':'')+'>Count of No answers on chosen standards</option>';
+  h+='<option value="pmcu"'+(a.kind==='pmcu'?' selected':'')+'>Client updates sent (Project Management)</option>';
   h+='</select>';
   h+='<div id="em-auto-detail">'+_vspAutoDetailHtml(a)+'</div>';
   h+='<div id="em-auto-preview" style="margin-top:8px;font-family:ui-monospace,monospace;font-size:var(--fz-base);color:var(--blu)">'+_vspAutoFormulaText(m&&m.auto)+'</div>';
@@ -10162,8 +10276,29 @@ function _vspGroupMembersSave(groupId){
   }
   try{ localStorage.setItem('smb_pnd_compliance_groups_v1', JSON.stringify(g)); }catch(e){}
 }
+function _vspPmCuRosterPeople(){
+  var out=[]; var seen={};
+  try{
+    var cu=_vspPmCuData();
+    (cu&&cu.roster||[]).forEach(function(j){
+      [j.pm, j.preConManager, j.designer].forEach(function(ini){ if(ini && !seen[ini]){ seen[ini]=1; out.push(ini); } });
+    });
+  }catch(e){}
+  // fall back to the people roster if PM data not loaded yet
+  if(!out.length && typeof ppl!=='undefined'){ ppl.forEach(function(p){ if(p&&p.initials&&!seen[p.initials]){seen[p.initials]=1;out.push(p.initials);} }); }
+  return out;
+}
 function _vspAutoDetailHtml(a){
   if(a.kind==='manual') return '';
+  if(a.kind==='pmcu'){
+    var ppl2=_vspPmCuRosterPeople();
+    var h2='<select id="em-auto-person" onchange="_vspAutoEditorRefresh()" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:8px">';
+    h2+='<option value="">Select person...</option>';
+    ppl2.forEach(function(ini){ h2+='<option value="'+_scEsc(ini)+'"'+(a.person===ini?' selected':'')+'>'+_scEsc(ini)+(_vspPmCuIsDesigner(ini)?' (ID rule)':' (PM rule)')+'</option>'; });
+    h2+='</select>';
+    h2+='<div style="font-size:var(--fz-xs);color:var(--txm)">Yes only if every job this person is responsible for had its client update sent by the deadline. One miss is No. Locks Monday 12:00am (PM) or Friday 12:00am (ID).</div>';
+    return h2;
+  }
   var h='<select id="em-auto-group" onchange="_vspAutoEditorRefresh()" style="width:100%;padding:8px 10px;border:1.5px solid var(--brd2);border-radius:6px;font-size:var(--fz-lg);font-family:inherit;background:var(--sur);margin-bottom:8px">';
   _vspAutoGroups().forEach(function(g){ h+='<option value="'+g.id+'"'+(a.group===g.id?' selected':'')+'>'+g.label+'</option>'; });
   h+='</select>';
@@ -10220,6 +10355,7 @@ function _vspAutoEditorRead(){
   var gEl=document.getElementById('em-auto-group');
   var g=gEl?gEl.value:'companywide';
   if(kind==='compliance') return 'pnd.compliance.'+g;
+  if(kind==='pmcu'){ var pEl=document.getElementById('em-auto-person'); var ini=pEl?pEl.value:''; return ini?('pm.cu.'+ini):null; }
   var ids=[].slice.call(document.querySelectorAll('.em-auto-row:checked')).map(function(c){ return c.value; });
   if(!ids.length) return null;
   return 'pnd.rowcount.'+g+'.'+ids.join('|');
@@ -10233,7 +10369,7 @@ function _vspAutoEditorRefresh(){
   var gEl=document.getElementById('em-auto-group');
   var g=gEl?gEl.value:'companywide';
   var checked=[].slice.call(document.querySelectorAll('.em-auto-row:checked')).map(function(c){ return c.value; });
-  var a = (kind==='manual') ? {kind:'manual'} : (kind==='compliance' ? {kind:'compliance',group:g} : {kind:'rowcount',group:g,rows:checked});
+  var a = (kind==='manual') ? {kind:'manual'} : (kind==='compliance' ? {kind:'compliance',group:g} : (kind==='pmcu' ? {kind:'pmcu',person:(document.getElementById('em-auto-person')||{}).value||''} : {kind:'rowcount',group:g,rows:checked}));
   var det=document.getElementById('em-auto-detail');
   if(det) det.innerHTML=_vspAutoDetailHtml(a);
   var pv=document.getElementById('em-auto-preview');
@@ -14312,7 +14448,7 @@ function _vspPerfLoadHuddles(){
   try{ var v=localStorage.getItem('smb_perf_huddles_v1'); return v?JSON.parse(v):{}; }catch(e){ return {}; }
 }
 function _vspPerfSaveHuddles(m){
-  try{ localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(m)); }catch(e){}
+  try{ localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(m)); }catch(e){} try{ _vspPerfBust(); }catch(e){}
 }
 function _vspPerfLoadRoleStandards(){
   try{ var v=localStorage.getItem('smb_perf_role_standards_v1'); return v?JSON.parse(v):{}; }catch(e){ return {}; }
@@ -15593,7 +15729,7 @@ function _vspFirstNoSaveBtn(btn){
     rec.firstNoReason=rec.firstNoReason||{}; rec.firstNoReason[rowId]=rec.firstNoReason[rowId]||{};
     rec.firstNoReason[rowId][repIni]={ reason:r.trim(), by:((typeof currentUser!=='undefined'&&currentUser)?currentUser.initials:'?'), t:new Date().toISOString() };
     rec.updatedAt=new Date().toISOString(); all[k]=rec;
-    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
     if(typeof vspSaveNow==='function') vspSaveNow();
   }catch(e){}
   var m=document.getElementById('firstno-modal'); if(m) m.remove();
@@ -15682,7 +15818,7 @@ function _vspForcedAckSave(supPnd, rowId, repIni, ackWk){
     _vspPerfLogEntry(rec, 'discipline', '', repIni+': warning '+warn+(wd?(' '+wd):'')+'; reprimand '+rep+(rd?(' '+rd):'')+(planQ?('; performance plan '+plan+(pd?(' '+pd):'')):''));
     rec.updatedAt=new Date().toISOString();
     all[k]=rec;
-    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   }catch(e){}
   var m=document.getElementById('forced-ack-modal'); if(m) m.remove();
@@ -17454,25 +17590,44 @@ function _vspPerfForcedMap(raw){
 }
 /* Scored view of the store: raw records with supervisor forced No's applied.
    Records are cloned before being changed; the raw store is never mutated. */
+/* merge-284 (Dave, 2026-09-04): cache the scored view and forced map. Both were
+   recomputed on every call - and the scored read is called dozens of times per
+   render plus on every 15s poll, so a full render did seconds of duplicate work
+   and could hang the page. Invalidation is a cheap generation counter bumped by
+   every write path, not a per-call stringify (that was itself too slow). */
+var _vspScoredCache=null, _vspForcedCache=null, _vspPerfGen=0, _vspScoredGen=-1, _vspForcedGen=-1;
+function _vspPerfBust(){ _vspPerfGen++; }
+function _vspPerfForcedMapCached(raw){
+  if(_vspForcedCache && _vspForcedGen===_vspPerfGen) return _vspForcedCache;
+  _vspForcedCache=_vspPerfForcedMap(raw||_vspPndReadHuddles());
+  _vspForcedGen=_vspPerfGen;
+  return _vspForcedCache;
+}
 function _vspPndReadHuddlesScored(){
+  if(_vspScoredCache && _vspScoredGen===_vspPerfGen) return _vspScoredCache;
   var raw=_vspPndReadHuddles();
-  var forced=_vspPerfForcedMap(raw);
-  var keys=Object.keys(forced); if(!keys.length) return raw;
-  var out={}; Object.keys(raw).forEach(function(k){ out[k]=raw[k]; });
-  keys.forEach(function(k){
-    var src=out[k];
-    var rec=src?JSON.parse(JSON.stringify(src)):{answers:{},updatedAt:''};
-    rec.answers=rec.answers||{};
-    Object.keys(forced[k]).forEach(function(rowId){ rec.answers[rowId]='no'; });
-    rec._forced=forced[k];
-    out[k]=rec;
-  });
+  var forced=_vspPerfForcedMapCached(raw);
+  var keys=Object.keys(forced);
+  var out;
+  if(!keys.length){ out=raw; }
+  else {
+    out={}; Object.keys(raw).forEach(function(k){ out[k]=raw[k]; });
+    keys.forEach(function(k){
+      var src=out[k];
+      var rec=src?JSON.parse(JSON.stringify(src)):{answers:{},updatedAt:''};
+      rec.answers=rec.answers||{};
+      Object.keys(forced[k]).forEach(function(rowId){ rec.answers[rowId]='no'; });
+      rec._forced=forced[k];
+      out[k]=rec;
+    });
+  }
+  _vspScoredCache=out; _vspScoredGen=_vspPerfGen;
   return out;
 }
 /* Why a supervisor cell is forced (or null). Used by the tooltip and the click gate. */
 function _vspPerfForcedInfo(pndPersonId, rowId, weekIso){
   try{
-    var f=_vspPerfForcedMap(_vspPndReadHuddles());
+    var f=_vspPerfForcedMapCached();
     var k=pndPersonId+'__'+weekIso;
     return (f[k]&&f[k][rowId])?f[k][rowId]:null;
   }catch(e){ return null; }
@@ -17595,7 +17750,7 @@ function _vspPerfFlushPending(){
       rec.updatedAt = e.updatedAt || new Date().toISOString();
       all[key]=rec;
     });
-    localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all));
+    localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
     localStorage.removeItem(_VSP_PERF_PENDING_KEY);
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
     try{ if(typeof renderPage==='function') renderPage(); }catch(e){}
@@ -17697,7 +17852,7 @@ function _vspPndWriteHuddle(personId, iso, rowId, answer){
     _vspPerfLogEntry(rec, rowId, _prev, rec.answers[rowId]);
     rec.updatedAt=new Date().toISOString();
     all[key]=rec;
-    localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all));
+    localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
   }catch(e){}
 }
 function _vspHuddleWeeksIsos(){
@@ -19320,7 +19475,7 @@ function _vspAwaySet(pid, weekIso, startIso, endIso, reason){
     else { delete rec.awayStart; delete rec.awayEnd; delete rec.awayReason; }
     rec.updatedAt=new Date().toISOString();
     all[k]=rec;
-    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
     if(startIso && !isAway){ try{ showToast('Away '+awayDays+' of 5 days - not enough to skip the week, so it still counts'); }catch(e){} }
   }catch(e){}
@@ -19376,7 +19531,7 @@ function _vspHuddleToggleAway_legacy(iso, pid){
     rec.away = !rec.away;
     rec.updatedAt = new Date().toISOString();
     all[k]=rec;
-    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   }catch(e){}
   renderPage();
@@ -19406,7 +19561,7 @@ function vspHuddleClearWeek(iso, pid){
     delete rec.awayStart; delete rec.awayEnd; delete rec.awayReason;
     rec.updatedAt=new Date().toISOString();
     all[k]=rec;
-    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all));
+    localStorage.setItem(VSP_PERF_HUDDLES_KEY, JSON.stringify(all)); try{ _vspPerfBust(); }catch(e){}
     try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
   }catch(e){}
   renderPage();
@@ -31900,7 +32055,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-282';
+window.VSP_BUILD = 'v186-merge-284';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -33498,6 +33653,7 @@ try {
   }
 } catch(e){ console.warn('[VSP] v113 restore:', e.message); }
 try { vspPullPndCompliance(); } catch(e){ console.warn(e); }  // v112: P&D->VSP Compliance bridge
+try { vspApplyPmCu(); } catch(e){}  // merge-283: PM client-update feed
 try { _vspAutoFillCompliance(); } catch(e){ console.warn(e); }  // 2026-08-06: source overrides stale bridge
 try { if(typeof _vspPerfFlushPending==='function') _vspPerfFlushPending(); } catch(e){}  // merge-252: replay writes queued before first sync
 /* Lock-tier corrections (Dave, 2026-08-06): P&D is frozen and there is no VSP
@@ -33550,6 +33706,32 @@ try {
     }
   }
 } catch(e){ console.warn('[VSP] workload Stage 2:', e.message); }
+/* merge-283: always-ensure the client-update rows are wired to the PM feed.
+   Idempotent, runs every load. Maps each person's Client Update row to
+   pm.cu.<their initials> so the cells auto-fill from PM. The Edit button can
+   still rebind or set it back to manual (manualOverride is respected). */
+try{
+  var _cuRowByRole={ 'Project Manager':'pm2', 'Sr. PM':'srpm2', 'VP Construction':'vp2', 'Client Experience & Interior Design Manager':'cx2' };
+  var _cuApplyList=function(list){
+    if(!Array.isArray(list)) return;
+    list.forEach(function(sec){
+      var ownerIni=null;
+      try{ var op=(typeof ppl!=='undefined')?ppl.find(function(p){ return p.id===sec.ownerId || _vspPndPersonId(p)===sec.ownerId; }):null; ownerIni=op?op.initials:null; }catch(e){}
+      (sec.metrics||[]).forEach(function(m){
+        if(!m) return;
+        var wantRow=null; Object.keys(_cuRowByRole).forEach(function(role){ if(m.id===_cuRowByRole[role]) wantRow=1; });
+        if(!wantRow) return;
+        if(m.manualOverride===true) return;                 // user chose manual: leave it
+        if(!ownerIni) return;
+        var want='pm.cu.'+ownerIni;
+        if(m.auto!==want){ m.auto=want; m.autoSrc='Project Management'; m.unit='YN'; }
+      });
+    });
+  };
+  if(typeof teamsRegistry==='object'&&teamsRegistry){ Object.keys(teamsRegistry).forEach(function(k){ _cuApplyList(teamsRegistry[k]&&teamsRegistry[k].scorecard); }); }
+  if(typeof scorecard!=='undefined') _cuApplyList(scorecard);
+  try{ if(typeof vspApplyPmCu==='function') vspApplyPmCu(); }catch(e){}
+}catch(e){ console.warn('[VSP] CU wire:', e.message); }
 /* Always-ensure the four LT workload rows are wired to auto (idempotent, runs
    every load). The seed above is one-shot (guarded), but the wiring must not
    depend on that flag - if an earlier build set the flag before the LT data
@@ -34905,6 +35087,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     // retirement inventory.
     try { pullPerfAnswers(); } catch(e){}
     try { if(typeof vspPullPndCompliance === 'function') vspPullPndCompliance(); } catch(e){}
+    try { if(typeof vspApplyPmCu === 'function') vspApplyPmCu(); } catch(e){}
     // merge-250 (Dave, 2026-08-17): the boot sequence runs vspPullPndCompliance
     // (stale bridge) THEN _vspAutoFillCompliance (recompute from the raw huddle
     // store, which overrides the stale bridge). This sync path re-ran the bridge
@@ -34991,6 +35174,28 @@ try{ _vspMigrateJobNotes(); }catch(e){}
   // Read-only: VSP never writes the BDM node. (BDM owns the write side - it must
   // publish to bdm/lida-001/scorecard from its own staging adapter.)
   var BDM_SC_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/bdm/lida-001/scorecard.json';
+  var PM_CU_ENDPOINT = FB_URL.replace(/\/+$/,'') + '/pm/lida-001/cuSendFacts.json';
+  var _pmCuPulling = false, _lastPmCuSig = '';
+  /* Read-only pull of PM's A43 client-update send facts (merge-283). VSP never
+     writes the PM node. Mirrors the BDM pull exactly. */
+  function pullPmCuSendFacts(){
+    if(typeof fetch!=='function' || _pmCuPulling) return;
+    _pmCuPulling = true;
+    fetch(PM_CU_ENDPOINT, { cache:'no-store' }).then(function(r){
+      return r.ok ? r.json() : null;
+    }).then(function(cu){
+      _pmCuPulling = false;
+      if(!cu || typeof cu!=='object' || cu.__v!==1 || !Array.isArray(cu.sends)) return;
+      var ser; try{ ser=JSON.stringify(cu); }catch(e){ return; }
+      if(ser===_lastPmCuSig) return;
+      _lastPmCuSig = ser;
+      try{ localStorage.setItem('smb_pm_cu_send_facts_v1', ser); }catch(e){}
+      try{ window.SMB_PM_CU_SEND_FACTS = cu; }catch(e){} try{ if(typeof _vspPerfBust==='function') _vspPerfBust(); }catch(e){}
+      try{ if(typeof scApplyCompliance==='function') scApplyCompliance(); }catch(e){}
+      try{ if(typeof syncTeamData==='function') syncTeamData(); }catch(e){}
+      try{ if(state && state.page==='scorecard') renderPage(); }catch(e){}
+    }).catch(function(){ _pmCuPulling=false; });
+  }
   var _bdmPulling = false, _lastBdmSig = null;
   function pullBdmScorecard(){
     if(typeof fetch!=='function' || _bdmPulling) return;
@@ -35801,6 +36006,7 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     // merge-252: BDM scorecard pull + ESR goal-edit inbox poll (both isolated
     // nodes; neither touches the main VSP data node). Prime once, then poll.
     try{ pullBdmScorecard(); setInterval(pullBdmScorecard, 15000); }catch(e){}
+    try{ pullPmCuSendFacts(); setInterval(pullPmCuSendFacts, 15000); }catch(e){}
     try{ pollEsrInbox(); setInterval(pollEsrInbox, 8000); }catch(e){}
     // Boot republish (found 2026-08-24): the esr node only refreshed on a
     // save or adopt, so after deploying a build that changes the payload
