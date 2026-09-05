@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-289</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-290</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7977,8 +7977,44 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
      hand-entered value, then a nothing-recorded note. Same per-person intent as
      D-VSP-22; same visual language as the Count-of-No tooltip. */
   var _cmpG = _vspAutoMetricGroup(m);
-  var _isCompliance = !!(m.pndGroup || String(m.auto||m._autoKey||'').indexOf('pnd.compliance')===0);
-  if(_isCompliance && _cmpG){
+  // merge-290: CU rows are handled FIRST, before compliance/generic branches,
+  // so their own From-Project-Management tooltip always wins. A CU row sets
+  // pndGroup 'pmcu:*' which would otherwise be mistaken for a compliance row.
+  var _isPmCu = _vspAutoParse(m.auto||m._autoKey||'').kind==='pmcu';
+  if(_isPmCu){
+    var _cuA0=_vspAutoParse(m.auto||m._autoKey||'');
+    var _cuIsId0=_vspPmCuIsDesigner(_cuA0.person);
+    var _cuWk0=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+    var _cuBd0=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
+    if(_cuBd0 && _cuBd0.length){
+      var _cuMiss0=0, _cuRows0=_cuBd0.map(function(x){
+        var ok=!!x.onTime; if(!ok)_cuMiss0++;
+        if(x.type==='notreq'){ return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(x.label||'Not required')+'</span></span>'; }
+        var when='';
+        if(ok && x.sentAt){ try{ var _sd0=new Date(x.sentAt); when=_sd0.toLocaleDateString('en-CA',{weekday:'short'})+' '+_sd0.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){ when=_cuIsId0?'merged':'sent'; } }
+        else { when=_cuIsId0?'not merged':'not sent'; }
+        return '<span class="pnd-tip-r'+(ok?'':' pnd-out')+'"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(when)+'</span></span>';
+      }).join('');
+      var _cuN0=_cuBd0.length, _cuOk0=_cuN0-_cuMiss0;
+      var _cuResult0=(_cuMiss0===0)?('Yes - '+_cuOk0+' of '+_cuN0+(_cuIsId0?' merged':' sent')):((_cuOk0)+' of '+_cuN0+(_cuIsId0?' merged':' sent')+', '+_cuMiss0+' waiting');
+      _pndTipHtml='<span class="pnd-tip">'
+        +'<span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_cuWk0))+'</span>'
+        +_cuRows0
+        +'<span class="pnd-tip-sum"><span>'+_scEsc(_cuResult0)+'</span><span>'+((_cuMiss0===0)?'Yes':'')+'</span></span>'
+        +'<span class="pnd-tip-ft">'+(_cuIsId0
+            ? 'Yes only when every job this person is Designer or Pre-Con Manager on has its ID update marked ready. Due Friday. Not required jobs count as done.'
+            : 'Yes only when every job this person is Project Manager or Pre-Con Manager on has its client update sent through PM. Due Monday. Not required jobs count as done.')
+        +'</span></span>';
+      cellTitle='';
+    } else {
+      _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_cuWk0))+'</span>'
+        +'<span class="pnd-tip-r pnd-out"><span>No jobs this week</span><span>-</span></span>'
+        +'<span class="pnd-tip-ft">Fills as client updates are sent in Project Management.</span></span>';
+      cellTitle='';
+    }
+  }
+  var _isCompliance = !_isPmCu && !!(m.pndGroup || String(m.auto||m._autoKey||'').indexOf('pnd.compliance')===0);
+  if(!_isPmCu && _isCompliance && _cmpG){
     var _cWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
     var _cIso=''; try{ var _cD=scWeekDate(weekIdx); _cIso=_cD.getFullYear()+'-'+String(_cD.getMonth()+1).padStart(2,'0')+'-'+String(_cD.getDate()).padStart(2,'0'); }catch(e){}
     var _cRows='', _cSum=0, _cCov=0;
@@ -8005,7 +8041,7 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
         +'A Priority Rule answered No scores that person 0% for the whole week.</span>'
         +'</span>';
       cellTitle='';
-    } else {
+    } else if(!_isPmCu){
       var _cBd=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
       if(_cBd&&_cBd.length){
         var _bSum=0,_bN=0;
@@ -8111,44 +8147,6 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
             + 'Until then nothing is sent, so a partly finished average is never reported here.</span>')
       + '</span>';
     cellTitle = '';
-  } else if(_vspAutoParse(m.auto||m._autoKey||'').kind==='pmcu'){
-    // merge-285: Client-update cells get the same From-Project-Management hover
-    // as the LT scorecard rows: header, one row per job (sent / missed greyed),
-    // the N of N summary, and the rule footer. Reads the pndBreakdown the CU
-    // engine stamped for this locked week.
-    var _cuA=_vspAutoParse(m.auto||m._autoKey||'');
-    var _cuIsId=_vspPmCuIsDesigner(_cuA.person);
-    var _cuWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
-    var _cuBd=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
-    if(_cuBd && _cuBd.length){
-      var _cuMiss=0, _cuRows=_cuBd.map(function(x){
-        var ok=!!x.onTime; if(!ok)_cuMiss++;
-        // merge-289: a Not Required job shows its reason and counts as satisfied.
-        if(x.type==='notreq'){
-          return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(x.label||'Not required')+'</span></span>';
-        }
-        var when='';
-        if(ok && x.sentAt){ try{ var _sd=new Date(x.sentAt); when=_sd.toLocaleDateString('en-CA',{weekday:'short'})+' '+_sd.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){ when=_cuIsId?'merged':'sent'; } }
-        else { when=_cuIsId?'not merged':'not sent'; }
-        return '<span class="pnd-tip-r'+(ok?'':' pnd-out')+'"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(when)+'</span></span>';
-      }).join('');
-      var _cuN=_cuBd.length, _cuOk=_cuN-_cuMiss;
-      var _cuResult=(_cuMiss===0)?('Yes - '+_cuOk+' of '+_cuN+(_cuIsId?' merged':' sent')):('No - '+_cuMiss+' of '+_cuN+(_cuIsId?' not merged':' not sent'));
-      _pndTipHtml='<span class="pnd-tip">'
-        +'<span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_cuWk))+'</span>'
-        +_cuRows
-        +'<span class="pnd-tip-sum"><span>'+_scEsc(_cuResult)+'</span><span>'+((_cuMiss===0)?'Yes':'No')+'</span></span>'
-        +'<span class="pnd-tip-ft">'+(_cuIsId
-            ? 'Yes only if every job this person is Designer or Pre-Con Manager on had its ID update marked ready by Friday 12:00am. One miss is No. Locked at Friday 12:00am.'
-            : 'Yes only if every job this person is Project Manager or Pre-Con Manager on had its client update sent through PM by Monday 12:00am. One miss is No. Locked at Monday 12:00am.')
-        +'</span></span>';
-      cellTitle='';
-    } else {
-      _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_cuWk))+'</span>'
-        +'<span class="pnd-tip-r pnd-out"><span>Nothing recorded</span><span>-</span></span>'
-        +'<span class="pnd-tip-ft">Fills once the week closes ('+(_cuIsId?'Friday':'Monday')+' 12:00am). The current open week is not scored yet.</span></span>';
-      cellTitle='';
-    }
   }
   if(hasNote){
     var _noteTxt = String(m.notes[weekIdx]);
@@ -8213,6 +8211,36 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var _ctxMenu = _isClientMonthly
     ? "event.preventDefault();_vspPerfToggleCNA('"+ownerId+"',"+m.id+","+weekIdx+");return false"
     : "event.preventDefault();scOpenNote("+m.id+","+weekIdx+");return false";
+  // merge-290: final override - a CU row always shows the From-Project-Management
+  // tooltip, regardless of what the branch chain above produced. This is the
+  // decisive assignment so no earlier branch can clobber it.
+  try{
+    if(_vspAutoParse(m.auto||m._autoKey||'').kind==='pmcu'){
+      var _fA=_vspAutoParse(m.auto||m._autoKey||'');
+      var _fIsId=_vspPmCuIsDesigner(_fA.person);
+      var _fWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+      var _fBd=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
+      if(_fBd && _fBd.length){
+        var _fMiss=0, _fRows=_fBd.map(function(x){
+          var ok=!!x.onTime; if(!ok)_fMiss++;
+          if(x.type==='notreq'){ return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(x.label||'Not required')+'</span></span>'; }
+          var when='';
+          if(ok && x.sentAt){ try{ var _fsd=new Date(x.sentAt); when=_fsd.toLocaleDateString('en-CA',{weekday:'short'})+' '+_fsd.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){ when=_fIsId?'merged':'sent'; } }
+          else { when=_fIsId?'not merged':'not sent'; }
+          return '<span class="pnd-tip-r'+(ok?'':' pnd-out')+'"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(when)+'</span></span>';
+        }).join('');
+        var _fN=_fBd.length, _fOk=_fN-_fMiss;
+        var _fResult=(_fMiss===0)?('Yes - all '+_fN+(_fIsId?' merged':' sent')):(_fOk+' of '+_fN+(_fIsId?' merged':' sent')+', '+_fMiss+' waiting');
+        _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_fWk))+'</span>'+_fRows
+          +'<span class="pnd-tip-sum"><span>'+_scEsc(_fResult)+'</span><span>'+((_fMiss===0)?'Yes':'')+'</span></span>'
+          +'<span class="pnd-tip-ft">'+(_fIsId
+              ? 'Yes only when every job this person is Designer or Pre-Con Manager on has its ID update marked ready. Due Friday. Not required jobs count as done.'
+              : 'Yes only when every job this person is Project Manager or Pre-Con Manager on has its client update sent through PM. Due Monday. Not required jobs count as done.')
+          +'</span></span>';
+        cellTitle='';
+      }
+    }
+  }catch(e){}
   return '<td onclick="'+clickHandler+'" oncontextmenu="'+_ctxMenu+'"'+ariaLbl
     + (_pndTipHtml ? ' class="pnd-cell" tabindex="0"' : '')+' '
     + (cellTitle ? 'title="'+cellTitle+'" ' : '')
@@ -9268,7 +9296,7 @@ function _vspPmCuMonday(iso){
 /* Apply the CU feed to every bound metric. Mirrors vspPullPndCompliance's
    idx mapping and only writes locked, past-floor, non-current weeks. */
 function scApplyCompliance(){ try{ vspPullPndCompliance(); }catch(e){} try{ vspApplyPmCu(); }catch(e){} }
-function vspApplyPmCu(){
+function vspApplyPmCu(_onlySections){
   try{
     var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return;
     var roster=Array.isArray(cu.roster)?cu.roster:[];
@@ -9314,10 +9342,24 @@ function vspApplyPmCu(){
     function applyList(list){
       if(!Array.isArray(list)) return;
       list.forEach(function(sec){
+        // merge-290: the CU feed targets the client-update row on each person's
+        // built performance section, keyed on _rowId (pm2/srpm2/vp2/cx2) with
+        // the person resolved from the section owner. The earlier auto-wire
+        // matched m.id and scanned the VSP team scorecard - the perf rows live
+        // in a different structure with _rowId, so it never fired.
+        var _cuRows={pm2:1,srpm2:1,vp2:1,cx2:1};
+        var ownerIni=null;
+        try{ var op=(typeof ppl!=='undefined')?ppl.find(function(p){ return p.id===sec.ownerId || p.initials===sec.ownerId || (typeof _vspPndPersonId==='function' && _vspPndPersonId(p)===sec.ownerId); }):null; ownerIni=op?op.initials:null; }catch(e){}
         (sec.metrics||[]).forEach(function(m){
-          if(!m||!m.auto) return;
-          var a=_vspAutoParse(m.auto); if(a.kind!=='pmcu') return;
-          var ini=a.person; var isId=_vspPmCuIsDesigner(ini);
+          if(!m) return;
+          // A row is CU-fed if explicitly auto:'pm.cu.*' OR it is the client-update
+          // standard row (_rowId) for a known role and the owner is resolvable.
+          var ini=null;
+          var a=_vspAutoParse(m.auto);
+          if(a.kind==='pmcu'){ ini=a.person; }
+          else if(m._rowId && _cuRows[m._rowId] && ownerIni && m.manualOverride!==true){ ini=ownerIni; m.auto='pm.cu.'+ini; m.autoSrc='Project Management'; m.unit='YN'; }
+          if(!ini) return;
+          var isId=_vspPmCuIsDesigner(ini);
           if(!Array.isArray(m.readings)) m.readings=[];
           m.pndGroup='pmcu:'+ini; m.autoSrc='Project Management'; m.unit='YN';
           for(var idx=Math.max(0,floorIdx); idx<maxCol; idx++){
@@ -9349,24 +9391,47 @@ function vspApplyPmCu(){
               if(!f) miss++;
             });
             while(m.readings.length<=idx) m.readings.push(null);
+            // merge-290: always record the breakdown for a live/locked week so
+            // the tooltip shows progress (sent / waiting per job) even before the
+            // cell fills - that is the immediate feedback Dave wants while sending.
+            if(!m.pndBreakdown) m.pndBreakdown={};
+            m.pndBreakdown[idx]=bd;
             if(locked){
               m.readings[idx]=(miss===0)?'Yes':'No';
-              if(!m.pndBreakdown) m.pndBreakdown={};
-              m.pndBreakdown[idx]=bd;
             } else if(miss===0){
-              // provisional Yes before lock - all jobs already sent
-              m.readings[idx]='Yes';
-              if(!m.pndBreakdown) m.pndBreakdown={};
-              m.pndBreakdown[idx]=bd;
+              m.readings[idx]='Yes';   // provisional Yes: all sent
+            } else {
+              m.readings[idx]=null;    // still outstanding: blank until lock, tooltip shows progress
             }
-            // else: not locked and something outstanding -> leave blank until lock
           }
         });
       });
     }
+    if(Array.isArray(_onlySections)){ _onlySections.forEach(function(s){ applyList([s]); }); return; }
     if(typeof teamsRegistry==='object'&&teamsRegistry){ Object.keys(teamsRegistry).forEach(function(k){ applyList(teamsRegistry[k]&&teamsRegistry[k].scorecard); }); }
     if(typeof scorecard!=='undefined') applyList(scorecard);
   }catch(e){ /* silent */ }
+}
+/* merge-290: apply the CU feed to ONE freshly-built performance section, with
+   the person passed in so the owner initials are unambiguous. Called at the end
+   of _vspPerfBuildSection. Shares the same rule as vspApplyPmCu. */
+function _vspApplyPmCuToSection(sec, person){
+  try{
+    if(!sec || !person) return;
+    var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return;
+    var ini=person.initials; if(!ini) return;
+    var _cuRows={pm2:1,srpm2:1,vp2:1,cx2:1};
+    (sec.metrics||[]).forEach(function(m){
+      if(!m) return;
+      var isCu=false;
+      if(_vspAutoParse(m.auto).kind==='pmcu'){ isCu=true; }
+      else if(m._rowId && _cuRows[m._rowId] && m.manualOverride!==true){ isCu=true; m.auto='pm.cu.'+ini; m.autoSrc='Project Management'; m.unit='YN'; }
+      if(!isCu) return;
+      m.pndGroup='pmcu:'+ini;
+    });
+    // fill readings/breakdown for the bound rows on THIS section only
+    vspApplyPmCu([sec]);
+  }catch(e){}
 }
 function scApplyFeed(){
   try{
@@ -15295,7 +15360,7 @@ function _vspPerfBuildSection(person, weeks){
   });
   var cs = (typeof colorForSlot==='function') ? colorForSlot(person.colorSlot) : {fg:'#334155'};
   try{ (window._vspLastPerfMetrics = window._vspLastPerfMetrics || []).push.apply(window._vspLastPerfMetrics, metrics); }catch(e){}
-  return {
+  var _builtSection = {
     section: {
       ownerId: person.initials,
       ownerName: (person.first+' '+person.last),
@@ -15305,6 +15370,11 @@ function _vspPerfBuildSection(person, weeks){
     },
     personId: personId
   };
+  // merge-290: run the PM client-update feed over THIS built section so the
+  // client-update row (pm2/srpm2/vp2/cx2) fills from PM. Owner is the section's
+  // initials. Also passes the person so the CU apply can resolve by initials.
+  try{ if(typeof _vspApplyPmCuToSection==='function') _vspApplyPmCuToSection(_builtSection.section, person); }catch(e){}
+  return _builtSection;
 }
 /* Per-role row order (Dave, 2026-08-09, merge-156). The perf-grid rebuilds
    metrics from role standards every render, so a drag reorder must persist as a
@@ -32146,7 +32216,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-289';
+window.VSP_BUILD = 'v186-merge-290';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
