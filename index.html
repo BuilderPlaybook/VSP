@@ -3769,7 +3769,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-292</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-293</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -8211,31 +8211,35 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var _ctxMenu = _isClientMonthly
     ? "event.preventDefault();_vspPerfToggleCNA('"+ownerId+"',"+m.id+","+weekIdx+");return false"
     : "event.preventDefault();scOpenNote("+m.id+","+weekIdx+");return false";
-  // merge-290: final override - a CU row always shows the From-Project-Management
-  // tooltip, regardless of what the branch chain above produced. This is the
-  // decisive assignment so no earlier branch can clobber it.
+  // merge-293: CU rows show the From-Project-Management tooltip, detected by
+  // _rowId (the row is manual + overlaid, not auto-bound). Breakdown is computed
+  // live for the week from the PM feed.
   try{
-    if(_vspAutoParse(m.auto||m._autoKey||'').kind==='pmcu'){
-      var _fA=_vspAutoParse(m.auto||m._autoKey||'');
-      var _fIsId=_vspPmCuIsDesigner(_fA.person);
-      var _fWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
-      var _fBd=(m.pndBreakdown&&m.pndBreakdown[weekIdx])?m.pndBreakdown[weekIdx]:null;
-      if(_fBd && _fBd.length){
-        var _fMiss=0, _fRows=_fBd.map(function(x){
-          var ok=!!x.onTime; if(!ok)_fMiss++;
+    var _cuRowIds={pm2:1,srpm2:1,vp2:1,cx2:1};
+    if(m._rowId && _cuRowIds[m._rowId] && m._perfStore){
+      var _fPer=null; try{ _fPer=ppl.find(function(pp){ return (typeof _vspPndPersonId==='function'?_vspPndPersonId(pp):pp.id)===m._perfStore || pp.initials===ownerId; }); }catch(e){}
+      var _fIni=_fPer?_fPer.initials:ownerId;
+      var _fIso=''; try{ var _fD=scWeekDate(weekIdx); _fIso=_fD.getFullYear()+'-'+String(_fD.getMonth()+1).padStart(2,'0')+'-'+String(_fD.getDate()).padStart(2,'0'); }catch(e){}
+      var _fRes=_fIso?_vspPmCuWeekResult(_fIni, _fIso, m._rowId):null;
+      if(_fRes && _fRes.bd && _fRes.bd.length){
+        var _fIsId=(m._rowId==='cx2')||_vspPmCuIsDesigner(_fIni);
+        var _fWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+        var _fMiss=0, _fRows=_fRes.bd.map(function(x){
+          var ok=!!x.onTime; if(!ok && x.type!=='notreq')_fMiss++;
           if(x.type==='notreq'){ return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(x.label||'Not required')+'</span></span>'; }
           var when='';
           if(ok && x.sentAt){ try{ var _fsd=new Date(x.sentAt); when=_fsd.toLocaleDateString('en-CA',{weekday:'short'})+' '+_fsd.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){ when=_fIsId?'merged':'sent'; } }
           else { when=_fIsId?'not merged':'not sent'; }
           return '<span class="pnd-tip-r'+(ok?'':' pnd-out')+'"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(when)+'</span></span>';
         }).join('');
-        var _fN=_fBd.length, _fOk=_fN-_fMiss;
-        var _fResult=(_fMiss===0)?('Yes - all '+_fN+(_fIsId?' merged':' sent')):(_fOk+' of '+_fN+(_fIsId?' merged':' sent')+', '+_fMiss+' waiting');
+        var _fReq=_fRes.bd.filter(function(x){return x.type!=='notreq';}).length;
+        var _fOk=_fReq-_fMiss;
+        var _fResult=(_fMiss===0)?('Yes - all '+_fReq+(_fIsId?' merged':' sent')):(_fOk+' of '+_fReq+(_fIsId?' merged':' sent')+', '+_fMiss+' waiting');
         _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-hd">From Project Management &middot; '+_scEsc(String(_fWk))+'</span>'+_fRows
           +'<span class="pnd-tip-sum"><span>'+_scEsc(_fResult)+'</span><span>'+((_fMiss===0)?'Yes':'')+'</span></span>'
           +'<span class="pnd-tip-ft">'+(_fIsId
-              ? 'Yes only when every job this person is Designer or Pre-Con Manager on has its ID update marked ready. Due Friday. Not required jobs count as done.'
-              : 'Yes only when every job this person is Project Manager or Pre-Con Manager on has its client update sent through PM. Due Monday. Not required jobs count as done.')
+              ? 'Yes only when every job this person is Designer or Pre-Con Manager on has its ID update marked ready. Due Friday. Not required jobs are excluded.'
+              : 'Yes only when every job this person is Project Manager or Pre-Con Manager on has its client update sent through PM. Due Monday. Not required jobs are excluded.')
           +'</span></span>';
         cellTitle='';
       }
@@ -9292,6 +9296,54 @@ function _vspPmCuMonday(iso){
   var x=new Date(iso+'T00:00:00'); if(isNaN(x.getTime())) return iso;
   var dow=(x.getDay()+6)%7; x.setDate(x.getDate()-dow);
   return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+}
+/* merge-293: single-week CU result for a person, used to overlay onto the
+   client-update scorecard row by week date. Returns null when PM has no jobs
+   for this person that week (so the manual answer shows). Otherwise returns
+   { value:'Yes'|'No'|null, bd:[...] } where value is Yes when every required
+   job is sent/ready or not-required, No when locked with a miss, null when
+   still outstanding before the lock (tooltip shows progress). Not-required
+   jobs are excluded from the pass/fail count but included in bd for the tip. */
+function _vspPmCuWeekResult(ini, iso, rowId){
+  try{
+    var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return null;
+    if(iso < VSP_PM_CU_FLOOR_ISO) return null;               // before go-live floor: manual only
+    var monday=_vspPmCuMonday(iso);
+    var isId=(rowId==='cx2') || _vspPmCuIsDesigner(ini);
+    var roster=Array.isArray(cu.roster)?cu.roster:[];
+    var jobs=roster.filter(function(j){
+      if(!j) return false;
+      if(isId){ return j.designer===ini || (j.stage==='precon' && j.preConManager===ini); }
+      return (j.stage==='construction' && j.pm===ini) || (j.stage==='precon' && j.preConManager===ini);
+    }).filter(function(j){
+      if(!j.fsaSignedDate) return true;
+      return _vspPmCuMonday(String(j.fsaSignedDate).slice(0,10)) <= monday;   // live from its first full week
+    });
+    if(!jobs.length) return null;                            // PM has nothing for this person this week -> manual
+    var lock=new Date(monday+'T00:00:00'); if(isId){ lock.setDate(lock.getDate()+4); } else { lock.setDate(lock.getDate()+7); }
+    var locked = Date.now() >= lock.getTime();
+    var bd=[], miss=0;
+    jobs.forEach(function(j){
+      var nrWhole=j.notRequired===true, nrId=isId&&j.idNotRequired===true;
+      if(nrWhole||nrId){
+        var reason=nrWhole?(j.notRequiredReason||''):(j.idNotRequiredReason||'');
+        bd.push({jobId:j.jobId,name:j.name,type:'notreq',label:'Not required'+(reason?(' - '+reason):''),onTime:true});
+        return;
+      }
+      var f=cu.sends.find(function(s){
+        if(!s||s.jobId!==j.jobId||s.person!==ini) return false;
+        if(isId){ if(s.stage!=='id')return false; var sm=new Date(s.sentAt); if(isNaN(sm.getTime()))return false; var mon=new Date(monday+'T00:00:00'); var fri=new Date(monday+'T00:00:00'); fri.setDate(fri.getDate()+4); return sm.getTime()>=mon.getTime()&&sm.getTime()<fri.getTime(); }
+        return s.stage!=='id' && s.week===monday;
+      });
+      bd.push({jobId:j.jobId,name:j.name,type:(isId?'id':j.stage),sentAt:(f?f.sentAt:null),onTime:!!f});
+      if(!f) miss++;
+    });
+    var value;
+    if(locked){ value=(miss===0)?'Yes':'No'; }
+    else if(miss===0){ value='Yes'; }
+    else { value=null; }                                     // outstanding, pre-lock: blank, tooltip shows progress
+    return { value:value, bd:bd };
+  }catch(e){ return null; }
 }
 /* Apply the CU feed to every bound metric. Mirrors vspPullPndCompliance's
    idx mapping and only writes locked, past-floor, non-current weeks. */
@@ -15301,7 +15353,15 @@ function _vspPerfBuildSection(person, weeks){
     var _rowNA=(typeof _vspRowAllowsNA==='function')?_vspRowAllowsNA(rowId):false;
     var _rowScored=true;
     try{ var _rd=(stds||[]).find(function(r){return r.id===rowId;}); if(_rd && _rd.noScore) _rowScored=false; }catch(e){}
+    // merge-293: CU rows overlay PM's feed per week; other weeks show the
+    // person's own stored answer. Overlay only, never blank a manual week.
+    var _isCuRow = (rowId==='pm2'||rowId==='srpm2'||rowId==='vp2'||rowId==='cx2');
     return weeks.map(function(iso){
+      if(_isCuRow){
+        var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
+        if(_cr){ return _cr.value; }   // PM has data this week (Yes/No/blank-outstanding)
+        // else: no PM data this week -> fall through to the stored manual answer
+      }
       var rec = all[personId+'__'+iso];
       var v = (rec && rec.answers) ? rec.answers[rowId] : null;
       if(v==='yes') return 'Yes';
@@ -19465,7 +19525,15 @@ function _vspRenderHuddleScorecard(){
     var _rowNA=(typeof _vspRowAllowsNA==='function')?_vspRowAllowsNA(rowId):false;
     var _rowScored=true;
     try{ var _rd=(stds||[]).find(function(r){return r.id===rowId;}); if(_rd && _rd.noScore) _rowScored=false; }catch(e){}
+    // merge-293: CU rows overlay PM's feed per week; other weeks show the
+    // person's own stored answer. Overlay only, never blank a manual week.
+    var _isCuRow = (rowId==='pm2'||rowId==='srpm2'||rowId==='vp2'||rowId==='cx2');
     return weeks.map(function(iso){
+      if(_isCuRow){
+        var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
+        if(_cr){ return _cr.value; }   // PM has data this week (Yes/No/blank-outstanding)
+        // else: no PM data this week -> fall through to the stored manual answer
+      }
       var rec = all[personId+'__'+iso];
       var v = (rec && rec.answers) ? rec.answers[rowId] : null;
       if(v==='yes') return 'Yes';
@@ -32225,7 +32293,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-292';
+window.VSP_BUILD = 'v186-merge-293';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
