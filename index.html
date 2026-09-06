@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-303</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-304</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7904,6 +7904,9 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
     ok = (_wt==='green');
   }
   var display = hasVal ? (_isCNA ? 'CNA' : (_isNA ? 'N/A' : fmtVal(val, m.unit))) : '-';
+  // merge-304: combined CU rows store a count (0 = all done) but READ as Yes/No,
+  // matching the personal scorecards. Colour already follows the <0 goal.
+  if(m._cuCombined && hasVal && !_isNA && typeof val==='number'){ display = (val===0) ? 'Yes' : 'No'; }
   var isOff = hasVal && !ok && !_isNA;
   var offGlyph = isOff ? '<span aria-hidden="true" style="font-size:8px;vertical-align:1.5px;margin-right:2px">\u25BC</span>' : '';
   var cellWeight = (isOff || _isCNA) ? ';font-weight:700' : '';
@@ -11201,23 +11204,27 @@ function _vspAutoFillRowcounts(){
         var _cuRowSet={vp2:1,srpm2:1,pm2:1,cx2:1};
         var _isCuCombo = a.rows && a.rows.length && a.rows.every(function(rid){ return _cuRowSet[rid]; });
         if(_isCuCombo){
+          // merge-304 (Dave, 2026-09-06): the STORED value stays a NUMBER (count
+          // of updates not done across the owner's tree, each job once; 0 = all
+          // done) and the row's unit/goal are untouched. merge-299 wrote 'Yes'/
+          // 'No' strings and flipped the unit, which the Data Guard read as two
+          // rows losing all their readings plus a mass settings change - it
+          // blocked every save and reloaded the page (the flashing). The cell
+          // DISPLAYS 0 as Yes and >0 as No via _cuCombined at render only.
           var _owner=sec.ownerId;
-          m.autoSrc='Project Management'; m.unit='YN'; m.goalType='='; m.goal='Yes';
+          m.autoSrc='Project Management';
           m._cuCombined=true;
           m.readings=m.readings||[];
           for(var ci=0; ci<Math.max(m.readings.length,22); ci++){
             var cwd; try{ cwd=scWeekDate(ci); }catch(e){ continue; }
             var ciso=cwd.getFullYear()+'-'+String(cwd.getMonth()+1).padStart(2,'0')+'-'+String(cwd.getDate()).padStart(2,'0');
-            if(ciso>=VSP_PM_CU_FLOOR_ISO){
-              var tr=_vspPmCuTreeResult(_owner, ciso);
-              if(tr){ if(tr.value==='Yes') m.readings[ci]='Yes'; else if(tr.value==='No') m.readings[ci]='No'; else m.readings[ci]=null; }
-            } else {
-              // past: translate stored count/answer to Yes/No, leave blank if none
-              var pv=m.readings[ci];
-              if(pv==='yes'||pv==='Yes') m.readings[ci]='Yes';
-              else if(pv==='no'||pv==='No') m.readings[ci]='No';
-              else { var pn=Number(pv); if(pv!=null&&pv!==''&&!isNaN(pn)) m.readings[ci]=(pn===0?'Yes':'No'); }
-            }
+            if(ciso<VSP_PM_CU_FLOOR_ISO) continue;              // past weeks: leave stored number as-is
+            var tr=_vspPmCuTreeResult(_owner, ciso);
+            if(!tr) continue;                                     // no PM data: leave as-is
+            var _nd=tr.bd.filter(function(x){return x.type!=='notreq' && !x.onTime;}).length;
+            if(tr.value==='Yes') m.readings[ci]=0;
+            else if(tr.value==='No') m.readings[ci]=_nd;
+            // outstanding (pre-lock): leave whatever is there (normally blank)
           }
           return;
         }
@@ -15650,20 +15657,12 @@ function _vspPerfBuildSection(person, weeks){
       if(_isCuCombined){
         var _tr=_vspPmCuTreeResult(person.initials, iso);
         if(_tr){
-          // merge-299: combined CU rows are Yes/No like the individual rows.
-          if(_tr.value==='Yes') return 'Yes';
-          if(_tr.value==='No') return 'No';
-          return null;   // outstanding, pre-lock
+          // merge-304: numeric (count not done); displayed as Yes/No at render.
+          var _ndR=_tr.bd.filter(function(x){return x.type!=='notreq' && !x.onTime;}).length;
+          if(_tr.value==='Yes') return 0;
+          if(_tr.value==='No') return _ndR;
+          return null;
         }
-        // Past weeks (pre-feed): translate any stored count to Yes/No.
-        // 0 missed -> Yes; a positive number -> No; blank stays blank.
-        var _recC=all[personId+'__'+iso];
-        var _pv=(_recC&&_recC.answers)?_recC.answers[rowId]:null;
-        if(_pv==='yes'||_pv==='Yes') return 'Yes';
-        if(_pv==='no'||_pv==='No') return 'No';
-        var _n=Number(_pv);
-        if(_pv!=null && _pv!=='' && !isNaN(_n)) return _n===0?'Yes':'No';
-        return null;
       }
       if(_isCuRow){
         var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
@@ -19843,20 +19842,12 @@ function _vspRenderHuddleScorecard(){
       if(_isCuCombined){
         var _tr=_vspPmCuTreeResult(person.initials, iso);
         if(_tr){
-          // merge-299: combined CU rows are Yes/No like the individual rows.
-          if(_tr.value==='Yes') return 'Yes';
-          if(_tr.value==='No') return 'No';
-          return null;   // outstanding, pre-lock
+          // merge-304: numeric (count not done); displayed as Yes/No at render.
+          var _ndR=_tr.bd.filter(function(x){return x.type!=='notreq' && !x.onTime;}).length;
+          if(_tr.value==='Yes') return 0;
+          if(_tr.value==='No') return _ndR;
+          return null;
         }
-        // Past weeks (pre-feed): translate any stored count to Yes/No.
-        // 0 missed -> Yes; a positive number -> No; blank stays blank.
-        var _recC=all[personId+'__'+iso];
-        var _pv=(_recC&&_recC.answers)?_recC.answers[rowId]:null;
-        if(_pv==='yes'||_pv==='Yes') return 'Yes';
-        if(_pv==='no'||_pv==='No') return 'No';
-        var _n=Number(_pv);
-        if(_pv!=null && _pv!=='' && !isNaN(_n)) return _n===0?'Yes':'No';
-        return null;
       }
       if(_isCuRow){
         var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
@@ -32622,7 +32613,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-303';
+window.VSP_BUILD = 'v186-merge-304';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
