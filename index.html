@@ -3231,12 +3231,12 @@ summary:focus-visible,
 #pnd-float .pnd-tt{ font-size:var(--fz-body); font-weight:700; margin-bottom:6px; }
 #pnd-float .pnd-body{ display:flex; flex-direction:column; gap:3px; font-size:var(--fz-body); }
 #pnd-float .pnd-row{ display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
-#pnd-float .pnd-row > span:first-child{ opacity:.75; }
+#pnd-float .pnd-row > span:first-child{ color:var(--txm); }
 #pnd-float .pnd-row > span:last-child{ text-align:right; }
-#pnd-float .pnd-eq{ margin-top:4px; border-top:1px solid rgba(255,255,255,.18); padding-top:4px; font-weight:700; }
-#pnd-float .pnd-note{ margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.18); font-size:var(--fz-body); opacity:.85; }
-#pnd-float .pnd-sub{ font-size:var(--fz-body); opacity:.85; }
-#pnd-float .pnd-mut{ opacity:.6; }
+#pnd-float .pnd-eq{ margin-top:4px; border-top:1px solid var(--brd); padding-top:4px; font-weight:700; }
+#pnd-float .pnd-note{ margin-top:6px; padding-top:6px; border-top:1px solid var(--brd); font-size:var(--fz-body); color:var(--txm); }
+#pnd-float .pnd-sub{ font-size:var(--fz-body); color:var(--txm); }
+#pnd-float .pnd-mut{ color:var(--txm); }
 [data-cnp]{ position:relative; cursor:help; }
 [data-cnp]:focus{ outline:2px solid var(--blu); outline-offset:-2px; }
 
@@ -3386,22 +3386,22 @@ summary:focus-visible,
 .pnd-tip{display:none}
 #pnd-float .pnd-tip{display:block}
 #pnd-float{display:none;position:fixed;
-  background:var(--sb);color:#fff;padding:11px 13px;border-radius:6px;font-size:var(--fz-body);font-weight:400;
+  background:var(--sur);color:var(--txt);border:1px solid var(--brd);padding:11px 13px;border-radius:8px;font-size:var(--fz-body);font-weight:400;
   line-height:1.45;letter-spacing:0;text-transform:none;width:280px;max-width:280px;white-space:normal;
-  text-align:left;box-shadow:0 4px 12px rgba(15,23,42,0.22);z-index:1000;pointer-events:none;font-variant-numeric:tabular-nums}
-#pnd-float::before{content:"";position:absolute;top:-5px;left:var(--pnd-ax,50%);transform:translateX(-50%);
-  border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid var(--sb)}
-#pnd-float[data-above="yes"]::before{top:auto;bottom:-5px;border-bottom:none;border-top:6px solid var(--sb)}
+  text-align:left;box-shadow:0 8px 24px rgba(15,23,42,0.16);z-index:1000;pointer-events:none;font-variant-numeric:tabular-nums}
+#pnd-float::before{content:"";position:absolute;top:-6px;left:var(--pnd-ax,50%);transform:translateX(-50%);
+  border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid var(--sur)}
+#pnd-float[data-above="yes"]::before{top:auto;bottom:-6px;border-bottom:none;border-top:6px solid var(--sur)}
 #pnd-float.on{display:block}
-.pnd-tip-hd{font-weight:700;margin-bottom:7px}
+.pnd-tip-hd{font-weight:700;margin-bottom:7px;color:var(--txt)}
 .pnd-tip-r{display:flex;justify-content:space-between;gap:14px;padding:1px 0}
-.pnd-tip-r.pnd-out{opacity:.62}
-.pnd-tip-r > span:last-child.pnd-ok{color:rgba(74,222,128,1);font-weight:600}
-.pnd-tip-r > span:last-child.pnd-wait{color:rgba(203,213,225,1);opacity:.8}
-.pnd-tip-r > span:last-child.pnd-nr{color:rgba(203,213,225,1);opacity:.75;font-style:italic}
+.pnd-tip-r.pnd-out span:last-child{color:var(--txm)}
+.pnd-tip-r > span:last-child.pnd-ok{color:var(--grn);font-weight:600}
+.pnd-tip-r > span:last-child.pnd-wait{color:var(--txm)}
+.pnd-tip-r > span:last-child.pnd-nr{color:var(--txm);font-style:italic}
 .pnd-tip-sum{display:flex;justify-content:space-between;gap:14px;margin-top:7px;padding-top:7px;
-  border-top:1px solid rgba(255,255,255,.28);font-weight:700}
-.pnd-tip-ft{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.18);opacity:.78;font-size:var(--fz-sm)}
+  border-top:1px solid var(--brd);font-weight:700}
+.pnd-tip-ft{margin-top:8px;padding-top:7px;border-top:1px solid var(--brd);color:var(--txm);font-size:var(--fz-sm)}
 .dash-kpis .kpi-card:last-child .info-icon .tip,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip{left:auto;right:0;transform:none}
 .dash-kpis .kpi-card:last-child .info-icon .tip::before,.dash-kpis .kpi-card:nth-last-child(2) .info-icon .tip::before{left:auto;right:8px;transform:none}
 
@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-314</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-316</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7915,9 +7915,12 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var hasNote = m.notes && m.notes[weekIdx];
   var noteDot = hasNote ? '<span style="position:absolute;top:0;right:0;width:0;height:0;border-top:12px solid var(--blu);border-left:12px solid transparent;pointer-events:none"></span>' : '';
   var isAuto = _vspMetricIsAuto(m);
+  // merge-316 (Dave, 2026-09-06): a WEEK CELL never opens the Edit box. The Edit
+  // box opens only from the KPI title. A manual weekly cell still inline-edits
+  // its value; an automated cell opens a read-only detail popup.
   var clickHandler = (isWeekly && !isAuto)
     ? "openCellEdit('"+ownerId+"',"+m.id+","+weekIdx+")"
-    : "openEditMeasurable('"+ownerId+"',"+m.id+")";
+    : "_vspOpenCellDetail('"+ownerId+"',"+m.id+","+weekIdx+")";
   // merge-296: a CU row cell opens the BD-style detail panel on click (the job
   // list belongs in a click panel, not a hover), consistent with BD.
   if(m._rowId && (m._rowId==='pm2'||m._rowId==='srpm2'||m._rowId==='vp2'||m._rowId==='cx2')){
@@ -9493,6 +9496,24 @@ function _vspCuIsoForCell(m, weekIdx){
 /* merge-312: BD-mirror cell detail. The BD scorecard section on the LT view
    is a read-only mirror of BD's own data; each cell can carry a logged-entries
    note (who was logged that week). Open it in the same BD-style panel. */
+/* merge-316: generic read-only cell detail for an automated metric that has no
+   richer panel of its own. A week cell must never open the Edit box (that is
+   title-only); this shows the value and source instead. */
+function _vspOpenCellDetail(ownerIni, metricId, weekIdx){
+  try{
+    var sec=null,m=null;
+    (scorecard||[]).forEach(function(s){ (s.metrics||[]).forEach(function(x){ if(String(x.id)===String(metricId)){ sec=s; m=x; } }); });
+    if(!m){ return; }
+    var wkLabel=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
+    var val=(Array.isArray(m.readings)?m.readings[weekIdx]:null);
+    var src=m.autoSrc||(m._bdmSource?'Business Development':(_vspMetricIsAuto(m)?'Auto-fed':'Manual'));
+    var body='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
+      +'<span style="font-size:var(--fz-body);color:var(--txm)">'+_scEsc(String(wkLabel))+'</span>'
+      +'<span style="font-size:var(--fz-body);font-weight:700">'+((val==null||val==='')?'No entry':_scEsc(String(val))+(m.unit&&m.unit!=='#'?(' '+_scEsc(m.unit)):''))+'</span></div>'
+      +'<div style="color:var(--txm);font-size:var(--fz-body)">'+_scEsc(String(m.title||'').replace(/<[^>]+>/g,''))+' \u00b7 auto-fed from '+_scEsc(src)+' \u00b7 read-only. Edit the metric from its title.</div>';
+    openModal({title:_scEsc(String(m.title||'').replace(/<[^>]+>/g,'').slice(0,40)), body:body, saveLabel:'Close', onSave:closeModal});
+  }catch(e){}
+}
 function _vspOpenBdmCellDetail(ownerIni, metricId, weekIdx){
   try{
     var sec=null; (scorecard||[]).forEach(function(s){ if(s && s._bdmSource) sec=s; });
@@ -32833,7 +32854,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-314';
+window.VSP_BUILD = 'v186-merge-316';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
