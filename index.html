@@ -3396,6 +3396,9 @@ summary:focus-visible,
 .pnd-tip-hd{font-weight:700;margin-bottom:7px}
 .pnd-tip-r{display:flex;justify-content:space-between;gap:14px;padding:1px 0}
 .pnd-tip-r.pnd-out{opacity:.62}
+.pnd-tip-r > span:last-child.pnd-ok{color:rgba(74,222,128,1);font-weight:600}
+.pnd-tip-r > span:last-child.pnd-wait{color:rgba(203,213,225,1);opacity:.8}
+.pnd-tip-r > span:last-child.pnd-nr{color:rgba(203,213,225,1);opacity:.75;font-style:italic}
 .pnd-tip-sum{display:flex;justify-content:space-between;gap:14px;margin-top:7px;padding-top:7px;
   border-top:1px solid rgba(255,255,255,.28);font-weight:700}
 .pnd-tip-ft{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.18);opacity:.78;font-size:var(--fz-sm)}
@@ -3769,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-296</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-299</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7904,6 +7907,13 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   if(m._rowId && (m._rowId==='pm2'||m._rowId==='srpm2'||m._rowId==='vp2'||m._rowId==='cx2')){
     clickHandler = "_vspOpenCuCellDetail('"+ownerId+"','"+m._rowId+"',"+weekIdx+")";
   }
+  // merge-298: combined LT CU rows open a tree-detail panel (every job in the
+  // owner's tree, once, with who is responsible).
+  try{
+    if(m.title && /Companywide Client Updates|All PM Weekly Client Updates|All ID Weekly Client/i.test(String(m.title))){
+      clickHandler = "_vspOpenCuTreeDetail('"+ownerId+"',"+weekIdx+")";
+    }
+  }catch(e){}
   // Automated cells carry a lock (Dave, 2026-07-30): the value is computed,
   // not typed, so the cell shows a padlock and refuses hand edits on every path.
   // The padlock GLYPH shows only once the week has actually locked for the
@@ -8241,11 +8251,11 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
         var _fWk=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:('week '+(weekIdx+1));
         var _fMiss=0, _fRows=_fRes.bd.map(function(x){
           var ok=!!x.onTime; if(!ok && x.type!=='notreq')_fMiss++;
-          if(x.type==='notreq'){ return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(x.label||'Not required')+'</span></span>'; }
+          if(x.type==='notreq'){ return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span class="pnd-nr">'+_scEsc(x.label||'Not required')+'</span></span>'; }
           var when='';
           if(ok && x.sentAt){ try{ var _fsd=new Date(x.sentAt); when=_fsd.toLocaleDateString('en-CA',{weekday:'short'})+' '+_fsd.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){ when=_fIsId?'merged':'sent'; } }
           else { when=_fIsId?'not merged':'not sent'; }
-          return '<span class="pnd-tip-r'+(ok?'':' pnd-out')+'"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span>'+_scEsc(when)+'</span></span>';
+          return '<span class="pnd-tip-r"><span>'+_scEsc(String(x.name||x.jobId))+'</span><span class="'+(ok?'pnd-ok':'pnd-wait')+'">'+_scEsc(when)+'</span></span>';
         }).join('');
         var _fReq=_fRes.bd.filter(function(x){return x.type!=='notreq';}).length;
         var _fOk=_fReq-_fMiss;
@@ -9354,6 +9364,45 @@ function _vspOpenCuCellDetail(ownerIni, rowId, weekIdx){
     openModal({title:'Client Updates \u00b7 '+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
   }catch(e){}
 }
+/* merge-298: combined tree detail - every update in the owner's org tree once,
+   grouped by who is responsible. Same BD-style panel. */
+function _vspOpenCuTreeDetail(ownerIni, weekIdx){
+  try{
+    var iso=''; try{ var d=scWeekDate(weekIdx); iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }catch(e){}
+    var wkLabel=(typeof weekRanges!=='undefined'&&weekRanges[weekIdx])?weekRanges[weekIdx]:iso;
+    var res=iso?_vspPmCuTreeResult(ownerIni, iso):null;
+    var rows='', reqTotal=0, sent=0;
+    if(!res || !res.bd || !res.bd.length){
+      // Past weeks predate the PM feed: no per-job detail was ever recorded.
+      if(iso && iso < VSP_PM_CU_FLOOR_ISO){
+        rows='<div style="color:var(--txm);font-size:var(--fz-body);padding:8px 0">This week predates the Project Management feed, so per-job detail was not recorded. The cell shows the result carried from the old count.</div>';
+      } else {
+        rows='<div style="color:var(--txm);font-size:var(--fz-body);padding:8px 0">No updates assigned across this team this week.</div>';
+      }
+    } else {
+      rows='<div style="max-height:min(56vh,420px);overflow-y:auto;border:1px solid var(--brd);border-radius:6px">';
+      res.bd.forEach(function(x,i){
+        var right, cls='';
+        var label=_scEsc(String(x.name||x.jobId))+' <span style="color:var(--txm)">\u00b7 '+_scEsc(x.who)+'</span>';
+        if(x.type==='notreq'){ right='<span style="color:var(--txm);font-style:italic">'+_scEsc(x.label||'Not required')+'</span>'; }
+        else { reqTotal++;
+          if(x.onTime){ sent++; var when=(x.type==='id'?'Ready':'Sent');
+            if(x.sentAt){ try{ var sd=new Date(x.sentAt); when=(x.type==='id'?'Ready ':'Sent ')+sd.toLocaleDateString('en-CA',{weekday:'short'})+' '+sd.toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'}); }catch(e){} }
+            right='<span style="color:var(--grn);font-weight:600">'+_scEsc(when)+'</span>';
+          } else { right='<span style="color:var(--txm)">'+(x.type==='id'?'Not ready':'Not sent')+'</span>'; }
+        }
+        rows+='<div style="display:flex;justify-content:space-between;gap:14px;padding:8px 12px;font-size:var(--fz-body);'+(i?'border-top:1px solid var(--brd);':'')+cls+'"><span>'+label+'</span><span style="white-space:nowrap">'+right+'</span></div>';
+      });
+      rows+='</div>';
+    }
+    var body='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
+      +'<span style="font-size:var(--fz-body);color:var(--txm)">'+_scEsc(String(wkLabel))+'</span>'
+      +'<span style="font-size:var(--fz-body);font-weight:700">'+sent+' of '+reqTotal+' done</span></div>'
+      +rows
+      +'<div style="color:var(--txm);font-size:var(--fz-body);margin-top:10px">Every client update across this team and everyone reporting up, each counted once. Auto-fed from Project Management \u00b7 read-only.</div>';
+    openModal({title:'Combined Client Updates \u00b7 '+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
+  }catch(e){}
+}
 /* merge-293: single-week CU result for a person, used to overlay onto the
    client-update scorecard row by week date. Returns null when PM has no jobs
    for this person that week (so the manual answer shows). Otherwise returns
@@ -9361,6 +9410,76 @@ function _vspOpenCuCellDetail(ownerIni, rowId, weekIdx){
    job is sent/ready or not-required, No when locked with a miss, null when
    still outstanding before the lock (tooltip shows progress). Not-required
    jobs are excluded from the pass/fail count but included in bd for the tip. */
+/* merge-298 (Dave, 2026-09-05): combined CU for a person's whole org tree.
+   Counts every UNIQUE update assigned to the person or anyone reporting up
+   through them - pre-con (preConManager), construction (pm), and ID (designer)
+   - each job counted ONCE regardless of stage/role overlap, so nothing is
+   double-counted. Terry's tree = Terry+Will+Keith+Mika; Will's = Will+Keith;
+   Mika's = Mika. Yes only when every required update in the tree is done that
+   week. bd lists each job once with who is responsible, for the panel/tooltip. */
+function _vspCuTreeMembers(ini){
+  try{
+    var root=ppl.find(function(p){return p.initials===ini;}); if(!root) return [ini];
+    var out={}, stack=[root];
+    while(stack.length){ var cur=stack.pop(); if(!cur||out[cur.initials]) continue; out[cur.initials]=1;
+      ppl.forEach(function(p){ if(p && p.reportsTo===cur.id && !out[p.initials]) stack.push(p); });
+    }
+    return Object.keys(out);
+  }catch(e){ return [ini]; }
+}
+function _vspPmCuTreeResult(ini, iso){
+  try{
+    var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return null;
+    if(iso < VSP_PM_CU_FLOOR_ISO) return null;
+    var monday=_vspPmCuMonday(iso);
+    var members=_vspCuTreeMembers(ini);
+    var roster=Array.isArray(cu.roster)?cu.roster:[];
+    // Gather every (job, role, responsible) obligation for anyone in the tree,
+    // deduped so a job never counts twice.
+    var seen={}, obligations=[];
+    roster.forEach(function(j){
+      if(!j) return;
+      // live from its first full week
+      if(j.fsaSignedDate && _vspPmCuMonday(String(j.fsaSignedDate).slice(0,10)) > monday) return;
+      function add(role, who, isId){
+        if(!who || members.indexOf(who)<0) return;
+        var key=j.jobId+'|'+(isId?'id':(j.stage||''));
+        if(seen[key]) return; seen[key]=1;
+        obligations.push({job:j, role:role, who:who, isId:isId});
+      }
+      // construction CU -> pm ; pre-con CU -> preConManager ; ID -> designer
+      if(j.stage==='construction') add('PM', j.pm, false);
+      if(j.stage==='precon') add('Pre-Con', j.preConManager, false);
+      add('ID', j.designer, true);
+    });
+    if(!obligations.length) return null;
+    var bd=[], miss=0, anyLockedMiss=false;
+    obligations.forEach(function(o){
+      var j=o.job, isId=o.isId, who=o.who;
+      var lock=new Date(monday+'T00:00:00'); if(isId){ lock.setDate(lock.getDate()+5); } else { lock.setDate(lock.getDate()+7); }
+      var locked=Date.now()>=lock.getTime();
+      var nrWhole=j.notRequired===true, nrId=isId&&j.idNotRequired===true;
+      if(nrWhole||nrId){
+        var reason=nrWhole?(j.notRequiredReason||''):(j.idNotRequiredReason||'');
+        bd.push({jobId:j.jobId,name:j.name,who:who,type:'notreq',label:'Not required'+(reason?(' - '+reason):''),onTime:true});
+        return;
+      }
+      var f=cu.sends.find(function(s){
+        if(!s||s.jobId!==j.jobId||s.person!==who) return false;
+        if(isId){ if(s.stage!=='id')return false; var sm=new Date(s.sentAt); if(isNaN(sm.getTime()))return false; var mon=new Date(monday+'T00:00:00'); var fri=new Date(monday+'T00:00:00'); fri.setDate(fri.getDate()+5); return sm.getTime()>=mon.getTime()&&sm.getTime()<fri.getTime(); }
+        return s.stage!=='id' && s.week===monday;
+      });
+      bd.push({jobId:j.jobId,name:j.name,who:who,type:(isId?'id':j.stage),sentAt:(f?f.sentAt:null),onTime:!!f});
+      if(!f){ miss++; if(locked) anyLockedMiss=true; }
+    });
+    bd.sort(function(a,b){ return String(a.who).localeCompare(String(b.who))||String(a.name).localeCompare(String(b.name)); });
+    var value;
+    if(miss===0){ value='Yes'; }
+    else if(anyLockedMiss){ value='No'; }
+    else { value=null; }   // still outstanding, nothing locked-missed yet
+    return { value:value, bd:bd };
+  }catch(e){ return null; }
+}
 function _vspPmCuWeekResult(ini, iso, rowId){
   try{
     var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return null;
@@ -10994,6 +11113,34 @@ function _vspAutoFillRowcounts(){
         var a=_vspAutoParse(m.auto);
         if(a.kind!=='rowcount') return;
         m.autoSrc=m.autoSrc||'Scorecards';
+        // merge-299: a CU-combined rowcount (its rows are the client-update rows
+        // vp2/srpm2/pm2/cx2) is replaced by the tree Yes/No result for the
+        // section owner - every job in that person's tree counted once, no
+        // double-count. Past weeks (pre-feed) keep their stored value, translated
+        // to Yes/No (0 -> Yes, >0 -> No).
+        var _cuRowSet={vp2:1,srpm2:1,pm2:1,cx2:1};
+        var _isCuCombo = a.rows && a.rows.length && a.rows.every(function(rid){ return _cuRowSet[rid]; });
+        if(_isCuCombo){
+          var _owner=sec.ownerId;
+          m.autoSrc='Project Management'; m.unit='YN'; m.goalType='='; m.goal='Yes';
+          m._cuCombined=true;
+          m.readings=m.readings||[];
+          for(var ci=0; ci<Math.max(m.readings.length,22); ci++){
+            var cwd; try{ cwd=scWeekDate(ci); }catch(e){ continue; }
+            var ciso=cwd.getFullYear()+'-'+String(cwd.getMonth()+1).padStart(2,'0')+'-'+String(cwd.getDate()).padStart(2,'0');
+            if(ciso>=VSP_PM_CU_FLOOR_ISO){
+              var tr=_vspPmCuTreeResult(_owner, ciso);
+              if(tr){ if(tr.value==='Yes') m.readings[ci]='Yes'; else if(tr.value==='No') m.readings[ci]='No'; else m.readings[ci]=null; }
+            } else {
+              // past: translate stored count/answer to Yes/No, leave blank if none
+              var pv=m.readings[ci];
+              if(pv==='yes'||pv==='Yes') m.readings[ci]='Yes';
+              else if(pv==='no'||pv==='No') m.readings[ci]='No';
+              else { var pn=Number(pv); if(pv!=null&&pv!==''&&!isNaN(pn)) m.readings[ci]=(pn===0?'Yes':'No'); }
+            }
+          }
+          return;
+        }
         huds=huds||_vspPndReadHuddlesScored();
         var mem=_vspAutoGroupMembers(a.group);
         m.readings=m.readings||[];
@@ -15413,7 +15560,28 @@ function _vspPerfBuildSection(person, weeks){
     // merge-293: CU rows overlay PM's feed per week; other weeks show the
     // person's own stored answer. Overlay only, never blank a manual week.
     var _isCuRow = (rowId==='pm2'||rowId==='srpm2'||rowId==='vp2'||rowId==='cx2');
+    // merge-298: LT combined CU rows count NOT-done across the owner's tree.
+    var _stdRow=null; try{ _stdRow=(stds||[]).find(function(r){return r.id===rowId;}); }catch(e){}
+    var _isCuCombined = /Companywide Client Updates|All PM Weekly Client Updates|All ID Weekly Client/i.test(_stdRow?String(_stdRow.std||_stdRow.title||''):'');
     return weeks.map(function(iso){
+      if(_isCuCombined){
+        var _tr=_vspPmCuTreeResult(person.initials, iso);
+        if(_tr){
+          // merge-299: combined CU rows are Yes/No like the individual rows.
+          if(_tr.value==='Yes') return 'Yes';
+          if(_tr.value==='No') return 'No';
+          return null;   // outstanding, pre-lock
+        }
+        // Past weeks (pre-feed): translate any stored count to Yes/No.
+        // 0 missed -> Yes; a positive number -> No; blank stays blank.
+        var _recC=all[personId+'__'+iso];
+        var _pv=(_recC&&_recC.answers)?_recC.answers[rowId]:null;
+        if(_pv==='yes'||_pv==='Yes') return 'Yes';
+        if(_pv==='no'||_pv==='No') return 'No';
+        var _n=Number(_pv);
+        if(_pv!=null && _pv!=='' && !isNaN(_n)) return _n===0?'Yes':'No';
+        return null;
+      }
       if(_isCuRow){
         var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
         if(_cr){ return _cr.value; }   // PM has data this week (Yes/No/blank-outstanding)
@@ -19585,7 +19753,28 @@ function _vspRenderHuddleScorecard(){
     // merge-293: CU rows overlay PM's feed per week; other weeks show the
     // person's own stored answer. Overlay only, never blank a manual week.
     var _isCuRow = (rowId==='pm2'||rowId==='srpm2'||rowId==='vp2'||rowId==='cx2');
+    // merge-298: LT combined CU rows count NOT-done across the owner's tree.
+    var _stdRow=null; try{ _stdRow=(stds||[]).find(function(r){return r.id===rowId;}); }catch(e){}
+    var _isCuCombined = /Companywide Client Updates|All PM Weekly Client Updates|All ID Weekly Client/i.test(_stdRow?String(_stdRow.std||_stdRow.title||''):'');
     return weeks.map(function(iso){
+      if(_isCuCombined){
+        var _tr=_vspPmCuTreeResult(person.initials, iso);
+        if(_tr){
+          // merge-299: combined CU rows are Yes/No like the individual rows.
+          if(_tr.value==='Yes') return 'Yes';
+          if(_tr.value==='No') return 'No';
+          return null;   // outstanding, pre-lock
+        }
+        // Past weeks (pre-feed): translate any stored count to Yes/No.
+        // 0 missed -> Yes; a positive number -> No; blank stays blank.
+        var _recC=all[personId+'__'+iso];
+        var _pv=(_recC&&_recC.answers)?_recC.answers[rowId]:null;
+        if(_pv==='yes'||_pv==='Yes') return 'Yes';
+        if(_pv==='no'||_pv==='No') return 'No';
+        var _n=Number(_pv);
+        if(_pv!=null && _pv!=='' && !isNaN(_n)) return _n===0?'Yes':'No';
+        return null;
+      }
       if(_isCuRow){
         var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
         if(_cr){ return _cr.value; }   // PM has data this week (Yes/No/blank-outstanding)
@@ -32350,7 +32539,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-296';
+window.VSP_BUILD = 'v186-merge-299';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
