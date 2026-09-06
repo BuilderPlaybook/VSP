@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-310</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-311</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9319,11 +9319,53 @@ function vspPullPndCompliance(){
    current open week and pre-floor weeks are left untouched (manual).
    ========================================================================== */
 var VSP_PM_CU_FLOOR_ISO = '2026-08-31';
+/* merge-311 (Dave, 2026-09-06): the PM client-update feed is cached locally
+   under smb_pm_cu_send_facts_v1. Raw it was ~2.38 MB - the single biggest key
+   on the shared 5 MB origin. It is only a read cache (source of truth stays
+   pm/lida-001/cuSendFacts.json in Firebase), so store it COMPRESSED with the
+   same LZ codec the guards use, and DEDUPE sends by jobId+week+stage+person
+   (older PM builds stamped duplicates) before storing. Reads auto-detect the
+   marker, so an old raw value still loads. */
+var VSP_PMCU_KEY='smb_pm_cu_send_facts_v1';
+function _vspPmCuDedupe(cu){
+  try{
+    if(!cu || !Array.isArray(cu.sends)) return cu;
+    var seen={}, out=[];
+    // keep the latest sentAt per jobId+week+stage+person
+    cu.sends.forEach(function(s){
+      if(!s) return;
+      var k=String(s.jobId)+'|'+String(s.week)+'|'+String(s.stage)+'|'+String(s.person);
+      var prev=seen[k];
+      if(prev===undefined){ seen[k]=out.length; out.push(s); }
+      else { var a=out[prev]; if(String(s.sentAt||'') > String(a.sentAt||'')) out[prev]=s; }
+    });
+    if(out.length!==cu.sends.length) cu.sends=out;
+    return cu;
+  }catch(e){ return cu; }
+}
+function _vspPmCuStore(cu){
+  try{
+    _vspPmCuDedupe(cu);
+    var raw=JSON.stringify(cu);
+    var comp=_vspLzCompress(raw);
+    var store=(comp.length < (raw.length+4)) ? comp : ('RAW:'+raw);
+    localStorage.setItem(VSP_PMCU_KEY, store);
+    return true;
+  }catch(e){ return false; }
+}
+function _vspPmCuReadStored(){
+  try{
+    var blob=localStorage.getItem(VSP_PMCU_KEY); if(!blob) return null;
+    var s=String(blob);
+    if(s.slice(0,4)==='RAW:') return JSON.parse(s.slice(4));
+    if(s.slice(0,_VSP_LZ_PREFIX.length)===_VSP_LZ_PREFIX) return JSON.parse(_vspLzDecompress(s));
+    return JSON.parse(s);   // legacy raw
+  }catch(e){ return null; }
+}
 function _vspPmCuData(){
   try{
     if(window.SMB_PM_CU_SEND_FACTS && window.SMB_PM_CU_SEND_FACTS.__v===1) return window.SMB_PM_CU_SEND_FACTS;
-    var raw=localStorage.getItem('smb_pm_cu_send_facts_v1'); if(!raw) return null;
-    var o=JSON.parse(raw); return (o && o.__v===1) ? o : null;
+    var o=_vspPmCuReadStored(); return (o && o.__v===1) ? o : null;
   }catch(e){ return null; }
 }
 /* Does this person hold any designer seat in the roster? (chooses the ID rule) */
@@ -32734,7 +32776,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-310';
+window.VSP_BUILD = 'v186-merge-311';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -35871,10 +35913,11 @@ try{ _vspMigrateJobNotes(); }catch(e){}
     }).then(function(cu){
       _pmCuPulling = false;
       if(!cu || typeof cu!=='object' || cu.__v!==1 || !Array.isArray(cu.sends)) return;
+      try{ if(typeof _vspPmCuDedupe==='function') _vspPmCuDedupe(cu); }catch(e){}   // merge-311: drop duplicate send facts
       var ser; try{ ser=JSON.stringify(cu); }catch(e){ return; }
       if(ser===_lastPmCuSig) return;
       _lastPmCuSig = ser;
-      try{ localStorage.setItem('smb_pm_cu_send_facts_v1', ser); }catch(e){}
+      try{ if(typeof _vspPmCuStore==='function'){ _vspPmCuStore(cu); } else { localStorage.setItem('smb_pm_cu_send_facts_v1', ser); } }catch(e){}   // merge-311: compressed
       try{ window.SMB_PM_CU_SEND_FACTS = cu; }catch(e){} try{ if(typeof _vspPerfBust==='function') _vspPerfBust(); }catch(e){}
       try{ if(typeof scApplyCompliance==='function') scApplyCompliance(); }catch(e){}
       try{ if(typeof syncTeamData==='function') syncTeamData(); }catch(e){}
