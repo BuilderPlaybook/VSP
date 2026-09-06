@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-306</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-307</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9478,10 +9478,44 @@ function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal){
     var res=iso?_vspPmCuTreeResult(ownerIni, iso):null;
     var rows='', reqTotal=0, sent=0, _preFeedHdr='';
     if(!res || !res.bd || !res.bd.length){
-      // Past weeks predate the PM feed: no per-job detail was ever recorded.
+      // Past weeks predate the PM feed. The old count came from each person's
+      // own client-update answer on their scorecard (vp2 / srpm2 / pm2 / cx2),
+      // which is still in the huddle store - so list each person with their
+      // Yes / No for that week, in the SAME layout as the live popups
+      // (merge-307, Dave, 2026-09-06). No job-level detail exists for these
+      // weeks; the per-person answer is exactly what the count was built from.
       if(iso && iso < VSP_PM_CU_FLOOR_ISO){
-        rows='<div style="color:var(--txm);font-size:var(--fz-body);padding:8px 0">This week predates the Project Management feed, so per-job detail was not recorded. The cell shows the result carried from the old count.</div>';
-        var _sv=Number(storedVal); _preFeedHdr=(storedVal===''||storedVal==null)?'No entry':(!isNaN(_sv)?(_sv===0?'Yes \u00b7 all done':('No \u00b7 '+_sv+' not done')):String(storedVal));
+        var _cuRowIdsP={pm2:1,srpm2:1,vp2:1,cx2:1};
+        var _members=_vspCuTreeMembers(ownerIni);
+        var _huds=null; try{ _huds=_vspPndReadHuddlesScored(); }catch(e){ _huds={}; }
+        var _list=[], _notDone=0, _done=0;
+        _members.forEach(function(ini){
+          var per=ppl.find(function(x){ return x.initials===ini; }); if(!per) return;
+          var roleLabel=per.roleLabel||per.role||''; var stds=null; try{ stds=_vspPndReadStandards(roleLabel); }catch(e){}
+          var cuRow=(stds||[]).find(function(r){ return r && _cuRowIdsP[r.id]; }); if(!cuRow) return;
+          var pid=null; try{ pid=_vspPndPersonId(per); }catch(e){}
+          var rec=(_huds&&pid)?_huds[pid+'__'+iso]:null;
+          if(!rec || rec.away) return;                                  // not scored that week
+          var ans=(rec.answers||{})[cuRow.id];
+          var yes=(ans==='yes'), no=(ans==='no');
+          if(!yes && !no) return;                                       // no answer entered
+          if(no) _notDone++; else _done++;
+          _list.push({ini:ini, name:(per.first||ini), yes:yes});
+        });
+        _list.sort(function(a,b){ return (a.yes===b.yes)?a.ini.localeCompare(b.ini):(a.yes?1:-1); });
+        if(_list.length){
+          rows='<div style="max-height:min(56vh,420px);overflow-y:auto;border:1px solid var(--brd);border-radius:6px">';
+          _list.forEach(function(x,i){
+            rows+='<div style="display:flex;justify-content:space-between;gap:14px;padding:8px 12px;font-size:var(--fz-body);'+(i?'border-top:1px solid var(--brd);':'')+'">'
+              +'<span>'+_scEsc(x.name)+' <span style="color:var(--txm)">\u00b7 '+_scEsc(x.ini)+'</span></span>'
+              +'<span style="white-space:nowrap">'+(x.yes?'<span style="color:var(--grn);font-weight:600">Sent</span>':'<span style="color:var(--txm)">Not sent</span>')+'</span></div>';
+          });
+          rows+='</div>';
+          _preFeedHdr=(_notDone===0)?('Yes \u00b7 all '+_done+' sent'):(_done+' of '+(_done+_notDone)+' sent, '+_notDone+' not done');
+        } else {
+          rows='<div style="color:var(--txm);font-size:var(--fz-body);padding:8px 0">No client-update answers were entered for this week.</div>';
+          var _sv=Number(storedVal); _preFeedHdr=(storedVal===''||storedVal==null)?'No entry':(!isNaN(_sv)?(_sv===0?'Yes \u00b7 all done':('No \u00b7 '+_sv+' not done')):String(storedVal));
+        }
       } else {
         rows='<div style="color:var(--txm);font-size:var(--fz-body);padding:8px 0">No updates assigned across this team this week.</div>';
       }
@@ -9505,7 +9539,7 @@ function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal){
       +'<span style="font-size:var(--fz-body);color:var(--txm)">'+_scEsc(String(wkLabel))+'</span>'
       +'<span style="font-size:var(--fz-body);font-weight:700">'+(_preFeedHdr?_scEsc(_preFeedHdr):(sent+' of '+reqTotal+' done'))+'</span></div>'
       +rows
-      +'<div style="color:var(--txm);font-size:var(--fz-body);margin-top:10px">Every client update across this team and everyone reporting up, each counted once. Auto-fed from Project Management \u00b7 read-only.</div>';
+      +'<div style="color:var(--txm);font-size:var(--fz-body);margin-top:10px">'+((iso && iso < VSP_PM_CU_FLOOR_ISO)?'Before the Project Management feed: each person\u2019s own client-update answer for the week, which is what the count was built from. Job-level detail starts Aug 31, 2026.':'Every client update across this team and everyone reporting up, each counted once. Auto-fed from Project Management \u00b7 read-only.')+'</div>';
     openModal({title:'Combined Client Updates \u00b7 '+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
   }catch(e){}
 }
@@ -32629,7 +32663,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-306';
+window.VSP_BUILD = 'v186-merge-307';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
