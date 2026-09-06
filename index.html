@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-308</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-310</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7884,6 +7884,7 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var _isNA = hasVal && (_isCNA || /^(na|n\/a)$/i.test(String(val)));
   var _gm = (goalOverride!==null && goalOverride!==undefined) ? {goalType:m.goalType,goal:goalOverride,unit:m.unit,goalMin:m.goalMin,goalMax:m.goalMax} : m;
   var ok = hasVal && !_isNA && isOnTrack(_gm, val);
+  if(m._cuCombined && hasVal && typeof val==='number') ok = (val===0);   // merge-310: 0 not-done = Yes
   // merge-195 (Dave, 2026-08-11): CNA now scores as a PASS, so it renders GREEN
   // like a Yes (was neutral blue when it was an exclusion). The 'CNA' label still
   // shows so the reason is visible; the green just makes the cell read honestly
@@ -7925,8 +7926,8 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   // merge-298: combined LT CU rows open a tree-detail panel (every job in the
   // owner's tree, once, with who is responsible).
   try{
-    if(m.title && /Companywide Client Updates|All PM Weekly Client Updates|All ID Weekly Client/i.test(String(m.title))){
-      clickHandler = "_vspOpenCuTreeDetail('"+ownerId+"',"+weekIdx+",'"+_vspCuIsoForCell(m,weekIdx)+"','"+((val==null||val==='')?'':String(val).replace(/'/g,''))+"')";
+    if(m.title && /Companywide Client Updates|All PM Weekly Client Updates|All ID Weekly Client|FSA Client Updates/i.test(String(m.title))){
+      clickHandler = "_vspOpenCuTreeDetail('"+ownerId+"',"+weekIdx+",'"+_vspCuIsoForCell(m,weekIdx)+"','"+((val==null||val==='')?'':String(val).replace(/'/g,''))+"','"+(m._cuKind||'')+"')";
     }
   }catch(e){}
   // Automated cells carry a lock (Dave, 2026-07-30): the value is computed,
@@ -8256,14 +8257,14 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   try{
     if(m._cuCombined){
       var _tIso=_vspCuIsoForCell(m, weekIdx);
-      var _tRes=_tIso?_vspPmCuTreeResult(ownerId, _tIso):null;
+      var _tRes=(_tIso && _tIso>=VSP_PM_CU_FLOOR_ISO)?_vspPmCuTreeResult(ownerId, _tIso, m._cuKind||null):null;
       var _tLine='';
       if(_tRes && _tRes.bd && _tRes.bd.length){
         var _tReq=_tRes.bd.filter(function(x){return x.type!=='notreq';}).length;
         var _tMiss=_tRes.bd.filter(function(x){return x.type!=='notreq' && !x.onTime;}).length;
         _tLine=(_tMiss===0?('All '+_tReq+' sent'):((_tReq-_tMiss)+' of '+_tReq+' sent'))+' \u00b7 click for jobs';
       } else if(_tIso && _tIso < VSP_PM_CU_FLOOR_ISO && hasVal){
-        var _tv=Number(val); _tLine=(!isNaN(_tv)?(_tv===0?'All done':(_tv+' not done')):String(val))+' \u00b7 before the PM feed';
+        var _tv=Number(val); _tLine=(!isNaN(_tv)?(_tv===0?'All done':(_tv+' not done')):String(val))+(m._cuKind?' \u00b7 entered before the PM feed':' \u00b7 before the PM feed');
       }
       if(_tLine){ _pndTipHtml='<span class="pnd-tip"><span class="pnd-tip-r"><span>'+_scEsc(_tLine)+'</span></span></span>'; cellTitle=''; }
     }
@@ -9428,6 +9429,16 @@ function _vspCuWeekLabel(iso){
     var f=function(x){ return x.toLocaleDateString('en-CA',{month:'short',day:'2-digit'}); };
     return f(a)+' - '+f(b); }catch(e){ return iso; }
 }
+/* merge-310: Yes/No summary for a combined CU row whose stored values are
+   counts (0 = all done). Used by every scorecard renderer so GOAL / AVG /
+   TOTAL read exactly like the personal Yes/No rows. */
+function _vspCuYNSummary(vals){
+  var y=0,n=0; (vals||[]).forEach(function(v){ if(v==null||v==='') return; if(typeof v==='number'){ if(v===0)y++; else n++; } else { var s=String(v).trim().toLowerCase(); if(s==='yes'||s==='y'||s==='true'||s==='1')y++; else n++; } });
+  var pct=(y+n)?Math.round(y/(y+n)*100):null;
+  var col=pct==null?'var(--txm)':(pct>=95?'var(--grn)':(pct>=85?'var(--amb)':'var(--red)'));
+  var tot='<span style="color:var(--grn);font-weight:700">'+y+'</span><span style="color:var(--txm);margin:0 2px">/</span><span style="color:'+(n===0?'var(--grn)':'var(--red)')+';font-weight:700">'+n+'</span>';
+  return {pct:pct, avg:(pct==null?'-':(pct+'%')), color:col, total:tot};
+}
 function _vspCuIsoForCell(m, weekIdx){
   try{ if(m && Array.isArray(m._perfWeeks) && m._perfWeeks[weekIdx]) return String(m._perfWeeks[weekIdx]); }catch(e){}
   try{ var d=scWeekDate(weekIdx); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }catch(e){ return ''; }
@@ -9471,11 +9482,11 @@ function _vspOpenCuCellDetail(ownerIni, rowId, weekIdx, isoOpt){
 }
 /* merge-298: combined tree detail - every update in the owner's org tree once,
    grouped by who is responsible. Same BD-style panel. */
-function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal){
+function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal, kindOpt){
   try{
     var iso=isoOpt||''; if(!iso){ try{ var d=scWeekDate(weekIdx); iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }catch(e){} }
     var wkLabel=iso?_vspCuWeekLabel(iso):'';
-    var res=iso?_vspPmCuTreeResult(ownerIni, iso):null;
+    var res=(iso && iso>=VSP_PM_CU_FLOOR_ISO)?_vspPmCuTreeResult(ownerIni, iso, kindOpt||null):null;
     var rows='', reqTotal=0, sent=0, _preFeedHdr='';
     if(!res || !res.bd || !res.bd.length){
       // Past weeks predate the PM feed. The old count came from each person's
@@ -9484,7 +9495,12 @@ function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal){
       // Yes / No for that week, in the SAME layout as the live popups
       // (merge-307, Dave, 2026-09-06). No job-level detail exists for these
       // weeks; the per-person answer is exactly what the count was built from.
-      if(iso && iso < VSP_PM_CU_FLOOR_ISO){
+      if(iso && iso < VSP_PM_CU_FLOOR_ISO && kindOpt){
+        // hand-typed row (All ID / FSA): nothing produced this number except a
+        // person typing it. Show it as-is; no reconstructed people list.
+        rows='<div style="color:var(--txm);font-size:var(--fz-body);padding:8px 0">This week was entered by hand before the Project Management feed. No per-job or per-person detail exists for it.</div>';
+        var _svk=Number(storedVal); _preFeedHdr=(storedVal===''||storedVal==null)?'No entry':(!isNaN(_svk)?(_svk===0?'Yes \u00b7 all done':('No \u00b7 '+_svk+' not done')):String(storedVal));
+      } else if(iso && iso < VSP_PM_CU_FLOOR_ISO){
         // Reproduce EXACTLY what the stored count counted: the row's own group
         // members and row ids (e.g. Companywide = vp2|srpm2|pm2 -> Terry, Will,
         // Keith; Mika's cx2 was never in that count). Using the org tree here
@@ -9492,7 +9508,8 @@ function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal){
         var _cuRowIdsP={};
         var _members=[];
         try{
-          var _rowM=null; (scorecard||[]).forEach(function(sec){ (sec.metrics||[]).forEach(function(mm){ if(mm && mm._cuCombined && sec.ownerId===ownerIni) _rowM=_rowM||mm; }); });
+          // pick the owner's COUNT row (has the rowcount rule), not a hand-typed FSA/ID row
+          var _rowM=null; (scorecard||[]).forEach(function(sec){ (sec.metrics||[]).forEach(function(mm){ if(mm && mm._cuCombined && !mm._cuKind && mm.auto && sec.ownerId===ownerIni) _rowM=_rowM||mm; }); });
           var _ap=_rowM?_vspAutoParse(_rowM.auto):null;
           if(_ap && _ap.rows && _ap.rows.length){ _ap.rows.forEach(function(r){ _cuRowIdsP[r]=1; }); _members=_vspAutoGroupMembers(_ap.group)||[]; }
         }catch(e){}
@@ -9552,7 +9569,7 @@ function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal){
       +'<span style="font-size:var(--fz-body);font-weight:700">'+(_preFeedHdr?_scEsc(_preFeedHdr):(sent+' of '+reqTotal+' done'))+'</span></div>'
       +rows
       +'<div style="color:var(--txm);font-size:var(--fz-body);margin-top:10px">'+((iso && iso < VSP_PM_CU_FLOOR_ISO)?'Before the Project Management feed: each person\u2019s own client-update answer for the week, which is what the count was built from. Job-level detail starts Aug 31, 2026.':'Every client update across this team and everyone reporting up, each counted once. Auto-fed from Project Management \u00b7 read-only.')+'</div>';
-    openModal({title:'Combined Client Updates \u00b7 '+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
+    openModal({title:(kindOpt==='id'?'ID Client Updates \u00b7 ':(kindOpt==='precon'?'FSA / Pre-Con Client Updates \u00b7 ':'Combined Client Updates \u00b7 '))+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
   }catch(e){}
 }
 /* merge-293: single-week CU result for a person, used to overlay onto the
@@ -9579,7 +9596,7 @@ function _vspCuTreeMembers(ini){
     return Object.keys(out);
   }catch(e){ return [ini]; }
 }
-function _vspPmCuTreeResult(ini, iso){
+function _vspPmCuTreeResult(ini, iso, kindFilter){
   try{
     var cu=_vspPmCuData(); if(!cu || !Array.isArray(cu.sends)) return null;
     if(iso < VSP_PM_CU_FLOOR_ISO) return null;
@@ -9600,9 +9617,14 @@ function _vspPmCuTreeResult(ini, iso){
         obligations.push({job:j, role:role, who:who, isId:isId});
       }
       // construction CU -> pm ; pre-con CU -> preConManager ; ID -> designer
-      if(j.stage==='construction') add('PM', j.pm, false);
-      if(j.stage==='precon') add('Pre-Con', j.preConManager, false);
-      add('ID', j.designer, true);
+      // merge-309: kindFilter narrows to one obligation type ('id' for Mika's
+      // All ID row, 'precon' for the FSA row); default = all three.
+      if(!kindFilter){
+        if(j.stage==='construction') add('PM', j.pm, false);
+        if(j.stage==='precon') add('Pre-Con', j.preConManager, false);
+        add('ID', j.designer, true);
+      } else if(kindFilter==='id'){ add('ID', j.designer, true); }
+      else if(kindFilter==='precon'){ if(j.stage==='precon') add('Pre-Con', j.preConManager, false); }
     });
     if(!obligations.length) return null;
     var bd=[], miss=0, anyLockedMiss=false;
@@ -11255,6 +11277,28 @@ function _vspAutoFillRowcounts(){
     var huds=null;
     scorecard.forEach(function(sec){
       (sec.metrics||[]).forEach(function(m){
+        // merge-309 (Dave, 2026-09-06): "everyone" - the two hand-typed CU rows
+        // (Mika's All ID, Terry's FSA/pre-con) join the feed from Aug 31 on.
+        // Past weeks stay EXACTLY as typed (never recounted). Feed weeks store
+        // the count of not-done (0 = all done), read as Yes/No, click for jobs.
+        try{
+          var _tt=String(m.title||'');
+          var _manualKind = (/All ID Weekly Client Updates/i.test(_tt))?'id':((/FSA Client Updates/i.test(_tt))?'precon':null);
+          if(_manualKind && !m.auto){
+            m._cuCombined=true; m._cuKind=_manualKind; m.autoSrc='Project Management'; m._cuComboFloorIso=VSP_PM_CU_FLOOR_ISO;
+            if(m.unit==='YN' || isNaN(Number(m.goal))){ m.unit='#'; m.goalType='\u2264'; m.goal='0'; }   // merge-310: count model
+            m.readings=m.readings||[];
+            for(var mi=0; mi<Math.max(m.readings.length,22); mi++){
+              var mwd; try{ mwd=scWeekDate(mi); }catch(e){ continue; }
+              var miso=mwd.getFullYear()+'-'+String(mwd.getMonth()+1).padStart(2,'0')+'-'+String(mwd.getDate()).padStart(2,'0');
+              if(miso<VSP_PM_CU_FLOOR_ISO) continue;
+              var mtr=_vspPmCuTreeResult(sec.ownerId, miso, _manualKind); if(!mtr) continue;
+              var _mnd=mtr.bd.filter(function(x){return x.type!=='notreq' && !x.onTime;}).length;
+              if(mtr.value==='Yes') m.readings[mi]=0; else if(mtr.value==='No') m.readings[mi]=_mnd;
+            }
+            return;
+          }
+        }catch(e){}
         var a=_vspAutoParse(m.auto);
         if(a.kind!=='rowcount') return;
         m.autoSrc=m.autoSrc||'Scorecards';
@@ -11276,6 +11320,12 @@ function _vspAutoFillRowcounts(){
           var _owner=sec.ownerId;
           m.autoSrc='Project Management';
           m._cuCombined=true;
+          // merge-310 (Dave, 2026-09-06): this row STORES a count (0 = all done)
+          // and is judged / summarised as Yes/No by the render. If someone sets
+          // its unit to Yes/No in the editor, the stored 0s get judged against
+          // "Yes" and every cell turns red. Heal the settings back to the count
+          // model so the data and the row can never disagree.
+          if(m.unit==='YN' || isNaN(Number(m.goal))){ m.unit='#'; m.goalType='\u2264'; m.goal='0'; }
           m.readings=m.readings||[];
           for(var ci=0; ci<Math.max(m.readings.length,22); ci++){
             var cwd; try{ cwd=scWeekDate(ci); }catch(e){ continue; }
@@ -13936,10 +13986,12 @@ function renderScorecardInline(opts){ _recalcAll();
       // full-span AVG; the windowed number reconciles with the Weekly score
       // footer at a glance). TOTAL stays the window Yes-count / No-count.
       var _ynAvg=null, _ynTotalDisplay=null;
-      if(m && m.unit==='YN'){
+      var _asYN = (m && (m.unit==='YN' || m._cuCombined));   // merge-310: combined CU rows summarise as Yes/No
+      if(_asYN){
         var _ynYes=0, _ynNo=0;
         _winR.forEach(function(v){
           if(v==null||v==='') return;
+          if(m._cuCombined && typeof v==='number'){ if(v===0) _ynYes++; else _ynNo++; return; }
           var s=String(v).trim().toLowerCase();
           if(s==='yes'||s==='y'||s==='true'||s==='1') _ynYes++; else _ynNo++;
         });
@@ -13962,12 +14014,12 @@ function renderScorecardInline(opts){ _recalcAll();
       var _mDrag=_mScManual?(' draggable="true" ondragstart="scMDragStart(event,'+m.id+')" ondragend="scMDragEnd()"'):'';
       h+='<td'+_mDrag+' onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')" style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);padding:8px 10px;text-align:left;white-space:normal;line-height:1.3;cursor:'+(_mScManual?'move':'pointer'))+'"><div style="display:flex;align-items:flex-start;gap:7px">'+_mGrip+(linkable?'<span style="display:inline-flex;gap:4px;flex-shrink:0;margin-top:1px">'+_scLinkBtn('scorecardCreateLinkedIssue('+sIdx+','+mi+')','New issue',_SC_IC_FLAG)+_scLinkBtn('scorecardCreateLinkedTodo('+sIdx+','+mi+')','New to-do',_SC_IC_CHECK)+'</span>':'')+'<div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div></div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       if(_hasDL) h+='<td style="'+scStkB(SC_OFF.deadline,SC_W.deadline,rowBg,'text-align:left;padding:10px 12px;font-size:var(--fz-body);color:var(--txm);vertical-align:top;line-height:1.3;white-space:normal')+'">'+_scEsc(String(m.deadline||''))+'</td>';
-      h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':_goalLabel(m))+'</td>';
+      h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':(m._cuCombined?'=Yes':_goalLabel(m)))+'</td>';
       var _cnpVals = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
       var _cnpAvgTipHtml = (((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')) ? '' : _cnpAvgTip(m, _cnpVals, avg);
       var _cnpTotTipHtml = _cnpTotalTip(m, _cnpVals);
-      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(m.rollupAs==="Total"?"var(--txm)":_tierColor(_scTier(m,(m.unit==="YN"?_ynAvg:avg)))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':(m.unit==="YN"?(_ynAvg==null?'-':fmtVal(_ynAvg,m.unit)):fmtVal(avg,m.unit)))+_cnpAvgTipHtml+'</td>';
-      h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||"var(--txm)"):"var(--txm)")+';border-right:2px solid var(--brd)')+'">'+(m.unit==="YN"?_ynTotalDisplay:((m.showTotal===false||m.rollupAs==="Average"||m.unit==="%")?'-':fmtVal(sum,m.unit)))+_cnpTotTipHtml+'</td>';
+      h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+((m.rollupAs==="Total"&&!_asYN)?"var(--txm)":(_asYN?(_ynAvg==null?'var(--txm)':(_ynAvg>=95?'var(--grn)':(_ynAvg>=85?'var(--amb)':'var(--red)'))):_tierColor(_scTier(m,avg)))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&!_asYN)?'-':(_asYN?(_ynAvg==null?'-':(_ynAvg+'%')):fmtVal(avg,m.unit)))+_cnpAvgTipHtml+'</td>';
+      h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,sum,(_isAgg?_scBaseN(m):allVals.length)))||"var(--txm)"):"var(--txm)")+';border-right:2px solid var(--brd)')+'">'+(_asYN?_ynTotalDisplay:((m.showTotal===false||m.rollupAs==="Average"||m.unit==="%")?'-':fmtVal(sum,m.unit)))+_cnpTotTipHtml+'</td>';
 
       var _isWk = true;
       colIdxs.forEach(function(_wi){
@@ -14487,13 +14539,14 @@ function renderScorecard(){
       h+='<tr style="border-bottom:0.5px solid var(--brd)">';
       h+='<td style="padding:8px 10px;font-size:var(--fz-lg);text-align:left;position:sticky;left:0;background:var(--sur)"><div>'+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:_winR,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
       h+='<td style="padding:8px 10px;text-align:left"><span style="display:inline-flex;align-items:center;gap:6px">'+avatar((r.oid||'').slice(0,2),r.ocolor,18)+'<span style="font-size:var(--fz-body);color:var(--txm)">'+r.oname+'</span></span></td>';
-      h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(m.showGoal===false?'-':(_isAgg?_pGoalLabel(m):_goalLabel(m)))+'</td>';
+      h+='<td style="text-align:center;font-size:var(--fz-body);color:var(--blu)">'+(m.showGoal===false?'-':(m._cuCombined?'=Yes':(_isAgg?_pGoalLabel(m):_goalLabel(m))))+'</td>';
+      var _cuS2 = m._cuCombined ? _vspCuYNSummary(_winR) : null;
       var _cnpVals2 = (allVals && allVals.length!=null) ? allVals : _winR.filter(function(x){return typeof x==='number' && !isNaN(x);});
       var _cnpAvgTipHtml2 = (((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')) ? '' : _cnpAvgTip(m, _cnpVals2, avg);
-      h+='<td tabindex="0" data-cnp="avg" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml2+'</td>';
+      h+='<td tabindex="0" data-cnp="avg" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_cuS2?_cuS2.color:(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+(_cuS2?_cuS2.avg:(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':fmtVal(avg,m.unit)))+_cnpAvgTipHtml2+'</td>';
       var _cnpVals3 = nums || [];
       var _cnpTotTipHtml3 = _cnpTotalTip(m, _cnpVals3);
-      h+='<td tabindex="0" data-cnp="total" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(nums.length?sum:null),(_isAgg?_scBaseN(m):nums.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit))+_cnpTotTipHtml3+'</td>';
+      h+='<td tabindex="0" data-cnp="total" style="text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(nums.length?sum:null),(_isAgg?_scBaseN(m):nums.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)">'+(_cuS2?_cuS2.total:((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':fmtVal(sum,m.unit)))+_cnpTotTipHtml3+'</td>';
       var _isWk2 = (((m.cadence)||'weekly')===period) && !_isAgg;
       activeIdxs.forEach(function(_wi){
         var _mv=_isAgg?_pAgg(m,_wi):m.readings[_wi];
@@ -14645,12 +14698,13 @@ function renderScorecard(){
         var _scDrag=_scManual?(' draggable="true" ondragstart="scMDragStart(event,'+m.id+')" ondragend="scMDragEnd()"'):'';
         var _scGrip=_scManual?('<svg width="8" height="13" viewBox="0 0 8 13" style="display:inline-block;vertical-align:middle;margin-right:6px;opacity:.35;flex-shrink:0" fill="currentColor"><circle cx="2" cy="2" r="1"/><circle cx="6" cy="2" r="1"/><circle cx="2" cy="6.5" r="1"/><circle cx="6" cy="6.5" r="1"/><circle cx="2" cy="11" r="1"/><circle cx="6" cy="11" r="1"/></svg>'):'';
         h+='<td'+_scDrag+' style="'+scStkB(SC_OFF.title,SC_W.title,rowBg,'font-size:var(--fz-lg);cursor:'+(_scManual?'move':'pointer')+';text-align:left;white-space:normal;line-height:1.3')+'" onclick="openEditMeasurable(\''+section.ownerId+'\','+m.id+')"><div>'+_scGrip+m.title+_autoBadge(m)+_calcBadge(m)+indTag(m)+'</div>'+_renderGoalGauge(Object.assign({},m,{readings:cols,_paceN:(_isAgg?_scBaseN(m):undefined)}))+'</td>';
-        h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':(_isAgg?_pGoalLabel(m):_goalLabel(m)))+'</td>';
+        h+='<td style="'+scStkB(SC_OFF.goal,SC_W.goal,rowBg,'text-align:center;font-size:var(--fz-body);color:var(--blu)')+'">'+(m.showGoal===false?'-':(m._cuCombined?'=Yes':(_isAgg?_pGoalLabel(m):_goalLabel(m))))+'</td>';
+        var _cuS4 = m._cuCombined ? _vspCuYNSummary(validCols) : null;
         var _cnpVals4 = validCols || [];
         var _cnpAvgTipHtml4 = (((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')) ? '' : _cnpAvgTip(m, _cnpVals4, avg);
         var _cnpTotTipHtml4 = _cnpTotalTip(m, _cnpVals4);
-        h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg)))))+'">'+(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':fmtVal(avg,m.unit))+_cnpAvgTipHtml4+'</td>';
-        h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay)+'</td>';
+        h+='<td tabindex="0" data-cnp="avg" style="'+scStkB(SC_OFF.avg,SC_W.avg,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_cuS4?_cuS4.color:(_isAgg?'var(--txm)':(m.rollupAs==='Total'?'var(--txm)':_tierColor(_scTier(m,avg))))))+'">'+(_cuS4?_cuS4.avg:(((m.showAverage===false)&&m.unit!=='%'&&m.unit!=='YN')?'-':fmtVal(avg,m.unit)))+_cnpAvgTipHtml4+'</td>';
+        h+='<td tabindex="0" data-cnp="total" style="'+scStkB(SC_OFF.total,SC_W.total,rowBg,'text-align:center;font-size:var(--fz-body);font-weight:600;color:'+(_scIsSum(m)?(_tierColor(_scTotTier(m,(total===''?null:total),(_isAgg?_scBaseN(m):validCols.length)))||'var(--txm)'):'var(--txm)')+';border-right:2px solid var(--brd)')+'">'+(_cuS4?_cuS4.total:((m.showTotal===false||m.rollupAs==='Average'||m.unit==='%'||m.unit==='YN')?'-':totalDisplay))+'</td>';
 
         var _isWk3 = (((m.cadence)||'weekly')===period) && !_isAgg;
         cols.forEach(function(_v,_ci){
@@ -32680,7 +32734,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-308';
+window.VSP_BUILD = 'v186-merge-310';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
