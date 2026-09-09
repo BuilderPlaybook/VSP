@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-332</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-334</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9821,7 +9821,8 @@ function _vspPmCuTreeResult(ini, iso, kindFilter){
     var _grpRank=function(x){ if(x.type==='precon') return 0; if(x.type==='id') return 2; return 1; };
     bd.sort(function(a,b){ return (_grpRank(a)-_grpRank(b)) || String(a.who).localeCompare(String(b.who)) || String(a.name).localeCompare(String(b.name)); });
     var value;
-    if(miss===0){ value='Yes'; }
+    var _realSentT=bd.some(function(x){ return x.type!=='notreq' && x.onTime; });
+    if(miss===0 && (locked || _realSentT)){ value='Yes'; }   // merge-333: NR-only stays blank until lock
     else if(anyLockedMiss){ value='No'; }
     else { value=null; }   // still outstanding, nothing locked-missed yet
     return { value:value, bd:bd };
@@ -9862,9 +9863,13 @@ function _vspPmCuWeekResult(ini, iso, rowId){
       if(!f) miss++;
     });
     var value;
+    // merge-333 (Dave, 2026-09-09): a week that has not happened yet must not show
+    // a green Yes just because every job is Not Required. Pre-lock Yes needs at
+    // least one REAL send; an NR-only week stays blank until the lock, then Yes.
+    var _realSent=bd.some(function(x){ return x.type!=='notreq' && x.onTime; });
     if(locked){ value=(miss===0)?'Yes':'No'; }
-    else if(miss===0){ value='Yes'; }
-    else { value=null; }                                     // outstanding, pre-lock: blank, tooltip shows progress
+    else if(miss===0 && _realSent){ value='Yes'; }
+    else { value=null; }                                     // outstanding or NR-only, pre-lock: blank, tooltip shows progress
     return { value:value, bd:bd };
   }catch(e){ return null; }
 }
@@ -9978,8 +9983,8 @@ function vspApplyPmCu(_onlySections){
             m.pndBreakdown[idx]=bd;
             if(locked){
               m.readings[idx]=(miss===0)?'Yes':'No';
-            } else if(miss===0){
-              m.readings[idx]='Yes';   // provisional Yes: all sent
+            } else if(miss===0 && bd.some(function(x){ return x.type!=='notreq' && x.onTime; })){
+              m.readings[idx]='Yes';   // provisional Yes: at least one real send and all satisfied (merge-333)
             } else {
               m.readings[idx]=null;    // still outstanding: blank until lock, tooltip shows progress
             }
@@ -18432,6 +18437,10 @@ function joinScheduledMeeting(id){
 }
 function _joinScheduledCommit(id, m){
   state.jobRevCell=null;
+  // merge-334 (Will, 2026-09-09, issue #1): every meeting starts with CLEAN
+  // notes. Step notes, AI summaries and meeting notes from the previous
+  // meeting were carrying into the next one.
+  state.stepNotes={}; state.stepSummaries={}; state.stepSummaryStatus={}; state.meetNotes='';
   state.meetHuddleReport=''; state.meetScheduledId=id;
   if(m){
     state.meetType=(m.type||'').toLowerCase();
@@ -20346,7 +20355,7 @@ function _vspRenderHuddleScorecard(){
     var _isCuCombined = /Companywide Client Updates|All PM Weekly Client Updates|All ID Weekly Client/i.test(_stdRow?String(_stdRow.std||_stdRow.title||''):'');
     return weeks.map(function(iso){
       if(_isCuCombined){
-        var _tr=_vspPmCuTreeResult(person.initials, iso);
+        var _tr=_vspPmCuTreeResult(repP.initials, iso);
         if(_tr){
           // merge-304: numeric (count not done); displayed as Yes/No at render.
           var _ndR=_tr.bd.filter(function(x){return x.type!=='notreq' && !x.onTime;}).length;
@@ -20363,7 +20372,7 @@ function _vspRenderHuddleScorecard(){
         var _vM=(_recM&&_recM.answers)?_recM.answers[rowId]:null;
         if(_vM==='yes') return 'Yes';
         if(_vM==='no') return 'No';
-        var _cr=_vspPmCuWeekResult(person.initials, iso, rowId);
+        var _cr=_vspPmCuWeekResult(repP.initials, iso, rowId);
         if(_cr){ return _cr.value; }   // PM has data this week (Yes/No/blank-outstanding)
         // else: no PM data this week -> fall through to the stored manual answer
       }
@@ -33126,7 +33135,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-332';
+window.VSP_BUILD = 'v186-merge-334';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
