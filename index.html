@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-326</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-327</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -7915,12 +7915,20 @@ function _renderWeekCell(m, val, weekIdx, ownerId, bgRow, isWeekly, goalOverride
   var hasNote = m.notes && m.notes[weekIdx];
   var noteDot = hasNote ? '<span style="position:absolute;top:0;right:0;width:0;height:0;border-top:12px solid var(--blu);border-left:12px solid transparent;pointer-events:none"></span>' : '';
   var isAuto = _vspMetricIsAuto(m);
-  // merge-316 (Dave, 2026-09-06): a WEEK CELL never opens the Edit box. The Edit
-  // box opens only from the KPI title. A manual weekly cell still inline-edits
-  // its value; an automated cell opens a read-only detail popup.
-  var clickHandler = (isWeekly && !isAuto)
-    ? "openCellEdit('"+ownerId+"',"+m.id+","+weekIdx+")"
-    : "_vspOpenCellDetail('"+ownerId+"',"+m.id+","+weekIdx+")";
+  // merge-327 (Dave, 2026-09-09): the old handler passed m.id (a positional
+  // display index that repeats across every person and metric), so a click
+  // could not tell WHICH metric was meant - it resolved to the wrong row or a
+  // number row and silently did nothing. Perf cells now pass the UNAMBIGUOUS
+  // pair: the person's perf-store id and the row's _rowId (pm1/srpm2/...), which
+  // are unique. Non-perf (team measurables) cells keep the old path.
+  var clickHandler;
+  if(m._perfStore && m._rowId){
+    clickHandler = "openPerfCell('"+m._perfStore+"','"+m._rowId+"',"+weekIdx+",'"+ownerId+"')";
+  } else if(isWeekly && !isAuto){
+    clickHandler = "openCellEdit('"+ownerId+"',"+m.id+","+weekIdx+")";
+  } else {
+    clickHandler = "_vspOpenCellDetail('"+ownerId+"',"+m.id+","+weekIdx+")";
+  }
   // merge-296: a CU row cell opens the BD-style detail panel on click (the job
   // list belongs in a click panel, not a hover), consistent with BD.
   if(m._rowId && (m._rowId==='pm2'||m._rowId==='srpm2'||m._rowId==='vp2'||m._rowId==='cx2')){
@@ -12289,6 +12297,48 @@ function vspRestoreData(){
   inp.click();
 }
 
+/* merge-327: edit a performance cell by its UNAMBIGUOUS identity - the person's
+   perf-store id and the row _rowId - not the positional display id. Resolves
+   the metric from the person's role standards, cycles Yes/No rows (lock checked;
+   admin overrides), and opens a number entry for numeric rows. This is the path
+   every My/Team Performance cell now uses. */
+function openPerfCell(store, rowId, weekIdx, ownerId){
+  try{
+    // find the live built metric for this store+rowId to get its week iso + unit
+    var _lp=window._vspLastPerfMetrics||[];
+    var m=null;
+    for(var i=0;i<_lp.length;i++){ if(_lp[i] && _lp[i]._perfStore===store && _lp[i]._rowId===rowId){ m=_lp[i]; break; } }
+    if(!m){ return; }
+    var iso = (m._perfWeeks && m._perfWeeks[weekIdx]!=null) ? m._perfWeeks[weekIdx] : null;
+    if(!iso){ return; }
+    // Yes/No row -> cycle (vspPerfCycleCell enforces lock, admin overrides)
+    if(m.unit==='YN'){
+      if(typeof vspPerfCycleCell==='function'){
+        vspPerfCycleCell(store, iso, rowId);
+        try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+      }
+      return;
+    }
+    // Numeric row (e.g. Workload 1-10) -> lock check, then a simple entry
+    if(!_vspPerfCanEditWeek(store, iso)){ try{ showToast('Week is locked'); }catch(e){} return; }
+    var cur = _vspPerfAnswer(store, iso, rowId);
+    var v = (typeof window.prompt==='function') ? window.prompt('Enter value for this week:', (cur==null?'':cur)) : null;
+    if(v===null) return;                       // cancelled
+    v = String(v).trim();
+    var all = _vspPerfLoadHuddles();
+    var key = store+'__'+iso;
+    var rec = all[key] || { answers:{}, updatedAt:new Date().toISOString() };
+    rec.answers = rec.answers || {};
+    if(v==='') rec.answers[rowId]=''; else { var n=Number(v); rec.answers[rowId]=isNaN(n)?v:n; }
+    rec.updatedAt = new Date().toISOString();
+    all[key]=rec;
+    if(typeof _vspPndWriteHuddle==='function'){ _vspPndWriteHuddle(store, iso, rowId, rec.answers[rowId]); }
+    else { try{ localStorage.setItem('smb_perf_huddles_v1', JSON.stringify(all)); }catch(e){} }
+    try{ if(typeof _vspPerfBust==='function') _vspPerfBust(); }catch(e){}
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    try{ rerenderKeepScroll(); }catch(e){ renderPage(); }
+  }catch(e){}
+}
 function openCellEdit(ownerId, metricId, weekIdx){
   // merge-213 (Dave, 2026-08-12): performance-scorecard cells persist to the
   // huddle store (smb_perf_huddles_v1), not the team scorecard array. The old
@@ -32944,7 +32994,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-326';
+window.VSP_BUILD = 'v186-merge-327';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
