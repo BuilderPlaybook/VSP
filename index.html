@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-339</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-340</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14709,17 +14709,6 @@ function renderScorecard(){
   h+='<div style="display:inline-flex;border:1.5px solid var(--brd2);border-radius:7px;overflow:hidden">';
   [['weekly','Weekly'],['monthly','Monthly'],['quarterly','Quarterly'],['annual','Annual']].forEach(function(pp){ var on=(state.scorecardPeriod||'weekly')===pp[0]; h+='<button onclick="state.scorecardPeriod=\''+pp[0]+'\';renderPage()" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+pp[1]+'</button>'; });
   h+='</div>';
-  // merge-339: on the monthly view, show whether the month under review has its
-  // books closed. This is the readiness gate for the financial (closeDependent)
-  // numbers - they only surface in the meeting review list once this is set.
-  // Controller/HR/President can toggle it (that is who finishes the close).
-  if(period==='monthly'){
-    var _rmk=_vspReviewMonthKey(), _rClosed=_vspBooksClosed(_rmk), _rmn=_vspReviewMonthName();
-    h+='<span style="display:inline-flex;align-items:center;gap:8px;margin-left:12px">';
-    h+='<span class="chip '+(_rClosed?'c-grn':'c-amb')+'">'+_scEsc(_rmn)+' books '+(_rClosed?'closed':'open')+'</span>';
-    if(_vspAutoIsAdmin()) h+='<button type="button" onclick="setBooksClosed()" style="padding:5px 11px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur);color:var(--txt);font-size:var(--fz-base);cursor:pointer;font-family:inherit">'+(_rClosed?'Reopen':'Mark books closed')+'</button>';
-    h+='</span>';
-  }
   // Date Range dropdown (Dave, 2026-08-09, merge-146): now shown on Weekly,
   // Monthly, and Quarterly for consistency. Labels adapt to the period so the
   // one control the user knows from Weekly works everywhere. Annual shows years
@@ -14930,6 +14919,20 @@ function renderScorecard(){
     h+='<span style="font-size:var(--fz-body);color:var(--txm)">'+section.seat+'</span>';
     
     h+='<span style="font-size:var(--fz-body);font-weight:500;color:'+(onTrack===section.metrics.length?'#16a34a':'#d97706')+'">'+onTrack+'/'+section.metrics.filter(_inCad).length+' on track</span>';
+    // merge-340: books-closed control lives on the financial card. Targets the
+    // latest entered financial month for this section; marking it closed is what
+    // makes that month's financials appear (ready) in the monthly review.
+    if(period==='monthly'){
+      var _fi=_vspSectionLatestFinIdx(section);
+      if(_fi>-1){
+        var _fk=_vspMKey(_fi), _fcl=_vspBooksClosed(_fk);
+        var _fn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][_fi]+' '+new Date().getFullYear();
+        h+='<span style="display:inline-flex;align-items:center;gap:8px;margin-left:6px">';
+        h+='<span class="chip '+(_fcl?'c-grn':'c-amb')+'">'+_fn+' books '+(_fcl?'closed':'open')+'</span>';
+        if(_vspAutoIsAdmin()) h+='<button type="button" onclick="setBooksClosed(\''+_fk+'\')" class="btn btn-sm" style="padding:5px 10px">'+(_fcl?'Reopen':'Mark books closed')+'</button>';
+        h+='</span>';
+      }
+    }
     h+='</div>';
     h+='<div style="display:flex;align-items:center;gap:8px">';
     // Add Row (Dave, 2026-08-09, merge-162): admin-only entry point to create a
@@ -21501,50 +21504,61 @@ function _q1QTarget(m){
   return qt;
 }
 function q1MeasHit(id){ var e=_q1Result(id); e.hit=(e.hit==='hit')?'miss':(e.hit==='miss')?'':'hit'; renderPage(); }
-// ── Monthly scorecard review (merge-339, Dave 2026-09-10) ────────────────────
-// Readiness-driven, per metric. A monthly number is ready to review the moment
-// its reading for the month under review is entered - nobody flags it. The one
-// exception is the financials: an entered figure can be provisional until the
-// books are reconciled, so a closeDependent metric is ready only after the books
-// are marked closed for that month (one toggle, admin/controller only). Each
-// metric carries its own reviewed tick for the month, so reviewed numbers drop
-// off and newly-ready ones surface. No fixed dates. The reviewed ticks and the
-// books-closed marks both live in state.monthlyReviewAck (persisted + synced):
-//   close:<YYYY-MM>                      books closed for that month
-//   rev:<teamId>:<metricId>:<YYYY-MM>    LT reviewed that metric that month
-function _vspReviewMonthDate(){ var d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); return d; }
-function _vspReviewMonthIdx(){ return _vspReviewMonthDate().getMonth(); }
-function _vspReviewMonthKey(){ var d=_vspReviewMonthDate(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
-function _vspReviewMonthName(){ return _vspReviewMonthDate().toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+// ── Monthly scorecard review (merge-340, Dave 2026-09-10) ────────────────────
+// Readiness- and year-driven, per metric per month. A monthly number is ready
+// to review once its month's value is entered; financials (closeDependent) are
+// ready only after that month's books are marked closed. Reviewing a month ticks
+// it - and it STAYS in the year view (checked, coloured on/off target) so the LT
+// can see the year's track record, not just this month. Nothing is pegged to a
+// calendar month: each metric shows every entered month of the year, and the
+// books-closed control lives on the financial card (see the section header).
+// Ticks and books-closed marks live in state.monthlyReviewAck (persist + sync):
+//   close:<YYYY-MM>                       books closed for that month
+//   rev:<teamId>:<metricId>:<YYYY-MM>     LT reviewed that metric that month
 function _vspMonthlyAck(){ return (state.monthlyReviewAck = state.monthlyReviewAck || {}); }
-function _vspBooksClosed(mk){ mk=mk||_vspReviewMonthKey(); return !!_vspMonthlyAck()['close:'+mk]; }
-function setBooksClosed(){
-  var mk=_vspReviewMonthKey(), a=_vspMonthlyAck();
+function _vspMKey(idx){ return new Date().getFullYear()+'-'+('0'+(idx+1)).slice(-2); }
+function _vspBooksClosed(mk){ return !!_vspMonthlyAck()['close:'+mk]; }
+function setBooksClosed(mk){
+  if(!mk) return; var a=_vspMonthlyAck();
   if(a['close:'+mk]) delete a['close:'+mk]; else a['close:'+mk]=new Date().toISOString();
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
   renderPage();
 }
-function _vspMetricRevKey(teamId,metricId){ return 'rev:'+teamId+':'+metricId+':'+_vspReviewMonthKey(); }
-function _vspMetricReviewed(teamId,metricId){ return !!_vspMonthlyAck()[_vspMetricRevKey(teamId,metricId)]; }
-function ackMetricReview(teamId,metricId){
-  _vspMonthlyAck()[_vspMetricRevKey(teamId,metricId)]=new Date().toISOString();
+function _vspMetricMonthReviewed(teamId,metricId,idx){ return !!_vspMonthlyAck()['rev:'+teamId+':'+metricId+':'+_vspMKey(idx)]; }
+function toggleMetricMonthReview(teamId,metricId,idx){
+  var a=_vspMonthlyAck(), k='rev:'+teamId+':'+metricId+':'+_vspMKey(idx);
+  if(a[k]) delete a[k]; else a[k]=new Date().toISOString();
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
   renderPage();
 }
 function openMonthlyScorecard(){ state.scorecardPeriod='monthly'; renderPage(); }
-// Every monthly measurable across every division, for the month under review.
-function _vspMonthlyReadyList(){
-  var idx=_vspReviewMonthIdx(), closed=_vspBooksClosed(), out=[];
+// The latest entered month (0-based) among a section's monthly financial rows.
+function _vspSectionLatestFinIdx(section){
+  var mx=-1;
+  ((section&&section.metrics)||[]).forEach(function(m){
+    if(!(m.closeDependent && ((m.cadence)||'weekly')==='monthly')) return;
+    (m.readings||[]).forEach(function(v,ix){ if(v!==null && v!==undefined && !(typeof v==='number' && isNaN(v)) && ix>mx) mx=ix; });
+  });
+  return mx;
+}
+// Collect the monthly metrics for every division, with each entered month of the
+// current year and its state (pending books-close / ready / reviewed).
+function _vspMonthlyYearData(){
+  var upto=new Date().getMonth(), out=[];
   function scan(list, teamId, teamName){
     (list||[]).forEach(function(sec){
       ((sec&&sec.metrics)||[]).forEach(function(m){
         if(((m.cadence)||'weekly')!=='monthly') return;
-        var v=(m.readings||[])[idx];
-        var hasData=(v!==null && v!==undefined && !(typeof v==='number' && isNaN(v)));
-        out.push({ teamId:teamId, teamName:teamName, m:m, val:hasData?v:null,
-                   hasData:hasData, fin:!!m.closeDependent,
-                   ready:(hasData && (!m.closeDependent || closed)),
-                   reviewed:_vspMetricReviewed(teamId,m.id) });
+        var months=[];
+        for(var idx=0; idx<=upto; idx++){
+          var v=(m.readings||[])[idx];
+          if(v===null || v===undefined || (typeof v==='number' && isNaN(v))) continue;
+          var closed = !m.closeDependent || _vspBooksClosed(_vspMKey(idx));
+          var reviewed = _vspMetricMonthReviewed(teamId, m.id, idx);
+          months.push({ idx:idx, val:v, onTrack:isOnTrack(m, v),
+                        state: !closed ? 'pending' : (reviewed ? 'reviewed' : 'ready') });
+        }
+        if(months.length) out.push({ teamId:teamId, teamName:teamName, m:m, months:months });
       });
     });
   }
@@ -21559,36 +21573,42 @@ function _vspMonthlyReadyList(){
   }catch(e){}
   return out;
 }
-// The in-meeting review list: only what is ready and not yet reviewed, grouped
-// by division, each with its own Reviewed tick. Silent when nothing is waiting.
+// The in-meeting review section: per division, per metric, a strip of the year's
+// entered months. Ready months want a tick; reviewed months stay checked; the
+// green/red shows on/off target across the year at a glance.
 function _vspMonthlyReviewBanners(){
-  var list=_vspMonthlyReadyList();
-  var due=list.filter(function(r){ return r.ready && !r.reviewed; });
-  var finPending=list.filter(function(r){ return r.fin && r.hasData && !r.reviewed && !_vspBooksClosed(); });
-  if(!due.length && !finPending.length) return '';
-  var mn=_vspReviewMonthName();
-  var h='<div style="padding:14px 16px;background:var(--ambb);border:1.5px solid var(--amb);border-left:5px solid var(--amb);border-radius:9px;margin-bottom:14px">';
-  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amb)" stroke-width="2" style="flex-shrink:0"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
-  h+='<span style="font-size:var(--fz-lg);font-weight:700;color:var(--amb)">Monthly - ready for review ('+mn+')</span></div>';
-  if(due.length){
-    var byTeam={}; due.forEach(function(r){ (byTeam[r.teamName]=byTeam[r.teamName]||[]).push(r); });
-    Object.keys(byTeam).forEach(function(tn){
-      h+='<div style="font-size:var(--fz-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--txm);margin:8px 0 4px">'+_scEsc(tn)+'</div>';
-      byTeam[tn].forEach(function(r){
-        var m=r.m, onTrack=isOnTrack(m, r.val), vc=onTrack?'var(--grn)':'var(--red)';
-        h+='<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid var(--brd)">';
-        h+='<span style="flex:1;min-width:0;font-size:var(--fz-body);color:var(--txt)">'+_scEsc(m.title)+(r.fin?' <span class="chip c-blu" style="font-size:var(--fz-xs)">financial</span>':'')+'</span>';
-        h+='<span style="font-size:var(--fz-body);color:var(--txm);white-space:nowrap">Goal '+_goalLabel(m)+'</span>';
-        h+='<span style="font-size:var(--fz-body);font-weight:700;color:'+vc+';white-space:nowrap;min-width:70px;text-align:right">'+fmtVal(r.val,m.unit)+'</span>';
-        h+='<button type="button" onclick="ackMetricReview(\''+r.teamId+'\','+m.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--brd2);background:var(--sur);color:var(--txm);font-size:var(--fz-base);cursor:pointer;font-family:inherit;white-space:nowrap">Reviewed</button>';
-        h+='</div>';
+  var data=_vspMonthlyYearData();
+  if(!data.length) return '';
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var needs=0; data.forEach(function(r){ r.months.forEach(function(mo){ if(mo.state==='ready') needs++; }); });
+  var h='<div style="padding:14px 16px;background:var(--sur);border:1.5px solid var(--brd);border-left:5px solid var(--amb);border-radius:9px;margin-bottom:14px">';
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amb)" stroke-width="2" style="flex-shrink:0"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
+  h+='<span style="font-size:var(--fz-lg);font-weight:700;color:var(--txt)">Monthly review '+(new Date().getFullYear())+'</span>';
+  h+='<span style="font-size:var(--fz-body);color:var(--txm)">'+(needs?(needs+' number'+(needs===1?'':'s')+' ready to review'):'all caught up')+'</span></div>';
+  h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-bottom:8px">Tap a highlighted month to mark it reviewed. Reviewed months stay so you can see the year on target. Green = on target, red = off. Anything off track drops to the Issues list.</div>';
+  var byTeam={}; data.forEach(function(r){ (byTeam[r.teamName]=byTeam[r.teamName]||[]).push(r); });
+  Object.keys(byTeam).forEach(function(tn){
+    h+='<div style="font-size:var(--fz-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--txm);margin:10px 0 4px">'+_scEsc(tn)+'</div>';
+    byTeam[tn].forEach(function(r){
+      var m=r.m;
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;flex-wrap:wrap">';
+      h+='<span style="min-width:200px;flex:0 0 200px;font-size:var(--fz-body);color:var(--txt)">'+_scEsc(m.title)+(m.closeDependent?' <span class="chip c-blu" style="font-size:var(--fz-xs)">fin</span>':'')+'</span>';
+      h+='<span style="font-size:var(--fz-xs);color:var(--txm);min-width:78px">Goal '+_goalLabel(m)+'</span>';
+      h+='<span style="display:flex;gap:5px;flex-wrap:wrap">';
+      r.months.forEach(function(mo){
+        var tint = mo.onTrack ? 'var(--grnb)' : 'var(--redb)';
+        var txt  = mo.onTrack ? 'var(--grn)' : 'var(--red)';
+        if(mo.state==='pending'){
+          h+='<span title="Entered - waiting on the books to be closed" style="display:inline-flex;flex-direction:column;align-items:center;min-width:58px;padding:3px 6px;border:1px dashed var(--brd2);border-radius:6px;background:var(--sur2);color:var(--txm)"><span style="font-size:var(--fz-xs);font-weight:700">'+MONTHS[mo.idx]+'</span><span style="font-size:var(--fz-xs)">pending</span></span>';
+        } else {
+          var ring = mo.state==='ready' ? 'border:1.5px solid var(--amb);box-shadow:0 0 0 2px var(--ambb)' : 'border:1px solid var(--brd2)';
+          var chk  = mo.state==='reviewed' ? ' \u2713' : '';
+          h+='<button type="button" onclick="toggleMetricMonthReview(\''+r.teamId+'\','+m.id+','+mo.idx+')" title="'+(mo.state==='reviewed'?'Reviewed - tap to undo':'Tap to mark reviewed')+'" style="display:inline-flex;flex-direction:column;align-items:center;min-width:58px;padding:3px 6px;border-radius:6px;cursor:pointer;font-family:inherit;'+ring+';background:'+tint+';color:'+txt+'"><span style="font-size:var(--fz-xs);font-weight:700">'+MONTHS[mo.idx]+chk+'</span><span style="font-size:var(--fz-xs);font-weight:600">'+fmtVal(mo.val,m.unit)+'</span></button>';
+        }
       });
+      h+='</span></div>';
     });
-    h+='<div style="font-size:var(--fz-xs);color:var(--txm);margin-top:6px">Anything off track drops to the Issues list.</div>';
-  }
-  if(finPending.length){
-    h+='<div style="margin-top:'+(due.length?'10px':'0')+';'+(due.length?'padding-top:8px;border-top:0.5px solid var(--brd);':'')+'font-size:var(--fz-body);color:var(--txm)">'+finPending.length+' financial number'+(finPending.length===1?'':'s')+' entered, waiting on the books to be closed for '+mn+'.'+(_vspAutoIsAdmin()?' <button type="button" onclick="setBooksClosed()" style="margin-left:6px;padding:5px 11px;border-radius:6px;border:none;background:var(--amb);color:#fff;font-size:var(--fz-base);cursor:pointer;font-family:inherit">Mark books closed</button>':'')+'</div>';
-  }
+  });
   h+='</div>';
   return h;
 }
@@ -33258,7 +33278,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-339';
+window.VSP_BUILD = 'v186-merge-340';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
