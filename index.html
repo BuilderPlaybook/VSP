@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-359</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-362</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -9648,6 +9648,40 @@ function _vspOpenCuCellDetail(ownerIni, rowId, weekIdx, isoOpt){
     openModal({title:'Client Updates \u00b7 '+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
   }catch(e){}
 }
+// merge-360 (Dave, 2026-09-11): admin override for a combined-CU team metric
+// (FSA/Pre-Con, ID, or the combined row). The per-person Client Updates popup
+// could already force Yes/No via _vspForceSetCell (a P&D answer); these team
+// metrics read the PM feed instead, so the override lives on the metric as
+// cuManual[weekIdx] and the CU puller (vspApplyPmCu) now honours it. Writes
+// 'Yes'/'No' - exactly what the feed itself writes - so display and scoring are
+// unchanged. Clear ('') removes the override and lets the feed drive the week.
+function _vspCuForceMetricCell(ownerIni, kind, weekIdx, val){
+  try{
+    var m=null;
+    var scan=function(list){ if(!Array.isArray(list)) return; list.forEach(function(sec){ if(!sec || sec.ownerId!==ownerIni) return; (sec.metrics||[]).forEach(function(mm){ if(mm && mm._cuCombined && (mm._cuKind||'')===(kind||'')) m=m||mm; }); }); };
+    if(typeof teamsRegistry==='object'&&teamsRegistry){ Object.keys(teamsRegistry).forEach(function(k){ scan(teamsRegistry[k]&&teamsRegistry[k].scorecard); }); }
+    if(!m && typeof scorecard!=='undefined') scan(scorecard);
+    if(!m){ try{ showToast('Could not find the metric to override.'); }catch(e){} return; }
+    if(!m.cuManual || typeof m.cuManual!=='object') m.cuManual={};
+    if(val===''){
+      delete m.cuManual[weekIdx];
+      // Restore the feed value for this week. vspApplyPmCu deliberately leaves a
+      // week alone when PM has no send fact for it, so re-running it will NOT undo
+      // the override's stored reading; recompute straight from the tree result.
+      try{
+        var _iso=_vspCuIsoForCell(m, weekIdx);
+        var _tr=(_iso && _iso>=VSP_PM_CU_FLOOR_ISO)?_vspPmCuTreeResult(ownerIni, _iso, kind||null):null;
+        if(!Array.isArray(m.readings)) m.readings=[]; while(m.readings.length<=weekIdx) m.readings.push(null);
+        m.readings[weekIdx]=(_tr && (_tr.value==='Yes'||_tr.value==='No')) ? _tr.value : null;
+      }catch(e){}
+    }
+    else { m.cuManual[weekIdx]=val; if(!Array.isArray(m.readings)) m.readings=[]; while(m.readings.length<=weekIdx) m.readings.push(null); m.readings[weekIdx]=val; }
+    try{ if(typeof vspApplyPmCu==='function') vspApplyPmCu(); }catch(e){}   // re-run feed on the other weeks; overridden week is skipped
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    try{ showToast(val===''?'Override cleared - using PM feed.':('Set to '+val+'.')); }catch(e){}
+    renderPage();
+  }catch(e){}
+}
 /* merge-298: combined tree detail - every update in the owner's org tree once,
    grouped by who is responsible. Same BD-style panel. */
 function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal, kindOpt){
@@ -9742,6 +9776,25 @@ function _vspOpenCuTreeDetail(ownerIni, weekIdx, isoOpt, storedVal, kindOpt){
       +'<span style="font-size:var(--fz-body);font-weight:700">'+(_preFeedHdr?_scEsc(_preFeedHdr):(sent+' of '+reqTotal+' done'))+'</span></div>'
       +rows
       +'<div style="color:var(--txm);font-size:var(--fz-body);margin-top:10px">'+((iso && iso < VSP_PM_CU_FLOOR_ISO)?'Before the Project Management feed: each person\u2019s own client-update answer for the week, which is what the count was built from. Job-level detail starts Aug 31, 2026.':'Every client update across this team and everyone reporting up, each counted once. Auto-fed from Project Management \u00b7 read-only.')+'</div>';
+    // merge-360: admin override inside the popup, same as the per-person Client
+    // Updates popup. A manual Yes/No wins over the PM feed for this exact week.
+    try{
+      if(typeof _vspAutoIsAdmin==='function' && _vspAutoIsAdmin() && iso && weekIdx!=null && iso>=VSP_PM_CU_FLOOR_ISO){
+        var _om=null;
+        var _scan=function(list){ if(!Array.isArray(list)) return; list.forEach(function(sec){ if(!sec || sec.ownerId!==ownerIni) return; (sec.metrics||[]).forEach(function(mm){ if(mm && mm._cuCombined && (mm._cuKind||'')===(kindOpt||'')) _om=_om||mm; }); }); };
+        if(typeof teamsRegistry==='object'&&teamsRegistry){ Object.keys(teamsRegistry).forEach(function(k){ _scan(teamsRegistry[k]&&teamsRegistry[k].scorecard); }); }
+        if(!_om && typeof scorecard!=='undefined') _scan(scorecard);
+        if(_om){
+          var _cuCur=(_om.cuManual && _om.cuManual[weekIdx]!=null)?_om.cuManual[weekIdx]:null;
+          body+='<div style="display:flex;gap:8px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--brd)">'
+            +'<span style="font-size:var(--fz-body);color:var(--txm);margin-right:4px">Admin override'+(_cuCur?(' (currently '+_scEsc(String(_cuCur))+')'):'')+':</span>'
+            +'<button type="button" class="btn btn-sm" onclick="_vspCuForceMetricCell(\''+ownerIni+'\',\''+(kindOpt||'')+'\','+weekIdx+',\'Yes\');closeModal();" style="color:var(--grn);font-weight:600">Set Yes</button>'
+            +'<button type="button" class="btn btn-sm" onclick="_vspCuForceMetricCell(\''+ownerIni+'\',\''+(kindOpt||'')+'\','+weekIdx+',\'No\');closeModal();" style="color:var(--red);font-weight:600">Set No</button>'
+            +'<button type="button" class="btn btn-sm" onclick="_vspCuForceMetricCell(\''+ownerIni+'\',\''+(kindOpt||'')+'\','+weekIdx+',\'\');closeModal();">Clear (use feed)</button>'
+            +'</div>';
+        }
+      }
+    }catch(e){}
     openModal({title:(kindOpt==='id'?'ID Client Updates \u00b7 ':(kindOpt==='precon'?'FSA / Pre-Con Client Updates \u00b7 ':'Combined Client Updates \u00b7 '))+_scEsc(ownerIni), body:body, saveLabel:'Close', onSave:closeModal});
   }catch(e){}
 }
@@ -9801,6 +9854,26 @@ function _vspPmCuTreeResult(ini, iso, kindFilter){
     });
     if(!obligations.length) return null;
     var bd=[], miss=0, anyLockedMiss=false;
+    var weekLocked=Date.now()>=_vspCuLockInstant(monday);   // merge-362: hoisted for the value check below (was only in the loop scope)
+    // merge-362 (Dave, 2026-09-11): a person's own CU answer (including an admin
+    // override to Yes on their personal scorecard) now satisfies their obligations
+    // in this tree rollup. Before this, the rollup counted ONLY actual PM job
+    // sends, so marking a person's Client Updates done on their personal scorecard
+    // left the LT/companywide rollup still showing them as not done.
+    var _cuPersonDone=function(whoIni){
+      try{
+        var per=(typeof ppl!=='undefined')?ppl.find(function(p){return p&&p.initials===whoIni;}):null;
+        if(!per) return false;
+        var stds=[]; try{ stds=_vspPerfStdFor(per)||[]; }catch(e){}
+        var cuRow=stds.find(function(r){ return r && (/^(pm2|srpm2|vp2|cx2)$/.test(String(r.id)) || /client update/i.test(String(r.title||''))); });
+        if(!cuRow) return false;
+        // read with a SINGLE id translation, exactly like the scorecard does
+        // (_vspPerfAnswer(person.id, ...)). Passing an already-translated pnd here
+        // double-translates and breaks on colliding ids (Terry p3 = Will org p3).
+        var ans=_vspPerfAnswer(per.id, iso, cuRow.id);
+        return String(ans==null?'':ans).toLowerCase()==='yes';
+      }catch(e){ return false; }
+    };
     obligations.forEach(function(o){
       var j=o.job, isId=o.isId, who=o.who;
       var locked=Date.now()>=_vspCuLockInstant(monday);  // merge-300: Monday (Tue on a stat), Mika matches PM
@@ -9815,8 +9888,10 @@ function _vspPmCuTreeResult(ini, iso, kindFilter){
         if(isId){ return s.stage==='id' && s.week===monday; }   // merge-300: ID matches PM week model
         return s.stage!=='id' && s.week===monday;
       });
-      bd.push({jobId:j.jobId,name:j.name,who:who,type:(isId?'id':j.stage),sentAt:(f?f.sentAt:null),onTime:!!f});
-      if(!f){ miss++; if(locked) anyLockedMiss=true; }
+      var _ovDone = !f && _cuPersonDone(who);   // personal Yes / admin override satisfies it
+      var _ok = !!f || _ovDone;
+      bd.push({jobId:j.jobId,name:j.name,who:who,type:(isId?'id':j.stage),sentAt:(f?f.sentAt:null),onTime:_ok,manualDone:_ovDone});
+      if(!_ok){ miss++; if(locked) anyLockedMiss=true; }
     });
     // merge-313: group by stage - FSA/Pre-Con, then Active/Construction, then
     // ID/Design - and within each group by person, then job. The panel renders
@@ -9825,7 +9900,7 @@ function _vspPmCuTreeResult(ini, iso, kindFilter){
     bd.sort(function(a,b){ return (_grpRank(a)-_grpRank(b)) || String(a.who).localeCompare(String(b.who)) || String(a.name).localeCompare(String(b.name)); });
     var value;
     var _realSentT=bd.some(function(x){ return x.type!=='notreq' && x.onTime; });
-    if(miss===0 && (locked || _realSentT)){ value='Yes'; }   // merge-333: NR-only stays blank until lock
+    if(miss===0 && (weekLocked || _realSentT)){ value='Yes'; }   // merge-333: NR-only stays blank until lock
     else if(anyLockedMiss){ value='No'; }
     else { value=null; }   // still outstanding, nothing locked-missed yet
     return { value:value, bd:bd };
@@ -9943,6 +10018,11 @@ function vspApplyPmCu(_onlySections){
           m.pndGroup='pmcu:'+ini; m.autoSrc='Project Management'; m.unit='YN';
           for(var idx=Math.max(0,floorIdx); idx<maxCol; idx++){
             if(idx<floorIdx) continue;
+            // merge-360 (Dave, 2026-09-11): an admin override for this exact week
+            // wins over the PM feed and is never overwritten by a later pull -
+            // the same "manual answer beats the feed" rule the per-person Client
+            // Updates popup already had. cuManual holds 'Yes'/'No' per column idx.
+            if(m.cuManual && m.cuManual[idx]!=null){ while(m.readings.length<=idx) m.readings.push(null); m.readings[idx]=m.cuManual[idx]; continue; }
             var mondayIso=isoForIdx(idx);
             // merge-291 (Dave, 2026-09-05): the CU feed only touches a week where
             // PM actually has a send fact for this person that week. Every other
@@ -12429,7 +12509,18 @@ function openPerfCell(store, rowId, weekIdx, ownerId){
       var _yRec=_yAll[store+'__'+iso];
       var _yCur=(_yRec&&_yRec.answers)?_yRec.answers[rowId]:null;
       var _yIsYes=(typeof _vspPerfIsYes==='function') ? _vspPerfIsYes(_yCur) : (String(_yCur).toLowerCase()==='yes');
-      var _yNext=(_yCur==null||_yCur==='') ? 'yes' : (_yIsYes ? 'no' : null);
+      // merge-361 (Dave, 2026-09-11): aa rows (Accounting Admin) carry an N/A
+      // state; the cycle is Yes -> No -> N/A -> blank there. Every other row stays
+      // Yes -> No -> blank. The 336 id-collision fix had collapsed this to
+      // Yes/No/blank on all rows, which is why Vanessa's N/A stopped appearing.
+      var _yNorm=String(_yCur==null?'':_yCur).toLowerCase();
+      var _yAllowNA=(typeof _vspRowAllowsNA==='function') && _vspRowAllowsNA(rowId);
+      var _yNext;
+      if(_yNorm==='') _yNext='yes';
+      else if(_yNorm==='yes') _yNext='no';
+      else if(_yNorm==='no') _yNext=_yAllowNA?'na':null;
+      else if(_yNorm==='na'||_yNorm==='n/a') _yNext=null;
+      else _yNext='yes';
       if(typeof _vspPndWriteHuddle==='function'){ _vspPndWriteHuddle(store, iso, rowId, _yNext); }
       try{ if(typeof _vspPerfBust==='function') _vspPerfBust(); }catch(e){}
       try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
@@ -15810,7 +15901,15 @@ function vspPerfCycleCell(personId, weekIso, rowId){
     return;
   }
   var cur = _vspPerfAnswer(personId, weekIso, rowId);
-  var next = (cur == null) ? 'yes' : (_vspPerfIsYes(cur) ? 'no' : null);
+  // merge-361: aa rows cycle Yes -> No -> N/A -> blank (see openPerfCell).
+  var _cNorm=String(cur==null?'':cur).toLowerCase();
+  var _cAllowNA=(typeof _vspRowAllowsNA==='function') && _vspRowAllowsNA(rowId);
+  var next;
+  if(_cNorm==='') next='yes';
+  else if(_cNorm==='yes') next='no';
+  else if(_cNorm==='no') next=_cAllowNA?'na':null;
+  else if(_cNorm==='na'||_cNorm==='n/a') next=null;
+  else next='yes';
   var pnd = _vspPerfPndPersonId(personId);
   var all = _vspPerfLoadHuddles();
   var key = pnd+'__'+weekIso;
@@ -33486,7 +33585,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-359';
+window.VSP_BUILD = 'v186-merge-362';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
