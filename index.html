@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-352</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-356</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -4772,7 +4772,11 @@ function getAgendaSections(agendaData,dayIdx){
   // helper is for the RUNNING meeting and any presentation-time consumer;
   // the editor must use getAgendaSectionsRaw so hidden sections stay
   // toggle-able.
-  function _v(arr){ return (arr||[]).filter(function(x){ return x && x.visible!==false; }); }
+  // merge-355 (Dave, 2026-09-11): also drop the standalone "Commitments" step
+  // from the running meeting. Commitments are still reviewed - they render at the
+  // top of the Goals step (the Quarterly Plan card) - so the separate agenda line
+  // was a duplicate. Editor (getAgendaSectionsRaw) is unaffected.
+  function _v(arr){ return (arr||[]).filter(function(x){ return x && x.visible!==false && x.bind!=='commitments' && String(x.label||'')!=='Commitments'; }); }
   if(agendaData.days){
     var d=agendaData.days[dayIdx!==undefined?dayIdx:state.meetAgendaDay]||agendaData.days[0];
     return d?_v(d.sections):[];
@@ -5978,7 +5982,6 @@ var meetingAgendas=[
     {label:"Check-In",min:5,detail:"Everyone shares one personal best and one professional best from the past week. No problem-solving.",visible:true,locked:false},
     {label:"Scorecard Review",min:5,detail:"Each owner reports their numbers. Any metric off-track is automatically moved to Issues.",visible:true,locked:true,bind:"scorecard"},
     {label:"Goals Review",min:5,detail:"Each owner says On Track or Off Track. Off-track items move to Issues.",visible:true,locked:false},
-    {label:"Commitments",min:3,detail:"The facilitator reads each person's stop-doing commitment. Each says On Track or Off Track. No discussion.",visible:true,locked:false,bind:"commitments"},
     {label:"Headlines",min:5,detail:"Good news only  -  client wins and team wins. State it and move on. No discussion.",visible:true,locked:false},
     {label:"To-Do Review",min:5,detail:"Review last week\u2019s to-dos. Done or Not Done. Incomplete items are discussed briefly.",visible:true,locked:false},
     {label:"Job Update",min:10,detail:"Brief update on active projects and site conditions.",visible:true,locked:false},
@@ -25446,10 +25449,10 @@ function renderIssueDetailPanel(){
   h+='<input id="iss-title" value="'+iss.title.replace(/"/g,'&quot;')+'" onblur="var i=issues.concat(longTermIssues).find(function(x){return x.id==='+id+'});if(i)i.title=this.value;renderPage()" style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;box-sizing:border-box"></div>';
   // Notes / description (what you enter when creating the issue lives here)
   h+='<div style="margin-bottom:16px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Notes</label>';
-  h+='<textarea id="iss-notes" onblur="var i=issues.concat(longTermIssues).find(function(x){return x.id==='+id+'});if(i)i.notes=this.value" placeholder="Context or detail for this issue..." style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.6">'+(iss.notes||'')+'</textarea></div>';
+  h+='<textarea id="iss-notes" onblur="var i=issues.concat(longTermIssues).find(function(x){return x.id==='+id+'});if(i){i.notes=this.value;try{if(typeof vspSaveNow===\'function\')vspSaveNow();}catch(e){}}" placeholder="Context or detail for this issue..." style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.6">'+(iss.notes||'')+'</textarea></div>';
   // Issue Solving Notes
   h+='<div style="margin-bottom:16px"><label style="font-weight:600;color:var(--txm);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Issue Solving Notes  -  work each issue to resolution</label>';
-  h+='<textarea id="iss-solve" onblur="var i=issues.concat(longTermIssues).find(function(x){return x.id==='+id+'});if(i)i.solveNotes=this.value" placeholder="What was identified, discussed, and what is the solution or to-do?" style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:vertical;min-height:100px;box-sizing:border-box;line-height:1.6">'+(iss.solveNotes||'')+'</textarea></div>';
+  h+='<textarea id="iss-solve" onblur="var i=issues.concat(longTermIssues).find(function(x){return x.id==='+id+'});if(i){i.solveNotes=this.value;try{if(typeof vspSaveNow===\'function\')vspSaveNow();}catch(e){}}" placeholder="What was identified, discussed, and what is the solution or to-do?" style="width:100%;padding:9px 11px;border:1.5px solid var(--brd2);border-radius:7px;font-size:var(--fz-body);font-family:inherit;resize:vertical;min-height:100px;box-sizing:border-box;line-height:1.6">'+(iss.solveNotes||'')+'</textarea></div>';
 
   // Priority + Owner row
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">';
@@ -33384,7 +33387,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-352';
+window.VSP_BUILD = 'v186-merge-356';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -36857,6 +36860,49 @@ try{ _vspMigrateJobNotes(); }catch(e){}
             }
           }
         });
+      });
+      // merge-354 (Dave, 2026-09-11): hard dedup + single-list invariant + restore
+      // of goals the DUPLICATION BUG wrongly pulled out of active. The merge could
+      // leave a goal duplicated within a list, in BOTH lists, or shoved into
+      // archived while still in progress (nobody archived it - the code did). Per
+      // team: collapse each id to one copy per list; if an id is in both lists keep
+      // the ACTIVE copy unless it is complete/cancelled; and RESTORE to active any
+      // goal that (a) the bug duplicated (its id appeared more than once), (b) is
+      // still in progress (not complete/cancelled), and (c) has NO genuine archive
+      // marker (a deliberate archive stamps archivedAt - those are left alone).
+      Object.keys(teams).forEach(function(tid){
+        var dT=(dst.teams||{})[tid]; if(!dT) return;
+        dT.goals=dT.goals||[]; dT.archivedGoals=dT.archivedGoals||[];
+        function _done(st){ st=String(st||'').toLowerCase(); return st==='complete'||st==='cancelled'; }
+        // per-id, across BOTH lists, before touching anything: >1 = duplication-bug
+        // fingerprint; anyDone = the goal was completed/cancelled at some point.
+        var _cnt={}, _anyDone={};
+        dT.goals.concat(dT.archivedGoals).forEach(function(g){ if(!g||g.id==null) return; var k=String(g.id); _cnt[k]=(_cnt[k]||0)+1; if(_done(g.status)) _anyDone[k]=1; });
+        // dedup, PREFERRING a done copy so a completed goal never survives as on-track
+        function _dedup(a){ var best={},order=[]; (a||[]).forEach(function(g){ if(!g||g.id==null) return; var k=String(g.id); if(!(k in best)){ best[k]=g; order.push(k); } else if(_done(g.status)&&!_done(best[k].status)){ best[k]=g; } }); return order.map(function(k){ return best[k]; }); }
+        dT.goals=_dedup(dT.goals); dT.archivedGoals=_dedup(dT.archivedGoals);
+        // XOR: if an id is in both lists, keep the ACTIVE copy unless that copy is
+        // itself done (then it belongs archived). Uses the active copy's own status,
+        // so a stray cancelled/complete archived duplicate cannot evict a live goal.
+        var _arcById={}; dT.archivedGoals.forEach(function(g){ _arcById[String(g.id)]=g; });
+        var _dropArch={};
+        dT.goals=dT.goals.filter(function(g){
+          var k=String(g.id); if(!_arcById[k]) return true;
+          if(_done(g.status)) return false;
+          _dropArch[k]=1; return true;
+        });
+        dT.archivedGoals=dT.archivedGoals.filter(function(g){ return !_dropArch[String(g.id)]; });
+        // restore the bug's victims ONLY: duplicated, NEVER completed/cancelled,
+        // stuck only in archived, with no genuine archive marker. Deliberately
+        // archived goals (real archivedAt) and completed goals are left alone.
+        var _actNow={}; dT.goals.forEach(function(g){ _actNow[String(g.id)]=1; });
+        var _restore=[];
+        dT.archivedGoals=dT.archivedGoals.filter(function(g){
+          var k=String(g.id);
+          if(_cnt[k]>1 && !_anyDone[k] && !_actNow[k] && !g.archivedAt){ g.restoredAt=g.restoredAt||new Date().toISOString(); _restore.push(g); return false; }
+          return true;
+        });
+        _restore.forEach(function(g){ dT.goals.push(g); });
       });
       if(changed){
         try{ console.log('[VSP guard] goal placement reconciled on '+changed+' goal(s).'); }catch(e){}
