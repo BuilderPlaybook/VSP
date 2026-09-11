@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-348</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-351</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14907,11 +14907,30 @@ function renderScorecard(_gridPeriod, _onlyKeys){
     if(!_mg.length) h+='<tr><td colspan="'+(5+colLabels.length)+'" style="text-align:center;padding:24px;color:var(--txm)">No measurables match.</td></tr>';
     h+='</tbody></table></div></div>';
   }
+  // merge-350 (Dave, 2026-09-11): the week/month column width fits the widest
+  // visible value in THIS view, computed ONCE so every card shares it - alignment
+  // across cards holds (the 338 rule), but the monthly view widens for dollar
+  // figures that were clipping at a flat 104px. Weekly stays compact.
+  var _wkW=104;
+  try{
+    var _maxLen=0;
+    colData.forEach(function(d){ var s=d.section; (s.metrics||[]).forEach(function(m){ if(!_inCad(m)) return; activeIdxs.forEach(function(_wi){ var v=(m.readings||[])[_wi]; if(v===null||v===undefined||v==='') return; var t=String(fmtVal(v,m.unit)); if(t.length>_maxLen) _maxLen=t.length; }); }); });
+    _wkW=Math.max(104, Math.ceil((_maxLen+1)*9+20));
+  }catch(e){}
   colData.forEach(function(d,di){
     if(state.scMerged) return;
     var section=d.section;
     if(_onlyKeys && _onlyKeys.indexOf(_vspSecKey(section))===-1) return;  // merge-347: weekly embed shows only the ticked ROLE(s)
-    var _scOrder=_scMetricOrder(section); if(_scOrder.length===0 && section.metrics && section.metrics.length>0) return;
+    // merge-349: emit this role's monthly card directly under it when ticked - even
+    // if the role has NO weekly rows (the financials are monthly-only), otherwise
+    // the early return below would skip it and it would never reach the weekly board.
+    var _emitMonthly=function(){
+      if(!(period==='weekly' && _vspSecHasMonthly(section) && _vspSecOnWeekly(section))) return;
+      var _svP=state.scorecardPeriod; state.scorecardPeriod='monthly';
+      var _rMon; try{ _rMon=renderScorecard('monthly',[_vspSecKey(section)]); } finally { state.scorecardPeriod=_svP; }
+      if(_rMon && _rMon.replace(/\s/g,'')) h+=_rMon;
+    };
+    var _scOrder=_scMetricOrder(section); if(_scOrder.length===0 && section.metrics && section.metrics.length>0){ _emitMonthly(); return; }
     var onTrack=section.metrics.filter(function(m){return _scScored(m)&&isOnTrack(m,_metricLatest(m));}).length;
     var isCollapsed=!!state.collapsedSections['sec'+di];
     var isLastCol=colLabels.length-1;
@@ -14929,15 +14948,22 @@ function renderScorecard(_gridPeriod, _onlyKeys){
     h+='<span style="font-size:var(--fz-body);color:var(--txm)">'+section.seat+'</span>';
     
     h+='<span style="font-size:var(--fz-body);font-weight:500;color:'+(onTrack===section.metrics.length?'#16a34a':'#d97706')+'">'+onTrack+'/'+section.metrics.filter(_inCad).length+' on track</span>';
-    // merge-347: one tick box per ROLE card. Ticked -> this role's monthly
-    // numbers appear directly under this role's card on the weekly scorecard for
-    // LT review; unticked (LT has received it) -> off. Keyed by owner+seat via the
-    // section index, so a person's other roles are unaffected.
+    // merge-347/349: per-ROLE controls. On the Monthly tab the owner sends the
+    // role to the weekly (and can pull it back). On the weekly board (embed) the
+    // LT clicks Reviewed - a timestamped record per month - which returns the role
+    // to monthly-only. Keyed by owner+seat via the section index.
     if(period==='monthly' && _vspSecHasMonthly(section)){
       var _onwk=_vspSecOnWeekly(section);
       h+='<span style="display:inline-flex;align-items:center;gap:8px;margin-left:6px">';
-      h+='<span class="chip '+(_onwk?'c-grn':'c-gry')+'">'+(_onwk?'On weekly for review':'Not on weekly')+'</span>';
-      h+='<button type="button" onclick="toggleDivOnWeekly('+di+')" class="btn btn-sm" style="padding:5px 10px" title="'+(_onwk?'Take this role off the weekly scorecard - the LT has reviewed it':'Send this role\u2019s monthly numbers to the weekly scorecard for the LT to review')+'">'+(_onwk?'Remove from weekly':'Send to weekly')+'</button>';
+      if(_onlyKeys){
+        // weekly board: the LT's action
+        h+='<span class="chip c-amb">Awaiting LT review</span>';
+        h+='<button type="button" onclick="markRoleReviewed('+di+')" class="btn btn-primary btn-sm" style="padding:5px 12px" title="Record that the leadership team has reviewed this role\u2019s monthly numbers. Marks the reviewed month(s) on the monthly grid and returns this role to the Monthly tab.">LT reviewed \u2713</button>';
+      } else {
+        // Monthly tab: the owner's action
+        h+='<span class="chip '+(_onwk?'c-grn':'c-gry')+'">'+(_onwk?'On weekly for review':'Not on weekly')+'</span>';
+        h+='<button type="button" onclick="toggleDivOnWeekly('+di+')" class="btn btn-sm" style="padding:5px 10px" title="'+(_onwk?'Pull this role back off the weekly scorecard':'Send this role\u2019s monthly numbers to the weekly scorecard for the LT to review')+'">'+(_onwk?'Remove from weekly':'Send to weekly')+'</button>';
+      }
       h+='</span>';
     }
     h+='</div>';
@@ -15016,8 +15042,8 @@ function renderScorecard(_gridPeriod, _onlyKeys){
       // an explicit total width computed from the shared column widths, so column
       // positions are determined by spec, not content, and are identical on every
       // card. The Title resize writes the shared __scboard__ width, so dragging it
-      // re-lays every card together.
-      var _wkW=104;
+      // re-lays every card together. _wkW is computed once per view above
+      // (merge-350) so it fits the widest value and is identical on every card.
       var _scLeftW=54+_scw+_SCGW+_SCAW+_SCTW;
       var _scTotalW=_scLeftW+(colLabels.length*_wkW);
       h+='<div style="overflow-x:auto;position:relative"><table class="tbl" style="border-collapse:separate;border-spacing:0;table-layout:fixed;width:'+_scTotalW+'px">';
@@ -15033,8 +15059,11 @@ function renderScorecard(_gridPeriod, _onlyKeys){
       h+='<th style="'+scStkH(SC_OFF.goal,SC_W.goal,'text-align:center')+'">Goal</th>';
       h+='<th style="'+scStkH(SC_OFF.avg,SC_W.avg,'text-align:center')+'">Avg</th>';
       h+='<th style="'+scStkH(SC_OFF.total,SC_W.total,'text-align:center;border-right:2px solid var(--brd)')+'">Total</th>';
-      colLabels.forEach(function(_lbl){
-        h+='<th style="text-align:center;padding:6px 6px;font-size:var(--fz-xs);color:var(--txm);font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;width:'+_wkW+'px;min-width:'+_wkW+'px;max-width:'+_wkW+'px;background:var(--sur2);border-right:0.5px solid var(--brd)">'+_lbl+'</th>';
+      colLabels.forEach(function(_lbl,_li){
+        // merge-349: on the monthly grid, a month the LT has reviewed for this role
+        // gets a check and a green tint in its column header (the year's review record).
+        var _rv = (period==='monthly') && _vspRoleMonthReviewed(section, activeIdxs[_li]);
+        h+='<th title="'+(_rv?'Reviewed by the leadership team':'')+'" style="text-align:center;padding:6px 6px;font-size:var(--fz-xs);color:'+(_rv?'var(--grn)':'var(--txm)')+';font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;width:'+_wkW+'px;min-width:'+_wkW+'px;max-width:'+_wkW+'px;background:'+(_rv?'var(--grnb)':'var(--sur2)')+';border-right:0.5px solid var(--brd)">'+_lbl+(_rv?' \u2713':'')+'</th>';
       });
       h+='</tr></thead><tbody>';
       if(_scOrder.length===0){ h+='<tr><td colspan="40" style="padding:0">'+_vspEmpty(_VSP_IC_CHART,'No measurables for this seat yet. Add the few numbers this role should hit each week.','+ New Measurable','openNewMeasurable('+scorecard.indexOf(section)+')')+'</td></tr>'; }
@@ -15091,14 +15120,7 @@ function renderScorecard(_gridPeriod, _onlyKeys){
       h+='</tbody></table></div>';
     }
     h+='</div>';
-    // merge-347: render this role's monthly card directly under its own weekly
-    // card (weekly view only, and only when the role is ticked on-weekly), so the
-    // monthly numbers sit under the same role + person for consistency.
-    if(period==='weekly' && _vspSecHasMonthly(section) && _vspSecOnWeekly(section)){
-      var _svP=state.scorecardPeriod; state.scorecardPeriod='monthly';
-      var _rMon; try{ _rMon=renderScorecard('monthly',[_vspSecKey(section)]); } finally { state.scorecardPeriod=_svP; }
-      if(_rMon && _rMon.replace(/\s/g,'')) h+=_rMon;
-    }
+    _emitMonthly();   // merge-347/349: this role's monthly card under its weekly card when ticked
   });
   var _gridEnd=h.length;
 
@@ -21585,6 +21607,25 @@ function toggleDivOnWeekly(idx){
   var sec=(typeof scorecard!=='undefined'&&scorecard)?scorecard[idx]:null; if(!sec) return;
   var a=_vspMonthlyAck(), k='onwk:'+_vspSecKey(sec);
   if(a[k]) delete a[k]; else a[k]=new Date().toISOString();
+  try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
+  renderPage();
+}
+// merge-349: LT "Reviewed" per role per month. A positive, timestamped record
+// that the leadership team reviewed that role's numbers for that month - this is
+// the audit trail. Clicking Reviewed on a role's card (weekly board) marks every
+// completed month for that role that has data and is not yet marked (i.e. what
+// was on the board), then sends the role back to monthly-only. Each reviewed
+// month shows a mark in its column on the monthly grid.
+function _vspRoleMonthReviewed(sec, idx){ return !!_vspMonthlyAck()['ltrev:'+_vspSecKey(sec)+':'+_vspMKey(idx)]; }
+function markRoleReviewed(idx){
+  var sec=(typeof scorecard!=='undefined'&&scorecard)?scorecard[idx]:null; if(!sec) return;
+  var a=_vspMonthlyAck(), key=_vspSecKey(sec), now=new Date().toISOString();
+  var upto=new Date().getMonth()-1;   // last completed month
+  for(var mi=0; mi<=upto; mi++){
+    var hasData=(sec.metrics||[]).some(function(m){ if(((m.cadence)||'weekly')!=='monthly') return false; var v=(m.readings||[])[mi]; return v!==null && v!==undefined && !(typeof v==='number' && isNaN(v)); });
+    if(hasData && !a['ltrev:'+key+':'+_vspMKey(mi)]) a['ltrev:'+key+':'+_vspMKey(mi)]=now;
+  }
+  delete a['onwk:'+key];   // reviewed -> back to monthly only
   try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(_){}
   renderPage();
 }
@@ -33337,7 +33378,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-348';
+window.VSP_BUILD = 'v186-merge-351';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -34732,8 +34773,17 @@ function _vspGuardedWrite(json){
         return true;   // retry succeeded after reclaiming space
       }catch(stillFull){
         try{ console.warn('[VSP] Storage full even after cleanup. Data NOT saved.'); }catch(e){}
+        // merge-351 (Dave, 2026-09-11): show this notice ONCE per session. It was
+        // firing on every save attempt, so it re-appeared the instant it was
+        // dismissed and buried the Back up button - the user could never act on
+        // it. Guard it; subsequent blocked saves fail quietly (the save-status
+        // pill still shows the problem) until the device is cleared/reloaded.
         try{
-          vspAlert('Storage is full and this change could not be saved.\n\nYour existing data is safe. Click Back up to download a copy, then use Settings > Clear local data to reset this device. Your data will reload from sync.');
+          if(!window._vspStorageFullShown){
+            window._vspStorageFullShown = true;
+            try{ _vspSetSaveStatus && _vspSetSaveStatus('error'); }catch(e){}
+            vspAlert('This device\u2019s browser storage is full, so this change could not be saved.\n\nYour data is safe - it is synced. To free space: click Back up (top bar) to download a copy, then Settings > Clear local data, then reload. Your data will come back from sync.\n\n(You will not see this message again this session.)');
+          }
         }catch(e){}
         return false;
       }
