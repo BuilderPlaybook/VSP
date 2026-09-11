@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-357</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-358</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -18411,6 +18411,24 @@ function _vspMarkHeld(mid, iso, held){
     renderPage();
   }catch(e){}
 }
+// merge-358 (Dave, 2026-09-11): dismiss a genuinely-missed occurrence from the
+// Needs-attention list without pretending it was held. The occurrence still counts
+// as missed in the Calendar and in compliance/scorecard math - this only clears the
+// nag. Stamp is per-occurrence and unioned on sync like heldLog.
+function _ackMissed(m, iso){ return !!(m && Array.isArray(m.missedAck) && m.missedAck.indexOf(iso)>-1); }
+function _vspAckMissed(mid, iso, ack){
+  try{
+    var f=_findScheduledById(mid); if(!f||!f.m) return;
+    var m=f.m;
+    if(!Array.isArray(m.missedAck)) m.missedAck=[];
+    var i=m.missedAck.indexOf(iso);
+    if(ack){ if(i<0) m.missedAck.push(iso); } else { if(i>=0) m.missedAck.splice(i,1); }
+    m.updatedAt=Date.now();
+    try{ if(typeof vspSaveNow==='function') vspSaveNow(); }catch(e){}
+    try{ showToast(ack?'Dismissed - still counts as missed in your records.':'Restored to Needs attention.'); }catch(e){}
+    renderPage();
+  }catch(e){}
+}
 function _meetComplianceFor(m, fromIso, toIso){
   // Held / missed / upcoming counts for m over the window. Missed = a past due
   // occurrence with no held stamp. Upcoming = occurrence in the future.
@@ -23294,6 +23312,7 @@ function renderMeetings(){
       var _heldManual = Array.isArray(m.heldLog) && m.heldLog.indexOf(occIso||'')>-1;
       if(st && (st.key==='missed' || st.key==='duetoday')){
         r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();_vspMarkHeld('+m.id+',\''+(occIso||m.date||'')+'\',true)" title="We held this - mark it held" style="flex-shrink:0">Mark held</button>';
+        r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();_vspAckMissed('+m.id+',\''+(occIso||m.date||'')+'\',true)" title="We missed this - dismiss it from Needs attention (still counts as missed)" style="flex-shrink:0">Dismiss</button>';
       } else if(st && st.key==='held' && _heldManual){
         r+='<button type="button" class="btn btn-sm" onclick="event.stopPropagation();_vspMarkHeld('+m.id+',\''+(occIso||m.date||'')+'\',false)" title="Undo the manual held mark" style="flex-shrink:0">Mark missed</button>';
       }
@@ -23337,7 +23356,12 @@ function renderMeetings(){
         }
         occs.forEach(function(oc){
           var st=_occStatus(m, oc);
-          if(st.key==='missed' || st.key==='duetoday') _attn.push({m:m, occ:oc});
+          if(st.key==='missed' || st.key==='duetoday'){
+            // merge-358: a dismissed miss drops out of the Upcoming view entirely.
+            // It stays Missed on the Calendar and in compliance - only the nag clears.
+            if(_ackMissed(m, oc)) return;
+            _attn.push({m:m, occ:oc});
+          }
           else _ontrack.push({m:m, occ:oc});
         });
       });
@@ -33445,7 +33469,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-357';
+window.VSP_BUILD = 'v186-merge-358';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
@@ -34393,13 +34417,16 @@ function vspApplySnapshot(s){
         // otherwise drop a held stamp made on this device when another device's
         // copy (without it) wins - the same class of loss the pastMeetings union
         // already guards against.
-        var _preHL={};
-        (reg.scheduledMeetings||[]).forEach(function(mm){ if(mm&&mm.id!=null&&Array.isArray(mm.heldLog)&&mm.heldLog.length) _preHL[mm.id]=mm.heldLog.slice(); });
+        var _preOcc={};
+        (reg.scheduledMeetings||[]).forEach(function(mm){ if(mm&&mm.id!=null){ var rec={}; if(Array.isArray(mm.heldLog)&&mm.heldLog.length) rec.heldLog=mm.heldLog.slice(); if(Array.isArray(mm.missedAck)&&mm.missedAck.length) rec.missedAck=mm.missedAck.slice(); if(rec.heldLog||rec.missedAck) _preOcc[mm.id]=rec; } });
         mergeById(reg.scheduledMeetings||(reg.scheduledMeetings=[]), saved.scheduledMeetings, null);
         reg.scheduledMeetings.forEach(function(mm){
-          if(!mm||mm.id==null) return; var pre=_preHL[mm.id]; if(!pre) return;
-          var set={}; (mm.heldLog||[]).forEach(function(x){set[x]=1;}); pre.forEach(function(x){set[x]=1;});
-          mm.heldLog=Object.keys(set);
+          if(!mm||mm.id==null) return; var pre=_preOcc[mm.id]; if(!pre) return;
+          ['heldLog','missedAck'].forEach(function(fld){
+            if(!pre[fld]) return;
+            var set={}; (mm[fld]||[]).forEach(function(x){set[x]=1;}); pre[fld].forEach(function(x){set[x]=1;});
+            mm[fld]=Object.keys(set);
+          });
         });
       }
       if(Array.isArray(saved.pastMeetings)) mergeById(reg.pastMeetings||(reg.pastMeetings=[]), saved.pastMeetings, null);
@@ -36505,12 +36532,15 @@ try{ _vspMigrateJobNotes(); }catch(e){}
                   // remote copy wins wholesale, EXCEPT append-only heldLog stamps
                   // (merge-357): a held mark made on this device must survive an
                   // adopt whose copy lacks it, or manual Mark held vanishes on sync.
-                  if(_mf==='scheduledMeetings' && Array.isArray(_mm.heldLog) && _mm.heldLog.length){
+                  if(_mf==='scheduledMeetings'){
                     var _rc=_rById[_mm.id];
                     if(_rc){
-                      var _hs={}; (_rc.heldLog||[]).forEach(function(x){_hs[x]=1;}); _mm.heldLog.forEach(function(x){_hs[x]=1;});
-                      var _mg=Object.keys(_hs);
-                      if(_mg.length!==((_rc.heldLog||[]).length)){ _rc.heldLog=_mg; _mUnionAdded=true; }
+                      ['heldLog','missedAck'].forEach(function(_of){
+                        if(!(Array.isArray(_mm[_of]) && _mm[_of].length)) return;
+                        var _os={}; (_rc[_of]||[]).forEach(function(x){_os[x]=1;}); _mm[_of].forEach(function(x){_os[x]=1;});
+                        var _mg=Object.keys(_os);
+                        if(_mg.length!==((_rc[_of]||[]).length)){ _rc[_of]=_mg; _mUnionAdded=true; }
+                      });
                     }
                   }
                   return;                        // remote already carries it - its copy wins
