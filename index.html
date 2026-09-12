@@ -3772,7 +3772,7 @@ summary:focus-visible,
       </div>
     </div>
     <div class="tb-r">
-      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-362</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
+      <span title="Running build. If this does not match the latest ship, hard-refresh (Ctrl+Shift+R)." style="font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap">v186-merge-364</span> <span id="vsp-save-status" title="Your changes save automatically to this device" style="display:none;align-items:center;gap:5px;font-size:var(--fz-sm);color:var(--txm);margin-right:2px;white-space:nowrap"></span> <span id="vsp-storage-meter" onclick="_vspStorageMeterClick()" title="How full this device's storage is. Click for detail." style="display:none;align-items:center;gap:4px;font-size:var(--fz-xs);color:var(--txd);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;white-space:nowrap;cursor:pointer"></span> <button class="help-btn" id="help-btn" onclick="openTourMenu(event)" title="Help & Tours" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button> <button id="backup-btn" onclick="vspBackupData()" title="Back up all your data to a file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--txm);display:inline-flex;align-items:center;gap:5px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span style="font-size:var(--fz-sm)">Back up</span></button> <button id="restore-btn" onclick="vspRestoreData()" title="Restore data from a backup file" style="background:transparent;border:1px solid var(--brd);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--txm)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.36 2.64L3 8"/><path d="M3 3v5h5"/></svg></button> <div id="team-selector" style="position:relative"></div>
       <span class="badge" id="qtr-badge">Q2 2026</span>
       <!-- Global Create Button (VSP-specific feature, kept) -->
       <div style="position:relative" id="create-btn-wrap">
@@ -14530,6 +14530,18 @@ function renderScorecard(_gridPeriod, _onlyKeys){
   // the P&D-native huddle data. Existing team-metrics render is preserved
   // under the fourth scope 'metrics'. Default 'mine'. Unauthorized scopes
   // (Team without supervisor, Company without supervisor/hr) fall back to My.
+  // merge-364 (Dave, 2026-09-11): open on Team Measurables instead of an empty
+  // My Performance when the signed-in user has no personal scorecard (e.g. the
+  // President) and can see the team metrics - unless they have explicitly picked
+  // a tab this session (scScopeUserSet). Stops landing on a blank page.
+  try{
+    if(!state.scScopeUserSet && (state.scorecardScope||'mine')==='mine'){
+      var _meU=(typeof currentUser!=='undefined'&&currentUser)?currentUser:null;
+      var _hasMineStd=_meU && (_vspPerfStdFor(_meU)||[]).length>0;
+      var _canMeasD=(typeof _vspPerfAllowedScopes==='function') && _vspPerfAllowedScopes().some(function(s){return s[0]==='metrics';});
+      if(!_hasMineStd && _canMeasD){ state.scorecardScope='metrics'; }
+    }
+  }catch(e){}
   var _scope = state.scorecardScope || 'mine';
   // Visibility gate (merge-132): any scope beyond My Performance requires
   // access to the current team's scorecard. Members, supervisors of members,
@@ -15844,9 +15856,18 @@ function _vspPerfWeekScoreCompute(person, weekIso, std){
   var yes = 0, denom = 0, hardFailed = false, hasAny = false;
   weekly.forEach(function(row){
     var realAns = _vspPerfAnswer(person.id, weekIso, row.id);
+    // merge-363 (Dave, 2026-09-11): CU-fed rows (Client Updates: pm2/srpm2/vp2/cx2)
+    // are filled from the PM feed on the CARD, but their stored huddle answer can be
+    // blank. The score engine used to read only the blank stored answer and, after
+    // lock, hard-fail the person - so their personal card showed Yes/100% while the
+    // companywide rollup counted them 0. Take the CU feed value when the stored
+    // answer is blank so the score matches what the card shows.
+    if((realAns==null || String(realAns)==='') && typeof _vspPmCuWeekResult==='function' && person && person.initials){
+      try{ var _cu=_vspPmCuWeekResult(person.initials, weekIso, row.id); if(_cu && (_cu.value==='Yes'||_cu.value==='No')) realAns=(_cu.value==='Yes'?'yes':'no'); }catch(e){}
+    }
     if(realAns != null && String(realAns)!=='') hasAny = true;
     // merge-278: after lock, an unanswered scored row is a No (not skipped).
-    var ans = _vspPerfEffAnswer(person.id, weekIso, row.id, _vspRowAllowsNA(row.id));
+    var ans = (realAns!=null && String(realAns)!=='') ? realAns : _vspPerfEffAnswer(person.id, weekIso, row.id, _vspRowAllowsNA(row.id));
     // N/A excludes from numerator and denominator ONLY on rows that allow the
     // N/A state (aa rows). On any other row a stray 'na' counts in the
     // denominator as not-Yes instead of silently vanishing (Finding 1,
@@ -15982,7 +16003,7 @@ function _vspPerfScopeToggle(current){
   var h = '<div style="display:inline-flex;border:1.5px solid var(--brd2);border-radius:7px;overflow:hidden">';
   scopes.forEach(function(s){
     var on = current===s[0];
-    h += '<button onclick="state.scorecardScope=\''+s[0]+'\';renderPage()" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+s[1]+'</button>';
+    h += '<button onclick="state.scorecardScope=\''+s[0]+'\';state.scScopeUserSet=true;renderPage()" style="padding:6px 13px;border:none;background:'+(on?'var(--blu)':'var(--sur)')+';color:'+(on?'#fff':'var(--txm)')+';font-family:inherit;font-size:var(--fz-body);font-weight:'+(on?'600':'400')+';cursor:pointer">'+s[1]+'</button>';
   });
   h += '</div>';
   return h;
@@ -16679,7 +16700,17 @@ function _vspPerfRenderSections(people, editable, weeksOverride){
   });
   var h = '';
   if(!built.length){
-    h += '<div class="card"><div class="card-body" style="color:var(--txm)">No Weekly Performance standards are defined for '+(people.length===1?'this role':'these roles')+' yet. Seed them from a Weekly Performance Huddle or in P&D.</div></div>';
+    // merge-364 (Dave, 2026-09-11): correct wording per period (was always
+    // "Weekly" even on the Monthly tab) and, when this is My Performance and the
+    // person can see the team metrics, give a one-click path there instead of a
+    // dead-end empty page. The President has no personal scorecard, so landing
+    // here empty looked like the data had vanished.
+    var _emPer=(state.scorecardPeriod==='monthly')?'Monthly':'Weekly';
+    var _emMeas = (String(state.scorecardScope||'mine')==='mine') && (typeof _vspPerfAllowedScopes==='function') && _vspPerfAllowedScopes().some(function(s){return s[0]==='metrics';});
+    h += '<div class="card"><div class="card-body" style="color:var(--txm)">'
+      + 'No '+_emPer+' Performance standards are defined for '+(people.length===1?'this role':'these roles')+' yet. Seed them from a Performance Huddle or in P&D.'
+      + (_emMeas ? '<div style="margin-top:12px"><button type="button" class="btn btn-primary btn-sm" onclick="state.scorecardScope=\'metrics\';state.scScopeUserSet=true;renderPage()">View Team Measurables \u2192</button></div>' : '')
+      + '</div></div>';
     return h;
   }
   window._vspPerfScMap = map;
@@ -33585,7 +33616,7 @@ function renderTopbarV2(){
 // reload or browser restart on the same device keeps the meeting state.
 // Does NOT sync across devices. Cleared via vspClearLocalData() on console.
 var VSP_STORAGE_VERSION = 4;
-window.VSP_BUILD = 'v186-merge-362';
+window.VSP_BUILD = 'v186-merge-364';
 var SC_LAYOUT_TOKEN = "v3b44";
 
 // Date helper: today as YYYY-MM-DD (post-meeting feedback May 21 - dates standardized)
